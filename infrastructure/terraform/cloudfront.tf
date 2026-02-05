@@ -264,6 +264,39 @@ resource "aws_cloudfront_distribution" "public" {
 }
 
 # -----------------------------------------------------------------------------
+# CloudFront Response Headers Policy for CORS
+# -----------------------------------------------------------------------------
+
+resource "aws_cloudfront_response_headers_policy" "cors_api" {
+  name    = "${local.name_prefix}-cors-api-policy"
+  comment = "CORS policy for API distribution"
+
+  cors_config {
+    access_control_allow_credentials = true
+
+    access_control_allow_headers {
+      items = ["Authorization", "Content-Type", "Accept", "Accept-Language", "Origin", "X-Requested-With", "Cache-Control", "Pragma"]
+    }
+
+    access_control_allow_methods {
+      items = ["GET", "HEAD", "OPTIONS", "POST", "PUT", "PATCH", "DELETE"]
+    }
+
+    access_control_allow_origins {
+      items = ["https://${local.admin_domain}", "https://${local.public_domain}", "https://${local.api_domain}"]
+    }
+
+    access_control_expose_headers {
+      items = ["Content-Length", "Content-Type", "Authorization"]
+    }
+
+    access_control_max_age_sec = 86400
+
+    origin_override = false
+  }
+}
+
+# -----------------------------------------------------------------------------
 # CloudFront Distribution - API
 # -----------------------------------------------------------------------------
 
@@ -299,12 +332,14 @@ resource "aws_cloudfront_distribution" "api" {
 
     forwarded_values {
       query_string = true
-      headers      = ["Host", "Origin", "Authorization", "Accept", "Content-Type", "X-Requested-With"]
+      headers      = ["Host", "Origin", "Authorization", "Accept", "Content-Type", "X-Requested-With", "Access-Control-Request-Method", "Access-Control-Request-Headers"]
 
       cookies {
         forward = "all"
       }
     }
+
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.cors_api.id
 
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0

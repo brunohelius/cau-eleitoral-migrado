@@ -98,6 +98,31 @@ resource "aws_secretsmanager_secret_version" "rds_credentials" {
 }
 
 # -----------------------------------------------------------------------------
+# .NET Connection String Secret
+# -----------------------------------------------------------------------------
+
+resource "aws_secretsmanager_secret" "connection_string" {
+  name        = "${local.name_prefix}/db/connection-string"
+  description = ".NET connection string for ${local.name_prefix}"
+  kms_key_id  = aws_kms_key.secrets.arn
+
+  recovery_window_in_days = 30
+
+  tags = {
+    Name = "${local.name_prefix}-connection-string"
+  }
+}
+
+resource "aws_secretsmanager_secret_version" "connection_string" {
+  secret_id     = aws_secretsmanager_secret.connection_string.id
+  secret_string = "Host=${aws_db_instance.main.address};Port=${aws_db_instance.main.port};Database=${aws_db_instance.main.db_name};Username=${var.db_username};Password=${random_password.rds_password.result}"
+
+  lifecycle {
+    ignore_changes = [secret_string]
+  }
+}
+
+# -----------------------------------------------------------------------------
 # JWT Secret
 # -----------------------------------------------------------------------------
 
@@ -254,6 +279,8 @@ resource "aws_lambda_function" "rds_rotation" {
   tags = {
     Name = "${local.name_prefix}-rds-rotation"
   }
+
+  depends_on = [aws_iam_role_policy.secrets_rotation]
 }
 
 data "archive_file" "rotation_placeholder" {

@@ -185,42 +185,38 @@ resource "aws_ecs_task_definition" "api" {
 
       environment = [
         {
-          name  = "SPRING_PROFILES_ACTIVE"
-          value = var.environment
+          name  = "ASPNETCORE_ENVIRONMENT"
+          value = var.environment == "production" ? "Production" : "Development"
         },
         {
-          name  = "SERVER_PORT"
-          value = tostring(local.api_port)
+          name  = "ASPNETCORE_URLS"
+          value = "http://+:${local.api_port}"
         },
         {
-          name  = "SPRING_DATASOURCE_URL"
-          value = "jdbc:postgresql://${aws_db_instance.main.address}:${aws_db_instance.main.port}/${aws_db_instance.main.db_name}"
-        },
-        {
-          name  = "AWS_REGION"
+          name  = "AWS__Region"
           value = var.aws_region
         },
         {
-          name  = "S3_DOCUMENTS_BUCKET"
+          name  = "AWS__S3__DocumentsBucket"
           value = aws_s3_bucket.documents.id
         },
         {
-          name  = "S3_UPLOADS_BUCKET"
+          name  = "AWS__S3__UploadsBucket"
           value = aws_s3_bucket.uploads.id
+        },
+        {
+          name  = "Database__RunMigrationsOnStartup"
+          value = "true"
         }
       ]
 
       secrets = [
         {
-          name      = "SPRING_DATASOURCE_USERNAME"
-          valueFrom = "${aws_secretsmanager_secret.rds_credentials.arn}:username::"
+          name      = "ConnectionStrings__DefaultConnection"
+          valueFrom = aws_secretsmanager_secret.connection_string.arn
         },
         {
-          name      = "SPRING_DATASOURCE_PASSWORD"
-          valueFrom = "${aws_secretsmanager_secret.rds_credentials.arn}:password::"
-        },
-        {
-          name      = "JWT_SECRET"
+          name      = "Jwt__Secret"
           valueFrom = aws_secretsmanager_secret.jwt_secret.arn
         }
       ]
@@ -235,7 +231,7 @@ resource "aws_ecs_task_definition" "api" {
       }
 
       healthCheck = {
-        command     = ["CMD-SHELL", "curl -f http://localhost:${local.api_port}/actuator/health || exit 1"]
+        command     = ["CMD-SHELL", "curl -f http://localhost:${local.api_port}/health || exit 1"]
         interval    = 30
         timeout     = 5
         retries     = 3

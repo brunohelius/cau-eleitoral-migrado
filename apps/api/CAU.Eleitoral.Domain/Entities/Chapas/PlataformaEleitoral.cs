@@ -21,7 +21,10 @@ public class PlataformaEleitoral : BaseEntity
 
     public string? VideoUrl { get; set; }
     public string? ApresentacaoUrl { get; set; }
+    public string? ArquivoUrl { get; set; }
+    public string? ConteudoCompleto { get; set; }
 
     public DateTime DataPublicacao { get; set; }
+    public DateTime? DataAtualizacao { get; set; }
     public bool Publicada { get; set; }
 }

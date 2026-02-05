@@ -86,14 +86,25 @@ public class EleicaoController : BaseController
     }
 
     /// <summary>
-    /// Atualiza uma eleição
+    /// Atualiza uma eleicao existente
     /// </summary>
+    /// <remarks>
+    /// Regras de validacao:
+    /// - Eleicoes finalizadas ou canceladas nao podem ser editadas
+    /// - Eleicoes com votos registrados nao podem ter datas de inicio ou modo de votacao alterados
+    /// - As datas devem ser consistentes (fim maior que inicio)
+    /// </remarks>
     [HttpPut("{id:guid}")]
     [Authorize(Roles = "Admin,ComissaoEleitoral")]
     [ProducesResponseType(typeof(EleicaoDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateEleicaoDto dto, CancellationToken cancellationToken)
     {
+        if (dto == null)
+            return BadRequest(new { message = "Dados de atualizacao nao fornecidos" });
+
         try
         {
             var eleicao = await _eleicaoService.UpdateAsync(id, dto, cancellationToken);
@@ -101,18 +112,27 @@ public class EleicaoController : BaseController
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Erro ao atualizar eleição {EleicaoId}", id);
+            _logger.LogError(ex, "Erro ao atualizar eleicao {EleicaoId}", id);
             return HandleException(ex);
         }
     }
 
     /// <summary>
-    /// Exclui uma eleição
+    /// Exclui uma eleicao (soft delete)
     /// </summary>
+    /// <remarks>
+    /// Regras de validacao:
+    /// - Eleicoes em andamento ou em apuracao nao podem ser excluidas (cancele primeiro)
+    /// - Eleicoes em periodo de votacao nao podem ser excluidas
+    /// - Eleicoes com votos registrados nao podem ser excluidas (utilize cancelar)
+    /// - Chapas associadas serao soft-deleted automaticamente
+    /// </remarks>
     [HttpDelete("{id:guid}")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
         try
@@ -122,7 +142,7 @@ public class EleicaoController : BaseController
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Erro ao excluir eleição {EleicaoId}", id);
+            _logger.LogError(ex, "Erro ao excluir eleicao {EleicaoId}", id);
             return HandleException(ex);
         }
     }
@@ -188,7 +208,7 @@ public class EleicaoController : BaseController
     }
 
     /// <summary>
-    /// Cancela uma eleição
+    /// Cancela uma eleicao
     /// </summary>
     [HttpPost("{id:guid}/cancelar")]
     [Authorize(Roles = "Admin")]
@@ -202,9 +222,47 @@ public class EleicaoController : BaseController
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Erro ao cancelar eleição {EleicaoId}", id);
+            _logger.LogError(ex, "Erro ao cancelar eleicao {EleicaoId}", id);
             return HandleException(ex);
         }
+    }
+
+    /// <summary>
+    /// Verifica se uma eleicao pode ser excluida
+    /// </summary>
+    /// <remarks>
+    /// Retorna informacoes de validacao incluindo:
+    /// - Se a exclusao e permitida
+    /// - Mensagem de erro (se nao for permitida)
+    /// - Warnings (se houver consideracoes)
+    /// - Quantidade de votos e chapas associadas
+    /// </remarks>
+    [HttpGet("{id:guid}/can-delete")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(EleicaoValidationResult), StatusCodes.Status200OK)]
+    public async Task<IActionResult> CanDelete(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _eleicaoService.CanDeleteAsync(id, cancellationToken);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Verifica se uma eleicao pode ser editada
+    /// </summary>
+    /// <remarks>
+    /// Retorna informacoes de validacao incluindo:
+    /// - Se a edicao e permitida
+    /// - Mensagem de erro (se nao for permitida)
+    /// - Warnings sobre restricoes (ex: campos que nao podem ser alterados)
+    /// - Quantidade de votos e chapas associadas
+    /// </remarks>
+    [HttpGet("{id:guid}/can-edit")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral")]
+    [ProducesResponseType(typeof(EleicaoValidationResult), StatusCodes.Status200OK)]
+    public async Task<IActionResult> CanEdit(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _eleicaoService.CanEditAsync(id, cancellationToken);
+        return Ok(result);
     }
 }
 

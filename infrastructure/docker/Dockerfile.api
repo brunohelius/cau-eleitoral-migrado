@@ -1,30 +1,29 @@
-# Build stage
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+# Build stage - runs on native architecture
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG TARGETARCH
 WORKDIR /src
 
-# Copy solution and project files
-COPY CAU.Eleitoral.sln .
+# Copy project files
 COPY CAU.Eleitoral.Api/CAU.Eleitoral.Api.csproj CAU.Eleitoral.Api/
 COPY CAU.Eleitoral.Application/CAU.Eleitoral.Application.csproj CAU.Eleitoral.Application/
 COPY CAU.Eleitoral.Domain/CAU.Eleitoral.Domain.csproj CAU.Eleitoral.Domain/
 COPY CAU.Eleitoral.Infrastructure/CAU.Eleitoral.Infrastructure.csproj CAU.Eleitoral.Infrastructure/
 
-# Restore packages
-RUN dotnet restore
+# Restore packages for target architecture
+RUN dotnet restore CAU.Eleitoral.Api/CAU.Eleitoral.Api.csproj -a $TARGETARCH
 
 # Copy source code
 COPY . .
 
-# Build and publish
-RUN dotnet publish CAU.Eleitoral.Api/CAU.Eleitoral.Api.csproj -c Release -o /app/publish --no-restore
+# Build and publish for target architecture
+RUN dotnet publish CAU.Eleitoral.Api/CAU.Eleitoral.Api.csproj -c Release -o /app/publish -a $TARGETARCH
 
-# Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+# Runtime stage - runs on target architecture
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
-# Create non-root user
-RUN adduser --disabled-password --gecos '' appuser && chown -R appuser /app
-USER appuser
+# Use built-in app user
+USER app
 
 # Copy published app
 COPY --from=build /app/publish .

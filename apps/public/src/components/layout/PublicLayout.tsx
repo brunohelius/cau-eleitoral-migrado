@@ -141,6 +141,8 @@ export function PublicLayout() {
                 <li><Link to="/calendario" className="hover:text-white">Calendario</Link></li>
                 <li><Link to="/documentos" className="hover:text-white">Documentos</Link></li>
                 <li><Link to="/faq" className="hover:text-white">FAQ</Link></li>
+                <li><Link to="/denuncias/nova" className="hover:text-white">Registrar Denuncia</Link></li>
+                <li><Link to="/denuncias/consultar" className="hover:text-white">Consultar Protocolo</Link></li>
               </ul>
             </div>
 

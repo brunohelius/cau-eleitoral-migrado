@@ -1,14 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   denunciasService,
+  statusDenunciaLabels,
+  tipoDenunciaLabels,
+  prioridadeLabels as servicePrioridadeLabels,
   type Denuncia,
   type CreateDenunciaRequest,
   type UpdateDenunciaRequest,
   type EmitirParecerRequest,
   type DenunciaListParams,
-  type StatusDenuncia,
-  type TipoDenuncia,
-  type PrioridadeDenuncia,
+  StatusDenuncia,
+  TipoDenuncia,
+  PrioridadeDenuncia,
 } from '@/services/denuncias'
 import { useNotify } from '@/stores/notifications'
 import { useCurrentEleicao } from '@/stores/eleicao'
@@ -294,58 +297,16 @@ export function useGerarRelatorioDenuncias() {
   })
 }
 
-// Status/Type label helpers
+// Status/Type label helpers - Using imported labels from service
 export function useDenunciaLabels() {
-  const statusLabels: Record<StatusDenuncia, string> = {
-    0: 'Pendente',
-    1: 'Em Analise',
-    2: 'Procedente',
-    3: 'Improcedente',
-    4: 'Arquivada',
-  }
-
-  const statusColors: Record<StatusDenuncia, string> = {
-    0: 'yellow',
-    1: 'blue',
-    2: 'green',
-    3: 'red',
-    4: 'gray',
-  }
-
-  const tipoLabels: Record<TipoDenuncia, string> = {
-    0: 'Irregularidade',
-    1: 'Fraude',
-    2: 'Propaganda Irregular',
-    3: 'Abuso de Poder',
-    4: 'Coacao',
-    5: 'Falsidade',
-    99: 'Outro',
-  }
-
-  const prioridadeLabels: Record<PrioridadeDenuncia, string> = {
-    0: 'Baixa',
-    1: 'Normal',
-    2: 'Alta',
-    3: 'Urgente',
-  }
-
-  const prioridadeColors: Record<PrioridadeDenuncia, string> = {
-    0: 'gray',
-    1: 'blue',
-    2: 'orange',
-    3: 'red',
-  }
-
   return {
-    getStatusLabel: (status: StatusDenuncia) => statusLabels[status] || 'Desconhecido',
-    getStatusColor: (status: StatusDenuncia) => statusColors[status] || 'gray',
-    getTipoLabel: (tipo: TipoDenuncia) => tipoLabels[tipo] || 'Desconhecido',
-    getPrioridadeLabel: (prioridade: PrioridadeDenuncia) => prioridadeLabels[prioridade] || 'Desconhecido',
-    getPrioridadeColor: (prioridade: PrioridadeDenuncia) => prioridadeColors[prioridade] || 'gray',
-    statusLabels,
-    statusColors,
-    tipoLabels,
-    prioridadeLabels,
-    prioridadeColors,
+    getStatusLabel: (status: StatusDenuncia) => statusDenunciaLabels[status]?.label || 'Desconhecido',
+    getStatusColor: (status: StatusDenuncia) => statusDenunciaLabels[status]?.color || 'bg-gray-100 text-gray-800',
+    getTipoLabel: (tipo: TipoDenuncia) => tipoDenunciaLabels[tipo] || 'Desconhecido',
+    getPrioridadeLabel: (prioridade: PrioridadeDenuncia) => servicePrioridadeLabels[prioridade]?.label || 'Desconhecido',
+    getPrioridadeColor: (prioridade: PrioridadeDenuncia) => servicePrioridadeLabels[prioridade]?.color || 'bg-gray-100 text-gray-800',
+    statusLabels: statusDenunciaLabels,
+    tipoLabels: tipoDenunciaLabels,
+    prioridadeLabels: servicePrioridadeLabels,
   }
 }

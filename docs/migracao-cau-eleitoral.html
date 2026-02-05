@@ -1,0 +1,2004 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAU Sistema Eleitoral - Documentação de Migração</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --secondary: #8b5cf6;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --dark: #0f172a;
+      --dark-light: #1e293b;
+      --slate-600: #475569;
+      --slate-400: #94a3b8;
+      --slate-300: #cbd5e1;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, var(--dark) 0%, #1a1a2e 50%, var(--dark) 100%);
+      color: #fff;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 80px 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 100px;
+      padding: 8px 20px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      color: #60a5fa;
+    }
+
+    .hero h1 {
+      font-size: 56px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff 0%, #93c5fd 50%, #c4b5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 16px;
+    }
+
+    .hero .subtitle {
+      font-size: 24px;
+      color: var(--slate-300);
+      margin-bottom: 16px;
+    }
+
+    .tech-badges {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .tech-badge {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .tech-badge.react { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
+    .tech-badge.shadcn { background: linear-gradient(135deg, var(--secondary) 0%, #7c3aed 100%); }
+    .tech-badge.aws { background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%); }
+
+    .hero-description {
+      max-width: 800px;
+      margin: 0 auto;
+      color: var(--slate-400);
+      font-size: 16px;
+    }
+
+    /* Stats Grid */
+    .stats-section {
+      margin-top: -40px;
+      position: relative;
+      z-index: 10;
+      padding-bottom: 60px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .stat-card {
+      background: rgba(30, 41, 59, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(71, 85, 105, 0.5);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      font-size: 24px;
+    }
+
+    .stat-icon.blue { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); }
+    .stat-icon.green { background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%); }
+    .stat-icon.purple { background: linear-gradient(135deg, var(--secondary) 0%, #7c3aed 100%); }
+    .stat-icon.orange { background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%); }
+
+    .stat-value {
+      font-size: 36px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .stat-label {
+      color: var(--slate-400);
+      font-size: 14px;
+    }
+
+    /* Section Styles */
+    section {
+      padding: 80px 0;
+    }
+
+    section:nth-child(even) {
+      background: rgba(30, 41, 59, 0.3);
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .section-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 32px;
+    }
+
+    .section-header h2 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .section-header p {
+      color: var(--slate-400);
+      font-size: 16px;
+    }
+
+    /* Function Point Cards */
+    .fp-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    @media (max-width: 992px) {
+      .fp-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .fp-card {
+      background: rgba(30, 41, 59, 0.5);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(71, 85, 105, 0.3);
+    }
+
+    .fp-card.blue { border-color: rgba(59, 130, 246, 0.3); background: rgba(59, 130, 246, 0.05); }
+    .fp-card.green { border-color: rgba(34, 197, 94, 0.3); background: rgba(34, 197, 94, 0.05); }
+    .fp-card.purple { border-color: rgba(139, 92, 246, 0.3); background: rgba(139, 92, 246, 0.05); }
+    .fp-card.orange { border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.05); }
+    .fp-card.pink { border-color: rgba(236, 72, 153, 0.3); background: rgba(236, 72, 153, 0.05); }
+
+    .fp-card h3 {
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+
+    .fp-card h3.blue { color: #60a5fa; }
+    .fp-card h3.green { color: #4ade80; }
+    .fp-card h3.purple { color: #a78bfa; }
+    .fp-card h3.orange { color: #fbbf24; }
+    .fp-card h3.pink { color: #f472b6; }
+
+    .fp-card .description {
+      color: var(--slate-400);
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    .fp-items {
+      list-style: none;
+    }
+
+    .fp-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+    }
+
+    .fp-item:last-child {
+      border-bottom: none;
+    }
+
+    .fp-item-name {
+      font-size: 14px;
+      color: #fff;
+    }
+
+    .fp-item-detail {
+      font-size: 12px;
+      color: var(--slate-400);
+    }
+
+    .fp-item-points {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .fp-total {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(71, 85, 105, 0.5);
+      color: var(--slate-400);
+      font-size: 14px;
+    }
+
+    /* Total Card */
+    .total-card {
+      background: linear-gradient(135deg, var(--dark-light) 0%, var(--dark) 100%);
+      border-radius: 16px;
+      padding: 48px;
+      text-align: center;
+      border: 1px solid rgba(71, 85, 105, 0.5);
+    }
+
+    .total-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 40px;
+    }
+
+    .total-value {
+      font-size: 56px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .total-label {
+      color: var(--slate-400);
+      font-size: 18px;
+      margin-bottom: 32px;
+    }
+
+    .total-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .total-metric {
+      background: rgba(30, 41, 59, 0.5);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: left;
+    }
+
+    .total-metric-label {
+      color: var(--slate-400);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .total-metric-value {
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* Metrics Cards */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+
+    @media (max-width: 992px) {
+      .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .metrics-card {
+      background: rgba(30, 41, 59, 0.5);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(71, 85, 105, 0.3);
+    }
+
+    .metrics-card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      font-size: 24px;
+    }
+
+    .metrics-card h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+    }
+
+    .metric-label {
+      color: var(--slate-400);
+      font-size: 14px;
+    }
+
+    .metric-value {
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+
+    @media (max-width: 992px) {
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 576px) {
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .feature-card {
+      background: rgba(30, 41, 59, 0.5);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(71, 85, 105, 0.3);
+      transition: border-color 0.3s;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(71, 85, 105, 0.6);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      font-size: 24px;
+    }
+
+    .feature-card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .feature-list {
+      list-style: none;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--slate-400);
+      padding: 6px 0;
+    }
+
+    .feature-list li::before {
+      content: "✓";
+      color: var(--success);
+      font-weight: bold;
+    }
+
+    /* Tech Stack */
+    .tech-stack-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+
+    @media (max-width: 992px) {
+      .tech-stack-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .tech-stack-card {
+      background: rgba(30, 41, 59, 0.5);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(71, 85, 105, 0.3);
+    }
+
+    .tech-stack-card h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tech-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(71, 85, 105, 0.2);
+    }
+
+    .tech-item:last-child {
+      border-bottom: none;
+    }
+
+    .tech-name {
+      font-weight: 500;
+    }
+
+    .tech-desc {
+      color: var(--slate-400);
+      font-size: 13px;
+    }
+
+    .tech-version {
+      background: rgba(71, 85, 105, 0.5);
+      color: var(--slate-300);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    /* Entity Cards */
+    .entity-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    @media (max-width: 992px) {
+      .entity-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 576px) {
+      .entity-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .entity-card {
+      background: rgba(30, 41, 59, 0.5);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .entity-card.blue { border: 1px solid rgba(59, 130, 246, 0.3); }
+    .entity-card.purple { border: 1px solid rgba(139, 92, 246, 0.3); }
+    .entity-card.red { border: 1px solid rgba(239, 68, 68, 0.3); }
+    .entity-card.teal { border: 1px solid rgba(20, 184, 166, 0.3); }
+    .entity-card.orange { border: 1px solid rgba(245, 158, 11, 0.3); }
+    .entity-card.indigo { border: 1px solid rgba(99, 102, 241, 0.3); }
+    .entity-card.green { border: 1px solid rgba(34, 197, 94, 0.3); }
+
+    .entity-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .entity-name {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .entity-name.blue { color: #60a5fa; }
+    .entity-name.purple { color: #a78bfa; }
+    .entity-name.red { color: #f87171; }
+    .entity-name.teal { color: #2dd4bf; }
+    .entity-name.orange { color: #fbbf24; }
+    .entity-name.indigo { color: #818cf8; }
+    .entity-name.green { color: #4ade80; }
+
+    .entity-count {
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .entity-desc {
+      color: var(--slate-400);
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    .entity-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .entity-tag {
+      background: rgba(71, 85, 105, 0.3);
+      color: var(--slate-400);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 80px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 32px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 50%, var(--success) 100%);
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 32px;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -52px;
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border-radius: 50%;
+      border: 4px solid var(--dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .timeline-dot::after {
+      content: "✓";
+      color: #fff;
+      font-size: 10px;
+      font-weight: bold;
+    }
+
+    .timeline-content {
+      background: rgba(30, 41, 59, 0.5);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(71, 85, 105, 0.3);
+    }
+
+    .timeline-badge {
+      display: inline-block;
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .timeline-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .timeline-list {
+      list-style: none;
+    }
+
+    .timeline-list li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--slate-400);
+      font-size: 14px;
+      padding: 6px 0;
+    }
+
+    .timeline-list li::before {
+      content: "→";
+      color: var(--slate-600);
+    }
+
+    /* AWS Services */
+    .aws-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      background: rgba(30, 41, 59, 0.5);
+      border-radius: 16px;
+      padding: 32px;
+      border: 1px solid rgba(71, 85, 105, 0.3);
+    }
+
+    @media (max-width: 992px) {
+      .aws-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 576px) {
+      .aws-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .aws-service {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(71, 85, 105, 0.3);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .aws-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(245, 158, 11, 0.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .aws-name {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .aws-desc {
+      font-size: 11px;
+      color: var(--slate-400);
+    }
+
+    /* Production URLs */
+    .urls-section {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+      padding: 80px 0;
+    }
+
+    .urls-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .urls-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .url-card {
+      background: rgba(30, 41, 59, 0.8);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(71, 85, 105, 0.5);
+      transition: border-color 0.3s;
+    }
+
+    .url-card:hover {
+      border-color: rgba(59, 130, 246, 0.5);
+    }
+
+    .url-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .url-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(59, 130, 246, 0.2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .url-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .url-desc {
+      color: var(--slate-400);
+      font-size: 13px;
+    }
+
+    .url-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #60a5fa;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .url-link:hover {
+      color: #93c5fd;
+    }
+
+    /* Footer */
+    footer {
+      padding: 48px 0;
+      border-top: 1px solid rgba(71, 85, 105, 0.3);
+      text-align: center;
+    }
+
+    .footer-text {
+      color: var(--slate-400);
+      margin-bottom: 16px;
+    }
+
+    .footer-tags {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      color: var(--slate-600);
+      font-size: 14px;
+    }
+
+    .footer-copyright {
+      color: var(--slate-600);
+      font-size: 13px;
+      margin-top: 24px;
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: #fff;
+        color: #000;
+      }
+
+      .hero {
+        background: #f8fafc;
+        padding: 40px 0;
+      }
+
+      .hero h1 {
+        background: none;
+        -webkit-text-fill-color: #1e293b;
+      }
+
+      section:nth-child(even) {
+        background: #f8fafc;
+      }
+
+      .stat-card, .fp-card, .metrics-card, .feature-card,
+      .tech-stack-card, .entity-card, .timeline-content,
+      .aws-grid, .url-card, .total-card {
+        background: #fff;
+        border-color: #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      }
+
+      .stat-value, .metric-value, .total-value, .entity-count {
+        color: #1e293b;
+      }
+
+      .stat-label, .metric-label, .total-label, .description,
+      .fp-item-detail, .fp-total, .tech-desc, .entity-desc,
+      .timeline-list li, .aws-desc, .url-desc, .footer-text {
+        color: #64748b;
+      }
+
+      .fp-card h3, .entity-name {
+        color: #1e293b !important;
+      }
+
+      .feature-list li::before, .timeline-dot::after {
+        color: #22c55e;
+      }
+    }
+
+    /* Page Break for PDF */
+    .page-break {
+      page-break-after: always;
+    }
+  </style>
+</head>
+<body>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="badge">
+          ⚡ Migração Concluída
+        </div>
+
+        <h1>CAU Sistema Eleitoral</h1>
+
+        <p class="subtitle">Migração Completa de PHP/Java para</p>
+
+        <div class="tech-badges">
+          <span class="tech-badge">.NET 10</span>
+          <span class="tech-badge react">React 18</span>
+          <span class="tech-badge shadcn">shadcn/ui</span>
+          <span class="tech-badge aws">AWS</span>
+        </div>
+
+        <p class="hero-description">
+          Documentação completa da migração do sistema eleitoral do Conselho de Arquitetura
+          e Urbanismo, incluindo análise de pontos de função, métricas detalhadas e
+          todas as funcionalidades implementadas.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="stats-section">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue">🎯</div>
+          <div class="stat-value">847</div>
+          <div class="stat-label">Pontos de Função</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">📊</div>
+          <div class="stat-value">153</div>
+          <div class="stat-label">Entidades de Domínio</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">📄</div>
+          <div class="stat-value">58</div>
+          <div class="stat-label">Páginas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange">☁️</div>
+          <div class="stat-value">13</div>
+          <div class="stat-label">Serviços AWS</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Function Point Analysis -->
+  <section>
+    <div class="container">
+      <div class="section-header">
+        <div class="section-icon">📊</div>
+        <h2>Análise de Pontos de Função</h2>
+        <p>Metodologia IFPUG - Contagem Detalhada</p>
+      </div>
+
+      <div class="fp-grid">
+        <!-- ILF -->
+        <div class="fp-card blue">
+          <h3 class="blue">ILF - Arquivos Lógicos Internos</h3>
+          <p class="description">Entidades de domínio mantidas pelo sistema</p>
+          <ul class="fp-items">
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">Core (Eleições, Votos, Resultados)</div>
+                <div class="fp-item-detail">24 entidades</div>
+              </div>
+              <span class="fp-item-points" style="color: #60a5fa;">15 PF</span>
+            </li>
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">Chapas (Candidaturas)</div>
+                <div class="fp-item-detail">8 entidades</div>
+              </div>
+              <span class="fp-item-points" style="color: #60a5fa;">10 PF</span>
+            </li>
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">Denúncias (Reclamações)</div>
+                <div class="fp-item-detail">23 entidades</div>
+              </div>
+              <span class="fp-item-points" style="color: #60a5fa;">15 PF</span>
+            </li>
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">Documentos (Atas, Editais, etc)</div>
+                <div class="fp-item-detail">43 entidades</div>
+              </div>
+              <span class="fp-item-points" style="color: #60a5fa;">15 PF</span>
+            </li>
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">Impugnações (Contestações)</div>
+                <div class="fp-item-detail">13 entidades</div>
+              </div>
+              <span class="fp-item-points" style="color: #60a5fa;">15 PF</span>
+            </li>
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">Julgamentos (Processos)</div>
+                <div class="fp-item-detail">33 entidades</div>
+              </div>
+              <span class="fp-item-points" style="color: #60a5fa;">15 PF</span>
+            </li>
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">Usuários (Autenticação)</div>
+                <div class="fp-item-detail">9 entidades</div>
+              </div>
+              <span class="fp-item-points" style="color: #60a5fa;">10 PF</span>
+            </li>
+          </ul>
+          <p class="fp-total">153 entidades totais</p>
+        </div>
+
+        <!-- EIF -->
+        <div class="fp-card green">
+          <h3 class="green">EIF - Arquivos de Interface Externa</h3>
+          <p class="description">Integrações com sistemas externos</p>
+          <ul class="fp-items">
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">AWS S3 (Documentos)</div>
+                <div class="fp-item-detail">Integração</div>
+              </div>
+              <span class="fp-item-points" style="color: #4ade80;">7 PF</span>
+            </li>
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">AWS S3 (Uploads)</div>
+                <div class="fp-item-detail">Integração</div>
+              </div>
+              <span class="fp-item-points" style="color: #4ade80;">7 PF</span>
+            </li>
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">AWS Secrets Manager</div>
+                <div class="fp-item-detail">Integração</div>
+              </div>
+              <span class="fp-item-points" style="color: #4ade80;">5 PF</span>
+            </li>
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">SMTP (E-mail)</div>
+                <div class="fp-item-detail">Integração</div>
+              </div>
+              <span class="fp-item-points" style="color: #4ade80;">5 PF</span>
+            </li>
+          </ul>
+          <p class="fp-total">4 integrações externas</p>
+        </div>
+
+        <!-- EI -->
+        <div class="fp-card purple">
+          <h3 class="purple">EI - Entradas Externas</h3>
+          <p class="description">Operações de escrita/atualização</p>
+          <ul class="fp-items">
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">Auth (Login, Registro, Refresh)</div>
+                <div class="fp-item-detail">5 endpoints</div>
+              </div>
+              <span class="fp-item-points" style="color: #a78bfa;">20 PF</span>
+            </li>
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">Eleições (CRUD + Config)</div>
+                <div class="fp-item-detail">8 endpoints</div>
+              </div>
+              <span class="fp-item-points" style="color: #a78bfa;">48 PF</span>
+            </li>
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">Chapas (CRUD + Membros)</div>
+                <div class="fp-item-detail">12 endpoints</div>
+              </div>
+              <span class="fp-item-points" style="color: #a78bfa;">72 PF</span>
+            </li>
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">Votação (Registro de Votos)</div>
+                <div class="fp-item-detail">4 endpoints</div>
+              </div>
+              <span class="fp-item-points" style="color: #a78bfa;">24 PF</span>
+            </li>
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">Denúncias (CRUD + Análise)</div>
+                <div class="fp-item-detail">10 endpoints</div>
+              </div>
+              <span class="fp-item-points" style="color: #a78bfa;">60 PF</span>
+            </li>
+          </ul>
+          <p class="fp-total">73 endpoints de escrita</p>
+        </div>
+
+        <!-- EO -->
+        <div class="fp-card orange">
+          <h3 class="orange">EO - Saídas Externas</h3>
+          <p class="description">Relatórios e exportações</p>
+          <ul class="fp-items">
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">Relatórios de Votação</div>
+                <div class="fp-item-detail">5 relatórios</div>
+              </div>
+              <span class="fp-item-points" style="color: #fbbf24;">35 PF</span>
+            </li>
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">Relatórios de Apuração</div>
+                <div class="fp-item-detail">4 relatórios</div>
+              </div>
+              <span class="fp-item-points" style="color: #fbbf24;">28 PF</span>
+            </li>
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">Dashboard Analytics</div>
+                <div class="fp-item-detail">6 relatórios</div>
+              </div>
+              <span class="fp-item-points" style="color: #fbbf24;">42 PF</span>
+            </li>
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">Exportação de Dados</div>
+                <div class="fp-item-detail">3 relatórios</div>
+              </div>
+              <span class="fp-item-points" style="color: #fbbf24;">15 PF</span>
+            </li>
+          </ul>
+          <p class="fp-total">23 tipos de relatórios</p>
+        </div>
+
+        <!-- EQ -->
+        <div class="fp-card pink">
+          <h3 class="pink">EQ - Consultas Externas</h3>
+          <p class="description">Operações de leitura/busca</p>
+          <ul class="fp-items">
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">Listagens Paginadas</div>
+                <div class="fp-item-detail">20 queries</div>
+              </div>
+              <span class="fp-item-points" style="color: #f472b6;">60 PF</span>
+            </li>
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">Detalhes de Entidades</div>
+                <div class="fp-item-detail">15 queries</div>
+              </div>
+              <span class="fp-item-points" style="color: #f472b6;">45 PF</span>
+            </li>
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">Buscas Avançadas</div>
+                <div class="fp-item-detail">8 queries</div>
+              </div>
+              <span class="fp-item-points" style="color: #f472b6;">32 PF</span>
+            </li>
+            <li class="fp-item">
+              <div>
+                <div class="fp-item-name">Validações</div>
+                <div class="fp-item-detail">10 queries</div>
+              </div>
+              <span class="fp-item-points" style="color: #f472b6;">30 PF</span>
+            </li>
+          </ul>
+          <p class="fp-total">53 tipos de consultas</p>
+        </div>
+
+        <!-- Total -->
+        <div class="total-card">
+          <div class="total-icon">🏆</div>
+          <div class="total-value">847</div>
+          <div class="total-label">Pontos de Função Totais</div>
+          <div class="total-grid">
+            <div class="total-metric">
+              <div class="total-metric-label">Complexidade</div>
+              <div class="total-metric-value">Alta</div>
+            </div>
+            <div class="total-metric">
+              <div class="total-metric-label">Fator de Ajuste</div>
+              <div class="total-metric-value">1.15</div>
+            </div>
+            <div class="total-metric">
+              <div class="total-metric-label">PF Ajustados</div>
+              <div class="total-metric-value">974</div>
+            </div>
+            <div class="total-metric">
+              <div class="total-metric-label">Horas Estimadas</div>
+              <div class="total-metric-value">7,792h</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="page-break"></div>
+
+  <!-- System Metrics -->
+  <section>
+    <div class="container">
+      <div class="section-header">
+        <div class="section-icon">📈</div>
+        <h2>Métricas do Sistema</h2>
+        <p>Contagem Detalhada de Artefatos</p>
+      </div>
+
+      <div class="metrics-grid">
+        <!-- Backend -->
+        <div class="metrics-card">
+          <div class="metrics-card-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">🖥️</div>
+          <h3>Backend .NET</h3>
+          <div class="metric-row">
+            <span class="metric-label">Entidades</span>
+            <span class="metric-value">153</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Controllers</span>
+            <span class="metric-value">20</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Services</span>
+            <span class="metric-value">14</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">DTOs</span>
+            <span class="metric-value">84</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Enums</span>
+            <span class="metric-value">8</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Total Arquivos</span>
+            <span class="metric-value">222</span>
+          </div>
+        </div>
+
+        <!-- Admin Frontend -->
+        <div class="metrics-card">
+          <div class="metrics-card-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">📊</div>
+          <h3>Frontend Admin</h3>
+          <div class="metric-row">
+            <span class="metric-label">Páginas</span>
+            <span class="metric-value">32</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Componentes</span>
+            <span class="metric-value">45</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Services</span>
+            <span class="metric-value">13</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Hooks</span>
+            <span class="metric-value">6</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Stores</span>
+            <span class="metric-value">5</span>
+          </div>
+        </div>
+
+        <!-- Public Frontend -->
+        <div class="metrics-card">
+          <div class="metrics-card-icon" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);">🌐</div>
+          <h3>Frontend Public</h3>
+          <div class="metric-row">
+            <span class="metric-label">Páginas</span>
+            <span class="metric-value">26</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Componentes</span>
+            <span class="metric-value">28</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Services</span>
+            <span class="metric-value">6</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Stores</span>
+            <span class="metric-value">4</span>
+          </div>
+        </div>
+
+        <!-- Infrastructure -->
+        <div class="metrics-card">
+          <div class="metrics-card-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">☁️</div>
+          <h3>Infraestrutura</h3>
+          <div class="metric-row">
+            <span class="metric-label">Dockerfiles</span>
+            <span class="metric-value">4</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Terraform Files</span>
+            <span class="metric-value">15</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Serviços AWS</span>
+            <span class="metric-value">13</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Microservices</span>
+            <span class="metric-value">3</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Testes E2E</span>
+            <span class="metric-value">21</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Migrated Features -->
+  <section>
+    <div class="container">
+      <div class="section-header">
+        <div class="section-icon">🧩</div>
+        <h2>Funcionalidades Migradas</h2>
+        <p>Módulos e Features Implementados</p>
+      </div>
+
+      <div class="features-grid">
+        <!-- Gestão de Eleições -->
+        <div class="feature-card">
+          <div class="feature-icon" style="background: #3b82f6;">🗳️</div>
+          <h3>Gestão de Eleições</h3>
+          <ul class="feature-list">
+            <li>Criação e configuração de eleições</li>
+            <li>Calendário eleitoral dinâmico</li>
+            <li>Fases e etapas configuráveis</li>
+            <li>Parâmetros de votação</li>
+            <li>Circunscrições e regiões</li>
+            <li>Seções e mesas receptoras</li>
+          </ul>
+        </div>
+
+        <!-- Sistema de Votação -->
+        <div class="feature-card">
+          <div class="feature-icon" style="background: #22c55e;">✓</div>
+          <h3>Sistema de Votação</h3>
+          <ul class="feature-list">
+            <li>Votação online segura</li>
+            <li>Cédula digital interativa</li>
+            <li>Confirmação de voto</li>
+            <li>Comprovante digital</li>
+            <li>Urnas eletrônicas virtuais</li>
+            <li>Fiscais de eleição</li>
+          </ul>
+        </div>
+
+        <!-- Chapas e Candidaturas -->
+        <div class="feature-card">
+          <div class="feature-icon" style="background: #8b5cf6;">👥</div>
+          <h3>Chapas e Candidaturas</h3>
+          <ul class="feature-list">
+            <li>Registro de chapas</li>
+            <li>Gestão de membros</li>
+            <li>Plataformas eleitorais</li>
+            <li>Documentação de candidatura</li>
+            <li>Histórico de participações</li>
+            <li>Substituição de membros</li>
+          </ul>
+        </div>
+
+        <!-- Denúncias -->
+        <div class="feature-card">
+          <div class="feature-icon" style="background: #ef4444;">🛡️</div>
+          <h3>Denúncias</h3>
+          <ul class="feature-list">
+            <li>Registro de denúncias</li>
+            <li>Análise de admissibilidade</li>
+            <li>Defesa e contra-alegações</li>
+            <li>Recursos e pareceres</li>
+            <li>Julgamento integrado</li>
+            <li>Histórico completo</li>
+          </ul>
+        </div>
+
+        <!-- Impugnações -->
+        <div class="feature-card">
+          <div class="feature-icon" style="background: #f59e0b;">📋</div>
+          <h3>Impugnações</h3>
+          <ul class="feature-list">
+            <li>Impugnação de resultados</li>
+            <li>Pedidos de anulação</li>
+            <li>Alegações e provas</li>
+            <li>Recursos de decisão</li>
+            <li>Julgamento de recursos</li>
+            <li>Publicação de decisões</li>
+          </ul>
+        </div>
+
+        <!-- Julgamentos -->
+        <div class="feature-card">
+          <div class="feature-icon" style="background: #6366f1;">⚖️</div>
+          <h3>Julgamentos</h3>
+          <ul class="feature-list">
+            <li>Comissões julgadoras</li>
+            <li>Sessões de julgamento</li>
+            <li>Pautas e atas</li>
+            <li>Votos de relatores</li>
+            <li>Acórdãos e certidões</li>
+            <li>Publicação oficial</li>
+          </ul>
+        </div>
+
+        <!-- Documentos -->
+        <div class="feature-card">
+          <div class="feature-icon" style="background: #14b8a6;">📄</div>
+          <h3>Documentos</h3>
+          <ul class="feature-list">
+            <li>Editais e resoluções</li>
+            <li>Atas de reunião</li>
+            <li>Diplomas e certificados</li>
+            <li>Termos de posse</li>
+            <li>Assinatura digital</li>
+            <li>Templates personalizados</li>
+          </ul>
+        </div>
+
+        <!-- Relatórios -->
+        <div class="feature-card">
+          <div class="feature-icon" style="background: #ec4899;">📊</div>
+          <h3>Relatórios e Analytics</h3>
+          <ul class="feature-list">
+            <li>Dashboard executivo</li>
+            <li>Relatórios de votação</li>
+            <li>Estatísticas de participação</li>
+            <li>Gráficos de resultados</li>
+            <li>Exportação de dados</li>
+            <li>Auditoria completa</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="page-break"></div>
+
+  <!-- Tech Stack -->
+  <section>
+    <div class="container">
+      <div class="section-header">
+        <div class="section-icon">💻</div>
+        <h2>Stack Tecnológica</h2>
+        <p>Tecnologias Utilizadas na Migração</p>
+      </div>
+
+      <div class="tech-stack-grid">
+        <!-- Backend -->
+        <div class="tech-stack-card">
+          <h3>🖥️ Backend</h3>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">.NET 10</div>
+              <div class="tech-desc">Framework principal</div>
+            </div>
+            <span class="tech-version">v10.0</span>
+          </div>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">ASP.NET Core</div>
+              <div class="tech-desc">Web API</div>
+            </div>
+            <span class="tech-version">v10.0</span>
+          </div>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">Entity Framework Core</div>
+              <div class="tech-desc">ORM</div>
+            </div>
+            <span class="tech-version">v10.0.2</span>
+          </div>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">PostgreSQL</div>
+              <div class="tech-desc">Banco de dados</div>
+            </div>
+            <span class="tech-version">v15</span>
+          </div>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">JWT</div>
+              <div class="tech-desc">Autenticação</div>
+            </div>
+            <span class="tech-version">PBKDF2 100K</span>
+          </div>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">Serilog</div>
+              <div class="tech-desc">Logging</div>
+            </div>
+            <span class="tech-version">v3.x</span>
+          </div>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">Swagger/OpenAPI</div>
+              <div class="tech-desc">Documentação</div>
+            </div>
+            <span class="tech-version">v6.5</span>
+          </div>
+        </div>
+
+        <!-- Frontend -->
+        <div class="tech-stack-card">
+          <h3>⚛️ Frontend</h3>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">React</div>
+              <div class="tech-desc">UI Library</div>
+            </div>
+            <span class="tech-version">v18.3</span>
+          </div>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">TypeScript</div>
+              <div class="tech-desc">Tipagem</div>
+            </div>
+            <span class="tech-version">v5.6</span>
+          </div>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">Vite</div>
+              <div class="tech-desc">Build Tool</div>
+            </div>
+            <span class="tech-version">v5.4</span>
+          </div>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">shadcn/ui</div>
+              <div class="tech-desc">Componentes</div>
+            </div>
+            <span class="tech-version">latest</span>
+          </div>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">Tailwind CSS</div>
+              <div class="tech-desc">Estilos</div>
+            </div>
+            <span class="tech-version">v3.4</span>
+          </div>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">React Router</div>
+              <div class="tech-desc">Roteamento</div>
+            </div>
+            <span class="tech-version">v6.x</span>
+          </div>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">TanStack Query</div>
+              <div class="tech-desc">State/Cache</div>
+            </div>
+            <span class="tech-version">v5.x</span>
+          </div>
+        </div>
+
+        <!-- Infrastructure -->
+        <div class="tech-stack-card">
+          <h3>☁️ Infraestrutura</h3>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">AWS ECS Fargate</div>
+              <div class="tech-desc">Containers serverless</div>
+            </div>
+          </div>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">AWS RDS</div>
+              <div class="tech-desc">PostgreSQL gerenciado</div>
+            </div>
+          </div>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">AWS ALB</div>
+              <div class="tech-desc">Load Balancer</div>
+            </div>
+          </div>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">AWS CloudFront</div>
+              <div class="tech-desc">CDN</div>
+            </div>
+          </div>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">AWS S3</div>
+              <div class="tech-desc">Armazenamento</div>
+            </div>
+          </div>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">Terraform</div>
+              <div class="tech-desc">IaC</div>
+            </div>
+            <span class="tech-version">v1.5+</span>
+          </div>
+          <div class="tech-item">
+            <div>
+              <div class="tech-name">Docker</div>
+              <div class="tech-desc">Containers</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Entity Categories -->
+  <section>
+    <div class="container">
+      <div class="section-header">
+        <div class="section-icon">📊</div>
+        <h2>Entidades de Domínio</h2>
+        <p>153 Entidades Distribuídas em 7 Categorias</p>
+      </div>
+
+      <div class="entity-grid">
+        <div class="entity-card blue">
+          <div class="entity-header">
+            <span class="entity-name blue">Core</span>
+            <span class="entity-count">24</span>
+          </div>
+          <p class="entity-desc">Eleições, votos, resultados, calendário</p>
+          <div class="entity-tags">
+            <span class="entity-tag">Eleicao</span>
+            <span class="entity-tag">Calendario</span>
+            <span class="entity-tag">Voto</span>
+            <span class="entity-tag">ResultadoEleicao</span>
+            <span class="entity-tag">SecaoEleitoral</span>
+            <span class="entity-tag">UrnaEletronica</span>
+          </div>
+        </div>
+
+        <div class="entity-card purple">
+          <div class="entity-header">
+            <span class="entity-name purple">Chapas</span>
+            <span class="entity-count">8</span>
+          </div>
+          <p class="entity-desc">Candidaturas e composições</p>
+          <div class="entity-tags">
+            <span class="entity-tag">ChapaEleicao</span>
+            <span class="entity-tag">MembroChapa</span>
+            <span class="entity-tag">PlataformaEleitoral</span>
+            <span class="entity-tag">SubstituicaoMembroChapa</span>
+          </div>
+        </div>
+
+        <div class="entity-card red">
+          <div class="entity-header">
+            <span class="entity-name red">Denúncias</span>
+            <span class="entity-count">23</span>
+          </div>
+          <p class="entity-desc">Sistema completo de reclamações</p>
+          <div class="entity-tags">
+            <span class="entity-tag">Denuncia</span>
+            <span class="entity-tag">AnaliseDenuncia</span>
+            <span class="entity-tag">DefesaDenuncia</span>
+            <span class="entity-tag">RecursoDenuncia</span>
+            <span class="entity-tag">JulgamentoDenuncia</span>
+          </div>
+        </div>
+
+        <div class="entity-card teal">
+          <div class="entity-header">
+            <span class="entity-name teal">Documentos</span>
+            <span class="entity-count">43</span>
+          </div>
+          <p class="entity-desc">Gestão documental completa</p>
+          <div class="entity-tags">
+            <span class="entity-tag">Documento</span>
+            <span class="entity-tag">Edital</span>
+            <span class="entity-tag">Resolucao</span>
+            <span class="entity-tag">AtaReuniao</span>
+            <span class="entity-tag">Diploma</span>
+            <span class="entity-tag">TermoPosse</span>
+          </div>
+        </div>
+
+        <div class="entity-card orange">
+          <div class="entity-header">
+            <span class="entity-name orange">Impugnações</span>
+            <span class="entity-count">13</span>
+          </div>
+          <p class="entity-desc">Contestações de resultados</p>
+          <div class="entity-tags">
+            <span class="entity-tag">ImpugnacaoResultado</span>
+            <span class="entity-tag">PedidoImpugnacao</span>
+            <span class="entity-tag">DefesaImpugnacao</span>
+            <span class="entity-tag">RecursoImpugnacao</span>
+          </div>
+        </div>
+
+        <div class="entity-card indigo">
+          <div class="entity-header">
+            <span class="entity-name indigo">Julgamentos</span>
+            <span class="entity-count">33</span>
+          </div>
+          <p class="entity-desc">Processos e sessões judiciais</p>
+          <div class="entity-tags">
+            <span class="entity-tag">ComissaoJulgadora</span>
+            <span class="entity-tag">SessaoJulgamento</span>
+            <span class="entity-tag">VotoRelator</span>
+            <span class="entity-tag">AcordaoJulgamento</span>
+          </div>
+        </div>
+
+        <div class="entity-card green">
+          <div class="entity-header">
+            <span class="entity-name green">Usuários</span>
+            <span class="entity-count">9</span>
+          </div>
+          <p class="entity-desc">Autenticação e permissões</p>
+          <div class="entity-tags">
+            <span class="entity-tag">Usuario</span>
+            <span class="entity-tag">Profissional</span>
+            <span class="entity-tag">Conselheiro</span>
+            <span class="entity-tag">Role</span>
+            <span class="entity-tag">Permissao</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="page-break"></div>
+
+  <!-- Timeline -->
+  <section>
+    <div class="container">
+      <div class="section-header">
+        <div class="section-icon">📅</div>
+        <h2>Timeline de Migração</h2>
+        <p>Fases do Projeto</p>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <span class="timeline-badge">Concluído</span>
+            <h4 class="timeline-title">Análise e Planejamento</h4>
+            <ul class="timeline-list">
+              <li>Mapeamento do sistema legado PHP/Java</li>
+              <li>Análise de ~71 entidades originais</li>
+              <li>Definição da arquitetura Clean Architecture</li>
+              <li>Escolha do stack tecnológico</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <span class="timeline-badge">Concluído</span>
+            <h4 class="timeline-title">Desenvolvimento Backend</h4>
+            <ul class="timeline-list">
+              <li>Criação de 153 entidades de domínio</li>
+              <li>Implementação de 20 controllers</li>
+              <li>Desenvolvimento de 14 services</li>
+              <li>Configuração do Entity Framework Core</li>
+              <li>Sistema de autenticação JWT</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <span class="timeline-badge">Concluído</span>
+            <h4 class="timeline-title">Desenvolvimento Frontend</h4>
+            <ul class="timeline-list">
+              <li>Setup React 18 + Vite</li>
+              <li>Implementação shadcn/ui</li>
+              <li>32 páginas Admin Dashboard</li>
+              <li>26 páginas Portal Público</li>
+              <li>Portal do Eleitor e Candidato</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <span class="timeline-badge">Concluído</span>
+            <h4 class="timeline-title">Infraestrutura AWS</h4>
+            <ul class="timeline-list">
+              <li>Provisionamento com Terraform</li>
+              <li>ECS Fargate para containers</li>
+              <li>RDS PostgreSQL Multi-AZ</li>
+              <li>CloudFront + ALB</li>
+              <li>Pipeline CI/CD com CodeBuild</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <span class="timeline-badge">Concluído</span>
+            <h4 class="timeline-title">Testes e Deploy</h4>
+            <ul class="timeline-list">
+              <li>21 testes E2E com Playwright</li>
+              <li>Testes de segurança</li>
+              <li>Deploy em produção</li>
+              <li>Monitoramento CloudWatch</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AWS Architecture -->
+  <section>
+    <div class="container">
+      <div class="section-header">
+        <div class="section-icon">☁️</div>
+        <h2>Arquitetura AWS</h2>
+        <p>Infraestrutura de Produção</p>
+      </div>
+
+      <div class="aws-grid">
+        <div class="aws-service">
+          <div class="aws-icon">📦</div>
+          <div>
+            <div class="aws-name">ECS Fargate</div>
+            <div class="aws-desc">3 containers</div>
+          </div>
+        </div>
+        <div class="aws-service">
+          <div class="aws-icon">🗄️</div>
+          <div>
+            <div class="aws-name">RDS PostgreSQL</div>
+            <div class="aws-desc">Multi-AZ</div>
+          </div>
+        </div>
+        <div class="aws-service">
+          <div class="aws-icon">🌐</div>
+          <div>
+            <div class="aws-name">ALB</div>
+            <div class="aws-desc">Load Balancer</div>
+          </div>
+        </div>
+        <div class="aws-service">
+          <div class="aws-icon">⚡</div>
+          <div>
+            <div class="aws-name">CloudFront</div>
+            <div class="aws-desc">CDN Global</div>
+          </div>
+        </div>
+        <div class="aws-service">
+          <div class="aws-icon">💾</div>
+          <div>
+            <div class="aws-name">S3</div>
+            <div class="aws-desc">2 buckets</div>
+          </div>
+        </div>
+        <div class="aws-service">
+          <div class="aws-icon">🌍</div>
+          <div>
+            <div class="aws-name">Route53</div>
+            <div class="aws-desc">DNS</div>
+          </div>
+        </div>
+        <div class="aws-service">
+          <div class="aws-icon">🔒</div>
+          <div>
+            <div class="aws-name">ACM</div>
+            <div class="aws-desc">SSL/TLS</div>
+          </div>
+        </div>
+        <div class="aws-service">
+          <div class="aws-icon">🔐</div>
+          <div>
+            <div class="aws-name">Secrets Manager</div>
+            <div class="aws-desc">Segredos</div>
+          </div>
+        </div>
+        <div class="aws-service">
+          <div class="aws-icon">🔀</div>
+          <div>
+            <div class="aws-name">CodeBuild</div>
+            <div class="aws-desc">CI/CD</div>
+          </div>
+        </div>
+        <div class="aws-service">
+          <div class="aws-icon">📋</div>
+          <div>
+            <div class="aws-name">ECR</div>
+            <div class="aws-desc">Registry</div>
+          </div>
+        </div>
+        <div class="aws-service">
+          <div class="aws-icon">🏗️</div>
+          <div>
+            <div class="aws-name">VPC</div>
+            <div class="aws-desc">Rede</div>
+          </div>
+        </div>
+        <div class="aws-service">
+          <div class="aws-icon">👥</div>
+          <div>
+            <div class="aws-name">IAM</div>
+            <div class="aws-desc">Permissões</div>
+          </div>
+        </div>
+        <div class="aws-service">
+          <div class="aws-icon">📊</div>
+          <div>
+            <div class="aws-name">CloudWatch</div>
+            <div class="aws-desc">Monitoring</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Production URLs -->
+  <section class="urls-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Ambiente de Produção</h2>
+        <p>Sistema em operação na AWS</p>
+      </div>
+
+      <div class="urls-grid">
+        <div class="url-card">
+          <div class="url-header">
+            <div class="url-icon">🌐</div>
+            <div>
+              <div class="url-title">Portal Público</div>
+              <div class="url-desc">Área do eleitor e candidato</div>
+            </div>
+          </div>
+          <a href="https://cau-public.migrai.com.br" target="_blank" class="url-link">
+            🔗 cau-public.migrai.com.br →
+          </a>
+        </div>
+
+        <div class="url-card">
+          <div class="url-header">
+            <div class="url-icon">📊</div>
+            <div>
+              <div class="url-title">Admin Dashboard</div>
+              <div class="url-desc">Gestão administrativa</div>
+            </div>
+          </div>
+          <a href="https://cau-admin.migrai.com.br" target="_blank" class="url-link">
+            🔗 cau-admin.migrai.com.br →
+          </a>
+        </div>
+
+        <div class="url-card">
+          <div class="url-header">
+            <div class="url-icon">🖥️</div>
+            <div>
+              <div class="url-title">API REST</div>
+              <div class="url-desc">Backend .NET 10</div>
+            </div>
+          </div>
+          <a href="https://cau-api.migrai.com.br/swagger" target="_blank" class="url-link">
+            🔗 cau-api.migrai.com.br →
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p class="footer-text">
+        Migração realizada com tecnologias de ponta e melhores práticas de desenvolvimento
+      </p>
+      <div class="footer-tags">
+        <span>Clean Architecture</span>
+        <span>•</span>
+        <span>Domain-Driven Design</span>
+        <span>•</span>
+        <span>Infrastructure as Code</span>
+        <span>•</span>
+        <span>CI/CD Pipeline</span>
+      </div>
+      <p class="footer-copyright">
+        © 2024 CAU Sistema Eleitoral - Migração por MigrAI
+      </p>
+    </div>
+  </footer>
+</body>
+</html>

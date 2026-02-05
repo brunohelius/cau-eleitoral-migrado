@@ -1,0 +1,61 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_REGION: us-east-1
+    ECR_REGISTRY: 801232946361.dkr.ecr.us-east-1.amazonaws.com
+    ECS_CLUSTER: cau-eleitoral-cluster
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:-latest}
+      - echo "Building with tag $IMAGE_TAG"
+
+  build:
+    commands:
+      - echo Build started on `date`
+
+      # Build API
+      - echo Building API...
+      - docker build -t $ECR_REGISTRY/cau-eleitoral/api:$IMAGE_TAG -t $ECR_REGISTRY/cau-eleitoral/api:latest -f infrastructure/docker/Dockerfile.api apps/api
+
+      # Build Admin
+      - echo Building Admin...
+      - docker build -t $ECR_REGISTRY/cau-eleitoral/admin:$IMAGE_TAG -t $ECR_REGISTRY/cau-eleitoral/admin:latest -f infrastructure/docker/Dockerfile.admin apps/admin
+
+      # Build Public
+      - echo Building Public...
+      - docker build -t $ECR_REGISTRY/cau-eleitoral/public:$IMAGE_TAG -t $ECR_REGISTRY/cau-eleitoral/public:latest -f infrastructure/docker/Dockerfile.public apps/public
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+
+      # Push images
+      - echo Pushing images to ECR...
+      - docker push $ECR_REGISTRY/cau-eleitoral/api:$IMAGE_TAG
+      - docker push $ECR_REGISTRY/cau-eleitoral/api:latest
+      - docker push $ECR_REGISTRY/cau-eleitoral/admin:$IMAGE_TAG
+      - docker push $ECR_REGISTRY/cau-eleitoral/admin:latest
+      - docker push $ECR_REGISTRY/cau-eleitoral/public:$IMAGE_TAG
+      - docker push $ECR_REGISTRY/cau-eleitoral/public:latest
+
+      # Update ECS services
+      - echo Updating ECS services...
+      - aws ecs update-service --cluster $ECS_CLUSTER --service cau-eleitoral-api --force-new-deployment --region $AWS_REGION
+      - aws ecs update-service --cluster $ECS_CLUSTER --service cau-eleitoral-admin --force-new-deployment --region $AWS_REGION
+      - aws ecs update-service --cluster $ECS_CLUSTER --service cau-eleitoral-public --force-new-deployment --region $AWS_REGION
+
+      - echo Deploy completed successfully!
+
+artifacts:
+  files:
+    - imagedefinitions.json
+
+cache:
+  paths:
+    - '/root/.cache/**/*'

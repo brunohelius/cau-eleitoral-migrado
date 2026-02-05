@@ -4,28 +4,51 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { ArrowLeft, Loader2, Save, User, Shield, Eye, EyeOff } from 'lucide-react'
+import {
+  ArrowLeft,
+  Loader2,
+  Save,
+  User,
+  Shield,
+  Eye,
+  EyeOff,
+  Mail,
+  Phone,
+  Building,
+  Key,
+  CheckCircle,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
-import api from '@/services/api'
+import {
+  usuariosService,
+  Usuario,
+  TipoUsuario,
+  Role,
+  CreateUsuarioRequest,
+  UpdateUsuarioRequest,
+} from '@/services/usuarios'
 
+// Validation schema
 const usuarioSchema = z.object({
   nome: z.string().min(3, 'Nome deve ter no minimo 3 caracteres'),
+  nomeCompleto: z.string().optional(),
   email: z.string().email('Email invalido'),
-  cpf: z.string().min(11, 'CPF invalido'),
+  cpf: z.string().min(11, 'CPF invalido').max(14, 'CPF invalido'),
   telefone: z.string().optional(),
-  cargo: z.string().optional(),
-  departamento: z.string().optional(),
-  perfil: z.string().min(1, 'Selecione um perfil'),
-  senha: z.string().min(6, 'Senha deve ter no minimo 6 caracteres').optional(),
+  registroCAU: z.string().optional(),
+  tipo: z.nativeEnum(TipoUsuario),
+  regionalId: z.string().optional(),
+  roles: z.array(z.string()).min(1, 'Selecione pelo menos um perfil'),
+  password: z.string().min(6, 'Senha deve ter no minimo 6 caracteres').optional(),
   confirmarSenha: z.string().optional(),
-  ativo: z.boolean().default(true),
+  enviarEmailBoasVindas: z.boolean().default(true),
 }).refine((data) => {
-  if (data.senha && data.confirmarSenha) {
-    return data.senha === data.confirmarSenha
+  if (data.password && data.confirmarSenha) {
+    return data.password === data.confirmarSenha
   }
   return true
 }, {
@@ -35,25 +58,42 @@ const usuarioSchema = z.object({
 
 type UsuarioFormData = z.infer<typeof usuarioSchema>
 
-interface Usuario {
-  id: string
-  nome: string
-  email: string
-  cpf: string
-  telefone?: string
-  cargo?: string
-  departamento?: string
-  perfil: string
-  ativo: boolean
+// Tipo de usuario options
+const tiposUsuario = [
+  { value: TipoUsuario.ADMINISTRADOR, label: 'Administrador', descricao: 'Acesso total ao sistema' },
+  { value: TipoUsuario.COMISSAO, label: 'Comissao Eleitoral', descricao: 'Gerencia eleicoes e julgamentos' },
+  { value: TipoUsuario.FISCAL, label: 'Fiscal', descricao: 'Acompanha o processo eleitoral' },
+  { value: TipoUsuario.ANALISTA, label: 'Analista', descricao: 'Analisa dados e gera relatorios' },
+  { value: TipoUsuario.AUDITOR, label: 'Auditor', descricao: 'Acesso aos logs e auditoria' },
+  { value: TipoUsuario.OPERADOR, label: 'Operador', descricao: 'Operacoes basicas do sistema' },
+]
+
+// Mock roles for development
+const mockRoles: Role[] = [
+  { id: '1', nome: 'Administrador', codigo: 'admin', descricao: 'Acesso total ao sistema' },
+  { id: '2', nome: 'Comissao Eleitoral', codigo: 'comissao', descricao: 'Gerencia eleicoes' },
+  { id: '3', nome: 'Fiscal', codigo: 'fiscal', descricao: 'Fiscaliza o processo' },
+  { id: '4', nome: 'Auditor', codigo: 'auditor', descricao: 'Auditoria e relatorios' },
+  { id: '5', nome: 'Operador', codigo: 'operador', descricao: 'Operacoes basicas' },
+]
+
+// Format CPF for display
+const formatCPF = (value: string) => {
+  const cleaned = value.replace(/\D/g, '')
+  if (cleaned.length <= 3) return cleaned
+  if (cleaned.length <= 6) return `${cleaned.slice(0, 3)}.${cleaned.slice(3)}`
+  if (cleaned.length <= 9) return `${cleaned.slice(0, 3)}.${cleaned.slice(3, 6)}.${cleaned.slice(6)}`
+  return `${cleaned.slice(0, 3)}.${cleaned.slice(3, 6)}.${cleaned.slice(6, 9)}-${cleaned.slice(9, 11)}`
 }
 
-const perfis = [
-  { value: 'admin', label: 'Administrador', descricao: 'Acesso total ao sistema' },
-  { value: 'comissao', label: 'Comissao Eleitoral', descricao: 'Gerencia eleicoes e julgamentos' },
-  { value: 'fiscal', label: 'Fiscal', descricao: 'Acompanha o processo eleitoral' },
-  { value: 'operador', label: 'Operador', descricao: 'Operacoes basicas do sistema' },
-  { value: 'auditor', label: 'Auditor', descricao: 'Acesso aos logs e relatorios' },
-]
+// Format phone for display
+const formatPhone = (value: string) => {
+  const cleaned = value.replace(/\D/g, '')
+  if (cleaned.length <= 2) return cleaned
+  if (cleaned.length <= 6) return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`
+  if (cleaned.length <= 10) return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`
+  return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`
+}
 
 export function UsuarioFormPage() {
   const { id } = useParams<{ id: string }>()
@@ -63,12 +103,16 @@ export function UsuarioFormPage() {
   const isEditing = !!id
   const [showPassword, setShowPassword] = useState(false)
 
+  // Fetch roles
+  const { data: roles = mockRoles } = useQuery({
+    queryKey: ['roles'],
+    queryFn: () => usuariosService.getRoles(),
+  })
+
+  // Fetch user for editing
   const { data: usuario, isLoading: isLoadingUsuario } = useQuery({
     queryKey: ['usuario', id],
-    queryFn: async () => {
-      const response = await api.get<Usuario>(`/usuario/${id}`)
-      return response.data
-    },
+    queryFn: () => usuariosService.getById(id!),
     enabled: isEditing,
   })
 
@@ -77,35 +121,66 @@ export function UsuarioFormPage() {
     handleSubmit,
     reset,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<UsuarioFormData>({
     resolver: zodResolver(usuarioSchema),
     defaultValues: {
-      perfil: 'operador',
-      ativo: true,
+      tipo: TipoUsuario.OPERADOR,
+      roles: [],
+      enviarEmailBoasVindas: true,
     },
   })
 
+  // Watch for form values
+  const selectedTipo = watch('tipo')
+  const selectedRoles = watch('roles')
+  const cpfValue = watch('cpf')
+  const telefoneValue = watch('telefone')
+
+  // Populate form when editing
   useEffect(() => {
     if (usuario) {
       reset({
         nome: usuario.nome,
+        nomeCompleto: usuario.nomeCompleto || '',
         email: usuario.email,
-        cpf: usuario.cpf,
+        cpf: usuario.cpf || '',
         telefone: usuario.telefone || '',
-        cargo: usuario.cargo || '',
-        departamento: usuario.departamento || '',
-        perfil: usuario.perfil,
-        ativo: usuario.ativo,
+        registroCAU: usuario.registroCAU || '',
+        tipo: usuario.tipo,
+        regionalId: usuario.regionalId || '',
+        roles: usuario.roles.map((r) => r.id),
+        enviarEmailBoasVindas: false,
       })
     }
   }, [usuario, reset])
 
+  // Handle CPF formatting
+  const handleCPFChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCPF(e.target.value)
+    setValue('cpf', formatted)
+  }
+
+  // Handle phone formatting
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhone(e.target.value)
+    setValue('telefone', formatted)
+  }
+
+  // Handle role toggle
+  const handleRoleToggle = (roleId: string) => {
+    const current = selectedRoles || []
+    if (current.includes(roleId)) {
+      setValue('roles', current.filter((r) => r !== roleId))
+    } else {
+      setValue('roles', [...current, roleId])
+    }
+  }
+
+  // Create mutation
   const createMutation = useMutation({
-    mutationFn: async (data: UsuarioFormData) => {
-      const response = await api.post<Usuario>('/usuario', data)
-      return response.data
-    },
+    mutationFn: (data: CreateUsuarioRequest) => usuariosService.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['usuarios'] })
       toast({
@@ -123,11 +198,9 @@ export function UsuarioFormPage() {
     },
   })
 
+  // Update mutation
   const updateMutation = useMutation({
-    mutationFn: async (data: Partial<UsuarioFormData>) => {
-      const response = await api.put<Usuario>(`/usuario/${id}`, data)
-      return response.data
-    },
+    mutationFn: (data: UpdateUsuarioRequest) => usuariosService.update(id!, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['usuarios'] })
       queryClient.invalidateQueries({ queryKey: ['usuario', id] })
@@ -146,23 +219,49 @@ export function UsuarioFormPage() {
     },
   })
 
-  const onSubmit = (data: UsuarioFormData) => {
+  // Update roles mutation
+  const updateRolesMutation = useMutation({
+    mutationFn: (roleIds: string[]) => usuariosService.atribuirRoles(id!, roleIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['usuario', id] })
+    },
+  })
+
+  const onSubmit = async (data: UsuarioFormData) => {
     // Remove confirmarSenha before sending
     const { confirmarSenha, ...submitData } = data
-    // Remove senha if empty (for editing)
-    if (!submitData.senha) {
-      delete submitData.senha
+
+    // Clean CPF and phone
+    const cleanedData = {
+      ...submitData,
+      cpf: submitData.cpf?.replace(/\D/g, ''),
+      telefone: submitData.telefone?.replace(/\D/g, ''),
     }
 
     if (isEditing) {
-      updateMutation.mutate(submitData)
+      // Update user data
+      const { roles: roleIds, password, enviarEmailBoasVindas, ...updateData } = cleanedData
+      await updateMutation.mutateAsync(updateData)
+
+      // Update roles if changed
+      if (roleIds && roleIds.length > 0) {
+        await updateRolesMutation.mutateAsync(roleIds)
+      }
     } else {
-      createMutation.mutate(submitData as UsuarioFormData)
+      // Create new user
+      if (!cleanedData.password) {
+        toast({
+          variant: 'destructive',
+          title: 'Senha obrigatoria',
+          description: 'Informe uma senha para o novo usuario.',
+        })
+        return
+      }
+      createMutation.mutate(cleanedData as CreateUsuarioRequest)
     }
   }
 
   const isSubmitting = createMutation.isPending || updateMutation.isPending
-  const selectedPerfil = watch('perfil')
 
   if (isEditing && isLoadingUsuario) {
     return (
@@ -174,6 +273,7 @@ export function UsuarioFormPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center gap-4">
         <Link to="/usuarios">
           <Button variant="ghost" size="icon">
@@ -192,6 +292,7 @@ export function UsuarioFormPage() {
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-6">
+          {/* Dados Pessoais */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -203,7 +304,7 @@ export function UsuarioFormPage() {
             <CardContent className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="nome">Nome Completo *</Label>
+                  <Label htmlFor="nome">Nome *</Label>
                   <Input
                     id="nome"
                     placeholder="Nome do usuario"
@@ -214,18 +315,51 @@ export function UsuarioFormPage() {
                   )}
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="nomeCompleto">Nome Completo</Label>
+                  <Input
+                    id="nomeCompleto"
+                    placeholder="Nome completo"
+                    {...register('nomeCompleto')}
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
                   <Label htmlFor="cpf">CPF *</Label>
                   <Input
                     id="cpf"
                     placeholder="000.000.000-00"
-                    {...register('cpf')}
+                    value={cpfValue || ''}
+                    onChange={handleCPFChange}
+                    maxLength={14}
                   />
                   {errors.cpf && (
                     <p className="text-sm text-red-500">{errors.cpf.message}</p>
                   )}
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="registroCAU">Registro CAU</Label>
+                  <Input
+                    id="registroCAU"
+                    placeholder="A000000-UF"
+                    {...register('registroCAU')}
+                  />
+                </div>
               </div>
+            </CardContent>
+          </Card>
 
+          {/* Contato */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Mail className="h-5 w-5" />
+                Contato
+              </CardTitle>
+              <CardDescription>Informacoes de contato do usuario</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email *</Label>
@@ -244,86 +378,107 @@ export function UsuarioFormPage() {
                   <Input
                     id="telefone"
                     placeholder="(00) 00000-0000"
-                    {...register('telefone')}
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="cargo">Cargo</Label>
-                  <Input
-                    id="cargo"
-                    placeholder="Ex: Coordenador"
-                    {...register('cargo')}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="departamento">Departamento</Label>
-                  <Input
-                    id="departamento"
-                    placeholder="Ex: TI"
-                    {...register('departamento')}
+                    value={telefoneValue || ''}
+                    onChange={handlePhoneChange}
+                    maxLength={15}
                   />
                 </div>
               </div>
             </CardContent>
           </Card>
 
+          {/* Tipo de Usuario */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                Perfil de Acesso
+                <Building className="h-5 w-5" />
+                Tipo de Usuario
               </CardTitle>
-              <CardDescription>Define as permissoes do usuario no sistema</CardDescription>
+              <CardDescription>Define a categoria do usuario no sistema</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-3">
-                {perfis.map((perfil) => (
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {tiposUsuario.map((tipo) => (
                   <label
-                    key={perfil.value}
-                    className={`flex items-center gap-4 rounded-lg border p-4 cursor-pointer transition-colors ${
-                      selectedPerfil === perfil.value
+                    key={tipo.value}
+                    className={`flex items-start gap-3 rounded-lg border p-4 cursor-pointer transition-colors ${
+                      selectedTipo === tipo.value
                         ? 'border-blue-500 bg-blue-50'
                         : 'hover:bg-gray-50'
                     }`}
                   >
                     <input
                       type="radio"
-                      value={perfil.value}
-                      {...register('perfil')}
-                      className="sr-only"
+                      value={tipo.value}
+                      {...register('tipo', { valueAsNumber: true })}
+                      className="mt-1"
                     />
-                    <div
-                      className={`h-4 w-4 rounded-full border-2 ${
-                        selectedPerfil === perfil.value
-                          ? 'border-blue-500 bg-blue-500'
-                          : 'border-gray-300'
-                      }`}
-                    >
-                      {selectedPerfil === perfil.value && (
-                        <div className="h-full w-full flex items-center justify-center">
-                          <div className="h-1.5 w-1.5 rounded-full bg-white" />
-                        </div>
-                      )}
-                    </div>
                     <div className="flex-1">
-                      <p className="font-medium">{perfil.label}</p>
-                      <p className="text-sm text-gray-500">{perfil.descricao}</p>
+                      <p className="font-medium">{tipo.label}</p>
+                      <p className="text-sm text-gray-500">{tipo.descricao}</p>
                     </div>
                   </label>
                 ))}
               </div>
-              {errors.perfil && (
-                <p className="text-sm text-red-500">{errors.perfil.message}</p>
+              {errors.tipo && (
+                <p className="text-sm text-red-500">{errors.tipo.message}</p>
               )}
             </CardContent>
           </Card>
 
+          {/* Perfis de Acesso (Roles) */}
           <Card>
             <CardHeader>
-              <CardTitle>Credenciais</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                Perfis de Acesso
+              </CardTitle>
+              <CardDescription>Selecione os perfis que definem as permissoes do usuario</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                {roles.map((role) => (
+                  <label
+                    key={role.id}
+                    className={`flex items-center gap-4 rounded-lg border p-4 cursor-pointer transition-colors ${
+                      selectedRoles?.includes(role.id)
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedRoles?.includes(role.id) || false}
+                      onChange={() => handleRoleToggle(role.id)}
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium">{role.nome}</p>
+                        {selectedRoles?.includes(role.id) && (
+                          <CheckCircle className="h-4 w-4 text-blue-500" />
+                        )}
+                      </div>
+                      {role.descricao && (
+                        <p className="text-sm text-gray-500">{role.descricao}</p>
+                      )}
+                    </div>
+                  </label>
+                ))}
+              </div>
+              {errors.roles && (
+                <p className="text-sm text-red-500">{errors.roles.message}</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Credenciais */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Key className="h-5 w-5" />
+                Credenciais
+              </CardTitle>
               <CardDescription>
                 {isEditing
                   ? 'Deixe em branco para manter a senha atual'
@@ -333,15 +488,15 @@ export function UsuarioFormPage() {
             <CardContent className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="senha">
+                  <Label htmlFor="password">
                     Senha {!isEditing && '*'}
                   </Label>
                   <div className="relative">
                     <Input
-                      id="senha"
+                      id="password"
                       type={showPassword ? 'text' : 'password'}
                       placeholder="******"
-                      {...register('senha')}
+                      {...register('password')}
                     />
                     <Button
                       type="button"
@@ -357,8 +512,8 @@ export function UsuarioFormPage() {
                       )}
                     </Button>
                   </div>
-                  {errors.senha && (
-                    <p className="text-sm text-red-500">{errors.senha.message}</p>
+                  {errors.password && (
+                    <p className="text-sm text-red-500">{errors.password.message}</p>
                   )}
                 </div>
                 <div className="space-y-2">
@@ -375,20 +530,23 @@ export function UsuarioFormPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 pt-2">
-                <input
-                  type="checkbox"
-                  id="ativo"
-                  {...register('ativo')}
-                  className="h-4 w-4 rounded border-gray-300"
-                />
-                <Label htmlFor="ativo" className="font-normal">
-                  Usuario ativo (pode acessar o sistema)
-                </Label>
-              </div>
+              {!isEditing && (
+                <div className="flex items-center gap-2 pt-2">
+                  <input
+                    type="checkbox"
+                    id="enviarEmailBoasVindas"
+                    {...register('enviarEmailBoasVindas')}
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                  <Label htmlFor="enviarEmailBoasVindas" className="font-normal">
+                    Enviar email de boas-vindas com as credenciais de acesso
+                  </Label>
+                </div>
+              )}
             </CardContent>
           </Card>
 
+          {/* Submit Buttons */}
           <div className="flex justify-end gap-4">
             <Link to="/usuarios">
               <Button type="button" variant="outline">

@@ -393,17 +393,9 @@ resource "aws_security_group" "ecs_tasks" {
   }
 
   ingress {
-    description     = "Admin port from ALB"
-    from_port       = local.admin_port
-    to_port         = local.admin_port
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
-  }
-
-  ingress {
-    description     = "Public port from ALB"
-    from_port       = local.public_port
-    to_port         = local.public_port
+    description     = "HTTP port from ALB (Admin/Public)"
+    from_port       = 80
+    to_port         = 80
     protocol        = "tcp"
     security_groups = [aws_security_group.alb.id]
   }

@@ -24,7 +24,9 @@ public class DocumentoChapa : BaseEntity
     public DateTime DataEnvio { get; set; }
     public DateTime? DataAnalise { get; set; }
     public string? AnalisadoPor { get; set; }
+    public Guid? AnalistaId { get; set; }
     public string? MotivoRejeicao { get; set; }
+    public string? ParecerAnalise { get; set; }
 
     public bool Obrigatorio { get; set; }
     public int Ordem { get; set; }

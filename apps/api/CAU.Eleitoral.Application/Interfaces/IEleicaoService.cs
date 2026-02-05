@@ -15,4 +15,14 @@ public interface IEleicaoService
     Task<EleicaoDto> EncerrarAsync(Guid id, CancellationToken cancellationToken = default);
     Task<EleicaoDto> SuspenderAsync(Guid id, string motivo, CancellationToken cancellationToken = default);
     Task<EleicaoDto> CancelarAsync(Guid id, string motivo, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Checks if an election can be deleted and returns validation info
+    /// </summary>
+    Task<EleicaoValidationResult> CanDeleteAsync(Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Checks if an election can be edited and returns validation info
+    /// </summary>
+    Task<EleicaoValidationResult> CanEditAsync(Guid id, CancellationToken cancellationToken = default);
 }

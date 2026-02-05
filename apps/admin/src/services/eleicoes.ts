@@ -44,11 +44,15 @@ export interface CreateEleicaoRequest {
 export interface UpdateEleicaoRequest {
   nome?: string
   descricao?: string
+  tipo?: number
+  ano?: number
+  mandato?: number
   dataInicio?: string
   dataFim?: string
   dataVotacaoInicio?: string
   dataVotacaoFim?: string
   dataApuracao?: string
+  regionalId?: string
   modoVotacao?: number
   quantidadeVagas?: number
   quantidadeSuplentes?: number

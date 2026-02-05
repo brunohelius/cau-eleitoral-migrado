@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CAU.Eleitoral.Application.Interfaces;
 using CAU.Eleitoral.Application.DTOs;
+using CAU.Eleitoral.Application.DTOs.Chapas;
 
 namespace CAU.Eleitoral.Api.Controllers;
 
@@ -131,7 +132,7 @@ public class MembroChapaController : BaseController
     [ProducesResponseType(typeof(MembroChapaDetalheDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<MembroChapaDetalheDto>> Update(Guid id, [FromBody] UpdateMembroChapaDto dto, CancellationToken cancellationToken)
+    public async Task<ActionResult<MembroChapaDetalheDto>> Update(Guid id, [FromBody] UpdateMembroChapaRequestDto dto, CancellationToken cancellationToken)
     {
         try
         {
@@ -362,7 +363,7 @@ public record CreateMembroChapaDetalheDto
     public int? Ordem { get; init; }
 }
 
-public record UpdateMembroChapaDto
+public record UpdateMembroChapaRequestDto
 {
     public int? TipoMembro { get; init; }
     public string? Cargo { get; init; }
@@ -411,7 +412,7 @@ public interface IMembroChapaService
     Task<MembroChapaDetalheDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<IEnumerable<MembroChapaDetalheDto>> GetByProfissionalAsync(Guid profissionalId, CancellationToken cancellationToken = default);
     Task<MembroChapaDetalheDto> CreateAsync(CreateMembroChapaDetalheDto dto, Guid userId, CancellationToken cancellationToken = default);
-    Task<MembroChapaDetalheDto> UpdateAsync(Guid id, UpdateMembroChapaDto dto, CancellationToken cancellationToken = default);
+    Task<MembroChapaDetalheDto> UpdateAsync(Guid id, UpdateMembroChapaRequestDto dto, CancellationToken cancellationToken = default);
     Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
     Task<IEnumerable<MembroChapaDetalheDto>> ReordenarAsync(Guid chapaId, List<Guid> ordemIds, CancellationToken cancellationToken = default);
     Task<ValidacaoElegibilidadeDto> ValidarElegibilidadeAsync(Guid id, CancellationToken cancellationToken = default);

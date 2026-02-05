@@ -49,12 +49,30 @@ public record UpdateEleicaoDto
 {
     public string? Nome { get; init; }
     public string? Descricao { get; init; }
+    public TipoEleicao? Tipo { get; init; }
+    public int? Ano { get; init; }
+    public int? Mandato { get; init; }
     public DateTime? DataInicio { get; init; }
     public DateTime? DataFim { get; init; }
     public DateTime? DataVotacaoInicio { get; init; }
     public DateTime? DataVotacaoFim { get; init; }
     public DateTime? DataApuracao { get; init; }
+    public Guid? RegionalId { get; init; }
     public ModoVotacao? ModoVotacao { get; init; }
     public int? QuantidadeVagas { get; init; }
     public int? QuantidadeSuplentes { get; init; }
+}
+
+/// <summary>
+/// Result of validation checks for election operations
+/// </summary>
+public record EleicaoValidationResult
+{
+    public bool IsValid { get; init; }
+    public string? Message { get; init; }
+    public List<string> Warnings { get; init; } = new();
+    public bool HasVotes { get; init; }
+    public bool HasChapas { get; init; }
+    public int TotalVotes { get; init; }
+    public int TotalChapas { get; init; }
 }

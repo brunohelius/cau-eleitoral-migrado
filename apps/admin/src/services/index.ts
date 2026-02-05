@@ -16,7 +16,17 @@ export type { Chapa, CreateChapaRequest, UpdateChapaRequest, PaginatedResponse }
 export { denunciasService } from './denuncias'
 
 // Impugnacoes
-export { impugnacoesService } from './impugnacoes'
+export { impugnacoesService, StatusImpugnacao, TipoImpugnacao, FaseImpugnacao } from './impugnacoes'
+export type {
+  Impugnacao,
+  AnexoImpugnacao,
+  DefesaImpugnacao,
+  ParecerImpugnacao,
+  RecursoImpugnacao,
+  CreateImpugnacaoRequest,
+  UpdateImpugnacaoRequest,
+  ImpugnacaoListParams,
+} from './impugnacoes'
 
 // Julgamentos
 export { julgamentosService } from './julgamentos'

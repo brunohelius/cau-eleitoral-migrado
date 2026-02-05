@@ -10,10 +10,14 @@ import { HomePage } from '@/pages/home/HomePage'
 import { EleicoesPublicPage } from '@/pages/eleicoes/EleicoesPublicPage'
 import { EleicaoDetailPage } from '@/pages/eleicoes/EleicaoDetailPage'
 import { EleicaoChapasPage } from '@/pages/eleicoes/EleicaoChapasPage'
+import { ChapaDetailPage } from '@/pages/eleicoes/ChapaDetailPage'
 import { EleicaoResultadosPage } from '@/pages/eleicoes/EleicaoResultadosPage'
 import { CalendarioPage } from '@/pages/calendario/CalendarioPage'
 import { DocumentosPage } from '@/pages/documentos/DocumentosPage'
 import { FaqPage } from '@/pages/faq/FaqPage'
+import { MigraiPage } from '@/pages/migrai/MigraiPage'
+import { DenunciaFormPage } from '@/pages/denuncias/DenunciaFormPage'
+import { ConsultaProtocoloPage } from '@/pages/denuncias/ConsultaProtocoloPage'
 
 // Legacy Votacao Page (kept for backwards compatibility)
 import { VotacaoPage } from '@/pages/votacao/VotacaoPage'
@@ -42,6 +46,9 @@ import { CandidatoPerfilPage } from '@/pages/candidato/CandidatoPerfilPage'
 function App() {
   return (
     <Routes>
+      {/* Standalone Pages (no layout) */}
+      <Route path="/migrai" element={<MigraiPage />} />
+
       {/* Public Routes */}
       <Route element={<PublicLayout />}>
         {/* Home */}
@@ -51,6 +58,7 @@ function App() {
         <Route path="/eleicoes" element={<EleicoesPublicPage />} />
         <Route path="/eleicoes/:id" element={<EleicaoDetailPage />} />
         <Route path="/eleicoes/:id/chapas" element={<EleicaoChapasPage />} />
+        <Route path="/eleicoes/:id/chapas/:chapaId" element={<ChapaDetailPage />} />
         <Route path="/eleicoes/:id/resultados" element={<EleicaoResultadosPage />} />
 
         {/* Calendar */}
@@ -61,6 +69,10 @@ function App() {
 
         {/* FAQ */}
         <Route path="/faq" element={<FaqPage />} />
+
+        {/* Denuncias */}
+        <Route path="/denuncias/nova" element={<DenunciaFormPage />} />
+        <Route path="/denuncias/consultar" element={<ConsultaProtocoloPage />} />
 
         {/* Legacy Voting (redirect to login) */}
         <Route path="/votacao" element={<VotacaoLoginPage />} />

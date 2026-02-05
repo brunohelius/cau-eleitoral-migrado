@@ -11,6 +11,7 @@ import {
   FileText,
   Info,
   AlertCircle,
+  AlertTriangle,
   Loader2,
 } from 'lucide-react'
 
@@ -319,6 +320,17 @@ export function EleicaoDetailPage() {
                 <ChevronRight className="h-5 w-5 text-gray-400" />
               </a>
             )}
+
+            <Link
+              to={`/denuncias/nova?eleicao=${eleicao.id}`}
+              className="flex items-center justify-between p-3 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="h-5 w-5 text-red-600" />
+                <span className="font-medium text-red-700">Registrar Denuncia</span>
+              </div>
+              <ChevronRight className="h-5 w-5 text-red-400" />
+            </Link>
           </div>
         </div>
       </div>

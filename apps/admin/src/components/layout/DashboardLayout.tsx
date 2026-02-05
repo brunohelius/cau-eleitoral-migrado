@@ -11,6 +11,10 @@ import {
   Menu,
   X,
   ChevronDown,
+  Gavel,
+  BarChart3,
+  Shield,
+  UserCog,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -22,7 +26,10 @@ const navigation = [
   { name: 'Chapas', href: '/chapas', icon: Users },
   { name: 'Denuncias', href: '/denuncias', icon: AlertTriangle },
   { name: 'Impugnacoes', href: '/impugnacoes', icon: Flag },
-  { name: 'Usuarios', href: '/usuarios', icon: Users },
+  { name: 'Julgamentos', href: '/julgamentos', icon: Gavel },
+  { name: 'Usuarios', href: '/usuarios', icon: UserCog },
+  { name: 'Relatorios', href: '/relatorios', icon: BarChart3 },
+  { name: 'Auditoria', href: '/auditoria', icon: Shield },
   { name: 'Configuracoes', href: '/configuracoes', icon: Settings },
 ]
 
@@ -33,6 +40,13 @@ export function DashboardLayout() {
 
   const handleLogout = () => {
     logout()
+  }
+
+  const isActiveRoute = (href: string) => {
+    if (href === '/dashboard') {
+      return location.pathname === '/dashboard'
+    }
+    return location.pathname === href || location.pathname.startsWith(`${href}/`)
   }
 
   return (
@@ -64,9 +78,10 @@ export function DashboardLayout() {
               <Link
                 key={item.name}
                 to={item.href}
+                onClick={() => setSidebarOpen(false)}
                 className={cn(
                   'group flex items-center px-2 py-2 text-sm font-medium rounded-md',
-                  location.pathname === item.href
+                  isActiveRoute(item.href)
                     ? 'bg-primary text-white'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 )}
@@ -85,14 +100,14 @@ export function DashboardLayout() {
           <div className="flex h-16 shrink-0 items-center px-4">
             <span className="text-xl font-bold text-primary">CAU Eleitoral</span>
           </div>
-          <nav className="flex-1 space-y-1 px-2 py-4">
+          <nav className="flex-1 space-y-1 px-2 py-4 overflow-y-auto">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
                 className={cn(
                   'group flex items-center px-2 py-2 text-sm font-medium rounded-md',
-                  location.pathname === item.href
+                  isActiveRoute(item.href)
                     ? 'bg-primary text-white'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 )}

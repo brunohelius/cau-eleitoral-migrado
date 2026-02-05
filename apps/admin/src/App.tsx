@@ -113,12 +113,14 @@ function App() {
           <Route path="/denuncias" element={<DenunciasPage />} />
           <Route path="/denuncias/nova" element={<DenunciaFormPage />} />
           <Route path="/denuncias/:id" element={<DenunciaDetailPage />} />
+          <Route path="/denuncias/:id/editar" element={<DenunciaFormPage />} />
           <Route path="/denuncias/:id/julgamento" element={<DenunciaJulgamentoPage />} />
 
           {/* Impugnacoes */}
           <Route path="/impugnacoes" element={<ImpugnacoesPage />} />
           <Route path="/impugnacoes/nova" element={<ImpugnacaoFormPage />} />
           <Route path="/impugnacoes/:id" element={<ImpugnacaoDetailPage />} />
+          <Route path="/impugnacoes/:id/editar" element={<ImpugnacaoFormPage />} />
 
           {/* Julgamentos */}
           <Route path="/julgamentos" element={<JulgamentosPage />} />

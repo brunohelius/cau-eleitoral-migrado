@@ -1,15 +1,5 @@
 #!/bin/bash
-# =============================================================================
-# CAU Sistema Eleitoral - Deployment Script
-# =============================================================================
-
 set -e
-
-# Configuration
-AWS_REGION="us-east-1"
-AWS_ACCOUNT_ID="801232946361"
-ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-PROJECT_NAME="cau-eleitoral"
 
 # Colors for output
 RED='\033[0;31m'
@@ -17,94 +7,98 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}CAU Sistema Eleitoral - Deploy Script${NC}"
-echo -e "${GREEN}========================================${NC}"
+# Configuration
+AWS_ACCOUNT_ID="801232946361"
+AWS_REGION="us-east-1"
+S3_BUCKET="cau-eleitoral-backups-801232946361"
+CODEBUILD_PROJECT="cau-eleitoral-build"
 
-# Get script directory
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+echo -e "${GREEN}🚀 CAU Sistema Eleitoral - Deploy via CodeBuild${NC}"
+echo "================================================"
+echo "AWS Account: ${AWS_ACCOUNT_ID}"
+echo "Region: ${AWS_REGION}"
+echo ""
 
-# Check AWS credentials
-echo -e "\n${YELLOW}[1/7] Checking AWS credentials...${NC}"
-aws sts get-caller-identity > /dev/null 2>&1 || {
-    echo -e "${RED}Error: AWS credentials not configured${NC}"
-    exit 1
-}
-echo -e "${GREEN}AWS credentials OK${NC}"
+# Get project root
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "${PROJECT_ROOT}"
 
-# Login to ECR
-echo -e "\n${YELLOW}[2/7] Logging in to ECR...${NC}"
-aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
-echo -e "${GREEN}ECR login successful${NC}"
+# Step 1: Create source zip
+echo -e "${YELLOW}📦 Creating source archive...${NC}"
+TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+ZIP_FILE="/tmp/cau-eleitoral-source-${TIMESTAMP}.zip"
 
-# Build and push API image
-echo -e "\n${YELLOW}[3/7] Building API image...${NC}"
-cd "${PROJECT_ROOT}/apps/api"
-docker build -f "${PROJECT_ROOT}/infrastructure/docker/Dockerfile.api" -t ${ECR_REGISTRY}/${PROJECT_NAME}-api:latest .
-docker push ${ECR_REGISTRY}/${PROJECT_NAME}-api:latest
-echo -e "${GREEN}API image pushed${NC}"
+# Create zip excluding unnecessary files
+zip -r "${ZIP_FILE}" . \
+    -x "*.git/*" \
+    -x "node_modules/*" \
+    -x "*/node_modules/*" \
+    -x "*.terraform/*" \
+    -x "*/bin/*" \
+    -x "*/obj/*" \
+    -x "test-results/*" \
+    -x "playwright-report/*" \
+    -x ".playwright-mcp/*" \
+    -x "*.zip" \
+    > /dev/null
 
-# Build and push Admin image
-echo -e "\n${YELLOW}[4/7] Building Admin image...${NC}"
-cd "${PROJECT_ROOT}/apps/admin"
+echo -e "${GREEN}✅ Source archive created: ${ZIP_FILE}${NC}"
 
-# Create production .env for build
-cat > .env.production << EOF
-VITE_API_URL=https://cau-api.migrai.com.br/api
-VITE_APP_NAME=CAU Sistema Eleitoral Admin
-VITE_APP_ENV=production
-EOF
+# Step 2: Upload to S3
+echo -e "${YELLOW}⬆️  Uploading to S3...${NC}"
+aws s3 cp "${ZIP_FILE}" "s3://${S3_BUCKET}/codebuild/source.zip" --region ${AWS_REGION}
+echo -e "${GREEN}✅ Source uploaded to s3://${S3_BUCKET}/codebuild/source.zip${NC}"
 
-docker build -f "${PROJECT_ROOT}/infrastructure/docker/Dockerfile.admin" -t ${ECR_REGISTRY}/${PROJECT_NAME}-admin:latest .
-docker push ${ECR_REGISTRY}/${PROJECT_NAME}-admin:latest
-echo -e "${GREEN}Admin image pushed${NC}"
+# Step 3: Start CodeBuild
+echo -e "${YELLOW}🔨 Starting CodeBuild...${NC}"
+BUILD_ID=$(aws codebuild start-build \
+    --project-name ${CODEBUILD_PROJECT} \
+    --region ${AWS_REGION} \
+    --query 'build.id' \
+    --output text)
 
-# Build and push Public image
-echo -e "\n${YELLOW}[5/7] Building Public image...${NC}"
-cd "${PROJECT_ROOT}/apps/public"
+echo -e "${GREEN}✅ Build started: ${BUILD_ID}${NC}"
+echo ""
 
-# Create production .env for build
-cat > .env.production << EOF
-VITE_API_URL=https://cau-api.migrai.com.br/api
-VITE_APP_NAME=CAU Sistema Eleitoral
-VITE_APP_ENV=production
-EOF
+# Step 4: Monitor build
+echo -e "${YELLOW}📊 Monitoring build progress...${NC}"
+while true; do
+    BUILD_STATUS=$(aws codebuild batch-get-builds \
+        --ids "${BUILD_ID}" \
+        --region ${AWS_REGION} \
+        --query 'builds[0].buildStatus' \
+        --output text)
 
-docker build -f "${PROJECT_ROOT}/infrastructure/docker/Dockerfile.public" -t ${ECR_REGISTRY}/${PROJECT_NAME}-public:latest .
-docker push ${ECR_REGISTRY}/${PROJECT_NAME}-public:latest
-echo -e "${GREEN}Public image pushed${NC}"
+    BUILD_PHASE=$(aws codebuild batch-get-builds \
+        --ids "${BUILD_ID}" \
+        --region ${AWS_REGION} \
+        --query 'builds[0].currentPhase' \
+        --output text)
 
-# Update ECS services
-echo -e "\n${YELLOW}[6/7] Updating ECS services...${NC}"
-CLUSTER_NAME="${PROJECT_NAME}-cluster"
+    echo -e "  Status: ${BUILD_STATUS} | Phase: ${BUILD_PHASE}"
 
-# Update API service
-aws ecs update-service --cluster ${CLUSTER_NAME} --service ${PROJECT_NAME}-api --force-new-deployment --region ${AWS_REGION} > /dev/null
-echo "API service update initiated"
+    if [ "${BUILD_STATUS}" = "SUCCEEDED" ]; then
+        echo ""
+        echo -e "${GREEN}🎉 Build completed successfully!${NC}"
+        break
+    elif [ "${BUILD_STATUS}" = "FAILED" ] || [ "${BUILD_STATUS}" = "FAULT" ] || [ "${BUILD_STATUS}" = "STOPPED" ]; then
+        echo ""
+        echo -e "${RED}❌ Build failed with status: ${BUILD_STATUS}${NC}"
+        echo "Check logs: aws logs tail /aws/codebuild/cau-eleitoral --follow"
+        exit 1
+    fi
 
-# Update Admin service
-aws ecs update-service --cluster ${CLUSTER_NAME} --service ${PROJECT_NAME}-admin --force-new-deployment --region ${AWS_REGION} > /dev/null
-echo "Admin service update initiated"
+    sleep 15
+done
 
-# Update Public service
-aws ecs update-service --cluster ${CLUSTER_NAME} --service ${PROJECT_NAME}-public --force-new-deployment --region ${AWS_REGION} > /dev/null
-echo "Public service update initiated"
+# Cleanup
+rm -f "${ZIP_FILE}"
 
-echo -e "${GREEN}All services update initiated${NC}"
-
-# Wait for deployments
-echo -e "\n${YELLOW}[7/7] Waiting for deployments to stabilize...${NC}"
-echo "This may take a few minutes..."
-
-aws ecs wait services-stable --cluster ${CLUSTER_NAME} --services ${PROJECT_NAME}-api ${PROJECT_NAME}-admin ${PROJECT_NAME}-public --region ${AWS_REGION}
-
-echo -e "\n${GREEN}========================================${NC}"
-echo -e "${GREEN}Deployment Complete!${NC}"
-echo -e "${GREEN}========================================${NC}"
-echo -e "\nApplication URLs:"
-echo -e "  Admin:  https://cau-admin.migrai.com.br"
-echo -e "  Public: https://cau-public.migrai.com.br"
-echo -e "  API:    https://cau-api.migrai.com.br"
-echo -e "\nHealth Check:"
-echo -e "  curl https://cau-api.migrai.com.br/health"
+echo ""
+echo "Application URLs:"
+echo "  Admin:  https://cau-admin.migrai.com.br"
+echo "  Public: https://cau-public.migrai.com.br"
+echo "  API:    https://cau-api.migrai.com.br"
+echo ""
+echo "To check ECS services status:"
+echo "  aws ecs describe-services --cluster cau-eleitoral-cluster --services cau-eleitoral-api cau-eleitoral-admin cau-eleitoral-public --query 'services[*].{Name:serviceName,Running:runningCount,Desired:desiredCount}' --output table"

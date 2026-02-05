@@ -1,0 +1,5 @@
+export { ConfiguracoesGerais } from './ConfiguracoesGerais'
+export { ConfiguracoesEleicoes } from './ConfiguracoesEleicoes'
+export { ConfiguracoesNotificacoes } from './ConfiguracoesNotificacoes'
+export { ConfiguracoesSeguranca } from './ConfiguracoesSeguranca'
+export { ConfiguracoesLogs } from './ConfiguracoesLogs'

@@ -1,39 +1,42 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { ArrowLeft, Loader2, Save, Upload, X, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, Loader2, Save, Upload, X, AlertTriangle, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
-import api from '@/services/api'
+import {
+  denunciasService,
+  TipoDenuncia,
+  PrioridadeDenuncia,
+  tipoDenunciaLabels,
+  prioridadeLabels,
+  type CreateDenunciaRequest,
+  type UpdateDenunciaRequest,
+} from '@/services/denuncias'
+import { eleicoesService, type Eleicao } from '@/services/eleicoes'
 
 const denunciaSchema = z.object({
   titulo: z.string().min(10, 'Titulo deve ter no minimo 10 caracteres'),
   descricao: z.string().min(50, 'Descricao deve ter no minimo 50 caracteres'),
+  fundamentacao: z.string().optional(),
   tipo: z.string().min(1, 'Selecione um tipo de denuncia'),
   prioridade: z.string().min(1, 'Selecione uma prioridade'),
   eleicaoId: z.string().min(1, 'Selecione uma eleicao'),
-  denunciadoNome: z.string().min(3, 'Nome do denunciado e obrigatorio'),
-  denunciadoCpf: z.string().optional(),
   chapaId: z.string().optional(),
+  membroId: z.string().optional(),
   denuncianteNome: z.string().optional(),
   denuncianteEmail: z.string().email('Email invalido').optional().or(z.literal('')),
   denuncianteTelefone: z.string().optional(),
-  anonimo: z.boolean().default(false),
+  anonima: z.boolean().default(false),
 })
 
 type DenunciaFormData = z.infer<typeof denunciaSchema>
-
-interface Eleicao {
-  id: string
-  nome: string
-  ano: number
-}
 
 interface Chapa {
   id: string
@@ -42,78 +45,135 @@ interface Chapa {
   eleicaoId: string
 }
 
-const tiposDenuncia = [
-  { value: 'propaganda_irregular', label: 'Propaganda Irregular' },
-  { value: 'abuso_poder', label: 'Abuso de Poder' },
-  { value: 'fraude', label: 'Fraude' },
-  { value: 'coacao', label: 'Coacao de Eleitores' },
-  { value: 'compra_votos', label: 'Compra de Votos' },
-  { value: 'uso_recursos', label: 'Uso Indevido de Recursos' },
-  { value: 'irregularidade_candidatura', label: 'Irregularidade na Candidatura' },
-  { value: 'outros', label: 'Outros' },
-]
+interface Membro {
+  id: string
+  nome: string
+  cargo: string
+  chapaId: string
+}
 
-const prioridades = [
-  { value: 'baixa', label: 'Baixa' },
-  { value: 'media', label: 'Media' },
-  { value: 'alta', label: 'Alta' },
-  { value: 'urgente', label: 'Urgente' },
-]
+// Type options from enum
+const tipoOptions = Object.entries(tipoDenunciaLabels).map(([value, label]) => ({
+  value,
+  label,
+}))
+
+// Priority options from enum
+const prioridadeOptions = Object.entries(prioridadeLabels).map(([value, { label }]) => ({
+  value,
+  label,
+}))
 
 export function DenunciaFormPage() {
+  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { toast } = useToast()
   const queryClient = useQueryClient()
+  const isEditing = !!id
   const [anexos, setAnexos] = useState<File[]>([])
   const [isAnonimo, setIsAnonimo] = useState(false)
 
-  const { data: eleicoes } = useQuery({
-    queryKey: ['eleicoes-ativas'],
-    queryFn: async () => {
-      const response = await api.get<Eleicao[]>('/eleicao/ativas')
-      return response.data
-    },
+  // Fetch existing denuncia if editing
+  const { data: existingDenuncia, isLoading: isLoadingDenuncia } = useQuery({
+    queryKey: ['denuncia', id],
+    queryFn: () => denunciasService.getById(id!),
+    enabled: isEditing,
   })
 
-  // Mock chapas - em producao viria da API com base na eleicao selecionada
-  const [chapas] = useState<Chapa[]>([
-    { id: '1', nome: 'Chapa Renovacao', numero: 1, eleicaoId: '1' },
-    { id: '2', nome: 'Chapa Unidade', numero: 2, eleicaoId: '1' },
-    { id: '3', nome: 'Chapa Progresso', numero: 3, eleicaoId: '1' },
-  ])
+  // Fetch eleicoes
+  const { data: eleicoes, isLoading: isLoadingEleicoes } = useQuery({
+    queryKey: ['eleicoes'],
+    queryFn: eleicoesService.getAll,
+  })
+
+  // Mock chapas - in production would come from API based on selected eleicao
+  const [chapas, setChapas] = useState<Chapa[]>([])
+  const [membros, setMembros] = useState<Membro[]>([])
 
   const {
     register,
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<DenunciaFormData>({
     resolver: zodResolver(denunciaSchema),
     defaultValues: {
-      prioridade: 'media',
-      anonimo: false,
+      prioridade: String(PrioridadeDenuncia.NORMAL),
+      tipo: '',
+      anonima: false,
     },
   })
 
+  // Populate form when editing
+  useEffect(() => {
+    if (existingDenuncia) {
+      reset({
+        titulo: existingDenuncia.titulo,
+        descricao: existingDenuncia.descricao,
+        fundamentacao: existingDenuncia.fundamentacao || '',
+        tipo: String(existingDenuncia.tipo),
+        prioridade: String(existingDenuncia.prioridade || PrioridadeDenuncia.NORMAL),
+        eleicaoId: existingDenuncia.eleicaoId,
+        chapaId: existingDenuncia.chapaId || '',
+        membroId: existingDenuncia.membroId || '',
+        denuncianteNome: existingDenuncia.denuncianteNome || '',
+        denuncianteEmail: existingDenuncia.denuncianteEmail || '',
+        denuncianteTelefone: existingDenuncia.denuncianteTelefone || '',
+        anonima: existingDenuncia.anonima,
+      })
+      setIsAnonimo(existingDenuncia.anonima)
+    }
+  }, [existingDenuncia, reset])
+
   const selectedEleicaoId = watch('eleicaoId')
-  const filteredChapas = chapas.filter((c) => c.eleicaoId === selectedEleicaoId)
+  const selectedChapaId = watch('chapaId')
+
+  // Load chapas when eleicao changes
+  useEffect(() => {
+    if (selectedEleicaoId) {
+      // In production, this would be an API call
+      // For now, using mock data
+      setChapas([
+        { id: '1', nome: 'Chapa Renovacao', numero: 1, eleicaoId: selectedEleicaoId },
+        { id: '2', nome: 'Chapa Unidade', numero: 2, eleicaoId: selectedEleicaoId },
+        { id: '3', nome: 'Chapa Progresso', numero: 3, eleicaoId: selectedEleicaoId },
+      ])
+    } else {
+      setChapas([])
+    }
+    if (!isEditing) {
+      setValue('chapaId', '')
+      setValue('membroId', '')
+    }
+  }, [selectedEleicaoId, setValue, isEditing])
+
+  // Load membros when chapa changes
+  useEffect(() => {
+    if (selectedChapaId) {
+      // In production, this would be an API call
+      setMembros([
+        { id: '1', nome: 'Joao Silva', cargo: 'Presidente', chapaId: selectedChapaId },
+        { id: '2', nome: 'Maria Santos', cargo: 'Vice-Presidente', chapaId: selectedChapaId },
+        { id: '3', nome: 'Carlos Oliveira', cargo: 'Secretario', chapaId: selectedChapaId },
+      ])
+    } else {
+      setMembros([])
+    }
+    if (!isEditing) {
+      setValue('membroId', '')
+    }
+  }, [selectedChapaId, setValue, isEditing])
 
   const createMutation = useMutation({
-    mutationFn: async (data: DenunciaFormData) => {
-      const formData = new FormData()
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined && value !== '') {
-          formData.append(key, String(value))
-        }
-      })
-      anexos.forEach((file) => {
-        formData.append('anexos', file)
-      })
-      const response = await api.post('/denuncia', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-      return response.data
+    mutationFn: async (data: CreateDenunciaRequest) => {
+      const denuncia = await denunciasService.create(data)
+      // Upload anexos if any
+      for (const file of anexos) {
+        await denunciasService.uploadAnexo(denuncia.id, file)
+      }
+      return denuncia
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['denuncias'] })
@@ -123,7 +183,7 @@ export function DenunciaFormPage() {
       })
       navigate('/denuncias')
     },
-    onError: (error: any) => {
+    onError: (error: Error & { response?: { data?: { message?: string } } }) => {
       toast({
         variant: 'destructive',
         title: 'Erro ao registrar denuncia',
@@ -132,8 +192,55 @@ export function DenunciaFormPage() {
     },
   })
 
+  const updateMutation = useMutation({
+    mutationFn: async (data: UpdateDenunciaRequest) => {
+      return denunciasService.update(id!, data)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['denuncias'] })
+      queryClient.invalidateQueries({ queryKey: ['denuncia', id] })
+      toast({
+        title: 'Denuncia atualizada com sucesso!',
+        description: 'As alteracoes foram salvas.',
+      })
+      navigate(`/denuncias/${id}`)
+    },
+    onError: (error: Error & { response?: { data?: { message?: string } } }) => {
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao atualizar denuncia',
+        description: error.response?.data?.message || 'Tente novamente mais tarde.',
+      })
+    },
+  })
+
   const onSubmit = (data: DenunciaFormData) => {
-    createMutation.mutate({ ...data, anonimo: isAnonimo })
+    if (isEditing) {
+      const updateData: UpdateDenunciaRequest = {
+        titulo: data.titulo,
+        descricao: data.descricao,
+        fundamentacao: data.fundamentacao,
+        tipo: Number(data.tipo) as TipoDenuncia,
+        prioridade: Number(data.prioridade) as PrioridadeDenuncia,
+      }
+      updateMutation.mutate(updateData)
+    } else {
+      const createData: CreateDenunciaRequest = {
+        eleicaoId: data.eleicaoId,
+        chapaId: data.chapaId || undefined,
+        membroId: data.membroId || undefined,
+        tipo: Number(data.tipo) as TipoDenuncia,
+        titulo: data.titulo,
+        descricao: data.descricao,
+        fundamentacao: data.fundamentacao,
+        prioridade: Number(data.prioridade) as PrioridadeDenuncia,
+        anonima: isAnonimo,
+        denuncianteNome: isAnonimo ? undefined : data.denuncianteNome,
+        denuncianteEmail: isAnonimo ? undefined : data.denuncianteEmail,
+        denuncianteTelefone: isAnonimo ? undefined : data.denuncianteTelefone,
+      }
+      createMutation.mutate(createData)
+    }
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -154,17 +261,33 @@ export function DenunciaFormPage() {
     }
   }
 
+  const isSubmitting = createMutation.isPending || updateMutation.isPending
+
+  if (isEditing && isLoadingDenuncia) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link to="/denuncias">
+        <Link to={isEditing ? `/denuncias/${id}` : '/denuncias'}>
           <Button variant="ghost" size="icon">
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Nova Denuncia</h1>
-          <p className="text-gray-600">Registre uma nova denuncia eleitoral</p>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {isEditing ? 'Editar Denuncia' : 'Nova Denuncia'}
+          </h1>
+          <p className="text-gray-600">
+            {isEditing
+              ? `Editando ${existingDenuncia?.protocolo}`
+              : 'Registre uma nova denuncia eleitoral'}
+          </p>
         </div>
       </div>
 
@@ -187,9 +310,10 @@ export function DenunciaFormPage() {
                     id="eleicaoId"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     {...register('eleicaoId')}
+                    disabled={isEditing || isLoadingEleicoes}
                   >
                     <option value="">Selecione uma eleicao</option>
-                    {eleicoes?.map((eleicao) => (
+                    {eleicoes?.map((eleicao: Eleicao) => (
                       <option key={eleicao.id} value={eleicao.id}>
                         {eleicao.nome} ({eleicao.ano})
                       </option>
@@ -207,7 +331,7 @@ export function DenunciaFormPage() {
                     {...register('tipo')}
                   >
                     <option value="">Selecione um tipo</option>
-                    {tiposDenuncia.map((tipo) => (
+                    {tipoOptions.map((tipo) => (
                       <option key={tipo.value} value={tipo.value}>
                         {tipo.label}
                       </option>
@@ -225,7 +349,7 @@ export function DenunciaFormPage() {
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     {...register('prioridade')}
                   >
-                    {prioridades.map((p) => (
+                    {prioridadeOptions.map((p) => (
                       <option key={p.value} value={p.value}>
                         {p.label}
                       </option>
@@ -238,9 +362,10 @@ export function DenunciaFormPage() {
                     id="chapaId"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     {...register('chapaId')}
+                    disabled={!selectedEleicaoId || isEditing}
                   >
                     <option value="">Selecione uma chapa (opcional)</option>
-                    {filteredChapas.map((chapa) => (
+                    {chapas.map((chapa) => (
                       <option key={chapa.id} value={chapa.id}>
                         {chapa.numero}. {chapa.nome}
                       </option>
@@ -249,13 +374,27 @@ export function DenunciaFormPage() {
                 </div>
               </div>
 
+              {selectedChapaId && !isEditing && (
+                <div className="space-y-2">
+                  <Label htmlFor="membroId">Membro Especifico (opcional)</Label>
+                  <select
+                    id="membroId"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    {...register('membroId')}
+                  >
+                    <option value="">Selecione um membro (opcional)</option>
+                    {membros.map((membro) => (
+                      <option key={membro.id} value={membro.id}>
+                        {membro.nome} - {membro.cargo}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="titulo">Titulo *</Label>
-                <Input
-                  id="titulo"
-                  placeholder="Resumo da denuncia"
-                  {...register('titulo')}
-                />
+                <Input id="titulo" placeholder="Resumo da denuncia" {...register('titulo')} />
                 {errors.titulo && <p className="text-sm text-red-500">{errors.titulo.message}</p>}
               </div>
 
@@ -271,157 +410,143 @@ export function DenunciaFormPage() {
                   <p className="text-sm text-red-500">{errors.descricao.message}</p>
                 )}
               </div>
-            </CardContent>
-          </Card>
 
-          {/* Denunciado */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Denunciado</CardTitle>
-              <CardDescription>Informacoes sobre quem esta sendo denunciado</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="denunciadoNome">Nome do Denunciado *</Label>
-                  <Input
-                    id="denunciadoNome"
-                    placeholder="Nome completo ou da chapa"
-                    {...register('denunciadoNome')}
-                  />
-                  {errors.denunciadoNome && (
-                    <p className="text-sm text-red-500">{errors.denunciadoNome.message}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="denunciadoCpf">CPF do Denunciado</Label>
-                  <Input
-                    id="denunciadoCpf"
-                    placeholder="000.000.000-00 (opcional)"
-                    {...register('denunciadoCpf')}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Denunciante */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Denunciante</CardTitle>
-              <CardDescription>Suas informacoes de contato (opcional)</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="anonimo"
-                  checked={isAnonimo}
-                  onChange={(e) => handleAnonimoChange(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300"
+              <div className="space-y-2">
+                <Label htmlFor="fundamentacao">Fundamentacao Legal (opcional)</Label>
+                <textarea
+                  id="fundamentacao"
+                  className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  placeholder="Indique os dispositivos legais ou normativos que fundamentam a denuncia..."
+                  {...register('fundamentacao')}
                 />
-                <Label htmlFor="anonimo" className="font-normal">
-                  Denuncia anonima (seus dados nao serao registrados)
-                </Label>
               </div>
-
-              {!isAnonimo && (
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="denuncianteNome">Nome</Label>
-                    <Input
-                      id="denuncianteNome"
-                      placeholder="Seu nome"
-                      {...register('denuncianteNome')}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="denuncianteEmail">Email</Label>
-                    <Input
-                      id="denuncianteEmail"
-                      type="email"
-                      placeholder="seu@email.com"
-                      {...register('denuncianteEmail')}
-                    />
-                    {errors.denuncianteEmail && (
-                      <p className="text-sm text-red-500">{errors.denuncianteEmail.message}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="denuncianteTelefone">Telefone</Label>
-                    <Input
-                      id="denuncianteTelefone"
-                      placeholder="(00) 00000-0000"
-                      {...register('denuncianteTelefone')}
-                    />
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
 
-          {/* Anexos */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Anexos</CardTitle>
-              <CardDescription>Adicione evidencias (fotos, videos, documentos)</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+          {/* Denunciante - Only show when creating */}
+          {!isEditing && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Denunciante
+                </CardTitle>
+                <CardDescription>Suas informacoes de contato (opcional)</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-2">
                   <input
-                    type="file"
-                    id="anexos"
-                    multiple
-                    className="hidden"
-                    onChange={handleFileChange}
-                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.mp4,.mp3"
+                    type="checkbox"
+                    id="anonimo"
+                    checked={isAnonimo}
+                    onChange={(e) => handleAnonimoChange(e.target.checked)}
+                    className="h-4 w-4 rounded border-gray-300"
                   />
-                  <label htmlFor="anexos" className="cursor-pointer">
-                    <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-500">
-                      Clique para selecionar ou arraste arquivos
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      PDF, DOC, JPG, PNG, MP4 (max. 10MB cada)
-                    </p>
-                  </label>
+                  <Label htmlFor="anonimo" className="font-normal">
+                    Denuncia anonima (seus dados nao serao registrados)
+                  </Label>
                 </div>
 
-                {anexos.length > 0 && (
-                  <div className="space-y-2">
-                    {anexos.map((file, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between rounded-lg border p-3"
-                      >
-                        <span className="text-sm">{file.name}</span>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleRemoveAnexo(index)}
-                        >
-                          <X className="h-4 w-4 text-red-500" />
-                        </Button>
-                      </div>
-                    ))}
+                {!isAnonimo && (
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="denuncianteNome">Nome</Label>
+                      <Input
+                        id="denuncianteNome"
+                        placeholder="Seu nome"
+                        {...register('denuncianteNome')}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="denuncianteEmail">Email</Label>
+                      <Input
+                        id="denuncianteEmail"
+                        type="email"
+                        placeholder="seu@email.com"
+                        {...register('denuncianteEmail')}
+                      />
+                      {errors.denuncianteEmail && (
+                        <p className="text-sm text-red-500">{errors.denuncianteEmail.message}</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="denuncianteTelefone">Telefone</Label>
+                      <Input
+                        id="denuncianteTelefone"
+                        placeholder="(00) 00000-0000"
+                        {...register('denuncianteTelefone')}
+                      />
+                    </div>
                   </div>
                 )}
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Anexos - Only show when creating */}
+          {!isEditing && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Anexos</CardTitle>
+                <CardDescription>Adicione evidencias (fotos, videos, documentos)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <input
+                      type="file"
+                      id="anexos"
+                      multiple
+                      className="hidden"
+                      onChange={handleFileChange}
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.mp4,.mp3"
+                    />
+                    <label htmlFor="anexos" className="cursor-pointer">
+                      <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                      <p className="text-sm text-gray-500">
+                        Clique para selecionar ou arraste arquivos
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        PDF, DOC, JPG, PNG, MP4 (max. 10MB cada)
+                      </p>
+                    </label>
+                  </div>
+
+                  {anexos.length > 0 && (
+                    <div className="space-y-2">
+                      {anexos.map((file, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between rounded-lg border p-3"
+                        >
+                          <span className="text-sm">{file.name}</span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleRemoveAnexo(index)}
+                          >
+                            <X className="h-4 w-4 text-red-500" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           <div className="flex justify-end gap-4">
-            <Link to="/denuncias">
+            <Link to={isEditing ? `/denuncias/${id}` : '/denuncias'}>
               <Button type="button" variant="outline">
                 Cancelar
               </Button>
             </Link>
-            <Button type="submit" disabled={createMutation.isPending}>
-              {createMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               <Save className="mr-2 h-4 w-4" />
-              Registrar Denuncia
+              {isEditing ? 'Salvar Alteracoes' : 'Registrar Denuncia'}
             </Button>
           </div>
         </div>

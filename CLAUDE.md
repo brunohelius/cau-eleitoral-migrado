@@ -3,7 +3,7 @@
 ## Visão Geral
 Sistema eleitoral migrado de PHP/Java para .NET 10 + React 18 + shadcn/ui.
 
-**Status:** MVP Funcional - Deploy AWS em andamento
+**Status:** Em Produção (AWS ECS Fargate)
 
 ## Estrutura do Projeto
 
@@ -153,7 +153,40 @@ pnpm dev
 - Public: https://cau-public.migrai.com.br
 - API: https://cau-api.migrai.com.br
 
-### Terraform
+### Deploy com AWS CodeBuild (Recomendado)
+
+O deploy é feito automaticamente via AWS CodeBuild quando há push na branch `main`.
+
+#### Deploy Manual via Console AWS
+1. Acesse AWS Console > CodeBuild > Projects
+2. Selecione `cau-eleitoral-build`
+3. Clique em "Start build"
+4. Aguarde a conclusão (aproximadamente 5-10 minutos)
+
+#### Deploy Manual via CLI
+```bash
+# Iniciar build
+aws codebuild start-build --project-name cau-eleitoral-build --region us-east-1
+
+# Verificar status do build
+aws codebuild list-builds-for-project --project-name cau-eleitoral-build --region us-east-1
+aws codebuild batch-get-builds --ids <build-id> --region us-east-1
+```
+
+#### Verificar Status do Deploy
+```bash
+# Status dos serviços ECS
+aws ecs describe-services \
+  --cluster cau-eleitoral-cluster \
+  --services cau-eleitoral-api cau-eleitoral-admin cau-eleitoral-public \
+  --query 'services[*].{Name:serviceName,Status:status,Running:runningCount,Desired:desiredCount}' \
+  --output table
+
+# Logs do serviço
+aws logs tail /aws/ecs/cau-eleitoral/api --follow
+```
+
+### Terraform (Infraestrutura)
 ```bash
 cd infrastructure/terraform
 
@@ -167,10 +200,17 @@ terraform plan -out=tfplan
 terraform apply tfplan
 ```
 
-### Deploy Script
+### Deploy Script Local (Apenas para emergências)
 ```bash
-./infrastructure/scripts/deploy.sh
+./infrastructure/scripts/deploy.sh [tag] [service]
+
+# Exemplos:
+./infrastructure/scripts/deploy.sh latest all      # Deploy de todos os serviços
+./infrastructure/scripts/deploy.sh latest api      # Deploy apenas da API
+./infrastructure/scripts/deploy.sh v1.0.0 admin    # Deploy do admin com tag específica
 ```
+
+**Nota:** O deploy local requer Docker com suporte a buildx para linux/amd64.
 
 ## Entidades Principais (Domain)
 
@@ -217,12 +257,31 @@ dotnet ef database update -p CAU.Eleitoral.Infrastructure -s CAU.Eleitoral.Api
 ### EF Core Foreign Key Warning
 - AssinaturaDigital.CertificadoDigitalId shadow property - ignorar warning
 
-## Fluxos Testados com Playwright
+## Testes E2E com Playwright
 
-1. **Admin Login** - Dashboard com estatísticas ✅
-2. **Eleitor Login** - CPF + RegistroCAU + Senha ✅
-3. **Votação Completa** - Cédula → Confirmação → Comprovante ✅
-4. **Candidato Login** - Visualização da chapa ✅
+### Executar Testes
+```bash
+# Admin App (12 testes)
+cd apps/admin
+pnpm exec playwright test
+
+# Public App (9 testes)
+cd apps/public
+pnpm exec playwright test
+```
+
+### Fluxos Testados
+**Admin (12 testes):**
+- Login/Logout
+- Dashboard com estatísticas
+- Navegação: Eleições, Chapas, Denúncias, Usuários
+- Sidebar navigation
+
+**Public (9 testes):**
+- Home page
+- Login do Eleitor (CPF + RegistroCAU)
+- Páginas públicas: Eleições, Calendário, Documentos, FAQ
+- Portal do Candidato
 
 ## Contato
 - Suporte: suporte@cau.org.br

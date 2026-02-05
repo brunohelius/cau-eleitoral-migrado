@@ -4,48 +4,55 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { ArrowLeft, Loader2, Save, Upload, X, AlertOctagon } from 'lucide-react'
+import { ArrowLeft, Loader2, Save, Upload, X, AlertOctagon, FileText, Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
-import api from '@/services/api'
+import {
+  impugnacoesService,
+  TipoImpugnacao,
+  CreateImpugnacaoRequest,
+} from '@/services/impugnacoes'
+import { eleicoesService } from '@/services/eleicoes'
+import { chapasService } from '@/services/chapas'
 
 const impugnacaoSchema = z.object({
   eleicaoId: z.string().min(1, 'Selecione uma eleicao'),
-  chapaId: z.string().min(1, 'Selecione uma chapa para impugnar'),
-  motivo: z.string().min(10, 'Motivo deve ter no minimo 10 caracteres'),
+  tipo: z.string().min(1, 'Selecione o tipo de impugnacao'),
+  chapaId: z.string().optional(),
+  candidatoId: z.string().optional(),
   fundamentacao: z.string().min(100, 'Fundamentacao deve ter no minimo 100 caracteres'),
-  impugnanteNome: z.string().min(3, 'Nome e obrigatorio'),
-  impugnanteCpf: z.string().min(11, 'CPF invalido'),
-  impugnanteEmail: z.string().email('Email invalido'),
-  impugnanteTelefone: z.string().optional(),
+  normasVioladas: z.string().optional(),
+  pedido: z.string().min(20, 'Pedido deve ter no minimo 20 caracteres'),
 })
 
 type ImpugnacaoFormData = z.infer<typeof impugnacaoSchema>
 
-interface Eleicao {
-  id: string
-  nome: string
-  ano: number
+const tipoLabels: Record<number, string> = {
+  [TipoImpugnacao.CANDIDATURA]: 'Candidatura',
+  [TipoImpugnacao.CHAPA]: 'Chapa',
+  [TipoImpugnacao.ELEICAO]: 'Eleicao',
+  [TipoImpugnacao.RESULTADO]: 'Resultado',
+  [TipoImpugnacao.VOTACAO]: 'Votacao',
 }
 
-interface Chapa {
-  id: string
-  nome: string
-  numero: number
-  eleicaoId: string
-}
-
-const motivosImpugnacao = [
-  'Irregularidade na documentacao',
-  'Inelegibilidade de membro',
-  'Descumprimento de prazo',
-  'Fraude no registro',
-  'Ausencia de requisitos',
-  'Irregularidade na composicao',
-  'Outro motivo',
+const normasExemplos = [
+  'Art. 15 do Regimento Eleitoral - Requisitos de elegibilidade',
+  'Art. 20 do Regimento Eleitoral - Documentacao obrigatoria',
+  'Art. 25 do Regimento Eleitoral - Prazos e procedimentos',
+  'Art. 30 do Regimento Eleitoral - Composicao de chapas',
+  'Lei 12.378/2010 - Regulamentacao do exercicio da Arquitetura',
+  'Resolucao CAU/BR n. 139 - Normas eleitorais',
 ]
 
 export function ImpugnacaoFormPage() {
@@ -54,56 +61,65 @@ export function ImpugnacaoFormPage() {
   const queryClient = useQueryClient()
   const [anexos, setAnexos] = useState<File[]>([])
 
-  const { data: eleicoes } = useQuery({
+  // Fetch eleicoes
+  const { data: eleicoes, isLoading: loadingEleicoes } = useQuery({
     queryKey: ['eleicoes-ativas'],
-    queryFn: async () => {
-      const response = await api.get<Eleicao[]>('/eleicao/ativas')
-      return response.data
-    },
+    queryFn: eleicoesService.getAtivas,
   })
-
-  // Mock chapas - em producao viria da API
-  const [chapas] = useState<Chapa[]>([
-    { id: '1', nome: 'Chapa Renovacao', numero: 1, eleicaoId: '1' },
-    { id: '2', nome: 'Chapa Unidade', numero: 2, eleicaoId: '1' },
-    { id: '3', nome: 'Chapa Progresso', numero: 3, eleicaoId: '1' },
-  ])
 
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<ImpugnacaoFormData>({
     resolver: zodResolver(impugnacaoSchema),
+    defaultValues: {
+      tipo: String(TipoImpugnacao.CHAPA),
+    },
   })
 
   const selectedEleicaoId = watch('eleicaoId')
-  const filteredChapas = chapas.filter((c) => c.eleicaoId === selectedEleicaoId)
+  const selectedTipo = watch('tipo')
+
+  // Fetch chapas when eleicao is selected
+  const { data: chapas = [], isLoading: loadingChapas } = useQuery({
+    queryKey: ['chapas', selectedEleicaoId],
+    queryFn: () => chapasService.getByEleicao(selectedEleicaoId),
+    enabled: !!selectedEleicaoId,
+  })
 
   const createMutation = useMutation({
     mutationFn: async (data: ImpugnacaoFormData) => {
-      const formData = new FormData()
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined && value !== '') {
-          formData.append(key, String(value))
+      const request: CreateImpugnacaoRequest = {
+        eleicaoId: data.eleicaoId,
+        tipo: Number(data.tipo),
+        fundamentacao: data.fundamentacao,
+        normasVioladas: data.normasVioladas,
+        pedido: data.pedido,
+        chapaId: data.chapaId || undefined,
+        candidatoId: data.candidatoId || undefined,
+      }
+
+      const impugnacao = await impugnacoesService.create(request)
+
+      // Upload anexos if any
+      if (anexos.length > 0) {
+        for (const anexo of anexos) {
+          await impugnacoesService.uploadAnexo(impugnacao.id, anexo)
         }
-      })
-      anexos.forEach((file) => {
-        formData.append('anexos', file)
-      })
-      const response = await api.post('/impugnacao', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-      return response.data
+      }
+
+      return impugnacao
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['impugnacoes'] })
       toast({
         title: 'Impugnacao registrada com sucesso!',
-        description: 'A impugnacao sera analisada pela Comissao Eleitoral.',
+        description: `Protocolo: ${data.protocolo}. A impugnacao sera analisada pela Comissao Eleitoral.`,
       })
-      navigate('/impugnacoes')
+      navigate(`/impugnacoes/${data.id}`)
     },
     onError: (error: any) => {
       toast({
@@ -120,12 +136,33 @@ export function ImpugnacaoFormPage() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
-    setAnexos((prev) => [...prev, ...files])
+    const validFiles = files.filter((file) => {
+      const maxSize = 10 * 1024 * 1024 // 10MB
+      if (file.size > maxSize) {
+        toast({
+          variant: 'destructive',
+          title: 'Arquivo muito grande',
+          description: `${file.name} excede o limite de 10MB.`,
+        })
+        return false
+      }
+      return true
+    })
+    setAnexos((prev) => [...prev, ...validFiles])
   }
 
   const handleRemoveAnexo = (index: number) => {
     setAnexos((prev) => prev.filter((_, i) => i !== index))
   }
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B'
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+  }
+
+  const needsChapaSelection = selectedTipo === String(TipoImpugnacao.CHAPA)
+  const needsCandidatoSelection = selectedTipo === String(TipoImpugnacao.CANDIDATURA)
 
   return (
     <div className="space-y-6">
@@ -137,95 +174,128 @@ export function ImpugnacaoFormPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Nova Impugnacao</h1>
-          <p className="text-gray-600">Registre uma impugnacao de chapa</p>
+          <p className="text-gray-600">Registre uma impugnacao no processo eleitoral</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-6">
-          {/* Selecao da Chapa */}
+          {/* Tipo e Eleicao */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <AlertOctagon className="h-5 w-5 text-red-500" />
-                Chapa a ser Impugnada
+                Dados da Impugnacao
               </CardTitle>
-              <CardDescription>Selecione a eleicao e a chapa que deseja impugnar</CardDescription>
+              <CardDescription>Selecione o tipo e a eleicao relacionada</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="eleicaoId">Eleicao *</Label>
-                  <select
-                    id="eleicaoId"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                    {...register('eleicaoId')}
+                  <Label htmlFor="tipo">Tipo de Impugnacao *</Label>
+                  <Select
+                    value={selectedTipo}
+                    onValueChange={(value) => setValue('tipo', value)}
                   >
-                    <option value="">Selecione uma eleicao</option>
-                    {eleicoes?.map((eleicao) => (
-                      <option key={eleicao.id} value={eleicao.id}>
-                        {eleicao.nome} ({eleicao.ano})
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(tipoLabels).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.tipo && (
+                    <p className="text-sm text-red-500">{errors.tipo.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="eleicaoId">Eleicao *</Label>
+                  <Select
+                    value={selectedEleicaoId}
+                    onValueChange={(value) => setValue('eleicaoId', value)}
+                    disabled={loadingEleicoes}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione uma eleicao" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {eleicoes?.map((eleicao) => (
+                        <SelectItem key={eleicao.id} value={eleicao.id}>
+                          {eleicao.nome} ({eleicao.ano})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {errors.eleicaoId && (
                     <p className="text-sm text-red-500">{errors.eleicaoId.message}</p>
                   )}
                 </div>
+              </div>
+
+              {/* Chapa Selection */}
+              {needsChapaSelection && selectedEleicaoId && (
                 <div className="space-y-2">
-                  <Label htmlFor="chapaId">Chapa *</Label>
-                  <select
-                    id="chapaId"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                    {...register('chapaId')}
-                    disabled={!selectedEleicaoId}
+                  <Label htmlFor="chapaId">Chapa a ser Impugnada *</Label>
+                  <Select
+                    value={watch('chapaId') || ''}
+                    onValueChange={(value) => setValue('chapaId', value)}
+                    disabled={loadingChapas}
                   >
-                    <option value="">Selecione uma chapa</option>
-                    {filteredChapas.map((chapa) => (
-                      <option key={chapa.id} value={chapa.id}>
-                        {chapa.numero}. {chapa.nome}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.chapaId && (
-                    <p className="text-sm text-red-500">{errors.chapaId.message}</p>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a chapa" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {chapas.map((chapa) => (
+                        <SelectItem key={chapa.id} value={chapa.id}>
+                          {chapa.numero}. {chapa.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {loadingChapas && (
+                    <p className="text-sm text-gray-500">Carregando chapas...</p>
                   )}
                 </div>
-              </div>
+              )}
+
+              {/* Candidato Selection */}
+              {needsCandidatoSelection && selectedEleicaoId && (
+                <div className="space-y-2">
+                  <Label htmlFor="candidatoId">Candidato a ser Impugnado *</Label>
+                  <Input
+                    id="candidatoId"
+                    placeholder="ID do candidato"
+                    {...register('candidatoId')}
+                  />
+                  <p className="text-xs text-gray-500">
+                    Em producao, este sera um campo de busca de candidatos.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
-          {/* Motivo e Fundamentacao */}
+          {/* Fundamentacao */}
           <Card>
             <CardHeader>
-              <CardTitle>Motivo da Impugnacao</CardTitle>
-              <CardDescription>Descreva os motivos e fundamentos da impugnacao</CardDescription>
+              <CardTitle>Fundamentacao</CardTitle>
+              <CardDescription>
+                Descreva detalhadamente os fatos e fundamentos juridicos da impugnacao
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="motivo">Motivo *</Label>
-                <select
-                  id="motivo"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  {...register('motivo')}
-                >
-                  <option value="">Selecione um motivo</option>
-                  {motivosImpugnacao.map((motivo) => (
-                    <option key={motivo} value={motivo}>
-                      {motivo}
-                    </option>
-                  ))}
-                </select>
-                {errors.motivo && <p className="text-sm text-red-500">{errors.motivo.message}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="fundamentacao">Fundamentacao *</Label>
-                <textarea
+                <Label htmlFor="fundamentacao">Fundamentacao de Fato e de Direito *</Label>
+                <Textarea
                   id="fundamentacao"
-                  className="flex min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  placeholder="Descreva detalhadamente os fundamentos de fato e de direito para a impugnacao. Cite os artigos do regimento eleitoral ou legislacao aplicavel que fundamentam seu pedido..."
+                  placeholder="Descreva detalhadamente os fatos que motivam a impugnacao e os fundamentos juridicos que a sustentam. Seja o mais especifico possivel, citando datas, documentos e testemunhas quando aplicavel..."
                   {...register('fundamentacao')}
+                  rows={8}
                 />
                 {errors.fundamentacao && (
                   <p className="text-sm text-red-500">{errors.fundamentacao.message}</p>
@@ -234,61 +304,36 @@ export function ImpugnacaoFormPage() {
                   Minimo de 100 caracteres. Seja o mais detalhado possivel.
                 </p>
               </div>
-            </CardContent>
-          </Card>
 
-          {/* Dados do Impugnante */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Dados do Impugnante</CardTitle>
-              <CardDescription>Suas informacoes para identificacao</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="impugnanteNome">Nome Completo *</Label>
-                  <Input
-                    id="impugnanteNome"
-                    placeholder="Seu nome completo"
-                    {...register('impugnanteNome')}
-                  />
-                  {errors.impugnanteNome && (
-                    <p className="text-sm text-red-500">{errors.impugnanteNome.message}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="impugnanteCpf">CPF *</Label>
-                  <Input
-                    id="impugnanteCpf"
-                    placeholder="000.000.000-00"
-                    {...register('impugnanteCpf')}
-                  />
-                  {errors.impugnanteCpf && (
-                    <p className="text-sm text-red-500">{errors.impugnanteCpf.message}</p>
-                  )}
+              <div className="space-y-2">
+                <Label htmlFor="normasVioladas">Normas Violadas</Label>
+                <Textarea
+                  id="normasVioladas"
+                  placeholder="Indique os artigos, resolucoes ou leis que foram violados..."
+                  {...register('normasVioladas')}
+                  rows={3}
+                />
+                <div className="rounded-lg bg-gray-50 p-3">
+                  <p className="text-xs font-medium text-gray-700 mb-2">Exemplos de normas:</p>
+                  <ul className="text-xs text-gray-600 space-y-1">
+                    {normasExemplos.map((norma, index) => (
+                      <li key={index}>- {norma}</li>
+                    ))}
+                  </ul>
                 </div>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="impugnanteEmail">Email *</Label>
-                  <Input
-                    id="impugnanteEmail"
-                    type="email"
-                    placeholder="seu@email.com"
-                    {...register('impugnanteEmail')}
-                  />
-                  {errors.impugnanteEmail && (
-                    <p className="text-sm text-red-500">{errors.impugnanteEmail.message}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="impugnanteTelefone">Telefone</Label>
-                  <Input
-                    id="impugnanteTelefone"
-                    placeholder="(00) 00000-0000"
-                    {...register('impugnanteTelefone')}
-                  />
-                </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="pedido">Pedido *</Label>
+                <Textarea
+                  id="pedido"
+                  placeholder="Especifique claramente o que voce solicita com esta impugnacao (ex: anulacao do registro da chapa, inabilitacao do candidato, etc.)..."
+                  {...register('pedido')}
+                  rows={4}
+                />
+                {errors.pedido && (
+                  <p className="text-sm text-red-500">{errors.pedido.message}</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -296,19 +341,24 @@ export function ImpugnacaoFormPage() {
           {/* Anexos */}
           <Card>
             <CardHeader>
-              <CardTitle>Documentos Comprobatorios</CardTitle>
-              <CardDescription>Anexe documentos que comprovem suas alegacoes</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Documentos Comprobatorios
+              </CardTitle>
+              <CardDescription>
+                Anexe documentos que comprovem suas alegacoes (maximo 10MB por arquivo)
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
                   <input
                     type="file"
                     id="anexos"
                     multiple
                     className="hidden"
                     onChange={handleFileChange}
-                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx"
                   />
                   <label htmlFor="anexos" className="cursor-pointer">
                     <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
@@ -316,19 +366,28 @@ export function ImpugnacaoFormPage() {
                       Clique para selecionar ou arraste arquivos
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
-                      PDF, DOC, JPG, PNG (max. 10MB cada)
+                      PDF, DOC, DOCX, JPG, PNG, XLS, XLSX (max. 10MB cada)
                     </p>
                   </label>
                 </div>
 
                 {anexos.length > 0 && (
                   <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-700">
+                      {anexos.length} arquivo(s) selecionado(s)
+                    </p>
                     {anexos.map((file, index) => (
                       <div
                         key={index}
                         className="flex items-center justify-between rounded-lg border p-3"
                       >
-                        <span className="text-sm">{file.name}</span>
+                        <div className="flex items-center gap-3">
+                          <FileText className="h-5 w-5 text-gray-400" />
+                          <div>
+                            <span className="text-sm font-medium">{file.name}</span>
+                            <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                          </div>
+                        </div>
                         <Button
                           type="button"
                           variant="ghost"
@@ -345,17 +404,36 @@ export function ImpugnacaoFormPage() {
             </CardContent>
           </Card>
 
+          {/* Informacoes Importantes */}
+          <Card className="border-blue-200 bg-blue-50">
+            <CardContent className="pt-6">
+              <div className="flex gap-3">
+                <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-medium text-blue-900">Informacoes Importantes</h4>
+                  <ul className="text-sm text-blue-800 mt-2 space-y-1">
+                    <li>- A impugnacao deve ser apresentada dentro do prazo estabelecido pelo calendario eleitoral</li>
+                    <li>- Impugnacoes intempestivas nao serao conhecidas</li>
+                    <li>- O impugnado sera notificado e tera prazo para apresentar defesa</li>
+                    <li>- A decisao sera proferida pela Comissao Eleitoral</li>
+                    <li>- Cabe recurso da decisao no prazo regulamentar</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Alerta */}
           <Card className="border-yellow-200 bg-yellow-50">
             <CardContent className="pt-6">
               <div className="flex gap-3">
                 <AlertOctagon className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-medium text-yellow-800">Importante</h4>
+                  <h4 className="font-medium text-yellow-800">Atencao</h4>
                   <p className="text-sm text-yellow-700 mt-1">
-                    A impugnacao deve ser apresentada dentro do prazo estabelecido pelo calendario
-                    eleitoral. Impugnacoes intempestivas nao serao conhecidas. Voce sera notificado
-                    por email sobre o andamento do processo.
+                    Ao registrar esta impugnacao, voce declara que as informacoes prestadas sao
+                    verdadeiras e que tem ciencia de que a prestacao de informacoes falsas pode
+                    caracterizar crime previsto no Codigo Penal.
                   </p>
                 </div>
               </div>

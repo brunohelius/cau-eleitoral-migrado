@@ -21,6 +21,7 @@ public class AppDbContext : DbContext
     public DbSet<Calendario> Calendarios { get; set; }
     public DbSet<AtividadePrincipalCalendario> AtividadesPrincipaisCalendario { get; set; }
     public DbSet<AtividadeSecundariaCalendario> AtividadesSecundariasCalendario { get; set; }
+    public DbSet<Configuracao> Configuracoes { get; set; }
     public DbSet<ConfiguracaoEleicao> ConfiguracoesEleicao { get; set; }
     public DbSet<ParametroEleicao> ParametrosEleicao { get; set; }
     public DbSet<RegionalCAU> RegionaisCAU { get; set; }

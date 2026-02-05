@@ -1,4 +1,3 @@
-// import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
@@ -12,17 +11,22 @@ import {
   XCircle,
   Archive,
   AlertTriangle,
-  FileText,
+  Scale,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
-import api from '@/services/api'
+import {
+  denunciasService,
+  StatusDenuncia,
+  statusDenunciaLabels,
+  tipoDenunciaLabels,
+} from '@/services/denuncias'
 
 const julgamentoSchema = z.object({
-  decisao: z.enum(['deferida', 'indeferida', 'arquivada'], {
+  decisao: z.enum(['procedente', 'improcedente', 'parcialmente_procedente', 'arquivada'], {
     required_error: 'Selecione uma decisao',
   }),
   fundamentacao: z.string().min(50, 'A fundamentacao deve ter no minimo 50 caracteres'),
@@ -33,21 +37,6 @@ const julgamentoSchema = z.object({
 
 type JulgamentoFormData = z.infer<typeof julgamentoSchema>
 
-interface Denuncia {
-  id: string
-  protocolo: string
-  titulo: string
-  descricao: string
-  tipo: string
-  status: string
-  prioridade: string
-  denuncianteNome?: string
-  denunciadoNome: string
-  chapaNome?: string
-  eleicaoNome: string
-  dataRegistro: string
-}
-
 const penalidades = [
   { value: 'advertencia', label: 'Advertencia' },
   { value: 'multa', label: 'Multa' },
@@ -56,34 +45,23 @@ const penalidades = [
   { value: 'inelegibilidade', label: 'Inelegibilidade' },
 ]
 
+const decisaoToStatus: Record<string, StatusDenuncia> = {
+  procedente: StatusDenuncia.PROCEDENTE,
+  improcedente: StatusDenuncia.IMPROCEDENTE,
+  parcialmente_procedente: StatusDenuncia.PARCIALMENTE_PROCEDENTE,
+  arquivada: StatusDenuncia.ARQUIVADA,
+}
+
 export function DenunciaJulgamentoPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
-  // Mock denuncia - em producao viria da API
+  // Fetch denuncia
   const { data: denuncia, isLoading: isLoadingDenuncia } = useQuery({
     queryKey: ['denuncia', id],
-    queryFn: async () => {
-      // const response = await api.get<Denuncia>(`/denuncia/${id}`)
-      // return response.data
-      return {
-        id: '1',
-        protocolo: 'DEN-2024-00001',
-        titulo: 'Irregularidade na campanha eleitoral',
-        descricao:
-          'Foi observada distribuicao de material de campanha fora do periodo permitido pelo calendario eleitoral.',
-        tipo: 'propaganda_irregular',
-        status: 'em_analise',
-        prioridade: 'alta',
-        denuncianteNome: 'Joao Carlos Silva',
-        denunciadoNome: 'Chapa Renovacao',
-        chapaNome: 'Chapa Renovacao',
-        eleicaoNome: 'Eleicao CAU/SP 2024',
-        dataRegistro: '2024-02-16T10:30:00',
-      } as Denuncia
-    },
+    queryFn: () => denunciasService.getById(id!),
     enabled: !!id,
   })
 
@@ -104,8 +82,11 @@ export function DenunciaJulgamentoPage() {
 
   const julgamentoMutation = useMutation({
     mutationFn: async (data: JulgamentoFormData) => {
-      const response = await api.post(`/denuncia/${id}/julgar`, data)
-      return response.data
+      return denunciasService.julgar(id!, {
+        decisao: decisaoToStatus[data.decisao],
+        fundamentacao: data.fundamentacao,
+        penalidade: data.penalidade,
+      })
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['denuncias'] })
@@ -116,11 +97,11 @@ export function DenunciaJulgamentoPage() {
       })
       navigate(`/denuncias/${id}`)
     },
-    onError: (error: any) => {
+    onError: () => {
       toast({
         variant: 'destructive',
         title: 'Erro ao registrar julgamento',
-        description: error.response?.data?.message || 'Tente novamente mais tarde.',
+        description: 'Tente novamente mais tarde.',
       })
     },
   })
@@ -128,22 +109,6 @@ export function DenunciaJulgamentoPage() {
   const onSubmit = (data: JulgamentoFormData) => {
     julgamentoMutation.mutate(data)
   }
-
-  const getDecisaoIcon = (decisaoValue: string) => {
-    switch (decisaoValue) {
-      case 'deferida':
-        return <CheckCircle className="h-5 w-5 text-green-500" />
-      case 'indeferida':
-        return <XCircle className="h-5 w-5 text-red-500" />
-      case 'arquivada':
-        return <Archive className="h-5 w-5 text-gray-500" />
-      default:
-        return null
-    }
-  }
-
-  // Use the function to avoid unused warning
-  void getDecisaoIcon
 
   if (isLoadingDenuncia) {
     return (
@@ -155,11 +120,23 @@ export function DenunciaJulgamentoPage() {
 
   if (!denuncia) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex flex-col items-center justify-center h-64">
+        <AlertTriangle className="h-12 w-12 text-gray-300 mb-4" />
         <p className="text-gray-500">Denuncia nao encontrada.</p>
+        <Link to="/denuncias">
+          <Button variant="link" className="mt-2">
+            Voltar para lista
+          </Button>
+        </Link>
       </div>
     )
   }
+
+  const statusInfo = statusDenunciaLabels[denuncia.status] || {
+    label: 'Desconhecido',
+    color: 'bg-gray-100 text-gray-800',
+  }
+  const tipoLabel = tipoDenunciaLabels[denuncia.tipo] || 'Outro'
 
   return (
     <div className="space-y-6">
@@ -190,22 +167,38 @@ export function DenunciaJulgamentoPage() {
               <dd className="mt-1 text-sm text-gray-900">{denuncia.titulo}</dd>
             </div>
             <div>
+              <dt className="text-sm font-medium text-gray-500">Tipo</dt>
+              <dd className="mt-1 text-sm text-gray-900">{tipoLabel}</dd>
+            </div>
+            <div>
+              <dt className="text-sm font-medium text-gray-500">Status Atual</dt>
+              <dd className="mt-1">
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusInfo.color}`}
+                >
+                  {statusInfo.label}
+                </span>
+              </dd>
+            </div>
+            <div>
               <dt className="text-sm font-medium text-gray-500">Denunciado</dt>
-              <dd className="mt-1 text-sm text-gray-900">{denuncia.denunciadoNome}</dd>
+              <dd className="mt-1 text-sm text-gray-900">
+                {denuncia.chapaNome || denuncia.membroNome || '-'}
+              </dd>
             </div>
             <div>
               <dt className="text-sm font-medium text-gray-500">Eleicao</dt>
-              <dd className="mt-1 text-sm text-gray-900">{denuncia.eleicaoNome}</dd>
+              <dd className="mt-1 text-sm text-gray-900">{denuncia.eleicaoNome || '-'}</dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-gray-500">Data do Registro</dt>
+              <dt className="text-sm font-medium text-gray-500">Data da Denuncia</dt>
               <dd className="mt-1 text-sm text-gray-900">
-                {new Date(denuncia.dataRegistro).toLocaleDateString('pt-BR')}
+                {new Date(denuncia.dataDenuncia).toLocaleDateString('pt-BR')}
               </dd>
             </div>
             <div>
               <dt className="text-sm font-medium text-gray-500">Descricao</dt>
-              <dd className="mt-1 text-sm text-gray-900">{denuncia.descricao}</dd>
+              <dd className="mt-1 text-sm text-gray-900 line-clamp-4">{denuncia.descricao}</dd>
             </div>
           </CardContent>
         </Card>
@@ -214,7 +207,7 @@ export function DenunciaJulgamentoPage() {
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Gavel className="h-5 w-5" />
+              <Scale className="h-5 w-5" />
               Decisao
             </CardTitle>
             <CardDescription>Registre o julgamento da denuncia</CardDescription>
@@ -224,51 +217,74 @@ export function DenunciaJulgamentoPage() {
               {/* Decisao */}
               <div className="space-y-4">
                 <Label>Decisao *</Label>
-                <div className="grid gap-4 sm:grid-cols-3">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <label
-                    className={`flex items-center gap-3 rounded-lg border p-4 cursor-pointer transition-colors ${
-                      decisao === 'deferida' ? 'border-green-500 bg-green-50' : 'hover:bg-gray-50'
+                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 cursor-pointer transition-colors ${
+                      decisao === 'procedente' ? 'border-green-500 bg-green-50' : 'hover:bg-gray-50'
                     }`}
                   >
                     <input
                       type="radio"
-                      value="deferida"
+                      value="procedente"
                       {...register('decisao')}
                       className="sr-only"
                     />
                     <CheckCircle
-                      className={`h-5 w-5 ${
-                        decisao === 'deferida' ? 'text-green-500' : 'text-gray-400'
+                      className={`h-8 w-8 ${
+                        decisao === 'procedente' ? 'text-green-500' : 'text-gray-400'
                       }`}
                     />
-                    <div>
-                      <p className="font-medium">Deferida</p>
+                    <div className="text-center">
+                      <p className="font-medium text-sm">Procedente</p>
                       <p className="text-xs text-gray-500">Aceitar a denuncia</p>
                     </div>
                   </label>
                   <label
-                    className={`flex items-center gap-3 rounded-lg border p-4 cursor-pointer transition-colors ${
-                      decisao === 'indeferida' ? 'border-red-500 bg-red-50' : 'hover:bg-gray-50'
+                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 cursor-pointer transition-colors ${
+                      decisao === 'improcedente' ? 'border-red-500 bg-red-50' : 'hover:bg-gray-50'
                     }`}
                   >
                     <input
                       type="radio"
-                      value="indeferida"
+                      value="improcedente"
                       {...register('decisao')}
                       className="sr-only"
                     />
                     <XCircle
-                      className={`h-5 w-5 ${
-                        decisao === 'indeferida' ? 'text-red-500' : 'text-gray-400'
+                      className={`h-8 w-8 ${
+                        decisao === 'improcedente' ? 'text-red-500' : 'text-gray-400'
                       }`}
                     />
-                    <div>
-                      <p className="font-medium">Indeferida</p>
+                    <div className="text-center">
+                      <p className="font-medium text-sm">Improcedente</p>
                       <p className="text-xs text-gray-500">Rejeitar a denuncia</p>
                     </div>
                   </label>
                   <label
-                    className={`flex items-center gap-3 rounded-lg border p-4 cursor-pointer transition-colors ${
+                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 cursor-pointer transition-colors ${
+                      decisao === 'parcialmente_procedente'
+                        ? 'border-amber-500 bg-amber-50'
+                        : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      value="parcialmente_procedente"
+                      {...register('decisao')}
+                      className="sr-only"
+                    />
+                    <Gavel
+                      className={`h-8 w-8 ${
+                        decisao === 'parcialmente_procedente' ? 'text-amber-500' : 'text-gray-400'
+                      }`}
+                    />
+                    <div className="text-center">
+                      <p className="font-medium text-sm">Parcial</p>
+                      <p className="text-xs text-gray-500">Parcialmente procedente</p>
+                    </div>
+                  </label>
+                  <label
+                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 cursor-pointer transition-colors ${
                       decisao === 'arquivada' ? 'border-gray-500 bg-gray-50' : 'hover:bg-gray-50'
                     }`}
                   >
@@ -279,13 +295,13 @@ export function DenunciaJulgamentoPage() {
                       className="sr-only"
                     />
                     <Archive
-                      className={`h-5 w-5 ${
-                        decisao === 'arquivada' ? 'text-gray-500' : 'text-gray-400'
+                      className={`h-8 w-8 ${
+                        decisao === 'arquivada' ? 'text-gray-600' : 'text-gray-400'
                       }`}
                     />
-                    <div>
-                      <p className="font-medium">Arquivada</p>
-                      <p className="text-xs text-gray-500">Arquivar sem julgamento</p>
+                    <div className="text-center">
+                      <p className="font-medium text-sm">Arquivada</p>
+                      <p className="text-xs text-gray-500">Arquivar sem merito</p>
                     </div>
                   </label>
                 </div>
@@ -308,8 +324,8 @@ export function DenunciaJulgamentoPage() {
                 )}
               </div>
 
-              {/* Penalidade (apenas se deferida) */}
-              {decisao === 'deferida' && (
+              {/* Penalidade (apenas se procedente ou parcialmente procedente) */}
+              {(decisao === 'procedente' || decisao === 'parcialmente_procedente') && (
                 <div className="space-y-2">
                   <Label htmlFor="penalidade">Penalidade Aplicada</Label>
                   <select
@@ -317,7 +333,7 @@ export function DenunciaJulgamentoPage() {
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     {...register('penalidade')}
                   >
-                    <option value="">Selecione uma penalidade</option>
+                    <option value="">Selecione uma penalidade (opcional)</option>
                     {penalidades.map((p) => (
                       <option key={p.value} value={p.value}>
                         {p.label}

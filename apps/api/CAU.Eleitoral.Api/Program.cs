@@ -108,9 +108,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Production", policy =>
     {
         policy.WithOrigins(
-            "https://cau-eleitoral.migrai.com.br",
-            "https://admin.cau-eleitoral.migrai.com.br",
-            "https://public.cau-eleitoral.migrai.com.br"
+            "https://cau-admin.migrai.com.br",
+            "https://cau-public.migrai.com.br",
+            "https://cau-api.migrai.com.br"
         )
         .AllowAnyMethod()
         .AllowAnyHeader()
@@ -137,6 +137,7 @@ builder.Services.AddScoped<IApuracaoService, ApuracaoService>();
 builder.Services.AddScoped<IRelatorioService, RelatorioService>();
 builder.Services.AddScoped<INotificacaoService, NotificacaoService>();
 builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
+builder.Services.AddScoped<IConfiguracaoService, ConfiguracaoService>();
 
 // Add Health Checks
 builder.Services.AddHealthChecks()
@@ -173,15 +174,117 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
 
-// Apply migrations and seed on startup in development
-if (app.Environment.IsDevelopment())
+// Seed endpoint (protected by secret key)
+app.MapPost("/api/admin/seed", async (HttpContext context, DatabaseSeeder seeder) =>
 {
+    var seedKey = context.Request.Headers["X-Seed-Key"].FirstOrDefault();
+    var expectedKey = app.Configuration["Admin:SeedKey"] ?? "CAU-SEED-2026-SECRET";
+
+    if (seedKey != expectedKey)
+    {
+        return Results.Unauthorized();
+    }
+
+    try
+    {
+        Log.Information("Starting database seeding via API...");
+        await seeder.SeedAsync();
+        Log.Information("Database seeding completed via API.");
+        return Results.Ok(new { message = "Database seeded successfully" });
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error seeding database");
+        return Results.Problem($"Error seeding database: {ex.Message}");
+    }
+});
+
+// Force create admin endpoint (protected by secret key)
+app.MapPost("/api/admin/setup-admin", async (HttpContext context, AppDbContext db) =>
+{
+    var seedKey = context.Request.Headers["X-Seed-Key"].FirstOrDefault();
+    var expectedKey = app.Configuration["Admin:SeedKey"] ?? "CAU-SEED-2026-SECRET";
+
+    if (seedKey != expectedKey)
+    {
+        return Results.Unauthorized();
+    }
+
+    try
+    {
+        var email = "admin@cau.org.br";
+        var existingUser = await db.Usuarios.FirstOrDefaultAsync(u => u.Email == email);
+
+        // Generate password hash
+        var saltBytes = System.Security.Cryptography.RandomNumberGenerator.GetBytes(16);
+        var salt = Convert.ToBase64String(saltBytes);
+        using var pbkdf2 = new System.Security.Cryptography.Rfc2898DeriveBytes(
+            "Admin@123", saltBytes, 100000, System.Security.Cryptography.HashAlgorithmName.SHA256);
+        var hash = Convert.ToBase64String(pbkdf2.GetBytes(32));
+
+        if (existingUser != null)
+        {
+            // Update existing user
+            existingUser.PasswordHash = hash;
+            existingUser.PasswordSalt = salt;
+            existingUser.EmailConfirmado = true;
+            existingUser.Status = CAU.Eleitoral.Domain.Enums.StatusUsuario.Ativo;
+            await db.SaveChangesAsync();
+            return Results.Ok(new { message = "Admin user updated successfully", email });
+        }
+        else
+        {
+            // Create new admin
+            var adminRole = await db.Roles.FirstOrDefaultAsync(r => r.Nome == "Administrador");
+            var admin = new CAU.Eleitoral.Domain.Entities.Usuarios.Usuario
+            {
+                Nome = "Admin Sistema",
+                Email = email,
+                Cpf = "11111111111",
+                PasswordHash = hash,
+                PasswordSalt = salt,
+                Status = CAU.Eleitoral.Domain.Enums.StatusUsuario.Ativo,
+                EmailConfirmado = true,
+                Tipo = CAU.Eleitoral.Domain.Enums.TipoUsuario.Administrador
+            };
+            await db.Usuarios.AddAsync(admin);
+            await db.SaveChangesAsync();
+
+            if (adminRole != null)
+            {
+                await db.UsuarioRoles.AddAsync(new CAU.Eleitoral.Domain.Entities.Usuarios.UsuarioRole
+                {
+                    UsuarioId = admin.Id,
+                    RoleId = adminRole.Id
+                });
+                await db.SaveChangesAsync();
+            }
+            return Results.Ok(new { message = "Admin user created successfully", email });
+        }
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error setting up admin");
+        return Results.Problem($"Error setting up admin: {ex.Message}");
+    }
+});
+
+// Apply migrations on startup (controlled by environment variable)
+var runMigrations = builder.Configuration.GetValue<bool>("Database:RunMigrationsOnStartup", app.Environment.IsDevelopment());
+if (runMigrations)
+{
+    Log.Information("Running database migrations...");
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
+    Log.Information("Database migrations completed.");
 
-    var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
-    await seeder.SeedAsync();
+    // Only seed in development
+    if (app.Environment.IsDevelopment())
+    {
+        var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+        await seeder.SeedAsync();
+    }
 }
 
 app.Run();

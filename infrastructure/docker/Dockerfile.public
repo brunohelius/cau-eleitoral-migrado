@@ -1,24 +1,27 @@
 # Build stage
-FROM node:20-alpine AS build
+FROM public.ecr.aws/docker/library/node:20-alpine AS build
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm
+# Enable corepack for pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Copy package files
 COPY package.json pnpm-lock.yaml* ./
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile || pnpm install
 
 # Copy source code
 COPY . .
+
+# Copy production environment
+COPY .env.production .env
 
 # Build the app
 RUN pnpm build
 
 # Production stage
-FROM nginx:alpine AS runtime
+FROM public.ecr.aws/nginx/nginx:alpine AS runtime
 
 # Copy nginx config
 COPY nginx.conf /etc/nginx/nginx.conf

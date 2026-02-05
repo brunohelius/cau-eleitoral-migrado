@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CAU.Eleitoral.Application.Interfaces;
+using CAU.Eleitoral.Application.DTOs.Denuncias;
+using CAU.Eleitoral.Application.DTOs.Auditoria;
 using CAU.Eleitoral.Domain.Enums;
 
 namespace CAU.Eleitoral.Api.Controllers;
@@ -20,24 +22,24 @@ public class DenunciaController : BaseController
         _logger = logger;
     }
 
+    #region CRUD Endpoints
+
     /// <summary>
-    /// Lista todas as denuncias
+    /// Lista todas as denuncias com paginacao e filtros
     /// </summary>
-    /// <param name="eleicaoId">Filtro opcional por eleicao</param>
-    /// <param name="status">Filtro opcional por status</param>
+    /// <param name="filtro">Filtros e paginacao</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Lista de denuncias</returns>
+    /// <returns>Lista paginada de denuncias</returns>
     [HttpGet]
     [Authorize(Roles = "Admin,ComissaoEleitoral,Analista")]
-    [ProducesResponseType(typeof(IEnumerable<DenunciaDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<DenunciaDto>>> GetAll(
-        [FromQuery] Guid? eleicaoId,
-        [FromQuery] StatusDenuncia? status,
+    [ProducesResponseType(typeof(PaginatedResultDto<DenunciaListDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PaginatedResultDto<DenunciaListDto>>> GetAll(
+        [FromQuery] FiltroDenunciaDto filtro,
         CancellationToken cancellationToken)
     {
         try
         {
-            var denuncias = await _denunciaService.GetAllAsync(eleicaoId, status, cancellationToken);
+            var denuncias = await _denunciaService.GetPaginatedAsync(filtro, cancellationToken);
             return Ok(denuncias);
         }
         catch (Exception ex)
@@ -48,11 +50,11 @@ public class DenunciaController : BaseController
     }
 
     /// <summary>
-    /// Obtem uma denuncia pelo ID
+    /// Obtem uma denuncia pelo ID com todos os detalhes
     /// </summary>
     /// <param name="id">ID da denuncia</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Dados da denuncia</returns>
+    /// <returns>Dados completos da denuncia</returns>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(DenunciaDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -69,6 +71,32 @@ public class DenunciaController : BaseController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro ao obter denuncia {Id}", id);
+            return InternalError("Erro ao obter denuncia");
+        }
+    }
+
+    /// <summary>
+    /// Obtem uma denuncia pelo protocolo
+    /// </summary>
+    /// <param name="protocolo">Protocolo da denuncia</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Dados da denuncia</returns>
+    [HttpGet("protocolo/{protocolo}")]
+    [ProducesResponseType(typeof(DenunciaDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<DenunciaDto>> GetByProtocolo(string protocolo, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var denuncia = await _denunciaService.GetByProtocoloAsync(protocolo, cancellationToken);
+            if (denuncia == null)
+                return NotFound(new { message = "Denuncia nao encontrada" });
+
+            return Ok(denuncia);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao obter denuncia pelo protocolo {Protocolo}", protocolo);
             return InternalError("Erro ao obter denuncia");
         }
     }
@@ -92,6 +120,52 @@ public class DenunciaController : BaseController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro ao listar denuncias da eleicao {EleicaoId}", eleicaoId);
+            return InternalError("Erro ao listar denuncias");
+        }
+    }
+
+    /// <summary>
+    /// Lista denuncias por status
+    /// </summary>
+    /// <param name="status">Status da denuncia</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Lista de denuncias</returns>
+    [HttpGet("status/{status}")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral,Analista")]
+    [ProducesResponseType(typeof(IEnumerable<DenunciaDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<DenunciaDto>>> GetByStatus(StatusDenuncia status, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var denuncias = await _denunciaService.GetByStatusAsync(status, cancellationToken);
+            return Ok(denuncias);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao listar denuncias por status {Status}", status);
+            return InternalError("Erro ao listar denuncias");
+        }
+    }
+
+    /// <summary>
+    /// Lista denuncias por chapa
+    /// </summary>
+    /// <param name="chapaId">ID da chapa</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Lista de denuncias</returns>
+    [HttpGet("chapa/{chapaId:guid}")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral,Analista")]
+    [ProducesResponseType(typeof(IEnumerable<DenunciaDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<DenunciaDto>>> GetByChapa(Guid chapaId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var denuncias = await _denunciaService.GetByChapaAsync(chapaId, cancellationToken);
+            return Ok(denuncias);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao listar denuncias da chapa {ChapaId}", chapaId);
             return InternalError("Erro ao listar denuncias");
         }
     }
@@ -211,6 +285,84 @@ public class DenunciaController : BaseController
         }
     }
 
+    #endregion
+
+    #region Workflow Endpoints
+
+    /// <summary>
+    /// Inicia a analise de uma denuncia
+    /// </summary>
+    /// <param name="id">ID da denuncia</param>
+    /// <param name="dto">Dados opcionais da analise</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Denuncia atualizada</returns>
+    [HttpPost("{id:guid}/analisar")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral,Analista")]
+    [ProducesResponseType(typeof(DenunciaDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<DenunciaDto>> Analisar(
+        Guid id,
+        [FromBody] IniciarAnaliseDto? dto,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var denuncia = await _denunciaService.IniciarAnaliseAsync(id, userId, cancellationToken);
+            return Ok(denuncia);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Denuncia nao encontrada" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao iniciar analise da denuncia {Id}", id);
+            return InternalError("Erro ao iniciar analise");
+        }
+    }
+
+    /// <summary>
+    /// Conclui a analise de uma denuncia
+    /// </summary>
+    /// <param name="id">ID da denuncia</param>
+    /// <param name="dto">Dados da conclusao</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Dados da analise concluida</returns>
+    [HttpPost("{id:guid}/concluir-analise")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral,Analista")]
+    [ProducesResponseType(typeof(AnaliseDenunciaDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<AnaliseDenunciaDto>> ConcluirAnalise(
+        Guid id,
+        [FromBody] ConcluirAnaliseDto dto,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var analise = await _denunciaService.ConcluirAnaliseAsync(id, dto, userId, cancellationToken);
+            return Ok(analise);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Analise nao encontrada" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao concluir analise da denuncia {Id}", id);
+            return InternalError("Erro ao concluir analise");
+        }
+    }
+
     /// <summary>
     /// Aceita a admissibilidade de uma denuncia
     /// </summary>
@@ -224,14 +376,18 @@ public class DenunciaController : BaseController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<DenunciaDto>> AceitarAdmissibilidade(
         Guid id,
-        [FromBody] ParecerRequest request,
+        [FromBody] RegistrarAdmissibilidadeDto request,
         CancellationToken cancellationToken)
     {
         try
         {
             var userId = GetUserId();
-            var denuncia = await _denunciaService.AceitarAdmissibilidadeAsync(id, request.Parecer, userId, cancellationToken);
+            var denuncia = await _denunciaService.RegistrarAdmissibilidadeAsync(id, true, request.Parecer, userId, cancellationToken);
             return Ok(denuncia);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Denuncia nao encontrada" });
         }
         catch (InvalidOperationException ex)
         {
@@ -257,14 +413,18 @@ public class DenunciaController : BaseController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<DenunciaDto>> RejeitarAdmissibilidade(
         Guid id,
-        [FromBody] MotivoRequest request,
+        [FromBody] RegistrarAdmissibilidadeDto request,
         CancellationToken cancellationToken)
     {
         try
         {
             var userId = GetUserId();
-            var denuncia = await _denunciaService.RejeitarAdmissibilidadeAsync(id, request.Motivo, userId, cancellationToken);
+            var denuncia = await _denunciaService.RegistrarAdmissibilidadeAsync(id, false, request.Parecer, userId, cancellationToken);
             return Ok(denuncia);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Denuncia nao encontrada" });
         }
         catch (InvalidOperationException ex)
         {
@@ -290,13 +450,17 @@ public class DenunciaController : BaseController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<DenunciaDto>> SolicitarDefesa(
         Guid id,
-        [FromBody] SolicitarDefesaRequest request,
+        [FromBody] SolicitarDefesaDto request,
         CancellationToken cancellationToken)
     {
         try
         {
             var denuncia = await _denunciaService.SolicitarDefesaAsync(id, request.PrazoEmDias, cancellationToken);
             return Ok(denuncia);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Denuncia nao encontrada" });
         }
         catch (InvalidOperationException ex)
         {
@@ -321,7 +485,7 @@ public class DenunciaController : BaseController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<DenunciaDto>> ApresentarDefesa(
         Guid id,
-        [FromBody] ApresentarDefesaDto dto,
+        [FromBody] CreateDefesaDto dto,
         CancellationToken cancellationToken)
     {
         try
@@ -329,6 +493,10 @@ public class DenunciaController : BaseController
             var userId = GetUserId();
             var denuncia = await _denunciaService.ApresentarDefesaAsync(id, dto, userId, cancellationToken);
             return Ok(denuncia);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Denuncia nao encontrada" });
         }
         catch (InvalidOperationException ex)
         {
@@ -355,8 +523,12 @@ public class DenunciaController : BaseController
     {
         try
         {
-            var denuncia = await _denunciaService.EnviarParaJulgamentoAsync(id, cancellationToken);
+            var denuncia = await _denunciaService.EncaminharParaJulgamentoAsync(id, cancellationToken);
             return Ok(denuncia);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Denuncia nao encontrada" });
         }
         catch (InvalidOperationException ex)
         {
@@ -391,6 +563,10 @@ public class DenunciaController : BaseController
             var denuncia = await _denunciaService.JulgarAsync(id, dto, userId, cancellationToken);
             return Ok(denuncia);
         }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Denuncia nao encontrada" });
+        }
         catch (InvalidOperationException ex)
         {
             return BadRequest(new { message = ex.Message });
@@ -415,7 +591,7 @@ public class DenunciaController : BaseController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<DenunciaDto>> Arquivar(
         Guid id,
-        [FromBody] MotivoRequest request,
+        [FromBody] ArquivarDenunciaDto request,
         CancellationToken cancellationToken)
     {
         try
@@ -423,6 +599,10 @@ public class DenunciaController : BaseController
             var userId = GetUserId();
             var denuncia = await _denunciaService.ArquivarAsync(id, request.Motivo, userId, cancellationToken);
             return Ok(denuncia);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Denuncia nao encontrada" });
         }
         catch (InvalidOperationException ex)
         {
@@ -435,26 +615,59 @@ public class DenunciaController : BaseController
         }
     }
 
+    #endregion
+
+    #region Provas Endpoints
+
     /// <summary>
-    /// Adiciona arquivo de prova a denuncia
+    /// Lista provas de uma denuncia
     /// </summary>
     /// <param name="id">ID da denuncia</param>
-    /// <param name="dto">Dados do arquivo</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Arquivo adicionado</returns>
-    [HttpPost("{id:guid}/arquivos")]
-    [ProducesResponseType(typeof(ArquivoDenunciaDto), StatusCodes.Status201Created)]
+    /// <returns>Lista de provas</returns>
+    [HttpGet("{id:guid}/provas")]
+    [ProducesResponseType(typeof(IEnumerable<ProvaDenunciaDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<ProvaDenunciaDto>>> GetProvas(Guid id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var provas = await _denunciaService.GetProvasAsync(id, cancellationToken);
+            return Ok(provas);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Denuncia nao encontrada" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao listar provas da denuncia {Id}", id);
+            return InternalError("Erro ao listar provas");
+        }
+    }
+
+    /// <summary>
+    /// Adiciona prova a denuncia
+    /// </summary>
+    /// <param name="id">ID da denuncia</param>
+    /// <param name="dto">Dados da prova</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Prova adicionada</returns>
+    [HttpPost("{id:guid}/provas")]
+    [ProducesResponseType(typeof(ProvaDenunciaDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<ArquivoDenunciaDto>> AddArquivo(
+    public async Task<ActionResult<ProvaDenunciaDto>> AddProva(
         Guid id,
-        [FromBody] CreateArquivoDenunciaDto dto,
+        [FromBody] CreateProvaDenunciaDto dto,
         CancellationToken cancellationToken)
     {
         try
         {
-            var userId = GetUserId();
-            var arquivo = await _denunciaService.AddArquivoAsync(id, dto, userId, cancellationToken);
-            return CreatedAtAction(nameof(GetById), new { id }, arquivo);
+            var prova = await _denunciaService.AddProvaAsync(id, dto, cancellationToken);
+            return CreatedAtAction(nameof(GetProvas), new { id }, prova);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Denuncia nao encontrada" });
         }
         catch (InvalidOperationException ex)
         {
@@ -462,31 +675,31 @@ public class DenunciaController : BaseController
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Erro ao adicionar arquivo a denuncia {Id}", id);
-            return InternalError("Erro ao adicionar arquivo");
+            _logger.LogError(ex, "Erro ao adicionar prova a denuncia {Id}", id);
+            return InternalError("Erro ao adicionar prova");
         }
     }
 
     /// <summary>
-    /// Remove arquivo de prova da denuncia
+    /// Remove prova da denuncia
     /// </summary>
     /// <param name="id">ID da denuncia</param>
-    /// <param name="arquivoId">ID do arquivo</param>
+    /// <param name="provaId">ID da prova</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>NoContent em caso de sucesso</returns>
-    [HttpDelete("{id:guid}/arquivos/{arquivoId:guid}")]
+    [HttpDelete("{id:guid}/provas/{provaId:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> RemoveArquivo(Guid id, Guid arquivoId, CancellationToken cancellationToken)
+    public async Task<IActionResult> RemoveProva(Guid id, Guid provaId, CancellationToken cancellationToken)
     {
         try
         {
-            await _denunciaService.RemoveArquivoAsync(id, arquivoId, cancellationToken);
+            await _denunciaService.RemoveProvaAsync(id, provaId, cancellationToken);
             return NoContent();
         }
         catch (KeyNotFoundException)
         {
-            return NotFound(new { message = "Arquivo nao encontrado" });
+            return NotFound(new { message = "Prova nao encontrada" });
         }
         catch (InvalidOperationException ex)
         {
@@ -494,109 +707,100 @@ public class DenunciaController : BaseController
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Erro ao remover arquivo {ArquivoId} da denuncia {Id}", arquivoId, id);
-            return InternalError("Erro ao remover arquivo");
+            _logger.LogError(ex, "Erro ao remover prova {ProvaId} da denuncia {Id}", provaId, id);
+            return InternalError("Erro ao remover prova");
         }
     }
-}
 
-// DTOs para Denuncia
-public record DenunciaDto
-{
-    public Guid Id { get; init; }
-    public Guid EleicaoId { get; init; }
-    public string EleicaoNome { get; init; } = string.Empty;
-    public Guid DenuncianteId { get; init; }
-    public string DenuncianteNome { get; init; } = string.Empty;
-    public Guid? DenunciadoId { get; init; }
-    public string? DenunciadoNome { get; init; }
-    public Guid? ChapaId { get; init; }
-    public string? ChapaNome { get; init; }
-    public TipoDenuncia Tipo { get; init; }
-    public StatusDenuncia Status { get; init; }
-    public string Descricao { get; init; } = string.Empty;
-    public string? Fundamentacao { get; init; }
-    public DateTime? PrazoDefesa { get; init; }
-    public StatusDefesa StatusDefesa { get; init; }
-    public string? DefesaTexto { get; init; }
-    public DateTime? DataDefesa { get; init; }
-    public string? Parecer { get; init; }
-    public string? Decisao { get; init; }
-    public DateTime? DataJulgamento { get; init; }
-    public List<ArquivoDenunciaDto> Arquivos { get; init; } = new();
-    public DateTime CreatedAt { get; init; }
-    public DateTime? UpdatedAt { get; init; }
-}
+    #endregion
 
-public record CreateDenunciaDto
-{
-    public Guid EleicaoId { get; init; }
-    public Guid? DenunciadoId { get; init; }
-    public Guid? ChapaId { get; init; }
-    public TipoDenuncia Tipo { get; init; }
-    public string Descricao { get; init; } = string.Empty;
-    public string? Fundamentacao { get; init; }
-}
+    #region Defesas Endpoints
 
-public record UpdateDenunciaDto
-{
-    public TipoDenuncia? Tipo { get; init; }
-    public string? Descricao { get; init; }
-    public string? Fundamentacao { get; init; }
-}
+    /// <summary>
+    /// Lista defesas de uma denuncia
+    /// </summary>
+    /// <param name="id">ID da denuncia</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Lista de defesas</returns>
+    [HttpGet("{id:guid}/defesas")]
+    [ProducesResponseType(typeof(IEnumerable<DefesaDenunciaDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<DefesaDenunciaDto>>> GetDefesas(Guid id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var defesas = await _denunciaService.GetDefesasAsync(id, cancellationToken);
+            return Ok(defesas);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Denuncia nao encontrada" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao listar defesas da denuncia {Id}", id);
+            return InternalError("Erro ao listar defesas");
+        }
+    }
 
-public record ApresentarDefesaDto
-{
-    public string Texto { get; init; } = string.Empty;
-    public List<CreateArquivoDenunciaDto>? Arquivos { get; init; }
-}
+    #endregion
 
-public record JulgarDenunciaDto
-{
-    public StatusDenuncia Resultado { get; init; }
-    public string Decisao { get; init; } = string.Empty;
-    public string? Fundamentacao { get; init; }
-}
+    #region Historico Endpoints
 
-public record ArquivoDenunciaDto
-{
-    public Guid Id { get; init; }
-    public string Nome { get; init; } = string.Empty;
-    public string Tipo { get; init; } = string.Empty;
-    public string Url { get; init; } = string.Empty;
-    public long Tamanho { get; init; }
-    public DateTime CreatedAt { get; init; }
-}
+    /// <summary>
+    /// Lista historico de uma denuncia
+    /// </summary>
+    /// <param name="id">ID da denuncia</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Lista de historico</returns>
+    [HttpGet("{id:guid}/historico")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral,Analista")]
+    [ProducesResponseType(typeof(IEnumerable<HistoricoDenunciaDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<HistoricoDenunciaDto>>> GetHistorico(Guid id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var historico = await _denunciaService.GetHistoricoAsync(id, cancellationToken);
+            return Ok(historico);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Denuncia nao encontrada" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao listar historico da denuncia {Id}", id);
+            return InternalError("Erro ao listar historico");
+        }
+    }
 
-public record CreateArquivoDenunciaDto
-{
-    public string Nome { get; init; } = string.Empty;
-    public TipoArquivoDenuncia Tipo { get; init; }
-    public string Url { get; init; } = string.Empty;
-    public long Tamanho { get; init; }
-}
+    #endregion
 
-public record ParecerRequest(string Parecer);
-public record MotivoRequest(string Motivo);
-public record SolicitarDefesaRequest(int PrazoEmDias);
+    #region Statistics Endpoints
 
-// Interface do servico (a ser implementada)
-public interface IDenunciaService
-{
-    Task<IEnumerable<DenunciaDto>> GetAllAsync(Guid? eleicaoId, StatusDenuncia? status, CancellationToken cancellationToken = default);
-    Task<DenunciaDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<IEnumerable<DenunciaDto>> GetByEleicaoAsync(Guid eleicaoId, CancellationToken cancellationToken = default);
-    Task<IEnumerable<DenunciaDto>> GetByDenuncianteAsync(Guid denuncianteId, CancellationToken cancellationToken = default);
-    Task<DenunciaDto> CreateAsync(CreateDenunciaDto dto, Guid userId, CancellationToken cancellationToken = default);
-    Task<DenunciaDto> UpdateAsync(Guid id, UpdateDenunciaDto dto, CancellationToken cancellationToken = default);
-    Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<DenunciaDto> AceitarAdmissibilidadeAsync(Guid id, string parecer, Guid userId, CancellationToken cancellationToken = default);
-    Task<DenunciaDto> RejeitarAdmissibilidadeAsync(Guid id, string motivo, Guid userId, CancellationToken cancellationToken = default);
-    Task<DenunciaDto> SolicitarDefesaAsync(Guid id, int prazoEmDias, CancellationToken cancellationToken = default);
-    Task<DenunciaDto> ApresentarDefesaAsync(Guid id, ApresentarDefesaDto dto, Guid userId, CancellationToken cancellationToken = default);
-    Task<DenunciaDto> EnviarParaJulgamentoAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<DenunciaDto> JulgarAsync(Guid id, JulgarDenunciaDto dto, Guid userId, CancellationToken cancellationToken = default);
-    Task<DenunciaDto> ArquivarAsync(Guid id, string motivo, Guid userId, CancellationToken cancellationToken = default);
-    Task<ArquivoDenunciaDto> AddArquivoAsync(Guid denunciaId, CreateArquivoDenunciaDto dto, Guid userId, CancellationToken cancellationToken = default);
-    Task RemoveArquivoAsync(Guid denunciaId, Guid arquivoId, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// Obtem estatisticas de denuncias
+    /// </summary>
+    /// <param name="eleicaoId">Filtro opcional por eleicao</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Estatisticas de denuncias</returns>
+    [HttpGet("estatisticas")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral,Analista")]
+    [ProducesResponseType(typeof(DenunciaEstatisticasDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<DenunciaEstatisticasDto>> GetEstatisticas(
+        [FromQuery] Guid? eleicaoId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var estatisticas = await _denunciaService.GetEstatisticasAsync(eleicaoId, cancellationToken);
+            return Ok(estatisticas);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao obter estatisticas de denuncias");
+            return InternalError("Erro ao obter estatisticas");
+        }
+    }
+
+    #endregion
 }

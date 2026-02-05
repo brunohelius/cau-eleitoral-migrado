@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CAU.Eleitoral.Application.Interfaces;
+using CAU.Eleitoral.Application.DTOs.Configuracoes;
 
 namespace CAU.Eleitoral.Api.Controllers;
 
 /// <summary>
 /// Controller para gerenciamento de configuracoes do sistema
 /// </summary>
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,Administrador")]
 public class ConfiguracaoController : BaseController
 {
     private readonly IConfiguracaoService _configuracaoService;
@@ -314,6 +315,114 @@ public class ConfiguracaoController : BaseController
     }
 
     /// <summary>
+    /// Obtem configuracoes padrao de eleicao
+    /// </summary>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Configuracoes padrao de eleicao</returns>
+    [HttpGet("eleicoes")]
+    [ProducesResponseType(typeof(ConfiguracaoEleicaoDefaultDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ConfiguracaoEleicaoDefaultDto>> GetEleicaoConfig(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var config = await _configuracaoService.GetEleicaoConfigAsync(cancellationToken);
+            return Ok(config);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao obter configuracoes de eleicao");
+            return InternalError("Erro ao obter configuracoes");
+        }
+    }
+
+    /// <summary>
+    /// Atualiza configuracoes padrao de eleicao
+    /// </summary>
+    /// <param name="dto">Configuracoes de eleicao</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Configuracoes atualizadas</returns>
+    [HttpPut("eleicoes")]
+    [ProducesResponseType(typeof(ConfiguracaoEleicaoDefaultDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ConfiguracaoEleicaoDefaultDto>> UpdateEleicaoConfig(
+        [FromBody] ConfiguracaoEleicaoDefaultDto dto,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var config = await _configuracaoService.UpdateEleicaoConfigAsync(dto, userId, cancellationToken);
+            return Ok(config);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao atualizar configuracoes de eleicao");
+            return InternalError("Erro ao atualizar configuracoes");
+        }
+    }
+
+    /// <summary>
+    /// Obtem configuracoes especificas de uma eleicao
+    /// </summary>
+    /// <param name="eleicaoId">ID da eleicao</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Configuracoes da eleicao</returns>
+    [HttpGet("eleicoes/{eleicaoId:guid}")]
+    [ProducesResponseType(typeof(IEnumerable<ConfiguracaoItemDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<ConfiguracaoItemDto>>> GetConfiguracoesEleicao(
+        Guid eleicaoId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var configuracoes = await _configuracaoService.GetConfiguracoesEleicaoAsync(eleicaoId, cancellationToken);
+            return Ok(configuracoes);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao obter configuracoes da eleicao {EleicaoId}", eleicaoId);
+            return InternalError("Erro ao obter configuracoes");
+        }
+    }
+
+    /// <summary>
+    /// Atualiza configuracoes especificas de uma eleicao
+    /// </summary>
+    /// <param name="eleicaoId">ID da eleicao</param>
+    /// <param name="dto">Configuracoes a atualizar</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Configuracoes atualizadas</returns>
+    [HttpPut("eleicoes/{eleicaoId:guid}")]
+    [ProducesResponseType(typeof(IEnumerable<ConfiguracaoItemDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IEnumerable<ConfiguracaoItemDto>>> UpdateConfiguracoesEleicao(
+        Guid eleicaoId,
+        [FromBody] UpdateMultiplasConfiguracoesDto dto,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var configuracoes = await _configuracaoService.UpdateConfiguracoesEleicaoAsync(
+                eleicaoId, dto.Configuracoes, userId, cancellationToken);
+            return Ok(configuracoes);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao atualizar configuracoes da eleicao {EleicaoId}", eleicaoId);
+            return InternalError("Erro ao atualizar configuracoes");
+        }
+    }
+
+    /// <summary>
     /// Restaura configuracoes padrao
     /// </summary>
     /// <param name="cancellationToken">Token de cancelamento</param>
@@ -432,132 +541,4 @@ public class ConfiguracaoController : BaseController
             return InternalError("Erro ao obter informacoes");
         }
     }
-}
-
-// DTOs para Configuracao
-public record ConfiguracaoSistemaDto
-{
-    public ConfiguracaoGeralDto Geral { get; init; } = new();
-    public ConfiguracaoEmailDto Email { get; init; } = new();
-    public ConfiguracaoSegurancaDto Seguranca { get; init; } = new();
-    public ConfiguracaoVotacaoDto Votacao { get; init; } = new();
-}
-
-public record ConfiguracaoGeralDto
-{
-    public string NomeSistema { get; init; } = string.Empty;
-    public string Versao { get; init; } = string.Empty;
-    public string? LogoUrl { get; init; }
-    public string? FaviconUrl { get; init; }
-    public string? CorPrimaria { get; init; }
-    public string? CorSecundaria { get; init; }
-    public bool ModoManutencao { get; init; }
-    public string? MensagemManutencao { get; init; }
-    public string TimeZone { get; init; } = "America/Sao_Paulo";
-    public string Locale { get; init; } = "pt-BR";
-}
-
-public record ConfiguracaoEmailDto
-{
-    public string SmtpHost { get; init; } = string.Empty;
-    public int SmtpPort { get; init; }
-    public bool SmtpUseSsl { get; init; }
-    public string? SmtpUsername { get; init; }
-    public string? SmtpPassword { get; init; }
-    public string EmailRemetente { get; init; } = string.Empty;
-    public string NomeRemetente { get; init; } = string.Empty;
-    public bool EmailHabilitado { get; init; }
-}
-
-public record ConfiguracaoSegurancaDto
-{
-    public int TentativasLoginMax { get; init; }
-    public int TempoBloqueioConta { get; init; }
-    public int ExpiracaoSenhaEmDias { get; init; }
-    public int TamanhoMinimoSenha { get; init; }
-    public bool RequerLetraMaiuscula { get; init; }
-    public bool RequerNumero { get; init; }
-    public bool RequerCaractereEspecial { get; init; }
-    public int ExpiracaoTokenEmMinutos { get; init; }
-    public int ExpiracaoRefreshTokenEmDias { get; init; }
-    public bool DoisFatoresObrigatorio { get; init; }
-}
-
-public record ConfiguracaoVotacaoDto
-{
-    public bool PermitirVotoBranco { get; init; }
-    public bool PermitirVotoNulo { get; init; }
-    public bool MostrarResultadoParcial { get; init; }
-    public bool NotificarVotoRegistrado { get; init; }
-    public int TempoSessaoVotacaoEmMinutos { get; init; }
-    public bool ConfirmacaoVotoObrigatoria { get; init; }
-    public string? MensagemVotacao { get; init; }
-    public string? MensagemConfirmacao { get; init; }
-}
-
-public record ConfiguracaoItemDto
-{
-    public string Chave { get; init; } = string.Empty;
-    public string Valor { get; init; } = string.Empty;
-    public string? Descricao { get; init; }
-    public string Tipo { get; init; } = string.Empty;
-    public bool Editavel { get; init; }
-    public DateTime? UltimaAtualizacao { get; init; }
-    public string? AtualizadoPor { get; init; }
-}
-
-public record UpdateConfiguracaoDto
-{
-    public string Valor { get; init; } = string.Empty;
-}
-
-public record UpdateMultiplasConfiguracoesDto
-{
-    public Dictionary<string, string> Configuracoes { get; init; } = new();
-}
-
-public record TestarEmailRequest
-{
-    public string EmailDestino { get; init; } = string.Empty;
-}
-
-public record RoleDto
-{
-    public Guid Id { get; init; }
-    public string Nome { get; init; } = string.Empty;
-    public string? Descricao { get; init; }
-    public List<string> Permissoes { get; init; } = new();
-    public bool Editavel { get; init; }
-}
-
-public record InfoSistemaDto
-{
-    public string Nome { get; init; } = string.Empty;
-    public string Versao { get; init; } = string.Empty;
-    public string Ambiente { get; init; } = string.Empty;
-    public DateTime DataHoraServidor { get; init; }
-    public string TimeZone { get; init; } = string.Empty;
-    public bool EmManutencao { get; init; }
-    public string? MensagemManutencao { get; init; }
-}
-
-// Interface do servico (a ser implementada)
-public interface IConfiguracaoService
-{
-    Task<ConfiguracaoSistemaDto> GetAllAsync(CancellationToken cancellationToken = default);
-    Task<ConfiguracaoItemDto?> GetByChaveAsync(string chave, CancellationToken cancellationToken = default);
-    Task<ConfiguracaoItemDto> UpdateAsync(string chave, string valor, Guid userId, CancellationToken cancellationToken = default);
-    Task<ConfiguracaoSistemaDto> UpdateMultipleAsync(Dictionary<string, string> configuracoes, Guid userId, CancellationToken cancellationToken = default);
-    Task<ConfiguracaoEmailDto> GetEmailConfigAsync(CancellationToken cancellationToken = default);
-    Task<ConfiguracaoEmailDto> UpdateEmailConfigAsync(ConfiguracaoEmailDto dto, Guid userId, CancellationToken cancellationToken = default);
-    Task<bool> TestarEmailAsync(string emailDestino, CancellationToken cancellationToken = default);
-    Task<ConfiguracaoSegurancaDto> GetSegurancaConfigAsync(CancellationToken cancellationToken = default);
-    Task<ConfiguracaoSegurancaDto> UpdateSegurancaConfigAsync(ConfiguracaoSegurancaDto dto, Guid userId, CancellationToken cancellationToken = default);
-    Task<ConfiguracaoVotacaoDto> GetVotacaoConfigAsync(CancellationToken cancellationToken = default);
-    Task<ConfiguracaoVotacaoDto> UpdateVotacaoConfigAsync(ConfiguracaoVotacaoDto dto, Guid userId, CancellationToken cancellationToken = default);
-    Task<ConfiguracaoSistemaDto> RestaurarPadraoAsync(Guid userId, CancellationToken cancellationToken = default);
-    Task<(byte[] Content, string ContentType, string FileName)> ExportarAsync(CancellationToken cancellationToken = default);
-    Task<ConfiguracaoSistemaDto> ImportarAsync(Stream stream, Guid userId, CancellationToken cancellationToken = default);
-    Task<IEnumerable<RoleDto>> GetRolesAsync(CancellationToken cancellationToken = default);
-    Task<InfoSistemaDto> GetInfoSistemaAsync(CancellationToken cancellationToken = default);
 }

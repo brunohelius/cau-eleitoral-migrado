@@ -41,6 +41,17 @@ public class UsuarioService : IUsuarioService
         return usuario == null ? null : MapToDto(usuario);
     }
 
+    public async Task<UsuarioDetailDto?> GetByIdDetailedAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var usuario = await _usuarioRepository.Query()
+            .Include(u => u.UsuarioRoles)
+            .ThenInclude(ur => ur.Role)
+            .Include(u => u.Profissional)
+            .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+
+        return usuario == null ? null : MapToDetailDto(usuario);
+    }
+
     public async Task<UsuarioDto?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         var usuario = await _usuarioRepository.Query()
@@ -56,6 +67,92 @@ public class UsuarioService : IUsuarioService
         var usuarios = await _usuarioRepository.Query()
             .Include(u => u.UsuarioRoles)
             .ThenInclude(ur => ur.Role)
+            .OrderBy(u => u.Nome)
+            .ToListAsync(cancellationToken);
+
+        return usuarios.Select(MapToDto);
+    }
+
+    public async Task<PagedUsuarioResponseDto> GetPagedAsync(UsuarioFilterDto filter, CancellationToken cancellationToken = default)
+    {
+        var query = _usuarioRepository.Query()
+            .Include(u => u.UsuarioRoles)
+            .ThenInclude(ur => ur.Role)
+            .AsQueryable();
+
+        // Apply filters
+        if (filter.Tipo.HasValue)
+        {
+            query = query.Where(u => u.Tipo == filter.Tipo.Value);
+        }
+
+        if (filter.Status.HasValue)
+        {
+            query = query.Where(u => u.Status == filter.Status.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.Search))
+        {
+            var searchLower = filter.Search.ToLower();
+            query = query.Where(u =>
+                u.Nome.ToLower().Contains(searchLower) ||
+                u.Email.ToLower().Contains(searchLower) ||
+                (u.Cpf != null && u.Cpf.Contains(searchLower)) ||
+                (u.NomeCompleto != null && u.NomeCompleto.ToLower().Contains(searchLower)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.Role))
+        {
+            query = query.Where(u => u.UsuarioRoles.Any(ur => ur.Role.Nome == filter.Role));
+        }
+
+        // Get total count before pagination
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        // Apply ordering
+        query = filter.OrderBy?.ToLower() switch
+        {
+            "email" => filter.Ascending ? query.OrderBy(u => u.Email) : query.OrderByDescending(u => u.Email),
+            "tipo" => filter.Ascending ? query.OrderBy(u => u.Tipo) : query.OrderByDescending(u => u.Tipo),
+            "status" => filter.Ascending ? query.OrderBy(u => u.Status) : query.OrderByDescending(u => u.Status),
+            "createdat" => filter.Ascending ? query.OrderBy(u => u.CreatedAt) : query.OrderByDescending(u => u.CreatedAt),
+            "ultimoacesso" => filter.Ascending ? query.OrderBy(u => u.UltimoAcesso) : query.OrderByDescending(u => u.UltimoAcesso),
+            _ => filter.Ascending ? query.OrderBy(u => u.Nome) : query.OrderByDescending(u => u.Nome)
+        };
+
+        // Apply pagination
+        var usuarios = await query
+            .Skip((filter.Page - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .ToListAsync(cancellationToken);
+
+        return new PagedUsuarioResponseDto
+        {
+            Items = usuarios.Select(MapToDto),
+            TotalCount = totalCount,
+            Page = filter.Page,
+            PageSize = filter.PageSize
+        };
+    }
+
+    public async Task<IEnumerable<UsuarioDto>> GetByTypeAsync(TipoUsuario tipo, CancellationToken cancellationToken = default)
+    {
+        var usuarios = await _usuarioRepository.Query()
+            .Include(u => u.UsuarioRoles)
+            .ThenInclude(ur => ur.Role)
+            .Where(u => u.Tipo == tipo)
+            .OrderBy(u => u.Nome)
+            .ToListAsync(cancellationToken);
+
+        return usuarios.Select(MapToDto);
+    }
+
+    public async Task<IEnumerable<UsuarioDto>> GetByStatusAsync(StatusUsuario status, CancellationToken cancellationToken = default)
+    {
+        var usuarios = await _usuarioRepository.Query()
+            .Include(u => u.UsuarioRoles)
+            .ThenInclude(ur => ur.Role)
+            .Where(u => u.Status == status)
             .OrderBy(u => u.Nome)
             .ToListAsync(cancellationToken);
 
@@ -216,6 +313,110 @@ public class UsuarioService : IUsuarioService
             ?? throw new InvalidOperationException("Erro ao recuperar usuario");
     }
 
+    public async Task<UsuarioDto> AdminResetPasswordAsync(Guid id, string newPassword, CancellationToken cancellationToken = default)
+    {
+        var usuario = await _usuarioRepository.GetByIdAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Usuario {id} nao encontrado");
+
+        var (hash, salt) = HashPassword(newPassword);
+        usuario.PasswordHash = hash;
+        usuario.PasswordSalt = salt;
+        usuario.TokenRecuperacaoSenha = null;
+        usuario.TokenRecuperacaoSenhaExpiracao = null;
+
+        await _usuarioRepository.UpdateAsync(usuario, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation("Senha resetada pelo admin para usuario: {UsuarioId}", id);
+
+        return await GetByIdAsync(id, cancellationToken)
+            ?? throw new InvalidOperationException("Erro ao recuperar usuario");
+    }
+
+    public async Task<UsuarioDto> ChangeStatusAsync(Guid id, StatusUsuario status, string? motivo, CancellationToken cancellationToken = default)
+    {
+        var usuario = await _usuarioRepository.GetByIdAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Usuario {id} nao encontrado");
+
+        var previousStatus = usuario.Status;
+        usuario.Status = status;
+
+        // If activating, reset login attempts
+        if (status == StatusUsuario.Ativo)
+        {
+            usuario.TentativasLogin = 0;
+            usuario.BloqueadoAte = null;
+        }
+
+        await _usuarioRepository.UpdateAsync(usuario, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation("Status do usuario {UsuarioId} alterado de {PreviousStatus} para {NewStatus}. Motivo: {Motivo}",
+            id, previousStatus, status, motivo ?? "Nao informado");
+
+        return await GetByIdAsync(id, cancellationToken)
+            ?? throw new InvalidOperationException("Erro ao recuperar usuario");
+    }
+
+    public async Task<UsuarioDto> AssignRolesAsync(Guid id, IEnumerable<string> roles, CancellationToken cancellationToken = default)
+    {
+        var usuario = await _usuarioRepository.Query()
+            .Include(u => u.UsuarioRoles)
+            .FirstOrDefaultAsync(u => u.Id == id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Usuario {id} nao encontrado");
+
+        // Remove existing roles
+        foreach (var ur in usuario.UsuarioRoles.ToList())
+        {
+            await _usuarioRoleRepository.DeleteAsync(ur, cancellationToken);
+        }
+
+        // Add new roles
+        foreach (var roleName in roles)
+        {
+            var role = await _roleRepository.FirstOrDefaultAsync(
+                r => r.Nome == roleName, cancellationToken);
+
+            if (role != null)
+            {
+                var usuarioRole = new UsuarioRole
+                {
+                    UsuarioId = usuario.Id,
+                    RoleId = role.Id,
+                    Ativo = true
+                };
+                await _usuarioRoleRepository.AddAsync(usuarioRole, cancellationToken);
+            }
+            else
+            {
+                _logger.LogWarning("Role {RoleName} nao encontrada ao atribuir roles para usuario {UsuarioId}", roleName, id);
+            }
+        }
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation("Roles atualizadas para usuario {UsuarioId}: {Roles}", id, string.Join(", ", roles));
+
+        return await GetByIdAsync(id, cancellationToken)
+            ?? throw new InvalidOperationException("Erro ao recuperar usuario");
+    }
+
+    public async Task<IEnumerable<RoleDto>> GetAllRolesAsync(CancellationToken cancellationToken = default)
+    {
+        var roles = await _roleRepository.Query()
+            .Where(r => r.Ativo)
+            .OrderBy(r => r.Nome)
+            .ToListAsync(cancellationToken);
+
+        return roles.Select(r => new RoleDto
+        {
+            Id = r.Id,
+            Nome = r.Nome,
+            Descricao = r.Descricao,
+            Ativo = r.Ativo
+        });
+    }
+
     public async Task<UsuarioDto> BlockAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var usuario = await _usuarioRepository.GetByIdAsync(id, cancellationToken)
@@ -308,6 +509,49 @@ public class UsuarioService : IUsuarioService
             DoisFatoresHabilitado = usuario.DoisFatoresHabilitado,
             Roles = usuario.UsuarioRoles?.Select(ur => ur.Role?.Nome ?? "").Where(r => !string.IsNullOrEmpty(r)).ToList() ?? new List<string>(),
             CreatedAt = usuario.CreatedAt
+        };
+    }
+
+    private static UsuarioDetailDto MapToDetailDto(Usuario usuario)
+    {
+        return new UsuarioDetailDto
+        {
+            Id = usuario.Id,
+            Email = usuario.Email,
+            Nome = usuario.Nome,
+            NomeCompleto = usuario.NomeCompleto,
+            Cpf = usuario.Cpf,
+            Telefone = usuario.Telefone,
+            Status = usuario.Status,
+            Tipo = usuario.Tipo,
+            UltimoAcesso = usuario.UltimoAcesso,
+            EmailConfirmado = usuario.EmailConfirmado,
+            DoisFatoresHabilitado = usuario.DoisFatoresHabilitado,
+            Roles = usuario.UsuarioRoles?.Select(ur => ur.Role?.Nome ?? "").Where(r => !string.IsNullOrEmpty(r)).ToList() ?? new List<string>(),
+            CreatedAt = usuario.CreatedAt,
+            TentativasLogin = usuario.TentativasLogin,
+            BloqueadoAte = usuario.BloqueadoAte,
+            RolesDetail = usuario.UsuarioRoles?.Select(ur => new RoleDto
+            {
+                Id = ur.Role?.Id ?? Guid.Empty,
+                Nome = ur.Role?.Nome ?? "",
+                Descricao = ur.Role?.Descricao,
+                Ativo = ur.Ativo
+            }).Where(r => r.Id != Guid.Empty).ToList() ?? new List<RoleDto>(),
+            Profissional = usuario.Profissional != null ? new ProfissionalDto
+            {
+                Id = usuario.Profissional.Id,
+                UsuarioId = usuario.Profissional.UsuarioId,
+                RegistroCAU = usuario.Profissional.RegistroCAU,
+                Nome = usuario.Profissional.Nome,
+                Cpf = usuario.Profissional.Cpf,
+                Email = usuario.Profissional.Email,
+                Telefone = usuario.Profissional.Telefone,
+                Tipo = usuario.Profissional.Tipo,
+                Status = usuario.Profissional.Status,
+                RegionalId = usuario.Profissional.RegionalId,
+                EleitorApto = usuario.Profissional.EleitorApto
+            } : null
         };
     }
 
