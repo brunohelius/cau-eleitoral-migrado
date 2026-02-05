@@ -6,6 +6,7 @@ using CAU.Eleitoral.Domain.Entities.Chapas;
 using CAU.Eleitoral.Domain.Entities.Denuncias;
 using CAU.Eleitoral.Domain.Entities.Julgamentos;
 using CAU.Eleitoral.Domain.Entities.Documentos;
+using CAU.Eleitoral.Domain.Entities.Impugnacoes;
 using CAU.Eleitoral.Domain.Enums;
 using System.Security.Cryptography;
 
@@ -35,9 +36,16 @@ public class DatabaseSeeder
             await SeedProfissionaisAsync();
             await SeedEleicoesAsync();
             await SeedChapasAsync();
+            await SeedCircunscricoesAsync();
+            await SeedCalendariosAsync();
+            await SeedEleitoresAsync();
+            await SeedUrnasAsync();
+            await SeedVotosAsync();
+            await SeedApuracaoAsync();
             await SeedDenunciasAsync();
             await SeedComissoesAsync();
             await SeedDocumentosAsync();
+            await SeedImpugnacoesAsync();
 
             _logger.LogInformation("Seed do banco de dados concluído com sucesso!");
         }
@@ -721,6 +729,564 @@ public class DatabaseSeeder
                     DataDocumento = eleicao.DataInicio.AddDays(-20 + i * 3),
                     DataPublicacao = eleicao.DataInicio.AddDays(-20 + i * 3),
                     Status = StatusDocumento.Publicado
+                });
+            }
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task SeedCircunscricoesAsync()
+    {
+        if (await _context.Circunscricoes.AnyAsync()) return;
+
+        _logger.LogInformation("Criando circunscrições, zonas e seções eleitorais...");
+
+        var regionalSP = await _context.RegionaisCAU.FirstOrDefaultAsync(r => r.Sigla == "CAU/SP");
+        var regionalRJ = await _context.RegionaisCAU.FirstOrDefaultAsync(r => r.Sigla == "CAU/RJ");
+        var regionalMG = await _context.RegionaisCAU.FirstOrDefaultAsync(r => r.Sigla == "CAU/MG");
+
+        var circunscricoes = new List<Circunscricao>
+        {
+            new() { Nome = "Circunscrição São Paulo", Codigo = "CIRC-SP", Descricao = "Circunscrição eleitoral do estado de São Paulo", RegionalId = regionalSP?.Id, Ativo = true },
+            new() { Nome = "Circunscrição Rio de Janeiro", Codigo = "CIRC-RJ", Descricao = "Circunscrição eleitoral do estado do Rio de Janeiro", RegionalId = regionalRJ?.Id, Ativo = true },
+            new() { Nome = "Circunscrição Minas Gerais", Codigo = "CIRC-MG", Descricao = "Circunscrição eleitoral do estado de Minas Gerais", RegionalId = regionalMG?.Id, Ativo = true },
+        };
+
+        await _context.Circunscricoes.AddRangeAsync(circunscricoes);
+        await _context.SaveChangesAsync();
+
+        // Zonas Eleitorais
+        var zonasData = new (string Numero, string Nome, string Cidade, string UF, int CircIdx)[]
+        {
+            ("001", "Zona Centro - SP", "São Paulo", "SP", 0),
+            ("002", "Zona Leste - SP", "São Paulo", "SP", 0),
+            ("003", "Zona Campinas", "Campinas", "SP", 0),
+            ("001", "Zona Centro - RJ", "Rio de Janeiro", "RJ", 1),
+            ("002", "Zona Niterói", "Niterói", "RJ", 1),
+            ("001", "Zona Centro - BH", "Belo Horizonte", "MG", 2),
+            ("002", "Zona Interior - MG", "Uberlândia", "MG", 2),
+        };
+
+        var zonas = new List<ZonaEleitoral>();
+        foreach (var z in zonasData)
+        {
+            var zona = new ZonaEleitoral
+            {
+                CircunscricaoId = circunscricoes[z.CircIdx].Id,
+                Numero = z.Numero,
+                Nome = z.Nome,
+                Cidade = z.Cidade,
+                UF = z.UF,
+                Endereco = $"Rua Principal, 100 - {z.Cidade}/{z.UF}",
+                Ativo = true
+            };
+            zonas.Add(zona);
+        }
+
+        await _context.ZonasEleitorais.AddRangeAsync(zonas);
+        await _context.SaveChangesAsync();
+
+        // Seções Eleitorais (2-3 por zona)
+        int secaoNum = 1;
+        foreach (var zona in zonas)
+        {
+            for (int i = 1; i <= 2; i++)
+            {
+                await _context.SecoesEleitorais.AddAsync(new SecaoEleitoral
+                {
+                    ZonaEleitoralId = zona.Id,
+                    Numero = $"{secaoNum++:D4}",
+                    Local = $"Sede CAU - Sala {i}",
+                    Endereco = $"Av. Central, {100 + i * 50} - {zona.Cidade}/{zona.UF}",
+                    CapacidadeEleitores = 200,
+                    Acessivel = true,
+                    Ativo = true
+                });
+            }
+        }
+
+        await _context.SaveChangesAsync();
+
+        // Regiões de Pleito (por eleição)
+        var eleicoes = await _context.Eleicoes.ToListAsync();
+        foreach (var eleicao in eleicoes)
+        {
+            var circIdx = eleicao.Nome.Contains("SP") ? 0 : eleicao.Nome.Contains("RJ") ? 1 : eleicao.Nome.Contains("MG") ? 2 : 0;
+            var circ = circunscricoes[circIdx];
+
+            await _context.RegioesPleito.AddAsync(new RegiaoPleito
+            {
+                EleicaoId = eleicao.Id,
+                RegionalId = eleicao.RegionalId,
+                CircunscricaoId = circ.Id,
+                Codigo = $"REG-{eleicao.Ano}-{circ.Codigo}",
+                Nome = $"Região {circ.Nome.Replace("Circunscrição ", "")}",
+                Descricao = $"Região de pleito para {eleicao.Nome}",
+                Abrangencia = "Estadual",
+                UFs = circ.Nome.Contains("SP") ? "SP" : circ.Nome.Contains("RJ") ? "RJ" : "MG",
+                QuantidadeEleitores = eleicao.QuantidadeVagas * 50,
+                QuantidadeVagas = eleicao.QuantidadeVagas,
+                QuantidadeSuplentes = eleicao.QuantidadeSuplentes,
+                Ativo = true
+            });
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task SeedCalendariosAsync()
+    {
+        if (await _context.Calendarios.AnyAsync()) return;
+
+        _logger.LogInformation("Criando calendários eleitorais...");
+
+        var eleicoes = await _context.Eleicoes.ToListAsync();
+
+        var fasesCalendario = new (string Nome, TipoCalendario Tipo, FaseEleicao Fase, int DiasAntes, int Duracao)[]
+        {
+            ("Inscrição de Chapas", TipoCalendario.Inscricao, FaseEleicao.Inscricao, 90, 30),
+            ("Período de Impugnações", TipoCalendario.Impugnacao, FaseEleicao.Impugnacao, 60, 15),
+            ("Defesa de Impugnações", TipoCalendario.Defesa, FaseEleicao.Impugnacao, 45, 10),
+            ("Julgamento de Impugnações", TipoCalendario.Julgamento, FaseEleicao.Impugnacao, 35, 7),
+            ("Propaganda Eleitoral", TipoCalendario.Propaganda, FaseEleicao.Propaganda, 28, 20),
+            ("Período de Votação", TipoCalendario.Votacao, FaseEleicao.Votacao, 0, 15),
+            ("Apuração dos Votos", TipoCalendario.Apuracao, FaseEleicao.Apuracao, -15, 3),
+            ("Publicação dos Resultados", TipoCalendario.Resultado, FaseEleicao.Resultado, -18, 5),
+            ("Diplomação dos Eleitos", TipoCalendario.Diplomacao, FaseEleicao.Diplomacao, -30, 1),
+        };
+
+        foreach (var eleicao in eleicoes)
+        {
+            var votacaoInicio = eleicao.DataVotacaoInicio ?? eleicao.DataInicio;
+
+            for (int i = 0; i < fasesCalendario.Length; i++)
+            {
+                var f = fasesCalendario[i];
+                var dataInicio = votacaoInicio.AddDays(f.DiasAntes * -1);
+                var isConcluida = eleicao.Status == StatusEleicao.Finalizada || eleicao.Status == StatusEleicao.Encerrada;
+                var isAtual = (int)eleicao.FaseAtual == (int)f.Fase;
+
+                await _context.Calendarios.AddAsync(new Calendario
+                {
+                    EleicaoId = eleicao.Id,
+                    Nome = f.Nome,
+                    Descricao = $"{f.Nome} da {eleicao.Nome}",
+                    Tipo = f.Tipo,
+                    Status = isConcluida ? StatusCalendario.Concluido : (isAtual ? StatusCalendario.EmAndamento : ((int)f.Fase < (int)eleicao.FaseAtual ? StatusCalendario.Concluido : StatusCalendario.Pendente)),
+                    Fase = f.Fase,
+                    DataInicio = dataInicio,
+                    DataFim = dataInicio.AddDays(f.Duracao),
+                    HoraInicio = new TimeSpan(8, 0, 0),
+                    HoraFim = new TimeSpan(18, 0, 0),
+                    Ordem = i + 1,
+                    Obrigatorio = true,
+                    NotificarInicio = true,
+                    NotificarFim = true
+                });
+            }
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task SeedEleitoresAsync()
+    {
+        if (await _context.Eleitores.AnyAsync()) return;
+
+        _logger.LogInformation("Criando eleitores vinculados às eleições...");
+
+        var eleicoes = await _context.Eleicoes.ToListAsync();
+        var profissionais = await _context.Profissionais.Where(p => p.EleitorApto).ToListAsync();
+
+        if (!profissionais.Any()) return;
+
+        int inscricao = 1;
+        foreach (var eleicao in eleicoes)
+        {
+            // Vincular profissionais como eleitores (distribui ~30 por eleição)
+            var qtd = Math.Min(profissionais.Count, 30);
+            var eleitoresEleicao = profissionais.Take(qtd).ToList();
+
+            for (int i = 0; i < eleitoresEleicao.Count; i++)
+            {
+                var prof = eleitoresEleicao[i];
+                var isFinalizada = eleicao.Status == StatusEleicao.Finalizada || eleicao.Status == StatusEleicao.Encerrada;
+                var votou = isFinalizada ? (i < (int)(qtd * 0.75)) : false; // 75% votou em eleições finalizadas
+
+                await _context.Eleitores.AddAsync(new Eleitor
+                {
+                    EleicaoId = eleicao.Id,
+                    ProfissionalId = prof.Id,
+                    NumeroInscricao = $"INS-{inscricao++:D6}",
+                    Apto = i < (int)(qtd * 0.95), // 95% aptos
+                    MotivoInaptidao = i >= (int)(qtd * 0.95) ? "Inadimplente com anuidades" : null,
+                    Votou = votou,
+                    DataVoto = votou ? eleicao.DataVotacaoInicio?.AddDays(Random.Shared.Next(0, 10)) : null,
+                    ComprovanteVotacao = votou ? $"COMP-{eleicao.Ano}-{i:D5}" : null
+                });
+            }
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task SeedUrnasAsync()
+    {
+        if (await _context.UrnasEletronicas.AnyAsync()) return;
+
+        _logger.LogInformation("Criando urnas eletrônicas...");
+
+        var eleicoes = await _context.Eleicoes.ToListAsync();
+        var regioes = await _context.RegioesPleito.ToListAsync();
+        var secoes = await _context.SecoesEleitorais.Take(5).ToListAsync();
+
+        int serial = 1000;
+        foreach (var eleicao in eleicoes)
+        {
+            var regiao = regioes.FirstOrDefault(r => r.EleicaoId == eleicao.Id);
+            var isOnline = eleicao.PermiteVotoOnline;
+            var isPresencial = eleicao.PermiteVotoPresencial;
+            var isFinalizada = eleicao.Status == StatusEleicao.Finalizada || eleicao.Status == StatusEleicao.Encerrada;
+
+            // Urna virtual (para eleições online)
+            if (isOnline)
+            {
+                await _context.UrnasEletronicas.AddAsync(new UrnaEletronica
+                {
+                    EleicaoId = eleicao.Id,
+                    RegiaoPleitoId = regiao?.Id,
+                    NumeroSerie = $"URN-V-{serial++:D6}",
+                    Codigo = $"ONLINE-{eleicao.Ano}-{serial}",
+                    Modelo = "CAU Virtual Ballot v2.0",
+                    Versao = "2.0.0",
+                    Status = isFinalizada ? StatusUrna.Encerrada : StatusUrna.EmOperacao,
+                    Tipo = TipoUrna.Virtual,
+                    DataInstalacao = eleicao.DataInicio.AddDays(-5),
+                    DataAtivacao = eleicao.DataVotacaoInicio,
+                    DataDesativacao = isFinalizada ? eleicao.DataVotacaoFim : null,
+                    HashInicial = Guid.NewGuid().ToString("N"),
+                    HashFinal = isFinalizada ? Guid.NewGuid().ToString("N") : null,
+                    ChavePublica = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)),
+                    Ip = "10.0.1.100",
+                    Localizacao = "Cloud AWS - us-east-1",
+                    Ativo = true
+                });
+            }
+
+            // Urna física (para eleições presenciais)
+            if (isPresencial && secoes.Any())
+            {
+                for (int i = 0; i < 2 && i < secoes.Count; i++)
+                {
+                    await _context.UrnasEletronicas.AddAsync(new UrnaEletronica
+                    {
+                        EleicaoId = eleicao.Id,
+                        RegiaoPleitoId = regiao?.Id,
+                        SecaoId = secoes[i].Id,
+                        NumeroSerie = $"URN-F-{serial++:D6}",
+                        Codigo = $"FISICA-{eleicao.Ano}-{serial}",
+                        Modelo = "CAU Ballot Box 3000",
+                        Versao = "3.0.1",
+                        Status = isFinalizada ? StatusUrna.Lacrada : StatusUrna.Instalada,
+                        Tipo = TipoUrna.Fisica,
+                        DataInstalacao = eleicao.DataVotacaoInicio?.AddDays(-2),
+                        DataAtivacao = eleicao.DataVotacaoInicio,
+                        DataDesativacao = isFinalizada ? eleicao.DataVotacaoFim : null,
+                        HashInicial = Guid.NewGuid().ToString("N"),
+                        HashFinal = isFinalizada ? Guid.NewGuid().ToString("N") : null,
+                        ChavePublica = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)),
+                        Ip = $"192.168.1.{10 + i}",
+                        MacAddress = $"AA:BB:CC:DD:EE:{i:X2}",
+                        Localizacao = secoes[i].Local,
+                        Ativo = true
+                    });
+                }
+            }
+        }
+
+        await _context.SaveChangesAsync();
+
+        // Mesas receptoras para eleições presenciais
+        var urnasFisicas = await _context.UrnasEletronicas.Where(u => u.Tipo == TipoUrna.Fisica).ToListAsync();
+        var operadores = await _context.Usuarios.Where(u => u.Tipo == TipoUsuario.Administrador).Take(4).ToListAsync();
+
+        int mesaNum = 1;
+        foreach (var urna in urnasFisicas)
+        {
+            var isFinalizada = (await _context.Eleicoes.FindAsync(urna.EleicaoId))?.Status == StatusEleicao.Finalizada;
+            await _context.MesasReceptoras.AddAsync(new MesaReceptora
+            {
+                EleicaoId = urna.EleicaoId,
+                SecaoId = urna.SecaoId,
+                UrnaId = urna.Id,
+                Numero = $"MR-{mesaNum:D3}",
+                Nome = $"Mesa Receptora {mesaNum}",
+                Local = urna.Localizacao ?? "Sede CAU",
+                Endereco = "Av. Central, 100",
+                Sala = $"Sala {mesaNum}",
+                Status = isFinalizada == true ? StatusMesa.Encerrada : StatusMesa.Instalada,
+                DataInstalacao = urna.DataInstalacao,
+                DataAbertura = urna.DataAtivacao,
+                DataEncerramento = isFinalizada == true ? urna.DataDesativacao : null,
+                HoraAbertura = new TimeSpan(8, 0, 0),
+                HoraEncerramento = new TimeSpan(18, 0, 0),
+                CapacidadeEleitores = 200,
+                PresidenteId = operadores.Count > 0 ? operadores[mesaNum % operadores.Count].Id : null,
+                SecretarioId = operadores.Count > 1 ? operadores[(mesaNum + 1) % operadores.Count].Id : null,
+                Acessivel = true,
+                Ativo = true
+            });
+            mesaNum++;
+        }
+
+        await _context.SaveChangesAsync();
+
+        // Fiscais de eleição
+        var profissionaisFiscal = await _context.Profissionais.Take(15).ToListAsync();
+        var chapas = await _context.Chapas.ToListAsync();
+
+        int credencial = 1;
+        foreach (var eleicao in eleicoes)
+        {
+            var chapasEleicao = chapas.Where(c => c.EleicaoId == eleicao.Id).Take(3).ToList();
+
+            for (int i = 0; i < Math.Min(6, profissionaisFiscal.Count); i++)
+            {
+                var prof = profissionaisFiscal[i];
+                var tipoFiscal = i < 3 ? TipoFiscal.Chapa : TipoFiscal.Comissao;
+                var chapaFiscal = tipoFiscal == TipoFiscal.Chapa && i < chapasEleicao.Count ? chapasEleicao[i] : null;
+
+                await _context.FiscaisEleicao.AddAsync(new FiscalEleicao
+                {
+                    EleicaoId = eleicao.Id,
+                    ProfissionalId = prof.Id,
+                    ChapaId = chapaFiscal?.Id,
+                    Tipo = tipoFiscal,
+                    Status = StatusFiscal.Credenciado,
+                    NumeroCredencial = $"FISC-{credencial++:D5}",
+                    DataCredenciamento = eleicao.DataInicio.AddDays(-10),
+                    DataValidadeCredencial = eleicao.DataFim.AddDays(5),
+                    Funcao = tipoFiscal == TipoFiscal.Chapa ? $"Fiscal da {chapaFiscal?.Nome ?? "Chapa"}" : "Fiscal da Comissão Eleitoral",
+                    Turno = "Integral",
+                    DataInicioAtividade = eleicao.DataVotacaoInicio,
+                    DataFimAtividade = eleicao.DataVotacaoFim,
+                    CredenciadoPor = "Comissão Eleitoral"
+                });
+            }
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task SeedVotosAsync()
+    {
+        if (await _context.Votos.AnyAsync()) return;
+
+        _logger.LogInformation("Criando votos de teste...");
+
+        // Apenas eleições finalizadas ou em andamento com fase de votação
+        var eleicoes = await _context.Eleicoes
+            .Where(e => e.Status == StatusEleicao.Finalizada || e.Status == StatusEleicao.Encerrada || e.FaseAtual == FaseEleicao.Votacao)
+            .ToListAsync();
+
+        var chapasAll = await _context.Chapas.Where(c => c.Status == StatusChapa.Deferida || c.Status == StatusChapa.Registrada).ToListAsync();
+        var urnas = await _context.UrnasEletronicas.ToListAsync();
+
+        foreach (var eleicao in eleicoes)
+        {
+            var chapasEleicao = chapasAll.Where(c => c.EleicaoId == eleicao.Id).ToList();
+            if (!chapasEleicao.Any()) continue;
+
+            var urna = urnas.FirstOrDefault(u => u.EleicaoId == eleicao.Id);
+            var isFinalizada = eleicao.Status == StatusEleicao.Finalizada || eleicao.Status == StatusEleicao.Encerrada;
+            var qtdVotos = isFinalizada ? Random.Shared.Next(40, 60) : Random.Shared.Next(10, 25);
+            var modo = eleicao.PermiteVotoOnline ? ModoVotacao.Online : ModoVotacao.Presencial;
+
+            for (int i = 0; i < qtdVotos; i++)
+            {
+                TipoVoto tipoVoto;
+                Guid? chapaId = null;
+
+                var rnd = Random.Shared.Next(100);
+                if (rnd < 80) // 80% válidos
+                {
+                    tipoVoto = TipoVoto.Chapa;
+                    chapaId = chapasEleicao[Random.Shared.Next(chapasEleicao.Count)].Id;
+                }
+                else if (rnd < 90) // 10% branco
+                {
+                    tipoVoto = TipoVoto.Branco;
+                }
+                else if (rnd < 97) // 7% nulo
+                {
+                    tipoVoto = TipoVoto.Nulo;
+                }
+                else // 3% anulado
+                {
+                    tipoVoto = TipoVoto.Anulado;
+                }
+
+                var dataVoto = (eleicao.DataVotacaoInicio ?? eleicao.DataInicio).AddHours(Random.Shared.Next(0, 240));
+
+                await _context.Votos.AddAsync(new Voto
+                {
+                    EleicaoId = eleicao.Id,
+                    ChapaId = chapaId,
+                    Tipo = tipoVoto,
+                    Status = StatusVoto.Confirmado,
+                    Modo = modo,
+                    HashEleitor = Guid.NewGuid().ToString("N"),
+                    HashVoto = Guid.NewGuid().ToString("N"),
+                    DataVoto = dataVoto,
+                    IpAddress = modo == ModoVotacao.Online ? $"189.{Random.Shared.Next(1, 254)}.{Random.Shared.Next(1, 254)}.{Random.Shared.Next(1, 254)}" : $"192.168.1.{Random.Shared.Next(1, 50)}",
+                    UserAgent = modo == ModoVotacao.Online ? "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0" : "CAU Ballot Box 3000",
+                    UrnaId = urna?.Id,
+                    Comprovante = $"VOTO-{eleicao.Ano}-{i:D6}"
+                });
+            }
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task SeedApuracaoAsync()
+    {
+        if (await _context.ApuracaoResultados.AnyAsync()) return;
+
+        _logger.LogInformation("Criando resultados de apuração...");
+
+        var eleicoesFinal = await _context.Eleicoes
+            .Where(e => e.Status == StatusEleicao.Finalizada || e.Status == StatusEleicao.Encerrada)
+            .ToListAsync();
+
+        foreach (var eleicao in eleicoesFinal)
+        {
+            var votos = await _context.Votos.Where(v => v.EleicaoId == eleicao.Id).ToListAsync();
+            var chapasEleicao = await _context.Chapas.Where(c => c.EleicaoId == eleicao.Id).ToListAsync();
+
+            if (!votos.Any()) continue;
+
+            var totalVotos = votos.Count;
+            var totalValidos = votos.Count(v => v.Tipo == TipoVoto.Chapa);
+            var totalBrancos = votos.Count(v => v.Tipo == TipoVoto.Branco);
+            var totalNulos = votos.Count(v => v.Tipo == TipoVoto.Nulo);
+            var totalAnulados = votos.Count(v => v.Tipo == TipoVoto.Anulado);
+            var totalAptos = (int)(totalVotos / 0.75m); // ~75% participation
+            var totalAbstencoes = totalAptos - totalVotos;
+
+            var apuracao = new ApuracaoResultado
+            {
+                EleicaoId = eleicao.Id,
+                Status = StatusApuracao.Homologada,
+                DataInicio = eleicao.DataApuracao ?? eleicao.DataVotacaoFim?.AddDays(1),
+                DataFim = (eleicao.DataApuracao ?? eleicao.DataVotacaoFim?.AddDays(1))?.AddHours(4),
+                TotalEleitoresAptos = totalAptos,
+                TotalVotantes = totalVotos,
+                TotalAbstencoes = totalAbstencoes,
+                TotalVotosValidos = totalValidos,
+                TotalVotosBrancos = totalBrancos,
+                TotalVotosNulos = totalNulos,
+                TotalVotosAnulados = totalAnulados,
+                PercentualParticipacao = totalAptos > 0 ? Math.Round((decimal)totalVotos / totalAptos * 100, 2) : 0,
+                PercentualAbstencao = totalAptos > 0 ? Math.Round((decimal)totalAbstencoes / totalAptos * 100, 2) : 0,
+                HashApuracao = Guid.NewGuid().ToString("N"),
+                AssinaturaDigital = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+                Parcial = false,
+                PercentualApurado = 100,
+                Homologada = true,
+                DataHomologacao = (eleicao.DataApuracao ?? eleicao.DataVotacaoFim?.AddDays(1))?.AddDays(2),
+                HomologadoPor = "Comissão Eleitoral",
+                Observacao = "Apuração realizada sem incidentes."
+            };
+
+            await _context.ApuracaoResultados.AddAsync(apuracao);
+            await _context.SaveChangesAsync();
+
+            // Votos por chapa
+            var votosPorChapa = chapasEleicao
+                .Select(c => new { Chapa = c, Total = votos.Count(v => v.ChapaId == c.Id) })
+                .OrderByDescending(x => x.Total)
+                .ToList();
+
+            Guid? vencedoraId = null;
+            int? votosVencedora = null;
+
+            for (int i = 0; i < votosPorChapa.Count; i++)
+            {
+                var vc = votosPorChapa[i];
+                var percentVotos = totalVotos > 0 ? Math.Round((decimal)vc.Total / totalVotos * 100, 2) : 0;
+                var percentValidos = totalValidos > 0 ? Math.Round((decimal)vc.Total / totalValidos * 100, 2) : 0;
+                var eleita = i == 0;
+
+                if (eleita) { vencedoraId = vc.Chapa.Id; votosVencedora = vc.Total; }
+
+                await _context.ApuracaoResultadosChapa.AddAsync(new ApuracaoResultadoChapa
+                {
+                    ApuracaoId = apuracao.Id,
+                    ChapaId = vc.Chapa.Id,
+                    TotalVotos = vc.Total,
+                    PercentualVotos = percentVotos,
+                    PercentualVotosValidos = percentValidos,
+                    Posicao = i + 1,
+                    Eleita = eleita,
+                    Observacao = eleita ? "Chapa vencedora" : null
+                });
+            }
+
+            // Atualizar a apuração com a chapa vencedora
+            apuracao.ChapaVencedoraId = vencedoraId;
+            apuracao.VotosChapaVencedora = votosVencedora;
+            _context.ApuracaoResultados.Update(apuracao);
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task SeedImpugnacoesAsync()
+    {
+        if (await _context.Impugnacoes.AnyAsync()) return;
+
+        _logger.LogInformation("Criando impugnações de teste...");
+
+        var eleicoesFinal = await _context.Eleicoes
+            .Where(e => e.Status == StatusEleicao.Finalizada || e.Status == StatusEleicao.Encerrada)
+            .ToListAsync();
+
+        var profissionais = await _context.Profissionais.Take(5).ToListAsync();
+
+        int protocolo = 1;
+        foreach (var eleicao in eleicoesFinal)
+        {
+            var chapas = await _context.Chapas.Where(c => c.EleicaoId == eleicao.Id).Take(3).ToListAsync();
+            if (chapas.Count < 2) continue;
+
+            // 2 impugnações por eleição finalizada
+            for (int i = 0; i < 2; i++)
+            {
+                var chapaImpugnante = chapas[i % chapas.Count];
+                var chapaImpugnada = chapas[(i + 1) % chapas.Count];
+                var impugnante = profissionais[i % profissionais.Count];
+
+                var titulos = new[] { "Irregularidade na contagem de votos", "Uso indevido de material de campanha", "Descumprimento de norma eleitoral" };
+                var status = i == 0 ? StatusImpugnacao.Julgada : StatusImpugnacao.EmAnalise;
+
+                await _context.Impugnacoes.AddAsync(new ImpugnacaoResultado
+                {
+                    EleicaoId = eleicao.Id,
+                    Protocolo = $"IMP-{eleicao.Ano}-{protocolo++:D5}",
+                    Tipo = i == 0 ? TipoImpugnacao.ImpugnacaoResultado : TipoImpugnacao.ImpugnacaoChapa,
+                    Status = status,
+                    ChapaImpugnanteId = chapaImpugnante.Id,
+                    ChapaImpugnadaId = chapaImpugnada.Id,
+                    ImpugnanteId = impugnante.Id,
+                    Titulo = titulos[i % titulos.Length],
+                    Descricao = $"A {chapaImpugnante.Nome} impugna o resultado referente à {chapaImpugnada.Nome}, alegando {titulos[i % titulos.Length].ToLower()} no processo eleitoral da {eleicao.Nome}.",
+                    Fundamentacao = "Com base no artigo 15 da Resolução Normativa do Processo Eleitoral, fundamentamos esta impugnação nos seguintes fatos e evidências...",
+                    DataImpugnacao = (eleicao.DataApuracao ?? eleicao.DataVotacaoFim)?.AddDays(3) ?? DateTime.UtcNow,
+                    DataRecebimento = (eleicao.DataApuracao ?? eleicao.DataVotacaoFim)?.AddDays(4),
+                    PrazoAlegacoes = (eleicao.DataApuracao ?? eleicao.DataVotacaoFim)?.AddDays(14),
+                    PrazoContraAlegacoes = (eleicao.DataApuracao ?? eleicao.DataVotacaoFim)?.AddDays(21),
                 });
             }
         }
