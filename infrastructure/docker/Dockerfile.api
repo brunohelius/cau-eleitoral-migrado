@@ -1,5 +1,5 @@
 # Build stage - runs on native architecture
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG TARGETARCH
 WORKDIR /src
 
@@ -19,7 +19,7 @@ COPY . .
 RUN dotnet publish CAU.Eleitoral.Api/CAU.Eleitoral.Api.csproj -c Release -o /app/publish -a $TARGETARCH
 
 # Runtime stage - runs on target architecture
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
 # Use built-in app user

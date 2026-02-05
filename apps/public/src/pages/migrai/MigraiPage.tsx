@@ -920,7 +920,7 @@ export function MigraiPage() {
                 </div>
                 <div>
                   <p className="text-slate-500 text-xs uppercase">Registro CAU</p>
-                  <p className="text-white font-mono text-sm">A000005SP</p>
+                  <p className="text-white font-mono text-sm">A000005-SP</p>
                 </div>
                 <div>
                   <p className="text-slate-500 text-xs uppercase">Senha</p>
@@ -951,7 +951,7 @@ export function MigraiPage() {
                 </div>
                 <div>
                   <p className="text-slate-500 text-xs uppercase">Registro CAU</p>
-                  <p className="text-white font-mono text-sm">A000018DF</p>
+                  <p className="text-white font-mono text-sm">A000018-DF</p>
                 </div>
                 <div>
                   <p className="text-slate-500 text-xs uppercase">Senha</p>
@@ -989,7 +989,7 @@ export function MigraiPage() {
               <span>CI/CD Pipeline</span>
             </div>
             <p className="text-slate-600 text-sm mt-6">
-              © 2024 CAU Sistema Eleitoral - Migração por MigrAI
+              © 2026 CAU Sistema Eleitoral - Migração por MigrAI
             </p>
           </div>
         </div>

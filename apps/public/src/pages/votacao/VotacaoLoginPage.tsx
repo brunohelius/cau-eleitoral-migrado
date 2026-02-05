@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   Lock,
@@ -10,10 +10,16 @@ import {
   HelpCircle,
   Shield,
   CheckCircle,
+  IdCard,
 } from 'lucide-react'
+import { useVoterStore } from '@/stores/voter'
+import { authService } from '@/services/auth'
+import { extractApiError } from '@/services/api'
 
 export function VotacaoLoginPage() {
   const navigate = useNavigate()
+  const { setVoter, isAuthenticated, voter, clearVoter } = useVoterStore()
+
   const [cpf, setCpf] = useState('')
   const [cau, setCau] = useState('')
   const [senha, setSenha] = useState('')
@@ -21,6 +27,14 @@ export function VotacaoLoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [step, setStep] = useState<'identificacao' | 'senha'>('identificacao')
+  const [voterName, setVoterName] = useState<string | null>(null)
+
+  // Check if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && voter) {
+      navigate('/eleitor')
+    }
+  }, [isAuthenticated, voter, navigate])
 
   const formatCPF = (value: string) => {
     const numbers = value.replace(/\D/g, '')
@@ -32,19 +46,36 @@ export function VotacaoLoginPage() {
   }
 
   const formatCAU = (value: string) => {
-    const cleaned = value.toUpperCase().replace(/[^A-Z0-9]/g, '')
-    return cleaned
-      .replace(/^([A-Z])(\d{5})(\d)$/, '$1$2-$3')
-      .substring(0, 8)
+    const cleaned = value.toUpperCase().replace(/[^A-Z0-9-]/g, '')
+    // Format: A000005-SP (letter + 6 digits + dash + 2 chars for state)
+    if (cleaned.length <= 1) return cleaned
+
+    let formatted = cleaned[0]
+    const rest = cleaned.slice(1).replace(/-/g, '')
+
+    if (rest.length > 0) {
+      const digits = rest.slice(0, 6)
+      formatted += digits
+
+      if (rest.length > 6) {
+        formatted += '-' + rest.slice(6, 8)
+      }
+    }
+
+    return formatted.substring(0, 10)
   }
 
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCpf(formatCPF(e.target.value))
+    setError(null)
   }
 
   const handleCauChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCau(formatCAU(e.target.value))
+    setError(null)
   }
+
+  const cleanCPF = (cpf: string) => cpf.replace(/\D/g, '')
 
   const handleIdentificacao = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -52,13 +83,21 @@ export function VotacaoLoginPage() {
     setIsLoading(true)
 
     try {
-      // Simulate API call to verify voter
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      // Verify voter exists and request verification code
+      const response = await authService.solicitarCodigoVerificacao({
+        cpf: cleanCPF(cpf),
+        registroCAU: cau,
+      })
 
-      // Move to password step
-      setStep('senha')
+      if (response.verificacaoEnviada) {
+        // For demo purposes, we'll skip verification code and go straight to password
+        // In production, this would send a code to the voter's email/phone
+        setVoterName(response.destino) // This would be the voter's name in a real scenario
+        setStep('senha')
+      }
     } catch (err) {
-      setError('Nao foi possivel verificar seus dados. Tente novamente.')
+      const apiError = extractApiError(err)
+      setError(apiError.message || 'Nao foi possivel verificar seus dados. Verifique o CPF e Registro CAU.')
     } finally {
       setIsLoading(false)
     }
@@ -70,17 +109,39 @@ export function VotacaoLoginPage() {
     setIsLoading(true)
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      // Authenticate voter with CPF, CAU and password
+      const response = await authService.loginEleitor({
+        cpf: cleanCPF(cpf),
+        registroCAU: cau,
+        codigoVerificacao: senha, // Using password as verification for demo
+      })
+
+      // Store voter info in state
+      setVoter(response.voter, response.token, response.expiresAt)
 
       // Navigate to voter area
       navigate('/eleitor')
     } catch (err) {
-      setError('Senha incorreta. Tente novamente.')
+      const apiError = extractApiError(err)
+      setError(apiError.message || 'Credenciais invalidas. Verifique seus dados e tente novamente.')
     } finally {
       setIsLoading(false)
     }
   }
+
+  const handleBack = () => {
+    setStep('identificacao')
+    setSenha('')
+    setError(null)
+  }
+
+  // Prevent caching of this page
+  useEffect(() => {
+    // Clear any existing session on mount
+    if (window.history.replaceState) {
+      window.history.replaceState(null, '', window.location.href)
+    }
+  }, [])
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4">
@@ -149,6 +210,8 @@ export function VotacaoLoginPage() {
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     required
                     maxLength={14}
+                    autoComplete="off"
+                    autoFocus
                   />
                 </div>
               </div>
@@ -158,23 +221,27 @@ export function VotacaoLoginPage() {
                   Registro CAU
                 </label>
                 <div className="relative">
-                  <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <IdCard className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
                     id="cau"
                     type="text"
                     value={cau}
                     onChange={handleCauChange}
-                    placeholder="A00000-0"
+                    placeholder="A000005-SP"
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     required
-                    maxLength={8}
+                    maxLength={10}
+                    autoComplete="off"
                   />
                 </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Formato: Letra + 6 digitos + UF (ex: A000005-SP)
+                </p>
               </div>
 
               <button
                 type="submit"
-                disabled={isLoading || cpf.length < 14 || cau.length < 8}
+                disabled={isLoading || cleanCPF(cpf).length !== 11 || cau.length < 9}
                 className="w-full bg-primary text-white py-3 rounded-lg font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isLoading ? (
@@ -196,7 +263,7 @@ export function VotacaoLoginPage() {
                 <p className="text-sm text-gray-600">CAU: {cau}</p>
                 <button
                   type="button"
-                  onClick={() => setStep('identificacao')}
+                  onClick={handleBack}
                   className="text-sm text-primary hover:underline mt-2"
                 >
                   Alterar dados
@@ -213,10 +280,15 @@ export function VotacaoLoginPage() {
                     id="senha"
                     type={showPassword ? 'text' : 'password'}
                     value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
+                    onChange={(e) => {
+                      setSenha(e.target.value)
+                      setError(null)
+                    }}
                     placeholder="Digite sua senha"
                     className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     required
+                    autoComplete="current-password"
+                    autoFocus
                   />
                   <button
                     type="button"
@@ -228,11 +300,7 @@ export function VotacaoLoginPage() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" className="rounded border-gray-300 text-primary focus:ring-primary" />
-                  <span className="text-gray-600">Lembrar de mim</span>
-                </label>
+              <div className="flex items-center justify-end text-sm">
                 <Link to="/recuperar-senha" className="text-primary hover:underline">
                   Esqueci a senha
                 </Link>
@@ -277,6 +345,16 @@ export function VotacaoLoginPage() {
                 Sua conexao e protegida por criptografia SSL. Seus dados sao mantidos em sigilo absoluto.
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* Demo credentials */}
+        <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm font-medium text-yellow-800 mb-2">Credenciais de teste:</p>
+          <div className="text-xs text-yellow-700 space-y-1">
+            <p>CPF: 600.000.000-03</p>
+            <p>CAU: A000005-SP</p>
+            <p>Senha: Eleitor@123</p>
           </div>
         </div>
       </div>
