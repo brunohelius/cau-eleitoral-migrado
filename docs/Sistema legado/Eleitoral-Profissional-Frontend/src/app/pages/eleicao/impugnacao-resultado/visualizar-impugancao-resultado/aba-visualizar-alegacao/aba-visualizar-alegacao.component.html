@@ -1,0 +1,89 @@
+<div class="ml-4">
+    <h6>
+        <strong>{{'LABEL_NUMERO_IMPUGACAO_RESULTADO' | i18n}}: </strong>
+        {{ impugnacao.numero }}
+    </h6>
+</div>
+<div class="tab-content">
+    <div class="tab-pane active show rounded-0">
+        <div class="tab-pane fade pl-3 pr-3 pb-1 mt-3 mb-3" [ngClass]="{ 'active show': true}">
+            <div class="card card-pricipal alert">
+                <div class="row m-2">
+                    <div class="card-body bg-green border shadow">
+                        <div class="p-4">
+                            <div *ngIf="alegacoes.length > 0">
+                                <div fxLayout="row" fxFlexFill>
+                                    <div fxFlex>
+                                        <div fxLayout="row">
+                                            <div fxFlex="10%" class="ml-2 text-center pb-1">
+                                                <strong class="label-subtitle">{{ 'LABEL_NUM' | i18n }}</strong>
+                                            </div>
+                                            <div fxFlex class="text-center">
+                                                <strong
+                                                    class="label-subtitle">{{ 'LABEL_RESPONSAVEL_CADASTRO' | i18n }}</strong>
+                                            </div>
+                                            <div fxFlex class="text-center">
+                                                <strong
+                                                    class="label-subtitle">{{ 'LABEL_DATA_HORA_DO_CADASTRO' | i18n }}</strong>
+                                            </div>
+                                            <div fxFlex="10%" class="text-center">
+                                                <strong class="label-subtitle">{{ 'LABEL_ACAO' | i18n }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="list-item mt-3">
+                                    <div *ngFor="let alegacao of alegacoes">
+                                        <div fxLayout="row" class="list-item-box custom-grid mt-2">
+                                            <div fxFlex="10%" fxLayoutAlign="center center"
+                                                class="text-center border-grid-tbl h-100  bg-white">
+                                                <div fxLayout="column" fxLayoutAlign="space-around center"
+                                                    class="w-100 border-right">
+                                                    <div>
+                                                        {{alegacao.numero}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div fxFlex fxLayoutAlign="center center"
+                                                class="text-center border-grid-tb h-100  bg-white">
+                                                <div fxLayout="column" fxLayoutAlign="space-around center"
+                                                    class="w-100 border-right">
+                                                    <div>
+                                                        {{alegacao.profissional.nome}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div fxFlex fxLayoutAlign="center center"
+                                                class="text-center h-100 border-grid-tb bg-white">
+                                                <div fxLayout="column" fxLayoutAlign="space-around center"
+                                                    class="w-100 border-right">
+                                                    <div>
+                                                        {{ alegacao.dataCadastro | date:'dd/MM/yyyy' }} às
+                                                        {{ alegacao.dataCadastro | date:'HH:mm' : '+0' }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div fxFlex="10%" fxLayoutAlign="center center"
+                                                class="text-center border-grid-tb h-100  bg-white">
+                                                <div fxLayout="column" fxLayoutAlign="space-around center"
+                                                    class="w-100">
+                                                    <modal-visualizar-alegacao [alegacao]="alegacao">
+                                                    </modal-visualizar-alegacao>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div *ngIf="alegacoes.length == 0" class="text-center">
+                                <div fxLayout="row" fxLayoutAlign="center center">
+                                    <b class="mt-4 mb-4">{{'MSG_NAO_EXISTE_ALEGACOES_IMPUGNACAO_RESULTADO' | i18n}}</b>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

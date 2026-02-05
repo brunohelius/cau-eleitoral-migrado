@@ -1,0 +1,71 @@
+<div class="modal-header border-header-green" *ngIf="!readOnly">
+  <div class="col-md-2"></div>
+  <div class="col-md-8 text-center">
+    <h6 class="modal-title pull-center">
+      {{'LABEL_CONTRARRAZAO_RUCURSO_RECONSIDERACAO_JULGAMENTO_1_INSTANCIA' |i18n}}
+    </h6>
+  </div>
+  <div class="col-md-2"></div>
+</div>
+<div class="bold text-center pt-2" *ngIf="readOnly">
+  <span class="bold"> <strong  class="colorGreen"> {{ 'LABEL_CONTRARRAZAO_IMPUGNANTE' | i18n}} </strong> </span>
+</div>
+<div class="modal-body">
+  <form #form="ngForm">
+
+    <!-- Número de Pedido de Impugnação -->
+    <div class="pt-3 text-center" *ngIf="!readOnly">
+      <strong class="colorGreen">
+        {{ 'LABEL_N_DO_PEDIDO_IMPUGNACAO' | i18n }} :
+      </strong>
+      <span class="colorGreen" > {{ getNumeroFormatado(impugnacaoResultado?.numero, 4) }} </span>
+    </div>
+
+    <div *ngIf="readOnly" fxLayout="column" fxLayoutAlign="center start" class="pt-3 colorGreen" >
+      <strong>
+          {{'LABEL_RESPONSAVEL_PELO_CADASTRO' | i18n}}: {{ contrarrazao.profissional?.nome }}
+      </strong>
+      <strong>
+          {{'LABEL_DATA_CADASTRO' | i18n}}: {{contrarrazao.dataCadastro | date:'dd/MM/yyyy' : '+0' }}
+          às {{contrarrazao.dataCadastro | date:'HH:mm' : '+0'}}
+      </strong>
+    </div>
+
+    <!-- Descrição do contrarrazao -->
+    <div class="pt-1">
+      <card-panel [titulo]="'LABEL_DESCRICAO_CONTRARRAZAO'" class="mt-3">
+        <editor-de-texto [isRequerido]="true" [isHabilitado]="!readOnly" [tamanhoMaximo]="2000"
+          [valor]="contrarrazao.descricao" [isMostrarTamanhoTextoRestantes]="true" [isSubmetido]="submitted"
+          [configuracao]="getConfiguracaoCkeditor()" (valorChange)="setDescricaoContrarrazao($event)">
+        </editor-de-texto>
+      </card-panel>
+    </div>
+
+    <!-- Documentos do contrarrazao -->
+    <div class="pt-3">
+      <card-panel [titulo]="'LABEL_DOCUMENTO'">
+        <div class="row">
+          <div class="col-md-12 p-0">      
+            <arquivo [arquivos]="contrarrazao.arquivos" [maxArquivos]="1" [hasUpload]="!readOnly" [hasDownload]="true"
+              [msgHint]="getHintMensagem()" [maxArquivos]="1" [tipoValidacao]="tipoValidacaoArquivo" [hasExclusao]="!readOnly" [msgMaxArquivos]="'MSG_PERMISSAO_UPLOAD_1'"
+              (download)="downloadArquivoContrarrazao($event)" (excluirArquivo)="excluirArquivo()">
+            </arquivo>
+          </div>
+        </div>
+        <div class="text-danger" *ngIf="submitted && !hasArquivos()">{{ 'required' | i18n }}</div>
+      </card-panel>
+    </div>
+
+    <!--Botões de salvar e cancelar. -->
+    <div *ngIf="!readOnly" class="pt-3">
+      <button (click)="cancelar(form)" class="btn btn-danger mr-4" type="button">
+        {{'LABEL_CANCELAR' | i18n}}
+      </button>
+      <button (click)="salvar(form)" class="btn btn-primary" type="button">
+        {{'LABEL_CADASTRAR' | i18n}}
+      </button>
+    </div>
+
+  </form>
+</div>
+

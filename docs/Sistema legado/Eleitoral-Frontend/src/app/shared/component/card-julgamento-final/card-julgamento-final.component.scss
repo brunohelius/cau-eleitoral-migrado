@@ -1,0 +1,91 @@
+
+$primary:      #14385D;
+
+.list-item  {
+    background: #fff;
+    border-radius: 2px;
+    width: 100%;
+    position: relative;
+}
+
+.list-item-card td{
+    box-shadow: 0 4px 0px 0px rgba(0,0,0,0.16);
+}
+
+.list-item-card{
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+.list-item-box{
+    align-content: center;
+    align-items: center;
+    height: 60px;
+    color: black;
+}
+
+.primary{
+    color: #14385D !important;
+}
+
+.list-item td{
+    color: black;
+}
+
+@import "~bootstrap/scss/functions";
+@import "~@cau/layout/variables";
+$primary:      #14385D;
+
+.ribbon {
+    padding: 2px;
+    color: #ffffff;
+    border-radius: 10px;
+    font-size: 0.65rem;
+    font-weight: bold;
+    margin-left: 24%;
+    margin-right: 25%;
+    min-width: 80px;
+    min-height: 20px;
+
+    &.ribbon-primary {
+        background-color: $primary;
+    }
+
+    &.ribbon-warning {
+        background-color: $warning;
+    }
+
+    &.ribbon-danger {
+        background-color: $danger;
+    }
+}
+
+.text-link{
+    word-wrap: normal;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+
+.maxWidth {
+    height: 100%;
+}
+
+.icone-size {
+    font-size: 20px;
+}
+
+.font-white {
+    color: white;
+}
+.color-alert{
+    color: $warning !important;
+}
+.text-primary{
+    color: $primary;
+}
+.red {
+    color: red;
+}
+.font-color-bg-primary{
+    color:  #14385D !important;
+  }

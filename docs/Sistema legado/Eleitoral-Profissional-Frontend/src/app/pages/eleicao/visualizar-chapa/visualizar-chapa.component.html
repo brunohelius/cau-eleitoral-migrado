@@ -1,0 +1,62 @@
+
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-abas">
+
+            <li class="nav-item pointer">
+                <a class="nav-link active"
+                    (click)="mudarAbaSelecionada(abas.abaVisaoGeral.nome)" 
+                    [ngClass]="{ 'active': abas.abaVisaoGeral.ativa }"
+                >{{ 'LABEL_VISAO_GERAL' | i18n }}</a>
+            </li>
+
+            <li class="nav-item pointer" *ngIf="chapaEleicao.tipoCandidatura.id">
+                <a class="nav-link" (click)="mudarAbaSelecionada(abas.abaPlataformaEleitoral.nome)" [ngClass]="{ 'active': abas.abaPlataformaEleitoral.ativa }">
+                    {{ 'LABEL_PLATAFORMA_ELEITORAL_REDES_SOCIAIS' | i18n }}
+                </a>
+            </li>
+
+            <li class="nav-item pointer" *ngIf="chapaEleicao.id">
+                <a class="nav-link" (click)="mudarAbaSelecionada(abas.abaMembrosChapa.nome)"
+                    [ngClass]="{ 'active': abas.abaMembrosChapa.ativa }" *ngIf="!isChapaConcluida()">
+                    {{ 'LABEL_AGUARDANDO_CONCLUSAO' | i18n }}
+                </a>
+
+                <a class="nav-link" (click)="mudarAbaSelecionada(abas.abaMembrosChapa.nome)"
+                    [ngClass]="{ 'active': abas.abaMembrosChapa.ativa }" *ngIf="isChapaConcluida()">
+                    {{ 'LABEL_CHAPA_CONCLUIDA' | i18n }}
+                </a>
+            </li>
+
+        </ul>
+
+        <div class="tab-content">
+
+            <div class="tab-pane fade" [ngClass]="{ 'active show': abas.abaPlataformaEleitoral.ativa }" *ngIf="abas.abaPlataformaEleitoral.ativa">
+                <div class="col-md-12 bg-white">
+                    <i class="fa fa-desktop fa-2x m-2 pointer" 
+                        aria-hidden="true"  
+                        (click)="mudarAbaSelecionada(abas.abaVisaoGeral.nome)">
+                    </i>
+                </div>
+                <progressbar-visualizar-chapa [chapaEleicao]="chapaEleicao" [eleicaoVigente]="eleicao"></progressbar-visualizar-chapa>
+                <div class="box-separador"></div>
+                <aba-plataforma-eleitoral-rede-social-visualizar  [isUsuarioEditor]="isUsuarioEditor()" [isEleicaoDentroDoPrazoCadastro]="isEleicaoDentroDoPrazoCadastro()" [chapaEleicao]="chapaEleicao" [eleicao]="eleicao" (avancar)="avancar($event)"></aba-plataforma-eleitoral-rede-social-visualizar>
+            </div>
+
+            <div class="tab-pane fade" [ngClass]="{ 'active show': abas.abaMembrosChapa.ativa }" *ngIf="abas.abaMembrosChapa.ativa">
+                <div class="col-md-12 bg-white">
+                    <i class="fa fa-desktop fa-2x m-2 pointer" 
+                    aria-hidden="true"
+                    (click)="mudarAbaSelecionada(abas.abaVisaoGeral.nome)"
+                    >
+                    </i>
+                </div>
+                <progressbar-visualizar-chapa [chapaEleicao]="chapaEleicao" [eleicaoVigente]="eleicao"></progressbar-visualizar-chapa>
+                <div class="box-separador"></div>
+                <aba-membros-chapa-visualizar [isUsuarioEditor]="isUsuarioEditor()" [isEleicaoDentroDoPrazoCadastro]="isEleicaoDentroDoPrazoCadastro()" [(chapaEleicao)]="chapaEleicao" [eleicao]="eleicao" (avancar)="avancar($event)"></aba-membros-chapa-visualizar>
+            </div>
+
+        </div>
+    </div>
+</div>

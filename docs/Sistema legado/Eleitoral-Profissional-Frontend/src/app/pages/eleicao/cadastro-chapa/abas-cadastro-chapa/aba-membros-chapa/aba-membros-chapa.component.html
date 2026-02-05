@@ -1,0 +1,185 @@
+<!-- Início do conselheiro UF/BR -->
+<div *ngIf="isConselheiroUfBR()">
+
+    <div class="cor-corpo py-3">
+        <i class="fa fa-reply fa-2x float-left pointer" (click)="voltar.emit(isCamposAlterados())" aria-hidden="true"></i>
+        <i class="fa fa-info-circle fa-2x float-right pointer" aria-hidden="true"  [title]="getHintCadastroChapa()"></i>
+        <div class="subtitle-lines">{{ 'LABEL_CADASTRAR_MEMBROS_CHAPA' | i18n }}</div>
+    </div>
+
+    <div class="card text-center">
+        <div class="row m-2">
+
+            <div class="col-md-12 col-xs-12 texto-titulo my-3">{{ 'LABEL_CONSELHEIRO_FEDERAL' | i18n }}</div>
+
+            <ng-template [ngTemplateOutlet]="templateListaMembros"
+            [ngTemplateOutletContext]="{ tipoLista: 1, membros : getConselheirosFederais(membrosChapas) }">
+            </ng-template>
+
+        </div>
+    </div>
+
+    <div class="box-separador"></div>
+
+    <div class="card text-center">
+        <div class="row m-2">
+
+            <div class="col-md-12 texto-titulo mt-3">{{ 'LABEL_CONSELHEIROS_ESTADUAIS' | i18n }}</div>
+
+            <ng-template [ngTemplateOutlet]="templateListaMembros"
+            [ngTemplateOutletContext]="{ tipoLista: 2, membros : getConselheirosEstaduais(membrosChapas) }">
+            </ng-template>
+
+        </div>
+    </div>
+</div>
+<!-- Fim do conselheiro UF/BR -->
+
+<!-- Início do conselheiro IES -->
+<div *ngIf="isConselheiroIES()">
+
+    <div class="cor-corpo py-3">
+        <i class="fa fa-reply fa-2x float-left pointer" (click)="voltar.emit(isCamposAlterados())" aria-hidden="true"></i>
+        <i class="fa fa-info-circle fa-2x float-right pointer" [title]="getHintCadastroChapa()" aria-hidden="true"></i>
+        <div class="subtitle-lines">{{ 'LABEL_CADASTRAR_MEMBROS_REPRESENTANTES_IES' | i18n }}</div>
+    </div>
+
+    <div class="card text-center">
+        <div class="row m-2">
+
+            <div class="col-md-12 col-xs-12 texto-titulo my-3">{{ 'LABEL_REPRESENTANTE_IES' | i18n }}</div>
+
+            <ng-template [ngTemplateOutlet]="templateListaMembros"
+                [ngTemplateOutletContext]="{ tipoLista: 1, membros : getRepresentantesIES(membrosChapas) }">
+            </ng-template>
+
+        </div>
+    </div>
+</div>
+<!-- Fim do conselheiro IES -->
+
+<div class="col-md-12 py-4 cor-corpo">
+    <button class="btn btn-danger mr-4" [disabled]="isChapaConcluida()" (click)="cancelar.emit()">
+        {{ 'LABEL_CANCELAR' | i18n }}
+    </button>
+
+    <button class="btn btn-primary mr-4" (click)="anterior()">
+        {{ 'LABEL_ANTERIOR' | i18n }}
+    </button>
+
+    <button class="btn btn-primary mr-4" id="btn-membros-avancar" (click)="avancarDeclaracao()">
+        {{ 'LABEL_AVANCAR' | i18n }}
+    </button>
+</div>
+
+<ng-template #templateListaMembros let-tipo="tipoLista" let-listaMembros="membros">
+    <div class="col-md-12 col-xs-12 mt-2 mb-4" *ngIf="listaMembros">
+
+        <div class="box-destaque texto-destaque shadow" app-mfData [mfData]="listaMembros" #mf="mfDataTable"
+            [mfRowsOnPage]="limitePaginacao">
+
+            <div class="row mb-3" *ngIf="isConselheirosEstaduais(tipo)">
+                <div class="col-md-3 align-items-right texto-titulo">
+                    <div class="form-inline">
+                        <span class="mr-1">{{ 'LABEL_MOSTRAR' | i18n }}: </span>
+                        <select class="form-control mr-1" [(ngModel)]="limitePaginacao" [name]="limitePaginacao">
+                            <option *ngFor="let item of limitesPaginacao" [ngValue]="item">
+                                {{ item }}
+                            </option>
+                        </select>
+                        <span> {{ 'LABEL_REGISTROS' | i18n}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-1 col-xs-1 texto-titulo p-2" *ngIf="isConselheirosEstaduais(tipo)">
+                    {{ 'LABEL_NUM' | i18n }}</div>
+                <div [ngClass]="{'col-md-3 col-xs-3': isConselheirosEstaduais(tipo), 'col-md-4 col-xs-4':isConselheirosFederais(tipo) }"
+                    class="texto-titulo">{{ 'LABEL_CPF_PROFISSIONAL' | i18n }}</div>
+                <div class="col-md-2 col-xs-2 texto-titulo p-2">{{ 'LABEL_TIPO_PARTICIPACAO' | i18n }}</div>
+                <div class="col-md-2 col-xs-2 texto-titulo p-2">{{ 'LABEL_NOME' | i18n }}</div>
+                <div class="col-md-2 col-xs-2 texto-titulo p-2">{{ 'LABEL_REGISTRO' | i18n }}</div>
+                <div class="col-md-2 col-xs-2 texto-titulo p-2">{{ 'LABEL_RESPONSAVEL' | i18n }}</div>
+            </div>
+
+            <div class="box-profissional my-2" *ngFor="let element of mf.data;">
+                <div class="row mb-2">
+                    <div class="col-md-1" *ngIf="isConselheirosEstaduais(tipo)">
+                        {{ element.titular.numeroOrdem }}
+                    </div>
+                    <div
+                        [ngClass]="{'col-md-3': isConselheirosEstaduais(tipo), 'col-md-4':isConselheirosFederais(tipo) }">
+                        <app-autocomplete [(inputModel)]="element.titular_txtPesquisa"
+                            [placeholder]="getPlaceholderAutoCompleteProfissional(element.titular)"
+                            [membroChapaAtual]="element.titular" [disabled]="isChapaConcluida()"
+                            (onSelectProfissional)="adicionarMembroChapa($event, element, getCodigoTitular())">
+                        </app-autocomplete>
+                    </div>
+                    <div class="col-md-2">
+                        <span *ngIf="element.titular.tipoParticipacaoChapa.descricao">
+                            {{ element.titular.tipoParticipacaoChapa.descricao }}
+                        </span>
+                    </div>
+                    <div class="col-md-2">
+                        <span *ngIf="element.titular.profissional">
+                            {{ element.titular.profissional.nome }}
+                        </span>
+                    </div>
+                    <div class="col-md-2">
+                        <span *ngIf="element.titular.profissional">
+                            {{ element.titular.profissional.registroNacional }}
+                        </span>
+                    </div>
+                    <div class="col-md-2">
+                        <div *ngIf="element.titular.id">
+                            <input type="checkbox" [(ngModel)]="element.titular.situacaoResponsavel" [disabled]="isInputResponsavelDesabilitado(element.titular)"
+                            (ngModelChange)="validarResponsavel()"
+                            id="" class="mt-2">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-1" *ngIf="isConselheirosEstaduais(tipo)">
+                        -
+                    </div>
+                    <div
+                        [ngClass]="{'col-md-3': isConselheirosEstaduais(tipo), 'col-md-4':isConselheirosFederais(tipo) }">
+                        <app-autocomplete [(inputModel)]="element.suplente_txtPesquisa" [placeholder]="getPlaceholderAutoCompleteProfissional(element.suplente)" [disabled]="isChapaConcluida()"
+                            [membroChapaAtual]="element.suplente" (onSelectProfissional)="adicionarMembroChapa($event, element, getCodigoSuplente())">
+                        </app-autocomplete>
+                    </div>
+                    <div class="col-md-2">
+                        <span *ngIf="element.suplente.tipoParticipacaoChapa">
+                            {{ element.suplente.tipoParticipacaoChapa.descricao }}
+                        </span>
+                    </div>
+                    <div class="col-md-2">
+                        <span *ngIf="element.suplente.profissional">
+                            {{ element.suplente.profissional.nome }}
+                        </span>
+                    </div>
+                    <div class="col-md-2">
+                        <span *ngIf="element.suplente.profissional">
+                            {{ element.suplente.profissional.registroNacional }}
+                        </span>
+                    </div>
+                    <div class="col-md-2">
+                        <div *ngIf="element.suplente.id">
+                            <input type="checkbox" [(ngModel)]="element.suplente.situacaoResponsavel"
+                            [disabled]="isInputResponsavelDesabilitado(element.suplente)"
+                            (ngModelChange)="validarResponsavel()"
+                            id="" class="mt-2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-3 col-md-12">
+            <app-mfBootstrapPaginator [mfTable]="mf" class="float-right"></app-mfBootstrapPaginator>
+        </div>
+    </div>
+</ng-template>

@@ -1,0 +1,6 @@
+<input type="text" [placeholder]="placeholder" class="form-control" name="nomeRegistro" title="{{'LABEL_MEMBRO' | i18n}}" [disabled]="disabled" maxlength="50" [(ngModel)]="inputModel.nomeRegistro" (ngModelChange)="inputModelChange.emit(inputModel)" (focusout)="focusout()"
+    [typeahead]="search" [typeaheadAsync]="true" typeaheadOptionField="profissional.nome" [typeaheadWaitMs]="1000" (typeaheadOnSelect)="adicionarMembro($event)" [typeaheadMinLength]="3" [typeaheadScrollable]="true" [adaptivePosition]="true" [typeaheadItemTemplate]="templateNomeCompleto"
+    [typeaheadOptionsLimit]="10000" [required]="true" autocomplete="off">
+
+<!-- CPF/Nome -->
+<ng-template #templateNomeCompleto let-model="item">{{ model.profissional.nome }}</ng-template>

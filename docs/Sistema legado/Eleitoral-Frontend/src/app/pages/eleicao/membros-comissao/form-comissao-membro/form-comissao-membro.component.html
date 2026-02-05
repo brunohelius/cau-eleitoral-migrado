@@ -1,0 +1,56 @@
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-tabs">
+            <li class="nav-item pointer">
+                <a class="nav-link" (click)="onSelect(tab.tabIncluirMembros)" [ngClass]="{'active': tab.tabIncluirMembros.active}">
+                    <span *ngIf="acaoSistema.isAcaoIncluir()">{{'LABEL_TABS_INCLUIR_MEMBROS' | i18n}}</span>
+                    <span *ngIf="acaoSistema.isAcaoAlterar() || acaoSistema.isAcaoVisualizar()">{{'LABEL_TABS_ALTERAR_MEMBROS' | i18n}}</span>
+                </a>
+            </li>
+            <li class="nav-item pointer">
+                <a class="nav-link" (click)="onSelect(tab.tabHistorico)" [ngClass]="{'active': tab.tabHistorico.active}">
+                    {{'LABEL_TABS_HISTORICO' | i18n}}
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade" [ngClass]="{ 'active': tab.tabIncluirMembros.active, 'show': tab.tabIncluirMembros.active }"
+                *ngIf="tab.tabIncluirMembros.active">
+                <div class="card rounded-0">
+                    <div class="card-header rounded-0">
+                        <h5 class="card-title">
+                            <a (click)="voltarLista()">
+                                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                            </a>
+                            <span *ngIf="acaoSistema.isAcaoIncluir() || acaoSistema.isAcaoAlterar()">{{'LABEL_CADASTRO_INFORMACOES_MEMBROS_COMISSAO' | i18n}}</span>
+                            <span *ngIf="acaoSistema.isAcaoVisualizar()">{{'LABEL_VISUALIZAR_MEMBROS_COMISSAO' | i18n}}</span>
+                        </h5>
+                    </div>
+                    <aba-cadastro-comissao-membro *ngIf="acaoSistema.isAcaoIncluir() || acaoSistema.isAcaoAlterar()" [acaoSistema]="acaoSistema" [cauUfAlterar]="cauUfAlterar" [cauUfs]="cauUfs" [eleicoes]="eleicoes" [anosEleicoes]="anosEleicoes"
+                        [configuracaoEleicao]="configuracaoEleicao" [tiposParticipacao]="tipoParticipacao" (conclusao)="habilitaAbaHistorico($event)">
+                    </aba-cadastro-comissao-membro>
+
+                    <list-comissao-membro *ngIf="acaoSistema.isAcaoVisualizar()" [cauUfs]="cauUfs" [eleicoes]="eleicoes" [anosEleicoes]="anosEleicoes"
+                    [configuracaoEleicao]="configuracaoEleicao" [tiposParticipacao]="tipoParticipacao"></list-comissao-membro>
+                </div>
+            </div>
+            <div class="tab-pane fade" [ngClass]="{ 'active': tab.tabHistorico.active, 'show': tab.tabHistorico.active }"
+                *ngIf="tab.tabHistorico.active">
+                <div class="card rounded-0">
+                    <div class="card-header rounded-0">
+                        <h5 class="card-title">
+                            <a (click)="voltarLista()">
+                                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                            </a>
+                            {{'LABEL_HISTORICO_ALTERACOES' |i18n}}
+                        </h5>
+                    </div>
+                    <aba-cadastro-historico-comissao-membro [cauUfs]="cauUfs" [eleicoes]="eleicoes" [anosEleicoes]="anosEleicoes"
+                        [configuracaoEleicao]="configuracaoEleicao" [tiposParticipacao]="tipoParticipacao">
+                    </aba-cadastro-historico-comissao-membro>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

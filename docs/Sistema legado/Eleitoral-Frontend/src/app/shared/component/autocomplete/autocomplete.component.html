@@ -1,0 +1,9 @@
+<input type="text" class="form-control" [placeholder]="placeholder" name="cpfNome" title="{{'LABEL_CPF_NOME' | i18n}}" [disabled]="disabled" maxlength="50"
+    [(ngModel)]="inputModel" (ngModelChange)="inputModelChange.emit(inputModel)" (focusout)="focusout()" [typeahead]="search"
+    [typeaheadAsync]="true" typeaheadOptionField="nome" [typeaheadWaitMs]="1000"  [typeaheadOptionsInScrollableView]="10"
+    (typeaheadOnSelect)="adicionarMembroChapa($event)" [typeaheadMinLength]="5" [typeaheadScrollable]="true"
+    [adaptivePosition]="true" [typeaheadItemTemplate]="templateNomeCpf" [typeaheadOptionsLimit]="10000"
+    [required]="true">
+
+<!-- CPF/Nome -->
+<ng-template #templateNomeCpf let-model="item">{{ model.nome }} - {{ model.cpf | mask:'000.000.000-00' }}</ng-template>

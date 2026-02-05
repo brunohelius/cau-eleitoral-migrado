@@ -1,0 +1,352 @@
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-abas">
+            <li class="nav-item pointer">
+                <p class="nav-link" (click)="sair()">
+                    {{ 'LABEL_VISAO_GERAL' | i18n }}
+                </p>
+            </li>
+            <li class="nav-item pointer active">
+                <a class="nav-link">
+                    {{ 'LABEL_PEDIDO_SUBSTITUICAO' | i18n }}
+                </a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane fade active show">
+                <div class="col-md-12">
+                    <i class="fa fa-desktop fa-2x m-2 pointer" (click)="sair()"aria-hidden="true"></i>
+                </div>
+                <div class="box-separador"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card border mt-3">
+    <div class="card-body p-0 mt-1">
+        <button type="button" class="btn btn-link p-0" (click)="voltar()">
+            <h5 class="m-0"><i class="fa fa-reply text-primary" title="{{'LABEL_VOLTAR' | i18n}}"></i></h5>
+        </button>
+        <div class="subtitle-line mb-3" *ngIf="!isMembros">
+            <span class="bg-white">{{'TITLE_PEDIDO_SUBSTUICAO_CANDIDATURA' | i18n}}</span>
+        </div>
+        <div class="card card-pricipal" *ngIf="!isMembros">
+            <div class="row m-2">
+                <div class="card-body text-center">
+                    <div class="box-destaque shadow text-left">
+                        <div class="custom-col">
+                            <p>{{ 'LABEL_DADOS_PROFISSIONAL_SUBISTITUIDO' | i18n }}</p>
+                            <app-autocomplete [(inputModel)]="nomeMembroChapa" [placeholder]="getPlaceholderAutoCompleteProfissional()"
+                                [membroChapaAtual]="nomeMembroChapa" (onSelectProfissional)="adicionarMembroChapa($event)">
+                            </app-autocomplete>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="box-separador-linha" *ngIf="!isMembros"></div>
+        <form #formSubstituirMembro="ngForm">
+            <div class="card card-pricipal">
+                <div class="row m-2">
+                    <div class="card-body text-center">
+                        <div class="subtitle-line mb-4">
+                            <span class="bg-white">{{'TITLE_INFORMACOES_IMPORTANTES' | i18n}}</span>
+                        </div>
+                        <div class="box-destaque shadow text-justify">
+                            <p>{{ 'MSG_PREZADO_ARQUITETO_RESPONSAVEL_CHAPA' | i18n }}</p>
+                        </div>
+                    </div>
+
+                    <div class="card-body text-center" *ngIf="isMembros">
+                        <div class="subtitle-line mb-4">
+                            <span class="bg-white">{{'TITLE_SUBSTITUICAO' | i18n}}</span>
+                        </div>
+                        <div class="card box-destaque shadow">
+                            <div fxLayout="row" fxLayoutGap="10px" fxFlexFill>
+                                <div fxFlex>
+                                    <div fxLayout="row">
+                                        <div fxFlex="8%" class="ml-2 text-center pb-1"
+                                        *ngIf="isConselheiroFederalRepresentanteIes()">
+                                            <strong
+                                                class="label-subtitle">{{ 'LABEL_POSICAO' | i18n }}</strong>
+                                        </div>
+                                        <div fxFlex="15%" class="text-center"><strong
+                                                class="label-subtitle">{{ 'LABEL_TIPO_PARTICIPACAO' | i18n }}</strong>
+                                        </div>
+                                        <div fxFlex class="text-center"><strong
+                                                class="label-subtitle">{{ 'LABEL_NOME' | i18n }}</strong>
+                                        </div>
+                                        <div fxFlex class="text-center">
+                                            <strong class="label-subtitle">{{ 'LABEL_REGISTRO' | i18n }}</strong>
+                                        </div>
+                                        <div fxFlex="20%" class="text-center"><strong
+                                                class="label-subtitle">{{ 'LABEL_STATUS_CONFIRMACAO' | i18n }}</strong>
+                                        </div>
+                                        <div fxFlex="13%" class="text-center"><strong
+                                                class="label-subtitle">{{ 'LABEL_STATUS_VALIDACAO' | i18n }}</strong>
+                                        </div>
+                                        <div fxFlex="10%" class="text-center"><strong
+                                            class="label-subtitle">{{ 'LABEL_RESPONSAVEL' | i18n }}</strong>
+                                        </div>
+                                    </div>
+
+                                    <div class="card text-center mt-2">
+                                        <div fxFlexFill class="custom-grid-white">
+                                            <div *ngFor="let membro of membrosAtuais; let key = index">
+                                                <div class="list-item list-item-card mt-1">
+                                                    <div fxLayout="row" fxLayoutGap="10px"
+                                                        class="list-item-box" *ngIf="membro">
+                                                        <div fxFlex="8%" class="border-right pl-3 text-center pb-1" *ngIf="membro.numeroOrdem != 0">
+                                                            <span *ngIf="isMembroTitular(membro)">{{membro.numeroOrdem}}</span>
+                                                        </div>
+                                                        <div fxFlex="15%" class="border-right pl-3 text-center">
+                                                            <span>{{membro.tipoParticipacaoChapa.descricao}}</span>
+                                                        </div>
+                                                        <div fxFlex class="border-right pl-3 text-center">
+                                                            <span>{{membro.profissional.nome}}</span>
+                                                        </div>
+                                                        <div fxFlex class="border-right pl-3 text-center">
+                                                            <div fxLayout="column" fxLayoutAlign="space-around center">
+                                                                <div class="mb-3">{{membro?.profissional?.registroNacional}}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div fxFlex="20%" class="border-right pl-3 text-center">
+                                                            <p [ngClass]="{'ribbon-primary': statusParticipacao(membro), 'ribbon-warning': !statusParticipacao(membro)}" 
+                                                            class="ribbon">{{membro.statusParticipacaoChapa.descricao}}</p>
+                                                        </div>
+                                                        <div fxFlex="10%" class="border-right pl-3 text-center">
+                                                            <i *ngIf="statusValidacao(membro)" aria-hidden="true"
+                                                            class="fa fa-check-circle text-success icone-size"></i>
+
+                                                            <i *ngIf="!statusValidacao(membro)" aria-hidden="true"
+                                                            (click)="abrirModalPendeciasMembro(templatePendeciasMembro, membro)"
+                                                            class="fa fa-exclamation-circle text-alert icone-size color-alert"></i>
+                                                        </div>
+                                                        <div fxFlex="10%" class="pl-3 text-center">
+                                                            <input *ngIf="hasCheck(key)" type="checkbox" [checked]="responsaveis[key]" disabled>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>  
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card text-center mt-4">
+                                <div fxLayout="row" fxFlexFill class="custom-grid-white">
+                                    <div fxFlex>
+                                        <div fxLayout="row" *ngIf="!isTitular">
+                                            <app-autocomplete [(inputModel)]="novoMembro.titular" [placeholder]="getPlaceholderAutoCompleteTitular()"
+                                                (onSelectProfissional)="buscarMembroSubstituto($event, 0)"  class="tamanho-membros"
+                                                (keydown.enter)="$event.preventDefault()">
+                                            </app-autocomplete>
+                                        </div>
+                                        <div *ngIf="isTitular">
+                                            <div class="list-item list-item-card mt-2">
+                                                <div fxLayout="row" fxLayoutGap="10px"
+                                                    class="list-item-box">
+                                                    <div fxFlex="8%" class="border-right pl-3 text-center pb-1" *ngIf="substitutoTitular.numeroOrdem != 0">
+                                                        <span>{{substitutoTitular.numeroOrdem}}</span>
+                                                    </div>
+                                                    <div fxFlex="15%" class="border-right pl-3 text-center">
+                                                        <span>{{substitutoTitular.tipoParticipacaoChapa.descricao}}</span>
+                                                    </div>
+                                                    <div fxFlex class="border-right pl-3 text-center">
+                                                        <app-autocomplete [(inputModel)]="novoMembro.titular" [placeholder]="getPlaceholderAutoCompleteTitular()"
+                                                            (onSelectProfissional)="buscarMembroSubstituto($event, 0)"  class="tamanho-membros"
+                                                            (keydown.enter)="$event.preventDefault()">
+                                                        </app-autocomplete>
+                                                    </div>
+                                                    <div fxFlex class="border-right pl-3 text-center">
+                                                        <div fxLayout="column" fxLayoutAlign="space-around center">
+                                                            <div class="mb-3">{{substitutoTitular.profissional?.registroNacional}}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div fxFlex="20%" class="border-right pl-3 text-center">
+                                                        <p [ngClass]="{'ribbon-primary': statusParticipacao(substitutoTitular), 'ribbon-warning': !statusParticipacao(substitutoTitular)}" 
+                                                        class="ribbon">{{substitutoTitular.statusParticipacaoChapa.descricao}}</p>
+                                                    </div>
+                                                    <div fxFlex="10%" class="border-right pl-3 text-center">
+                                                        <i *ngIf="statusValidacao(substitutoTitular)" aria-hidden="true"
+                                                        class="fa fa-check-circle text-success icone-size"></i>
+
+                                                        <i *ngIf="!statusValidacao(substitutoTitular)" aria-hidden="true"
+                                                        (click)="abrirModalPendeciasMembro(templatePendeciasMembro, substitutoTitular)"
+                                                        class="fa fa-exclamation-circle text-alert icone-size color-alert"></i>
+                                                    </div>
+                                                    <div fxFlex="10%" class="pl-3 text-center">
+                                                        <input type="checkbox" name="responsavelTitular"  [(ngModel)]="substitutoTitular.situacaoResponsavel" 
+                                                        class="mt-2" *ngIf="titularResponsavel" >
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div fxLayout="row" *ngIf="!isSuplente" class="mt-2">
+                                            <app-autocomplete [(inputModel)]="novoMembro.suplente" [placeholder]="getPlaceholderAutoCompleteSuplente()"
+                                                (onSelectProfissional)="buscarMembroSubstituto($event, 1)"  class="tamanho-membros"
+                                                (keydown.enter)="$event.preventDefault()">
+                                            </app-autocomplete>
+                                        </div>
+                                        <div *ngIf="isSuplente">
+                                            <div class="list-item list-item-card mt-2">
+                                                <div fxLayout="row" fxLayoutGap="10px"
+                                                    class="list-item-box">
+                                                    <div fxFlex="8%" class="border-right pl-3 text-center pb-1" *ngIf="substitutoSuplente.numeroOrdem != 0">
+                                                        
+                                                    </div>
+                                                    <div fxFlex="15%" class="border-right pl-3 text-center">
+                                                        <span>{{substitutoSuplente.tipoParticipacaoChapa.descricao}}</span>
+                                                    </div>
+                                                    <div fxFlex class="border-right pl-3 text-center">
+                                                        <app-autocomplete [(inputModel)]="novoMembro.suplente" [placeholder]="getPlaceholderAutoCompleteSuplente()"
+                                                            (onSelectProfissional)="buscarMembroSubstituto($event, 1)"  class="tamanho-membros"
+                                                            (keydown.enter)="$event.preventDefault()">
+                                                        </app-autocomplete>
+                                                    </div>
+                                                    <div fxFlex class="border-right pl-3 text-center">
+                                                        <div fxLayout="column" fxLayoutAlign="space-around center">
+                                                            <div class="mb-3">{{substitutoSuplente.profissional?.registroNacional}}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div fxFlex="20%" class="border-right pl-3 text-center">
+                                                        <p [ngClass]="{'ribbon-primary': statusParticipacao(substitutoSuplente), 'ribbon-warning': !statusParticipacao(substitutoSuplente)}" 
+                                                        class="ribbon">{{substitutoSuplente.statusParticipacaoChapa.descricao}}</p>
+                                                    </div>
+                                                    <div fxFlex="10%" class="border-right pl-3 text-center">
+                                                        <i *ngIf="statusValidacao(substitutoSuplente)" aria-hidden="true"
+                                                        class="fa fa-check-circle text-success icone-size"></i>
+
+                                                        <i *ngIf="!statusValidacao(substitutoSuplente)" aria-hidden="true"
+                                                        (click)="abrirModalPendeciasMembro(templatePendeciasMembro, substitutoSuplente)"
+                                                        class="fa fa-exclamation-circle text-alert icone-size color-alert"></i>
+                                                    </div>
+                                                    <div fxFlex="10%" class="pl-3 text-center">
+                                                        <input *ngIf="suplenteResponsavel" name="responsavelSuplente" type="checkbox" [(ngModel)]="substitutoSuplente.situacaoResponsavel"
+                                                        class="mt-2">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="box-separador text-left" *ngIf="isMembros"><p class="nav-link">{{ 'LABEL_JUSTIFICATIVA_DOCUMENTO' | i18n }}</p></div>
+            <div class="card card-pricipal" *ngIf="isMembros">
+                <div class="row m-2">
+                    <div class="card-body">
+                        <span class="bg-white">{{'TITLE_JUSTIFICATIVA' | i18n}}</span>
+                        <div class="box-destaque shadow mt-4 mb-4">
+                            <ckeditor name="justificativa" id="justificativa" #justificativa="ngModel"
+                                (ready)="onRedyCKJustificativa($event)" (change)="atualizaLimiteMaximoJustificativa($event)"
+                                [(ngModel)]="novoMembro.justificativa" [config]="configuracaoCkeditor" required>
+                            </ckeditor>
+                            <p>{{limiteMaximo}}</p>
+
+                            <validation-message [for]="justificativa" [submitted]="submittedFormSubstituirMembro">
+                            </validation-message>
+                        </div>
+                        <span class="bg-white">{{'TITLE_INSERIR_DOCUMENTO' | i18n}}</span>
+                        <div class="box-destaque shadow mt-4 mb-2">
+                            <div class="form-group mb-2" *ngIf="true">
+                                <div class="col-md-8 sem-espaco-esquerda">
+                                    <upload title="{{'LABEL_PROCURAR' | i18n}}" [name]="nomeDocumentoJustificativa"
+                                    [disabled]="nomeDocumentoJustificativa && nomeDocumentoJustificativa.length > 0"
+                                        required="false" (process)="uploadDocumentoJustificativa($event)" (click)="onClickUpload()" >
+                                        <i class="fa fa-file-o text-success" aria-hidden="true"></i>
+                                        <span>{{'LABEL_PROCURAR' | i18n}}</span>
+                                    </upload>
+
+                                    <input type="hidden" name="hideDocumentoJustificativa" #input_documentoJustificativa="ngModel"
+                                        [required]="false" [(ngModel)]="nomeDocumentoJustificativa">
+
+                                    <validation-message [for]="input_documentoJustificativa" [submitted]="submittedFormSubstituirMembro">
+                                    </validation-message>
+                                    
+                                    <div *ngIf="documentoJustificativa.arquivo != undefined" class="mt-4">
+                                        <td class="text-center pr-3">
+                                            <span>
+                                                {{ nomeDocumentoJustificativa }}
+                                            </span>
+                                        </td>
+                                        <td class="table-action text-center" *ngIf="isConfirmado()">
+                                            <download title="{{ nomeDocumentoJustificativa }}" class="center-no-arquivo pointer p-0"
+                                                [download]="nomeDocumentoJustificativa" (process)="download($event)" style="background: none;">
+                                                <i class="fas fa-fw fa-download color-cau"></i>
+                                            </download>
+                                            <button class="btn" (click)="excluiUpload()">
+                                                <i class="fas fa-fw fa-times color-cau"></i>
+                                            </button>
+                                        </td>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 py-4 cor-corpo" *ngIf="isMembros">
+                <button class="btn btn-danger mr-4" (click)="cancelar()">
+                    {{ 'LABEL_CANCELAR' | i18n }}
+                </button>
+            
+                <button type="submit" class="btn btn-primary mr-4" (click)="salvar(formSubstituirMembro)">
+                    {{ 'LABEL_CONFIRMAR' | i18n }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<ng-template #templateConfirmacaoSubstituicao let-confirmacaoSubstituicao="membros">
+    <div class="card border text-center">
+        <div class="card-body p-0 mt-1">
+            <div class="mb-2">
+                <b class="bg-white">{{'TITLE_CONFIRMACAO_SOLICITACAO_SUBSTITUICAO' | i18n}}</b>
+            </div>
+            <div class="box-separador-linha"></div>
+            <div class="row m-2">
+                <div class="card-body text-center">
+                    <div class="box-destaque shadow text-left">
+                        {{'MSG_CONFIRMACAO_SUBSTITUICAO_MEMBRO_CHAPA' | i18n}} {{confirmacao.numeroProtocolo}}.
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary mb-2" (click)="redirecionaVisualizarPedido()">
+                {{ 'LABEL_OK' | i18n }}
+            </button>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #templatePendeciasMembro>
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            <h6 class="modal-title pull-center">{{'TITLE_PENDECIAS_MEMBRO' |i18n}}</h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalPendeciasMembro.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        <div class="row p-3">
+            <div class="col-md-12">
+                <p class="text-center pb-2"
+                    *ngFor="let pendencia of membroChapaSelecionado.pendencias; let indice = index;">
+                    {{ pendencia.tipoPendencia.descricao }}
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-center pt-3">
+                <button class="btn btn-primary" (click)="modalPendeciasMembro.hide()">{{'LABEL_FECHAR' |i18n}}</button>
+            </div>
+        </div>
+    </div>
+</ng-template>

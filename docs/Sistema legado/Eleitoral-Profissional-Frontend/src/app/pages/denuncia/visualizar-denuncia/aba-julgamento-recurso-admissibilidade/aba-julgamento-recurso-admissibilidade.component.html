@@ -1,0 +1,78 @@
+<div class="card">
+    <div class="card-body">
+        <i class="fa fa-reply fa-2x mb-3" (click)="voltar()" aria-hidden="true"></i>
+
+        <div class="float-right" fxLayout="row" fxLayoutGap="10px">
+            <div class="status-center" fxLayout="column"fxFlex>
+                <i class="fa fa-spinner fa-4x pr-0"
+                        [ngClass]="{'text-danger': isJulgamentoImprovido(), 'text-primary' : isJulgamentoProvido()}"></i>
+                    <div class="texto-titulo"
+                        [ngClass]="{'text-danger': isJulgamentoImprovido(), 'text-primary' : isJulgamentoProvido()}">
+                        <strong [innerHtml]="getTipoJulgamento()"></strong>
+                    </div>
+            </div>
+        </div>
+
+        <h6 class="text-center"><strong>{{ 'LABEL_NUMERO_DENUNCIA' | i18n }}: </strong>{{ denuncia.numeroDenuncia }}
+        </h6>
+
+        <h6><strong>{{'LABEL_DATA_HORA_CADASTRO' | i18n}}: </strong>
+            {{ dataCriacao}}
+        </h6>
+
+        <div class="border shadow rounded p-2">
+            <div class="p-2">
+                <app-alerta-denuncia-sigilosa *ngIf="denuncia.isSigiloso"></app-alerta-denuncia-sigilosa>
+                <div class="bg-primary text-white p-2">
+                    <strong>{{'LABEL_JULGAMENTO_RECURSO_ADMISSIBILIDADE' | i18n}}</strong>
+                </div>
+
+                <div class="alert bg-green">
+                    <ckeditor id="dsAdmissibilidade" [config]="configuracaoCkeditor" [(ngModel)]="denuncia.julgamentoAdmissibilidade.recursoJulgamentoAdmissibilidade.julgamentoRecurso.descricao"
+                              [readOnly]="true">
+                    </ckeditor>
+                    <span>{{ getContagemDescricaoJulgamento() }}</span>
+                </div>
+            </div>
+
+            <div class="p-2" *ngIf="denuncia.julgamentoAdmissibilidade.recursoJulgamentoAdmissibilidade.julgamentoRecurso.arquivos?.length > 0">
+                <div class="bg-primary text-white p-2">
+                    <strong>{{'LABEL_DOCUMENTOS' | i18n}}</strong>
+                </div>
+                <div class="alert bg-green">
+                    <span>{{ 'LABEL_ARQUIVO' | i18n }}</span>
+                    <div class="lista-arquivos mt-2" fxLayout="row">
+                        <table class="table table-sm">
+                            <tbody>
+                            <tr *ngFor="let arquivo of denuncia.julgamentoAdmissibilidade.recursoJulgamentoAdmissibilidade.julgamentoRecurso.arquivos">
+                                <td class="text-center">
+                                    <div>
+                                        {{ arquivo.nome }}
+                                    </div>
+                                </td>
+                                <td class="table-action text-center">
+                                    <download title="{{ arquivo.nome }}" class="text-primary pointer p-0"
+                                              [download]="arquivo.nome" (process)="downloadArquivo($event, arquivo.id)">
+                                        <i class="align-middle fa fa-download"></i>
+                                    </download>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-2" *ngIf="(denuncia.defesaApresentada == undefined && isUsuarioDenunciadoResponsavelChapa()) && (!denuncia.hasDefesaPrazoEncerrado && isAguardandoDefesaDenuncia())">
+                <button class="btn btn-primary mr-4" (click)="abrirModalApresentarDefesa()"
+                    type="button">{{'LABEL_APRESENTAR_DEFESA' | i18n}}</button>
+            </div>
+
+            <div class="p-2" *ngIf="isPossivelInserirRelator()">
+                <button class="btn btn-primary" type="button" title="Inserir Relator" (click)="inserirRelator()">
+                    {{'LABEL_INSERIR_RELATOR' | i18n}}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,91 @@
+<table class="table table-striped p-0" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="numeroRegistrosPaginacao"
+    *ngIf="data">
+    <thead>
+        <tr>
+            <th class="text-center tb-width-20">
+                <mfDefaultSorter by="dadosResponsavel.nome">{{ 'LABEL_RESPONSAVEL' | i18n }}</mfDefaultSorter>
+            </th>
+            <th class="text-center tb-width-10">
+                <mfDefaultSorter by="data">{{ 'LABEL_DATA_HORA' | i18n }}</mfDefaultSorter>
+            </th>
+            <th class="text-center tb-width-10">
+                <mfDefaultSorter by="descricaoAba">{{ 'LABEL_ABA' | i18n }}</mfDefaultSorter>
+            </th>
+            <th class="text-center tb-width-30">
+                <mfDefaultSorter by="descricoesAcao">{{ 'LABEL_ACAO' | i18n }}</mfDefaultSorter>
+            </th>
+            <th class="text-center tb-width-30">
+                <mfDefaultSorter by="justificativaAlteracao">{{ 'LABEL_JUSTIFICATIVA' | i18n }}</mfDefaultSorter>
+            </th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr *ngFor="let item of mf.data; let indexTabela = index;">
+            <td class="text-center tb-width-20">
+                <span class="d-flex" *ngIf="item.descricoesAcao.length > 1">
+                    <i class="fa fa-sort-up pointer align-items-center" aria-hidden="true"
+                        (click)="retrairAcoesJustificativas(indexTabela)"
+                        *ngIf="collapseAtivo[indexTabela].isExpandido"></i>
+
+                    <i class="fa fa-sort-desc pointer align-items-center" aria-hidden="true"
+                        (click)="expandirAcoesJustificativas(indexTabela)"
+                        *ngIf="!collapseAtivo[indexTabela].isExpandido"></i>
+
+                    {{ item.dadosResponsavel.nome }}
+                </span>
+
+                <span *ngIf="!(item.descricoesAcao.length > 1)">
+                    {{ item.dadosResponsavel.nome }}
+                </span>
+            </td>
+            <td class="text-center tb-width-10">
+                {{ item.data | date:'dd/MM/yyyy HH:mm' : '+0' }} {{ 'LABEL_SIGLA_HORAS' | i18n }}
+            </td>
+            <td class="text-center tb-width-10">{{ item.descricaoAba }}</td>
+
+            <td class="text-center tb-width-30">
+
+                <div class="pb-2" *ngIf="item.descricoesAcao.length > 0 && !collapseAtivo[indexTabela].isExpandido">
+                    {{ getAcao(item.descricoesAcao) }}
+                </div>
+
+                <div *ngIf="item.descricoesAcao.length > 0 && collapseAtivo[indexTabela].isExpandido">
+                    <p *ngFor="let acao of item.descricoesAcao; let index = index"
+                        [className]="(item.descricoesAcao.length > 1 && item.descricoesAcao.length - 1 != index) ? 'pb-2 mb-2 border-bottom' : 'pb-2 mb-2'">
+                        {{ acao.descricao }}
+                    </p>
+                </div>
+
+            </td>
+            <td class="text-center tb-width-30">
+
+                <span class="py-2" *ngIf="item.justificativaAlteracao.length == 0">
+                    {{ 'LABEL_HIFEN' | i18n }}
+                </span>
+
+                <div class="pb-2"
+                    *ngIf="item.justificativaAlteracao.length > 0 && !collapseAtivo[indexTabela].isExpandido">
+                    {{ getJustificativa(item.justificativaAlteracao) }}
+                </div>
+
+                <div *ngIf="item.justificativaAlteracao.length > 0 && collapseAtivo[indexTabela].isExpandido">
+                    <p *ngFor="let histJustitificativa of item.justificativaAlteracao; let i = index"
+                        [className]="(item.descricoesAcao.length > 1 && item.descricoesAcao.length - 1 != i) ? 'pb-2 mb-2 border-bottom' : 'pb-2 mb-2'">
+                        {{ histJustitificativa.justificativa == '' ? ' - ' : histJustitificativa.justificativa  }}
+                    </p>
+                </div>
+
+            </td>
+        </tr>
+    </tbody>
+
+    <tfoot>
+        <tr>
+            <td colspan="5" class="col-12">
+                <paginacao [paginaAtual]="mf.activePage" [totalPorPagina]="numeroRegistrosPaginacao"
+                    [totalRegistros]="quantidadeRegistros"></paginacao>
+            </td>
+        </tr>
+    </tfoot>
+</table>

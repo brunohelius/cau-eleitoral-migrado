@@ -1,0 +1,93 @@
+<div class="card">
+    <div class="card-body">
+        <i class="fa fa-reply fa-2x mb-3" (click)="voltar()" aria-hidden="true"></i>
+
+        <h6 class="text-center"><strong>{{ 'LABEL_NUMERO_DENUNCIA' | i18n }}: </strong>{{ denuncia.numeroDenuncia }}
+        </h6>
+
+        <h6><strong>{{'LABEL_DATA_HORA_CADASTRO' | i18n}}: </strong>
+            {{ denuncia.dataHoraDenuncia | date:'dd/MM/yyyy':'+0' }} às {{ denuncia.dataHoraDenuncia | date:'HH:mm':'+0' }}
+        </h6>
+        <div class="border shadow rounded p-3">
+            <app-alerta-denuncia-sigilosa *ngIf="denuncia.isSigiloso"></app-alerta-denuncia-sigilosa>
+            <app-info-denunciante [denunciante]="denuncia.denunciante" [isSigiloso]="denuncia.isSigiloso">
+            </app-info-denunciante>
+        </div>
+
+        <div class="border shadow rounded p-2">
+            <app-info-denunciado *ngIf="denuncia.denunciado" [denunciado]="getDenunciado()">
+            </app-info-denunciado>
+
+            <div class="bg-primary text-white p-2">
+                <strong>{{'LABEL_NARRACAO_FATOS' | i18n}}</strong>
+            </div>
+
+            <div class="alert bg-green">
+                <ckeditor id="dsNarracaoFatos" [config]="configuracaoCkeditor" [(ngModel)]="denuncia.narracaoFatos"
+                    [readOnly]="true">
+                </ckeditor>
+                <span>{{ getContagemNarracaoFatos() }}</span>
+            </div>
+
+            <div *ngIf="denuncia.arquivos?.length > 0">
+                <div class="bg-primary text-white p-2">
+                    <strong>{{'LABEL_DOCUMENTOS' | i18n}}</strong>
+                </div>
+                <div class="alert bg-green">
+                    <label for="documento"><span>{{ 'LABEL_ARQUIVO' | i18n }}</span></label>
+                    <div class="lista-arquivos mt-2" fxLayout="row">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr *ngFor="let arquivo of denuncia.arquivos">
+                                    <td class="text-center">
+                                        <div>
+                                            {{ arquivo.nome }}
+                                        </div>
+                                    </td>
+                                    <td class="table-action text-center">
+                                        <download title="{{ arquivo.nome }}" class="text-primary pointer p-0"
+                                            [download]="arquivo.nome" (process)="downloadArquivo($event, arquivo.id)">
+                                            <i class="align-middle fa fa-download"></i>
+                                        </download>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <visualizar-testemunhas *ngIf="denuncia.testemunhas.length > 0" [testemunhas]="denuncia.testemunhas">
+            </visualizar-testemunhas>
+
+            <div class="row py-3">
+
+                <div class="col-md-12 p-6" *ngIf="isCoordenadorDenuncia(tipoMembroComissao, denuncia.idCauUf) && isDenunciaEmAnaliseAdmissibilidade(denuncia)">
+                    <button class="btn btn-danger mr-4 btn-action-denuncia" (click)="abrirModalInadmitirDenuncia(denuncia)"
+                        type="button">{{'LABEL_INADIMITIR' | i18n}}</button>
+
+                    <button class="btn btn-primary mr-4 btn-action-denuncia"
+                        type="button" (click)="abrirFormularioAdmissao(templateAdmitirDenunciaModal)">{{'LABEL_ADMITIR' | i18n}}</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #templateAdmitirDenunciaModal>
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            <h6 class="modal-title pull-center">{{'LABEL_ADMITIR_DENUNCIA' |i18n}}</h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalAdmitirDenunciaModal.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body">
+        <app-admitir-denuncia [denuncia]="denuncia" (fecharDenuncia)="cancelaAdmitirDenuncia($event)"></app-admitir-denuncia>
+    </div>
+</ng-template>

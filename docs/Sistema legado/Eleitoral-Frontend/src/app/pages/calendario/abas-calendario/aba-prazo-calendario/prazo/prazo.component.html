@@ -1,0 +1,92 @@
+<form #formPrazo="ngForm">
+    <div class="form-row col-12 pl-0 pr-0 mr-0">
+
+        <div class="form-group col-md-8">
+            <div class="col-md-12">
+
+                <i class="fa fa-arrow-right botao-exibir" style="float: left;"
+                    *ngIf="prazo.nivelNumerico == 2 || prazo.nivelNumerico == 3" data-toggle="collapse"
+                    [attr.data-target]="'#acordion-' + prazo.nivelAtividadePrincipal + '-' + prazo.nivelNumerico + '-' + prazo.nivelIrmao"
+                    (click)="accordionsAtividades[prazo.nivel]=!accordionsAtividades[prazo.nivel]"
+                    [ngClass]="accordionsAtividades[prazo.nivel] ? 'fa-arrow-up' : 'fa-arrow-down'"
+                    aria-expanded="true"></i>
+
+                <label>{{prazo.descricaoNivel}} {{ 'LABEL_ATIVIDADE' | i18n}}</label>
+            </div>
+
+            <div
+                [ngClass]="{'inputSubAtividade' : (prazo.nivelNumerico == 2 || prazo.nivelNumerico == 3), 'inputSubAtividadeSemColapse' : (prazo.nivelNumerico != 2 && prazo.nivelNumerico != 3)}">
+                <form-valid [submitted]="submitted">
+                    <input class="form-control" type="text" [(ngModel)]="prazo.descricaoAtividade"
+                        [disabled]="acaoSistema.isAcaoVisualizar() || isCamposDesabilitados" id="descricaoAtividade"
+                        name="descricaoAtividade" required>
+                </form-valid>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div fxLayout="row" class="form-group">
+                <div fxFlex="95px">
+                    <label>{{ 'LABEL_DURACAO_DIAS' | i18n }}</label>
+                    <form-valid [submitted]="submitted">
+                        <input class="form-control" type="text" [(ngModel)]="prazo.duracao"
+                            [disabled]="acaoSistema.isAcaoVisualizar() || isCamposDesabilitados" id="duracao"
+                            name="duracao" required [inputMask]="'099'">
+                    </form-valid>
+                </div>
+                <div fxFlex>
+                    <label>&nbsp;</label>
+                    <div class="input-group">
+                        <a class="botao-excluir-atividade text-success p-0 mr-1"
+                            *ngIf="prazo.isExibeIncluirSubAtividade && !acaoSistema.isAcaoVisualizar() && !isCamposDesabilitados"
+                            (click)="add()" title="{{ 'LABEL_INCLUIR_SUB_ATIVIDADE' | i18n }}">
+                            <i class="fas fa-plus-square"></i>
+                        </a>
+
+                        <a class="botao-excluir-atividade text-primary p-0 mr-0 ml-0"
+                            *ngIf="prazo.isExibeIncluirSubAtividade && prazo.nivelNumerico == 2 && !acaoSistema.isAcaoVisualizar() && !isCamposDesabilitados"
+                            (click)="addPorAtividade(prazo.nivelAtividadePrincipal)"
+                            title="{{ 'LABEL_INCLUIR_SUB_ATIVIDADE_PARALELA' | i18n }}">
+                            <i class="fas fa-plus-square"></i>
+                        </a>
+
+                        <a class="botao-excluir-atividade text-danger p-0 ml-1"
+                            *ngIf="!acaoSistema.isAcaoVisualizar() && !isCamposDesabilitados && !ocultarExcluir"
+                            (click)="removerAtividade(atividades, prazo.nivelNumerico, prazo.nivelAtividadePrincipal, prazo.nivelIrmao, {prazos: []}, true)">
+                            <i class="fas fa-trash"></i>
+                        </a>
+
+                        <ui-switch class="icon-atividade icon-atividade-switch p-0 ml-1"
+                            id="switch-shadow-{{ prazo.descricaoNivel }}" [(ngModel)]="prazo.situacaoDiaUtil"
+                            name="switch-shadow-{{ prazo.descricaoNivel }}"
+                            [disabled]="acaoSistema.isAcaoVisualizar() || isCamposDesabilitados"
+                            (valueChange)="onValueChangeDiaUtil($event, prazo)">
+                        </ui-switch>
+
+                        <label class="text-icon-atividade icon-atividade-switch">{{'LABEL_DIA_UTIL' |i18n}}</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 pl-0 pr-0 mr-0" id="subAtividade">
+
+        <div class="collapse collapse-atividades-secundarias show"
+            id="acordion-{{ prazo.nivelAtividadePrincipal + '-' + prazo.nivelNumerico + '-' + prazo.nivelIrmao }}"
+            *ngIf="prazo.nivelNumerico == 2 || prazo.nivelNumerico == 3">
+            <prazo [control]="prazoControl" [prazo]="prazoSub" [atividades]="atividades"
+                [prazosRemovidos]="prazosRemovidos" [disabled]="isCamposDesabilitados" [acao]="acaoSistema"
+                *ngFor="let prazoSub of prazo.prazos;" [ocultarExcluir]="ocultarExcluir">
+            </prazo>
+        </div>
+        <div *ngIf="prazo.nivelNumerico != 2 && prazo.nivelNumerico != 3">
+            <prazo [control]="prazoControl" [prazo]="prazoSub" [atividades]="atividades"
+                [prazosRemovidos]="prazosRemovidos" [disabled]="isCamposDesabilitados" [acao]="acaoSistema"
+                *ngFor="let prazoSub of prazo.prazos;" [ocultarExcluir]="ocultarExcluir">
+            </prazo>
+        </div>
+
+        <hr *ngIf="prazo.isExibeIncluirSubAtividade && prazo.prazos.length != 0">
+    </div>
+</form>

@@ -1,0 +1,76 @@
+<div class="row m-2">
+  <div class="card-body bg-green border shadow">
+    <div class="p-4" *ngIf="contrarrazoes.length > 0">
+      <div fxLayout="row" fxFlexFill >
+          <div fxFlex>
+              <div fxLayout="row">
+                  <div fxFlex="10%" class="ml-2 text-center pb-1">
+                      <strong class="label-subtitle">{{ 'LABEL_NUM' | i18n }}</strong>
+                  </div>
+                  <div fxFlex class="text-center">
+                      <strong class="label-subtitle">{{ 'LABEL_RESPONSAVEL_CADASTRO' | i18n }}</strong>
+                  </div>
+                  <div fxFlex class="text-center">
+                    <strong class="label-subtitle">{{ 'LABEL_NUMERO_CHAPA' | i18n }}</strong>
+                  </div>
+                  <div fxFlex class="text-center">
+                      <strong class="label-subtitle">{{ 'LABEL_DATA_HORA_DO_CADASTRO' | i18n }}</strong>
+                  </div>
+                  <div fxFlex="10%" class="text-center">
+                      <strong class="label-subtitle">{{ 'LABEL_ACAO' | i18n }}</strong>
+                  </div>
+              </div>
+          </div>
+      </div>
+      <div class="list-item mt-3">
+          <div *ngFor="let contrarrazao of contrarrazoes">
+              <div fxLayout="row" class="list-item-box custom-grid mt-2">
+                  <div fxFlex="10%" fxLayoutAlign="center center" class="text-center border-grid-tbl h-100  bg-white">
+                      <div fxLayout="column" fxLayoutAlign="space-around center" class="w-100 border-right">
+                          <div>
+                              {{contrarrazao.numero}}
+                          </div>
+                      </div>
+                  </div>
+                  <div fxFlex fxLayoutAlign="center center" class="text-center border-grid-tb h-100  bg-white">
+                      <div fxLayout="column" fxLayoutAlign="space-around center" class="w-100 border-right">
+                          <div>
+                              {{contrarrazao.profissional.nome}}
+                          </div>
+                      </div>
+                  </div>
+                  <div fxFlex fxLayoutAlign="center center" class="text-center border-grid-tb h-100  bg-white">
+                    <div fxLayout="column" fxLayoutAlign="space-around center" class="w-100 border-right">
+                        <div>
+                            {{'LABEL_CHAPA_NUMERO' | i18n}}{{contrarrazao.numeroChapa || "N/A" }}
+                        </div>
+                    </div>
+                </div>
+                  <div fxFlex fxLayoutAlign="center center" class="text-center h-100 border-grid-tb bg-white">
+                      <div fxLayout="column" fxLayoutAlign="space-around center" class="w-100 border-right">
+                          <div>
+                              {{ contrarrazao.dataCadastro | date:'dd/MM/yyyy' }} às
+                              {{ contrarrazao.dataCadastro | date:'HH:mm' : '+0' }}
+                          </div>
+                      </div>
+                  </div>
+                  <div fxFlex="10%" fxLayoutAlign="center center" class="text-center border-grid-tb h-100  bg-white">
+                      <div fxLayout="column" fxLayoutAlign="space-around center" class="w-100">
+                        <modal-visualizar-contrarrazao-impugnado
+                          [contrarrazoes]="contrarrazao"
+                          [impugnacao]="impugnacao"
+                        >
+                        </modal-visualizar-contrarrazao-impugnado>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+    <div *ngIf="contrarrazoes.length == 0" class="text-center">
+        <div fxLayout="row" fxLayoutAlign="center center">
+            <b class="mt-4 mb-4">{{'LABEL_NAO_HOUVE_CONTRARRAZAO' | i18n}}</b>
+        </div>
+    </div>
+  </div>
+</div>

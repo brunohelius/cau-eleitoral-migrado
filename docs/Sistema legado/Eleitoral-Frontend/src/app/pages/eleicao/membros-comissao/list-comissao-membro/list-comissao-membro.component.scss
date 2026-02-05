@@ -1,0 +1,26 @@
+.title-comissao img {
+    width: 45px;
+    height: 45px;
+}
+
+.list-item {
+    background: #fff;
+    border-radius: 2px;
+    display: inline-block;
+    width: 100%;
+    position: relative;
+}
+
+.list-item-card {
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+.list-item-box{
+    align-content: center;
+    align-items: center;
+    height: 60px;
+}
+
+.bg-warning {
+    background-color: #ff9007!important;
+}

@@ -1,0 +1,40 @@
+<div ngModelGroup="testemunhas">
+    <div class="bg-primary text-white p-2">
+        <strong>{{'LABEL_TESTEMUNHAS' | i18n}}</strong>
+    </div>
+    <div class="alert bg-green m-0">
+        <div>
+            <button id="adicionarTestemunha" (click)="addTestemunha()" [disabled]="isAddTestemunhaDisabled()" class="btn btn-primary mr-2 p-btn-testemunhas" type="button">
+                <i aria-hidden="true" class="fa fa-plus pr-0 ajuste-icone"></i>
+            </button>
+            <label for="adicionarTestemunha">
+                <span>{{ 'LABEL_ADICIONAR_TESTEMUNHAS' | i18n }}</span>
+            </label>
+        </div>
+        <div *ngFor="let testemunha of testemunhas; let indice = index">
+            <div class="mt-2" fxLayout="row" fxLayout.sm="column" fxLayoutGap="10px" >
+                <div fxFlex>
+                    <label>{{ 'LABEL_NOME_COMPLETO' | i18n }}</label>
+                    <input type="text" [name]="'testemunhaNome_'+indice" #input_test_nome="ngModel" class="form-control input-sm" [(ngModel)]="testemunha.nome"  maxlength="250" (change)="checkDuplicidadeTestemunha(testemunha)" required />
+                    <validation-message [for]="input_test_nome" [submitted]="submitted"></validation-message>
+                </div>
+                <div fxFlex>
+                    <label>{{ 'LABEL_TELEFONE' | i18n }}</label>
+                    <input type="text" [name]="'testemunhaTelefone_'+indice" #input_test_telefone="ngModel" class="form-control input-sm" [inputMask]="'(00) 00009-0000'" [(ngModel)]="testemunha.telefone"  [required]="!testemunha.email"  (change)="checkDuplicidadeTestemunha(testemunha)"
+                    />
+                    <validation-message [for]="input_test_telefone"  [submitted]="submitted"></validation-message>
+                </div>
+                <div fxFlex>
+                    <label>{{ 'LABEl_EMAIL_MIN' | i18n }}</label>
+                    <input type="text" class="form-control input-sm" #input_test_email="ngModel"  [name]="'testemunhaEmail_'+indice" [(ngModel)]="testemunha.email" [required]="!testemunha.telefone" maxlength="80" (change)="checkDuplicidadeTestemunha(testemunha)"  />
+                    <validation-message  [for]="input_test_email" [submitted]="submitted"></validation-message>
+                </div>
+                <div class="pt-6" fxFlex="2">
+                    <button type="button" (click)="removeTestemunha(indice)" class="btn btn-primary mt-4 p-btn-testemunhas">
+                        <i aria-hidden="true" class="fa fa-minus pr-0 ajuste-icone"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

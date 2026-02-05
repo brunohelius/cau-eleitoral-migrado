@@ -1,0 +1,36 @@
+<div class="modal-header border-header-green">
+    <div class="col-md-12 text-center">
+        <h6 class="modal-title pull-center grey-font-bolder">
+            {{ titulo }}
+        </h6>
+    </div>
+</div>
+<div class="modal-body">
+    <div class="row p-3">
+        <div class="col-md-12 px-3">
+            <div class="box-destaque shadow text-center w-100 py-4">
+                <span class="green-font-bolder">
+                    {{ descricao }}
+                </span>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="!isModalConfirmOk" class="col-md-12 p-3">
+        <button (click)="cancelarModal()"
+            class="btn btn-danger px-3 mr-3">
+            {{ 'LABEL_CANCELAR' | i18n }}
+        </button>
+        <button (click)="confirmarModal()"
+                class="btn btn-primary px-3 mr-3">
+            {{ 'LABEL_CONFIRMAR' | i18n }}
+        </button>
+    </div>
+    
+    <div *ngIf="isModalConfirmOk" class="centered-button">
+        <button (click)="confirmarModal()"
+                class="btn btn-primary px-3 mr-3">
+            {{ 'LABEL_OK' | i18n }}
+        </button>
+    </div>
+   
+</div>

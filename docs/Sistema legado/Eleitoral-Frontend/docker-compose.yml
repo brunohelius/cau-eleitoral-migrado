@@ -1,0 +1,89 @@
+version: '3'
+services:
+    web:
+        build:
+            context: ./docker
+        container_name: coorporativo
+        tty: true
+        stdin_open: true
+        volumes:
+            - .:/var/www
+        ports:
+            - 4200:4200
+        networks:
+            - net
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+        extra_hosts:
+          - console.caubr.gov.br:172.16.0.120
+          - console.apps.caubr.gov.br:172.16.0.122
+          - hawkular-metrics.apps.caubr.gov.br:172.16.0.122
+          - crontab-ui.apps.caubr.gov.br:172.16.0.122
+          - servicos-teste1.caubr.gov.br:172.16.0.54
+          - siccau-teste1.caubr.gov.br:172.16.0.54
+          - servicos-teste2.caubr.gov.br:172.16.0.55
+          - siccau-teste2.caubr.gov.br:172.16.0.55
+          - servicos-teste3.caubr.gov.br:172.16.0.60
+          - siccau-teste3.caubr.gov.br:172.16.0.60
+          - servicos-teste4.caubr.gov.br:172.16.0.61
+          - siccau-teste4.caubr.gov.br:172.16.0.61
+          - servicos-teste12.caubr.gov.br:172.16.0.61
+          - siccau-teste12.caubr.gov.br:172.16.0.61
+          - servicos-teste5.caubr.gov.br:172.16.0.62
+          - siccau-teste5.caubr.gov.br:172.16.0.62
+          - servicos-teste13.caubr.gov.br:172.16.0.62
+          - siccau-teste13.caubr.gov.br:172.16.0.62
+          - servicos-teste6.caubr.gov.br:172.16.0.63
+          - siccau-teste6.caubr.gov.br:172.16.0.63
+          - servicos-teste14.caubr.gov.br:172.16.0.63
+          - siccau-teste14.caubr.gov.br:172.16.0.63
+          - servicos-teste7.caubr.gov.br:172.16.0.65
+          - siccau-teste7.caubr.gov.br:172.16.0.65
+          - siccau-teste9.caubr.gov.br:172.16.0.54
+          - servicos-teste9.caubr.gov.br:172.16.0.54
+          - siccau-teste16.caubr.gov.br:172.16.0.66
+          - servicos-teste16.caubr.gov.br:172.16.0.66
+          - servicos-teste11.caubr.gov.br:172.16.0.60
+          - siccau-hom.caubr.local:172.16.0.69
+          - servicos-hom.caubr.local:172.16.0.70
+          - siccau2-teste6.caubr.gov.br:172.16.0.106
+          - corporativo-service.apps.caubr.gov.br:172.16.0.122
+          - eleitoral-backend.apps.caubr.gov.br:172.16.0.122
+          - eleitoral-frontend.apps.caubr.gov.br:172.16.0.122
+          - api-carteira.apps.caubr.gov.br:172.16.0.122
+          - test-corporativo-service.apps.caubr.gov.br:172.16.0.122
+          - test-eleitoral-frontend.apps.caubr.gov.br:172.16.0.122
+          - test-eleitoral-profissional.apps.caubr.gov.br:172.16.0.122
+          - test-eleitoral-backend.apps.caubr.gov.br:172.16.0.122
+          - hmg1-eleitoral-backend.apps.caubr.gov.br:172.16.0.122
+          - hmg1-eleitoral-profissional.apps.caubr.gov.br:172.16.0.122
+          - hmg1-eleitoral-frontend.apps.caubr.gov.br:172.16.0.122
+          - test2-eleitoral-profissional.apps.caubr.gov.br:172.16.0.122
+          - test2-eleitoral-backend.apps.caubr.gov.br:172.16.0.122
+          - test2-eleitoral-frontend.apps.caubr.gov.br:172.16.0.122
+          - hmg-corporativo-service.apps.caubr.gov.br:172.16.0.122
+          - hmg-eleitoral-frontend.apps.caubr.gov.br:172.16.0.122
+          - hmg-eleitoral-backend.apps.caubr.gov.br:172.16.0.122
+          - nexus-ci.apps.caubr.gov.br:172.16.0.122
+          - test-portal-backend.apps.caubr.gov.br:172.16.0.122
+          - test-portal-backend1.apps.caubr.gov.br:172.16.0.122
+          - test-portal.apps.caubr.gov.br:172.16.0.122
+          - hmg-portal.apps.caubr.gov.br:172.16.0.122
+          - hmg-portal-backend.apps.caubr.gov.br:172.16.0.122
+          - test-rrt-social-backend.apps.caubr.gov.br:172.16.0.122
+          - test-rrt-social.apps.caubr.gov.br:172.16.0.122
+          - test-rrt-social-contratantes-backend.apps.caubr.gov.br:172.16.0.122
+          - hmg-rrt-social-contratantes-backend.apps.caubr.gov.br:172.16.0.122
+          - test-rrt-social-profissional.apps.caubr.gov.br:172.16.0.122
+          - redis.apps.caubr.gov.br:172.16.0.122
+          - test1-rrt-social-backend.apps.caubr.gov.br:172.16.0.122
+          - test1-rrt-social.apps.caubr.gov.br:172.16.0.122
+          - git.caubr.gov.br:172.16.0.53
+networks:
+    net:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 10.0.1.0/24

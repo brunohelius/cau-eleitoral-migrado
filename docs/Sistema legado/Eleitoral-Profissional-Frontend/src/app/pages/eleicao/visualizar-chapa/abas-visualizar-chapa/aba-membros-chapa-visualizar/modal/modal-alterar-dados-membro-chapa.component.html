@@ -1,0 +1,144 @@
+<div class="modal-header border-header-green">
+    <div class="col-md-12 text-center">
+        <h6 class="modal-title pull-center" style="color: grey;">
+            {{'LABEL_ALTERAR_CURRICULO' | i18n}}
+        </h6>
+    </div>
+</div>
+<div class="modal-body" style="height: 100%">
+    <div class="row">
+        <div class="col-md-12">
+            <form #form="ngForm">
+                <div class="row p-3">
+                    <div class="col-md-12 box-destaque">
+                        <div class="row arquivo-curriculo">
+                            <div class="col-md-2 text-center">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        {{ usuario.name }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="text-center" *ngIf="!croppedImage"
+                                            style="background-color: #E6E7E8;">
+                                            <i class="fas fa-user" style="font-size: 100px; color: #B2B7BA;"></i>
+                                        </div>
+                                        <div class="text-center" *ngIf="croppedImage">
+                                            <img class="img-thumbnail" [src]="croppedImage" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-10 align-self-center">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <span class="green-font-bolder">
+                                            {{ 'LABEL_INCLUA_ALTERE_SUA_FOTO' | i18n }}
+                                            <i class="fa fa-exclamation-circle"
+                                                title=" {{ 'LABEL_HINT_AVISO_FOTO_CURRICULO' | i18n }}"
+                                                aria-hidden="true"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="row px-3">
+                                    <upload title="{{'LABEL_PROCURAR' | i18n}}" [name]="curriculo.foto.nome"
+                                        required="true"
+                                        (process)="uploadFileFoto($event, templateCortarFoto)">
+                                        <i class="fa fa-file-o text-success" aria-hidden="true"></i>
+                                        <span>{{'LABEL_PROCURAR' | i18n}}</span>
+                                    </upload>
+                                    <input type="hidden" name="hideFoto" #input_foto="ngModel"
+                                        [required]="false" [(ngModel)]="curriculo.foto.nome ">
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                {{ 'LABEL_REGRAS_FOTO_MEMBRO_CHAPA' | i18n }}
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <validation-message [for]="input_foto" [submitted]="submitted">
+                                                </validation-message>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="box-separador-linha m-3"></div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-12 text-center">
+                                        <span class="green-font-bolder texto-destaque">
+                                            {{ 'SINTESE_CURRICULO' | i18n }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <ckeditor name="descricaoCurriculo" (ready)="onRedyCKDescricao($event)"
+                                            (change)="onChangeCKDescricao($event)" [(ngModel)]="curriculo.descricao"
+                                            [required]="true" #descricaoCurriculo="ngModel" id="IdDescricaoCurriculo"
+                                            [config]="configuracaoCkeditor">
+                                        </ckeditor>
+                                        <input type="hidden" maxlength="30000" name="hideDescricaoCurriculo"
+                                            #input_descricaoCurriculo="ngModel" [required]="true"
+                                            [(ngModel)]="curriculo.descricaoSimpleText">
+                                        <span>{{ getContagemDescricaoCurriculo() }}</span>
+                                        <validation-message [for]="input_descricaoCurriculo" [submitted]="submitted">
+                                        </validation-message>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row pt-3">
+        <div class="col-md-12">
+            <button (click)="confirmarCancelamento()"
+                class="btn btn-danger px-3 mr-3">
+                {{ 'LABEL_CANCELAR' | i18n }}
+            </button>
+            <button (click)="abrirModalConfirmarAlteracao()" id="btn-curriculo-salvar" class="btn btn-primary px-3">
+                {{ 'LABEL_SALVAR' | i18n }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<ng-template #templateCortarFoto>
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            <h6 class="modal-title pull-center">{{'LABEL_CORTA_FOTO' |i18n}}</h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        <div class="p-3" class="h-50">
+            <image-cropper 
+                [imageFile]="imageFile" 
+                [maintainAspectRatio]="true" 
+                [aspectRatio]="3 / 4"
+                [resizeToWidth]="128" 
+                format="png" 
+                (imageCropped)="imageCropped($event)">
+            </image-cropper>
+        </div>
+        <div class="pt-3 w-100">
+            <button (click)="modalRef.hide()" class="btn btn-danger px-4 mr-4">{{ 'LABEL_CANCELAR' | i18n }} </button>
+            <button (click)="confirmarCropp()" class="btn btn-success px-4 ">{{ 'LABEL_CONFIRMAR' | i18n }} </button>
+        </div>
+    </div>
+</ng-template>

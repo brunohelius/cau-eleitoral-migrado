@@ -1,0 +1,107 @@
+@import "~bootstrap/scss/functions";
+@import "~@cau/layout/variables";
+$primary:      #14385D;
+
+.texto-titulo {
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.box-profissional {
+    font-size: 0.8rem;
+    padding: 15px 10px;
+    border-radius: 3px;
+    background: white;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+.cor-corpo {
+    background-color: #f2f2f2;
+}
+
+.ribbon {
+    padding: 5px;
+    color: #ffffff;
+    border-radius: 10px;
+    font-size: 0.65rem;
+    font-weight: bold;
+
+    &.ribbon-primary {
+        background-color: $primary;
+    }
+
+    &.ribbon-warning {
+        background-color: $warning;
+    }
+
+    &.ribbon-danger {
+        background-color: $danger;
+    }
+}
+
+.isDisabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    display: inline-block;  /* For IE11/ MS Edge bug */
+    pointer-events: none;
+    text-decoration: none;
+}
+
+.templateJustificarAlterarMembro .fa-bell{
+    background-color: $primary;
+    color: white;
+    font-size: 0.95rem;
+}
+
+.spinnerStatusChapa {
+    text-align: center;
+}
+
+.spinnerStatusChapa span i {
+    font-size: 2rem;
+}
+
+.spinnerStatusChapa span{
+    display: block;
+}
+
+.box-profissional > div span {
+    word-break: break-all;
+}
+
+.titulo-justificativa {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.titulo-justificativa .fa-bell{
+    background-color: $primary;
+    color: white;
+    font-size: 0.95rem;
+}
+
+.responsavel-criador {
+    background-color: $primary;
+}
+
+.custom-control-label::before {
+    position: unset;
+    margin-right: 0.75rem !important;
+}
+
+.align-middle {
+    padding-top: 0.5rem;
+}
+
+.modal-content{
+    width: 80%;
+}
+
+.fa-check-square {
+    color: $primary !important;
+}
+
+.text-link{
+    word-wrap: normal;
+    cursor: pointer;
+    text-decoration: underline;
+}

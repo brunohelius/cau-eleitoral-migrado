@@ -1,0 +1,174 @@
+<div class="modal-header border-header-green">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 text-center">
+        <h6 class="modal-title pull-center">{{'LABEL_JULGAR_DENUNCIA' |i18n}}</h6>
+    </div>
+    <div class="col-md-2 align-items-right">
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
+<div class="modal-body">
+    <form #formParecerFinal="ngForm">
+        <div class="p-2">
+            <div fxLayout="row wrap" fxLayout.sm="column" fxLayoutGap="15px">
+                <div [ngClass]="isTipoSentencaJulgamentoMulta() ? 'mr-1 align-center-combobox' : 'mr-1'" fxFlex="25">
+                    <form-valid [submitted]="submitted">
+                        <strong>{{'LABEL_JULGAMENTO' | i18n}}</strong>
+                        <select class="form-control" name="tipoJulgamento" #input_tipo_julgamento="ngModel"
+                            [(ngModel)]="parecerFinal.tipoJulgamento"
+                            (change)="changeTipoSentencaJulgamento()" required>
+                            <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                            <option *ngFor="let tipoJulgamento of tiposJulgamento" [ngValue]="tipoJulgamento">
+                                {{tipoJulgamento.descricao}}
+                            </option>
+                        </select>
+                    </form-valid>
+                </div>
+                <div class="mr-0" *ngIf="isTipoJulgamentoProcedente()" fxFlex="74">
+                    <div [ngClass]="isTipoSentencaJulgamentoMulta() ? 'px-4 align-center-combobox' : 'px-4'" fxFlex="68">
+                        <form-valid [submitted]="submitted">
+                            <strong>{{'LABEL_PARECER_FINAL' | i18n}}</strong>
+                            <select class="form-control mr-1" name="tipoSentencaJulgamento" #input_tipo_sentenca_julgamento="ngModel"
+                                [(ngModel)]="parecerFinal.tipoSentencaJulgamento" 
+                                (change)="limparCampos()" 
+                                required>
+                                <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                                <option *ngFor="let tipoSentencaJulgamento of tiposSentencaJulgamento" [ngValue]="tipoSentencaJulgamento">
+                                    {{tipoSentencaJulgamento.descricao}}
+                                </option>
+                            </select>
+                        </form-valid>
+                    </div>
+                    <div *ngIf="this.parecerFinal.tipoSentencaJulgamento != '' && isTipoSentencaJulgamentoSuspensaoPropaganda()" fxFlex>
+                        <form-valid [submitted]="submitted">
+                            <strong>{{'LABEL_QUANTIDADE_DIAS' | i18n}}</strong>
+                            <div class="py-0" fxLayout="row" fxLayoutGap="10px">
+                                <div fxFlex>
+                                    <input type="number" class="form-control" id="qtdeDias" name="qtdeDias" min="5" max="10" [inputMask]="'999'" #input_qtde_dias="ngModel"
+                                        (keyup)="onReadyValorNumerico($event)" [value]="qtDias" [(ngModel)]="parecerFinal.suspensaoPropaganda.quantidadeDias"
+                                        required (change)="limitQtDiasSuspensaoPropaganda()"/>
+                                </div>
+                            </div>
+                        </form-valid>
+                    </div>
+                    <div *ngIf="this.parecerFinal.tipoSentencaJulgamento != '' && isTipoSentencaJulgamentoMulta()" fxFlex>
+                        <form-valid [submitted]="submitted">
+                            <label>
+                                <strong>{{'LABEL_VALOR_PERCENT_MULTA' | i18n}}</strong>
+                                <p class="mb-0">{{'LABEL_RELACAO_ANUIDADE' | i18n}}</p>
+                            </label>
+                            <div class="py-0" fxLayout="row" fxLayoutGap="10px">
+                                <div fxFlex>
+                                    <input type="number" class="form-control" id="valorPercentual" name="valorPercentual" min="1" [inputMask]="'999'" #input_percentual_multa="ngModel"
+                                        (keyup)="onReadyValorNumerico($event)" [(ngModel)]="parecerFinal.valorPercentualMulta"
+                                        required/>
+                                </div>
+                            </div>
+                        </form-valid>
+                    </div>
+                </div>
+                <div class="pt-2" *ngIf="isTipoJulgamentoProcedente()" fxFlex>
+                    <div [ngClass]="{'align-center-combobox' : parecerFinal.multa}" 
+                        *ngIf="this.parecerFinal.tipoSentencaJulgamento != '' && !isTipoSentencaJulgamentoMulta()" fxFlex="28">
+                        <form-valid [submitted]="submitted">
+                            <strong>{{'LABEL_INSERIR_MULTA' | i18n}}</strong>
+
+                            <div class="py-2" fxLayout="row" fxLayoutGap="10px">
+                                <div fxFlex="25">
+                                    <input type="radio" id="multaSim" name="multa" [value]="true"
+                                        [(ngModel)]="parecerFinal.multa" required>
+                                    <label class="align-middle ml-1" for="multaSim">{{ 'LABEL_SIM' | i18n }}</label>
+                                </div>
+                                <div fxFlex="25">
+                                    <input type="radio" id="multaNao" name="multa" [value]="false"
+                                        [(ngModel)]="parecerFinal.multa" required>
+                                    <label class="align-middle ml-1" for="multaNao">{{ 'LABEL_NAO' | i18n }}</label>
+                                </div>
+                            </div>
+                        </form-valid>
+                    </div>
+                    <div class="px-1" *ngIf="this.parecerFinal.tipoSentencaJulgamento != '' && parecerFinal.multa" fxFlex>
+                        <form-valid [submitted]="submitted">
+                            <label>
+                                <strong>{{'LABEL_VALOR_PERCENT_MULTA' | i18n}}</strong>
+                                <p class="mb-0">{{'LABEL_RELACAO_ANUIDADE' | i18n}}</p>
+                            </label>
+                            <div class="py-0" fxLayout="row" fxLayoutGap="10px">
+                                <div fxFlex="30">
+                                    <input type="number" class="form-control" id="valorPercentual" name="valorPercentual" min="1" [inputMask]="'999'" #input_percentual_multa="ngModel"
+                                        (keyup)="onReadyValorNumerico($event)" [(ngModel)]="parecerFinal.valorPercentualMulta"
+                                        required/>
+                                </div>
+                            </div>
+                        </form-valid>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-2">
+            <strong>{{'LABEL_DESCRICAO' | i18n}}</strong>
+            <form-valid [submitted]="submitted">
+                <div class="alert bg-green border shadow">
+                    <ckeditor id="dsParecerFinal" required name="dsParecerFinal"
+                        [config]="configuracaoCkeditor" (ready)="onReadyCKDescricaoParecerFinal($event)"
+                        (change)="onChangeCKDescricao($event)" [(ngModel)]="parecerFinal.descricao"></ckeditor>
+                    <input type="hidden" maxlength="2000" name="hideDescricaoParecerFinal"
+                        #input_descricao_julgamento="ngModel" [(ngModel)]="parecerFinal.descricaoParecerFinalSimpleText" required>
+                    <span>{{ getContagemDescricaoParecerFinal() }}</span>
+                </div>
+            </form-valid>
+        </div>
+
+        <div class="p-2">
+            <strong>{{'LABEL_DOCUMENTOS' | i18n}}</strong>
+            <div class="alert bg-green border shadow">
+                <div fxLayout="row">
+                    <div fxFlex>
+                        <label for="documento"><span>{{ 'LABEL_ARQUIVO' | i18n }}</span></label>
+                        <upload id="documento" title="{{'LABEL_SELECIONAR_ARQUIVO' | i18n}}" [name]="nomeArquivoParecerFinal"
+                            [disabled]="isQuantidadeUploadMaxima()" (process)="uploadDocumento($event)">
+                            <i class="fa fa-file-o text-success" aria-hidden="true"></i>
+                            <span>{{'LABEL_SELECIONAR_ARQUIVO' | i18n}}</span>
+                        </upload>
+                    </div>
+                    <div fxFlex>
+                        <i aria-hidden="true" class="fa fa-info-circle fa-2x pointer center-info-doc"
+                            [title]="getHintInformativoDocumento()"></i>
+                    </div>
+                </div>
+                <div class="lista-arquivos mt-2" fxLayout="row">
+                    <table class="table table-sm" *ngIf="parecerFinal.arquivos?.length > 0">
+                        <tbody>
+                            <tr *ngFor="let arquivo of parecerFinal.arquivos let indiceArquivo = index">
+                                <td class="text-center bnt-upload-excluir">
+                                    <div>
+                                        {{ arquivo.nome }}
+                                    </div>
+                                </td>
+                                <td class="table-action text-center">
+                                    <button type="button" class="btn" (click)="excluiUpload(indiceArquivo)">
+                                        <i class="align-middle fas fa-fw fa-times"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="modal-footer aling-left">
+    <div class="row p-2 py-3">
+        <div class="col-md-12 p-0 align-items-left">
+            <button class="btn btn-danger mr-4" type="button"
+                (click)="modalRef.hide()">{{'LABEL_CANCELAR' | i18n}}</button>
+            <button class="btn btn-primary" type="button"
+                (click)="concluir(formParecerFinal)">{{'LABEL_CONCLUIR' | i18n}}</button>
+        </div>
+    </div>
+</div>

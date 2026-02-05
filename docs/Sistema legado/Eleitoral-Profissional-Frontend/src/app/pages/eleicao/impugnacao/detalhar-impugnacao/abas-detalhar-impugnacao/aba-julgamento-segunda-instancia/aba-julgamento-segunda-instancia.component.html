@@ -1,0 +1,76 @@
+<div class="row conteudo">
+    <form #form="ngForm" class="w-100" id="aba-defesa-impugnacao-form-id">
+        <div class="tab-pane fade pl-3 pr-3 pb-5 mt-3" id="tab-pane-julgamento" [ngClass]="{ 'active show': true}">
+            <div class="row">
+                <div class="col-md-2">
+                </div>
+                <div class="col-md-8 mt-2">
+                    <div class="subtitle-line">
+                        <span class="bg-white">{{'TITLE_JULGAMENTO_PEDIDO_IMPUGNACAO_SEGUNDA_INSTANCIA_IMPUGNACAO' | i18n:isRecursoReconsideracao()}}</span>
+                    </div>
+                </div>
+                <div class="col-md-2 spinnerStatus">
+                    <div *ngIf="julgamento.statusJulgamentoImpugnacao.id == 2" class="icon-status-position">
+                        <div class="icons-title">
+                            <i class="fa fa-spinner icon-status" aria-hidden="true"></i>
+                        </div>
+                        
+                        <div class="texto-titulo">{{ julgamento.statusJulgamentoImpugnacao.descricao }}</div>
+                    </div>
+                    <div *ngIf="julgamento.statusJulgamentoImpugnacao.id == 1" class="icon-status-position"> 
+                        <div class="icons-title">
+                            <i class="fa fa-spinner icon-status" aria-hidden="true"></i>
+                        </div>
+                        <div class="texto-titulo">{{ julgamento.statusJulgamentoImpugnacao.descricao }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="tab-pane fade card rounded-0 pl-4 pr-4 pb-2" [ngClass]="{ 'active show':true}">
+                <div class="card border pl-3 pr-3 pb-3 pt-3" style="border-radius: 8px mb-5"> 
+                    <informacao-card [dados]="impugnacao"></informacao-card>
+
+                    <card-panel [titulo]="'LABEL_DESCRICAO'" class="mt-3">
+                        <editor-de-texto
+                            [isHabilitado]="false"
+                            [valor]="julgamento.descricao"
+                            [isMostrarTamanhoTextoRestantes]="false">
+                        </editor-de-texto>
+                    </card-panel>
+
+                    <card-panel [titulo]="'LABEL_DOCUMENTO'" class="mt-3">
+                        <arquivo 
+                            [hasDownload]="true" 
+                            [isHabilitado]="false" 
+                            [arquivos]="julgamento.arquivos" 
+                            (download)="downloadArquivo($event)">
+                        </arquivo>
+                    </card-panel>
+                </div>
+            </div>
+            <div class="row mx-0">
+                <div class="col-md-12 p-3">
+                    <button *ngIf="validaBotao()"
+                    class="btn btn-primary px-3 mr-3"
+                    (click)="solicitarSubstituicao()"
+                    >
+                        {{ 'LABEL_SOLICITAR_SUBSTITUICAO' | i18n }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<ng-template #templateSubstituicao>
+    <div class="col-md-12">
+        <solicitar-substituicao-impugnacao
+            [impugnacao]="impugnacao"
+            (fecharModal)="fecharModalSubstituicao()"
+            (redirecionarVisualizarSubstituicao)="redirecionarVisualizarSubstituicao($event)"
+        >
+        </solicitar-substituicao-impugnacao>
+    </div>
+</ng-template>

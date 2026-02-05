@@ -1,0 +1,169 @@
+$primary: #017479;
+
+.title-comissao img {
+    width: 45px;
+    height: 45px;
+}
+
+#tab-pane-principal {
+    margin: 0px;
+}
+
+.list-item {
+    background: #fff;
+    border-radius: 2px;
+    width: 100%;
+    position: relative;
+}
+
+.list-item-card td {
+    box-shadow: 0 4px 0px 0px rgba(0, 0, 0, 0.16);
+}
+
+.list-item-card {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.list-item-box {
+    align-content: center;
+    align-items: center;
+    height: 60px;
+    color: black;
+}
+
+.list-item td {
+    color: black;
+}
+
+.bg-warning {
+    background-color: #ff9007 !important;
+}
+
+.green-font-bolder {
+    text-shadow: 0px 0px, 0px 0px, 0px 0px;
+    font-weight: bolder;
+    color: $primary;
+}
+
+.green-font {
+    text-shadow: 0px 0px, 0px 0px, 0px 0px;
+    font-weight: bolder;
+    color: $primary;
+}
+
+.box-separador {
+    min-height: 14px;
+    background-color: $primary;
+}
+
+.colorCircle {
+    background-color: #016C71;
+}
+
+.colorTriangle {
+    color: #FF532B;
+}
+
+.colorCircleM {
+    color: #E82326;
+}
+
+.colorGray {
+    color: #909090;
+}
+
+.chapa-ies {
+    background-color: #d7d7d7;
+}
+
+.no-decoration {
+    list-style: none;
+}
+
+.aba {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.wrap-title-aba {
+    padding-top: 1px;
+    padding-bottom: 2px;
+}
+
+.no-wrap-title-aba {
+    padding-top: 8px;
+    padding-bottom: 16px;
+}
+
+.font-color-warning {
+    color: #ff9007 !important;
+}
+
+.font-color-bg-primary {
+    color: #016C71 !important;
+}
+
+.flex-column-membros {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.progress-julgamento {
+    width: 100%;
+    border-radius: 15px;
+    white-space: normal;
+}
+
+.status-julgamento {
+    width: 100px;
+    min-height: 38px;
+    line-height: unset;
+    margin: auto;
+}
+.link {
+    color: #016c71;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.progress{
+    height: auto !important;
+    background-color: inherit !important;
+    line-height: inherit !important;
+}
+
+.bg-status-impugnacao-resultado-1 {
+    background-color: #ff9007 !important;;
+}
+
+.bg-status-impugnacao-resultado-2 {
+    background-color: #016c71 !important;
+}
+
+.bg-status-impugnacao-resultado-3 {
+    background-color: #345673 !important;
+}
+
+.bg-status-impugnacao-resultado-4 {
+    background-color: #15959f !important;
+}
+
+.bg-status-impugnacao-resultado-5 {
+    background-color: #687626 !important;
+}
+
+.bg-status-impugnacao-resultado-6 {
+    background-color: #133046 !important;
+}
+
+.bg-status-impugnacao-resultado-7 {
+    background-color: #6c757d !important;
+}
+
+.bg-status-impugnacao-resultado-8 {
+    background-color: #ec9770 !important;
+}

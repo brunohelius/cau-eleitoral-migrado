@@ -1,0 +1,7 @@
+<div>
+    <div 
+    *ngFor="let item of cases; let i = index;" 
+    [ngClass]="{'d-none': item.value == value}">
+        <ng-content select="[item.reference]"></ng-content>
+    </div>
+</div>

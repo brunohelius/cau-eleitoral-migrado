@@ -1,0 +1,30 @@
+{% extends "layout.html" %} {% block body %}
+
+<h3 class="text-center">Extrato com Número de Profissionais Ativos</h3>
+<div>
+    <div>
+        <span>Total de Profissionais <b style="color: crimson;">Ativos</b>: {{totalProfAtivos}}</span> <br />
+        <span>Total de Profissionais: {{totalProf}}</span>
+    </div>
+    <table class="margin-0 padding-0 table">
+        <tr>
+            <td class="text-center titulo-cau">Nome do Profissional</td>
+            <td class="text-center titulo-cau">CPF</td>
+            <td class="text-center titulo-cau">Registro CAU</td>
+            <td class="text-center titulo-cau">Data FIM do Registro</td>
+            <td class="text-center titulo-cau">Situação do Registro</td>
+            <td class="text-center titulo-cau">UF</td>
+        </tr>
+        {% for conselheiro in conselheiros %}
+        <tr>
+            <td>{{ conselheiro.nome }}</td>
+            <td class="text-center ">{{ conselheiro.cpf }}</td>
+            <td class="text-center ">{{ conselheiro.numeroRegistro }}</td>
+            <td class="text-center ">{{ conselheiro.dataFimRegistro }}</td>
+            <td class="text-center ">{{ conselheiro.situacaoRegistro }}</td>
+            <td class="text-center ">{{ conselheiro.uf }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

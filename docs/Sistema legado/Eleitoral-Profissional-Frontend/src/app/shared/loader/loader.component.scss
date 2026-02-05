@@ -1,0 +1,43 @@
+.modal-loader { 
+    background: #04040425;
+    justify-content: center;
+    align-items: center;
+    z-index: 1060;
+
+    .modal-content {
+        background: transparent;
+    }
+
+    .modal-body {
+        width: 89px;
+        height: 87px;
+        margin-left: -13px;
+        margin-top: -13px;
+
+        img {
+            height: 68px;
+            width: 68px;
+            -webkit-animation: spin 0.9s linear infinite;
+            -moz-animation: spin 0.9s linear infinite;
+            animation: spin 0.9s linear infinite;
+        }
+
+        @-moz-keyframes spin { 
+            100% { 
+                -moz-transform: rotate(360deg); 
+            } 
+        }
+
+        @-webkit-keyframes spin { 
+            100% { 
+                -webkit-transform: rotate(360deg); 
+            } 
+        }
+
+        @keyframes spin { 
+            100% { 
+                -webkit-transform: rotate(360deg); transform:rotate(360deg); 
+            } 
+        }
+    }
+}

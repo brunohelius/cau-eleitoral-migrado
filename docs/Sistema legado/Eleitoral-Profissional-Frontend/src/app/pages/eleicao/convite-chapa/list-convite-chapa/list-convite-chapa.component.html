@@ -1,0 +1,203 @@
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-abas">
+            <li class="nav-item pointer active">
+                <a href="#" class="nav-link">
+                    {{ 'LABEL_VISAO_GERAL' | i18n }}
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade active show">
+                <div class="col-md-12">
+                    <i class="fa fa-desktop fa-2x m-2 pointer" aria-hidden="true"></i>
+                    <span> {{ 'LABEL_VISUALIZAR_CONVITES_PARA_MEMBRO_CHAPA_ELEITORAL' | i18n }} </span>
+                </div>
+                <div class="box-separador"></div>
+                <div>
+                    <div class="row m-0 p-3">
+                        <div class="col-md-12 p-3 borda-redonda" *ngIf="!isMostrarMsgNaoPossuiConvite()">
+                            <div class="row">
+                                <div class="col-md-12 p-3">
+                                    <div class="row pb-5">
+                                        <div class="col-md-12 text-center">
+                                            <span class="green-font-bolder texto-destaque">
+                                                {{ getMessageParabensVoceFoiConvidado(convites) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row pb-5">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <span class="subtitle-lines green-font-bolder">
+                                                {{ 'LABEL_INFORMACOES_IMPORTANTES' | i18n }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="cold-md-12 p-3 w-100">
+                                            <div class="box-destaque">
+                                                <span>
+                                                    * {{ 'MSG_AVISO_CURRICULO_DECLARACAO_CONVITE_CHAPA' | i18n }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <span class="subtitle-lines green-font-bolder">
+                                                {{ 'LABEL_CONVITES_RECEBIDOS' | i18n }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="box-destaque">
+                                                <table class="w-100">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-center pb-5" colspan="2">
+                                                                <span class="green-font-bolder">
+                                                                    {{ 'LABEL_INFORMACOES_CHAPA' | i18n }}
+                                                                </span>
+                                                            </th>
+                                                            <th class="text-center pb-5" colspan="3">
+                                                                <span class="green-font-bolder">
+                                                                    {{ 'LABEL_INFORMACOES_PARTICIPACAO' | i18n }}
+                                                                </span>
+                                                            </th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="green-font-bolder text-center">
+                                                                {{ 'LABEL_NOME_RESPONSAVEL' | i18n }}
+                                                            </th>
+                                                            <th class="green-font-bolder text-center">
+                                                                {{ 'LABEL_PLATAFORMA_ELEITORAL' | i18n }}
+                                                            </th>
+                                                            <th class="green-font-bolder text-center">
+                                                                {{ 'LABEL_TIPO_PARTICIPACAO' | i18n }}
+                                                            </th>
+                                                            <th class="green-font-bolder text-center">
+                                                                {{ 'LABEL_POSICAO_CHAPA' | i18n }}
+                                                            </th>
+                                                            <th class="green-font-bolder text-center">
+                                                                {{ 'LABEL_ACOES' | i18n }}
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="list-item list-item-card"
+                                                            *ngFor="let convite of convites;">
+                                                            <td class="text-center pt-3 pb-3">
+                                                                <div class="w-100 borda-direita-cinza">
+                                                                    {{convite.nomeResponsavelChapa }}
+                                                                </div>
+                                                            </td>
+                                                            <td class="text-center pt-3 pb-3">
+                                                                <div class="w-100 borda-direita-preto">
+                                                                    <a href="" [routerLink]="null" class="remove-link"
+                                                                        (click)="abrirModalVisualizarPlataformaEleitoral(templateVisualizarPlataformaEleitoral, convite)">
+                                                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                                                        {{ 'LABEL_VISUALIZAR' | i18n }}
+                                                                    </a>
+                                                                </div>
+                                                            </td>
+                                                            <td class="text-center pt-3 pb-3">
+                                                                <div class="w-100 borda-direita-cinza">
+                                                                    {{ convite.tipoParticChapa }}
+                                                                </div>
+                                                            </td>
+                                                            <td class="text-center pt-3 pb-3">
+                                                                <div class="w-100 borda-direita-cinza">
+                                                                    {{ getPosicaoFormatada(convite.numeroOrdem) }}
+                                                                </div>
+                                                            </td>
+                                                            <td class="text-center pt-3 pb-3">
+                                                                <div class="w-100">
+                                                                    <a [routerLink]="null" id="btn-convite-aceitar" (click)="aceitarConvite(convite)"
+                                                                        class="btn-success px-4 mr-4">{{ 'LABEL_ACEITAR' | i18n }}</a>
+                                                                    <a [routerLink]=""
+                                                                        (click)="abrirModalConfirmarRejeicaoConvite(templateConfirmarRejeicaoConvite, convite)"
+                                                                        class="btn-danger px-4">{{ 'LABEL_REJEITAR' | i18n }}</a>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 p-3 borda-redonda" *ngIf="isMostrarMsgNaoPossuiConvite()">
+                            <div class="row m-0 p-3 box-destaque borda-redonda">
+                                <div class="col-md-12 px-1">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <span class="subtitle-lines green-font-bolder">
+                                                {{ 'LABEL_CONVITES_RECEBIDOS' | i18n }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12 text-center" style="padding: 7rem;">
+                                            <span class="green-font-bolder texto-destaque">
+                                                {{ 'LABEL_PREZADO_VOCE_NAO_POSSUI_CONVITES' | i18n:getDescricaoCauUfUsuario() }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #templateVisualizarPlataformaEleitoral>
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            <h6 class="modal-title pull-center"> {{ 'LABEL_PLATAFORMA_ELEITORAL' | i18n }}</h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="box-separador"></div>
+    <div class="modal-body" style="height: 100%">
+        <div class="row p-3">
+            <div class="col-md-12 border" [innerHTML]="conviteSelecionado.descricaoPlataforma">
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #templateConfirmarRejeicaoConvite>
+    <div class="modal-body" style="height: 100%">
+        <div class="row p-3">
+            <div class="col-md-12 box-destaque texto-preto-destaque text-center"
+                [innerHTML]="getMsgDescricao('MSG_AVISO_REJEICAO_CHAPA')">
+            </div>
+        </div>
+        <div class="row p-3">
+            <div class="col-md-12 text-center">
+                <button (click)="rejeitarConvite(conviteSelecionado)" class="btn btn-success px-4 mr-4">{{ 'LABEL_SIM' | i18n }} </button>
+                <button (click)="modalRef.hide()" class="btn btn-danger px-4">{{ 'LABEL_NAO' | i18n }} </button>
+            </div>
+        </div>
+    </div>
+</ng-template>

@@ -1,0 +1,143 @@
+@import "~bootstrap/scss/functions";
+@import "~@cau/layout/variables";
+
+.custom-grid-white {
+  flex: 1 1 0%;
+  flex-direction: row;
+  box-sizing: border-box;
+  border-color: #80808066;
+  padding: 10px;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  border-width: 1px;
+  border-style: solid;
+}
+.custom-grid-dark {
+  flex: 1 1 0%;
+  flex-direction: row;
+  padding: 10px;
+  color: #14385D;
+  font-weight: bold;
+}
+.icone-19 {
+    font-size: 19px;
+}
+.icone-32 {
+  font-size: 32px;
+}
+.font-card {
+  font-size: 0.8rem;
+}
+.body-height {
+  height: 100%;
+}
+.modal-title-color {
+  color: grey;
+}
+.color-alert {
+    color: $warning !important;
+}
+
+.btn-secondary{
+  color: #ffffff;
+  background-color: #14385D;
+  border-color: #14385D;
+}
+.bg-colorgreen{
+  color: #e4f0f0;
+  background-color: #e4f0f0;
+  border-color: #e4f0f0;
+}
+
+.colorCircle {
+  background-color: #14385D;
+}
+
+.colorTriangle {
+  color: #FF532B;
+}
+
+.colorCircleM {
+  color: #E82326;
+}
+
+.colorGray {
+  color: #909090;
+}
+
+.colorGreen {
+  color: #14385D;
+}
+
+.spinnerStatus {
+  text-align: center;
+  color: #0c3635;
+}
+
+.spinnerStatus span i {
+  font-size: 2rem;
+}
+
+.spinnerStatus span{
+  display: block;
+}
+
+.texto-titulo {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.icons-title{
+  margin: 0 auto;
+  position: relative;
+  width: 40px;
+  height: 40px;
+
+  .fa-spinner{
+      font-size: 40px;
+      left: 0;
+      top: 0;
+      position: absolute;
+  }
+
+  .fa-times, .fa-check{
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      font-size: 15px;
+      color: rgb(16, 144, 151);
+  }
+
+  .fa-times{
+      left: 15px;
+  }
+}
+
+.grey-font-bolder {
+  text-shadow: 0px 0px, 0px 0px, 0px 0px;
+  font-weight: bolder;
+  color: #878787;
+}
+.green-font-bolder {
+  text-shadow: 0px 0px, 0px 0px, 0px 0px;
+  font-weight: bolder;
+  color: #14385D;
+}
+.aba {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.wrap-title-aba {
+  padding-top: 1px;
+  padding-bottom: 2px;
+}
+
+.no-wrap-title-aba {
+  padding-top: 8px;
+  padding-bottom : 16px;
+}
+.icone-size{
+  font-size: 23px;
+}

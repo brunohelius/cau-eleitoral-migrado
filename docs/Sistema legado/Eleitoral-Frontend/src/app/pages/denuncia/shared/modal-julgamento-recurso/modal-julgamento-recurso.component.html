@@ -1,0 +1,213 @@
+<div class="modal-header border-header-green">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 text-center">
+        <h6 class="modal-title pull-center">{{'LABEL_JULGAR_DENUNCIA_SEGUNDA_INSTANCIA' |i18n}}</h6>
+    </div>
+    <div class="col-md-2 align-items-right">
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
+<div class="modal-body">
+    <form #formJulgarRecurso="ngForm">
+        <div class="mr-1" fxFlex="35">
+            <label for="tipoJulgamentoDenunciante"><strong>{{'LABEL_JULGAR_DENUNCIANTE' | i18n}}</strong></label>
+            <select id="tipoJulgamentoDenunciante" class="form-control" name="tipoJulgamentoDenunciante" #input_tipo_julgamento_denunciante="ngModel"
+                [(ngModel)]="julgamentoRecurso.tipoJulgamentoDenunciante"
+                (change)="changeTipoSentencaJulgamento()" required>
+                <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                <option *ngFor="let tipoJulgamento of tiposJulgamento" value="{{tipoJulgamento.id}}">
+                    {{tipoJulgamento.descricao}}
+                </option>
+            </select>
+        </div>
+        <div class="mx-1 " fxFlex="35">
+            <label for="tipoJulgamentoDenunciado"><strong>{{'LABEL_JULGAR_DENUNCIADO' | i18n}}</strong></label>
+            <select id="tipoJulgamentoDenunciado" class="form-control" name="tipoJulgamentoDenunciado" #input_tipo_julgamento_denunciado="ngModel"
+                [(ngModel)]="julgamentoRecurso.tipoJulgamentoDenunciado"
+                (change)="changeTipoSentencaJulgamento()" required>
+                <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                <option *ngFor="let tipoJulgamento of tiposJulgamento" value="{{tipoJulgamento.id}}">
+                    {{tipoJulgamento.descricao}}
+                </option>
+            </select>
+        </div>
+    </form>
+
+    <form #formJulgarRecurso="ngForm">
+        <div class="p-2">
+            <div fxLayout="row wrap" fxLayout.sm="column" fxLayoutGap="15px">
+                <div class="ml-1" fxFlex="27">
+                    <form-valid class="full-message" [submitted]="submitted">
+                        <label><strong>{{'LABEL_EXISTE_SANCAO' | i18n}}</strong></label>
+
+                        <div class="py-2" fxLayout="row" fxLayoutGap="10px">
+                            <div fxFlex="25">
+                                <input type="radio" id="sancaoSim" name="sancao" [value]="true"
+                                    [(ngModel)]="julgamentoRecurso.sancao" required>
+                                <label class="align-middle ml-1" for="sancaoSim">{{ 'LABEL_SIM' | i18n }}</label>
+                            </div>
+                            <div fxFlex="25">
+                                <input type="radio" id="sancaoNao" name="sancao" [value]="false"
+                                    (click)="resetarCamposSancao()"
+                                    [(ngModel)]="julgamentoRecurso.sancao" required>
+                                <label class="align-middle ml-1" for="sancaoNao">{{ 'LABEL_NAO' | i18n }}</label>
+                            </div>
+                        </div>
+                    </form-valid>
+                </div>
+            </div>
+            <div class="mr-1" fxLayout="row" fxLayout.sm="column" fxLayoutGap="15px" *ngIf="hasSancao()">
+                <div [ngClass]="isTipoSentencaJulgamentoMulta() || julgamentoRecurso.multa ? 'mr-2 align-center-combobox' : 'mr-2'" fxFlex="35">
+                    <form-valid [submitted]="submitted">
+                        <label for="tipoSentencaJulgamento"><strong>{{'LABEL_JULGAMENTO_COMISSAO' | i18n}}</strong></label>
+                        <select id="tipoSentencaJulgamento" class="form-control mr-1" name="tipoSentencaJulgamento" #input_tipo_sentenca_julgamento="ngModel"
+                            [(ngModel)]="julgamentoRecurso.tipoSentencaJulgamento"
+                            (change)="limparCampos()"
+                            required>
+                            <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                            <option *ngFor="let tipoSentencaJulgamento of tiposSentencaJulgamento" value="{{tipoSentencaJulgamento.id}}">
+                                {{tipoSentencaJulgamento.descricao}}
+                            </option>
+                        </select>
+                    </form-valid>
+                </div>
+                <div *ngIf="this.julgamentoRecurso.tipoSentencaJulgamento != '' && isTipoSentencaJulgamentoSuspensaoPropaganda()"
+                    [ngClass]="isTipoSentencaJulgamentoMulta() || julgamentoRecurso.multa ? 'mr-1 align-center-combobox' : 'mr-1'" fxFlex="16">
+                    <div class="mr-1" fxFlex>
+                        <form-valid [submitted]="submitted">
+                            <label><strong>{{'LABEL_QUANTIDADE_DIAS' | i18n}}</strong></label>
+                            <input type="number" class="form-control" id="qtdeDias" name="qtdeDias" min="1" [inputMask]="'999'" #input_qtde_dias="ngModel"
+                                (keyup)="onReadyValorNumerico($event)" [value]="qtDias" [(ngModel)]="julgamentoRecurso.suspensaoPropaganda.quantidadeDias"
+                                required (change)="limitQtDiasSuspensaoPropaganda()" />
+                        </form-valid>
+                    </div>
+                </div>
+                <div class="mr-3"
+                    *ngIf="this.julgamentoRecurso.tipoSentencaJulgamento != '' && !isTipoSentencaJulgamentoMulta()" fxFlex="18">
+                    <div [ngClass]="{'align-center-combobox' : julgamentoRecurso.multa}" fxFlex="85">
+                        <form-valid class="full-message" [submitted]="submitted">
+                            <label for="tipoSentencaJulgamento"><strong>{{'LABEL_INSERIR_MULTA' | i18n}}</strong></label>
+
+                            <div class="py-2" fxLayout="row" fxLayoutGap="10px">
+                                <div fxFlex="45">
+                                    <input type="radio" id="multaSim" name="multa" [value]="true"
+                                        [(ngModel)]="julgamentoRecurso.multa" required>
+                                    <label class="align-middle ml-1" for="multaSim">{{ 'LABEL_SIM' | i18n }}</label>
+                                </div>
+                                <div fxFlex="45">
+                                    <input type="radio" id="multaNao" name="multa" [value]="false"
+                                        (change)="resetValorPercentual()"
+                                        [(ngModel)]="julgamentoRecurso.multa" required>
+                                    <label class="align-middle ml-1" for="multaNao">{{ 'LABEL_NAO' | i18n }}</label>
+                                </div>
+                            </div>
+                        </form-valid>
+                    </div>
+                </div>
+                <div class="mr-0" *ngIf="hasSancao()" fxFlex="25">
+                    <div *ngIf="isTipoSentencaJulgamentoMulta()
+                        || this.julgamentoRecurso.tipoSentencaJulgamento != '' && !isTipoSentencaJulgamentoMulta() && julgamentoRecurso.multa" fxFlex>
+                        <form-valid class="full-message" [submitted]="submitted">
+                            <label>
+                                <strong>{{'LABEL_VALOR_PERCENT_MULTA' | i18n}}</strong>
+                                <p class="mb-0">{{'LABEL_RELACAO_ANUIDADE' | i18n}}</p>
+                            </label>
+                            <div class="py-0" fxLayout="row" fxLayoutGap="10px">
+                                <div fxFlex="62.5">
+                                    <input type="number" class="form-control" id="valorPercentual" name="valorPercentual" min="1" [inputMask]="'999'" #input_percentual_multa="ngModel"
+                                        (keyup)="onReadyValorNumerico($event)" [(ngModel)]="julgamentoRecurso.valorPercentualMulta"
+                                        required/>
+                                </div>
+                            </div>
+                        </form-valid>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-2">
+            <strong>{{'TITLE_DESCRICAO_JULGAMENTO' | i18n}}</strong>
+            <form-valid [submitted]="submitted">
+                <div class="alert bg-green border shadow">
+                    <ckeditor id="dsJulgamento" required name="dsJulgamento"
+                        [config]="configuracaoCkeditor" (ready)="onReadyCKDescricaoJulgamento($event)"
+                        (change)="onChangeCKDescricao($event)" [(ngModel)]="julgamentoRecurso.descricao"></ckeditor>
+                    <input type="hidden" maxlength="2000" name="hideDescricaoJulgamento"
+                        #input_descricao_julgamento="ngModel" [(ngModel)]="julgamentoRecurso.descricaoJulgamentoSimpleText" required>
+                    <span>{{ getContagemDescricaoJulgamento() }}</span>
+                </div>
+            </form-valid>
+        </div>
+
+        <div class="p-2">
+            <strong>{{'LABEL_DOCUMENTOS' | i18n}}</strong>
+            <div class="alert bg-green border shadow">
+                <div fxLayout="row">
+                    <div fxFlex>
+                        <label for="documento"><span>{{ 'LABEL_ARQUIVO' | i18n }}</span></label>
+                        <upload id="documento" title="{{'LABEL_SELECIONAR_ARQUIVO' | i18n}}" [name]="nomeArquivoJulgamento"
+                            [disabled]="isQuantidadeUploadMaxima()" (process)="uploadDocumento($event)">
+                            <i class="fa fa-file-o text-success" aria-hidden="true"></i>
+                            <span>{{'LABEL_SELECIONAR_ARQUIVO' | i18n}}</span>
+                        </upload>
+                    </div>
+                    <div fxFlex>
+                        <i aria-hidden="true" class="fa fa-info-circle fa-2x pointer center-info-doc"
+                            [title]="getHintInformativoDocumento()"></i>
+                    </div>
+                </div>
+                <div class="lista-arquivos mt-2" fxLayout="row">
+                    <table class="table table-sm" *ngIf="julgamentoRecurso.arquivos?.length > 0">
+                        <tbody>
+                            <tr *ngFor="let arquivo of julgamentoRecurso.arquivos let indiceArquivo = index">
+                                <td class="text-center bnt-upload-excluir">
+                                    <div>
+                                        {{ arquivo.nome }}
+                                    </div>
+                                </td>
+                                <td class="table-action text-center">
+                                    <download title="{{ arquivo.nome }}" class="btn-default pointer p-0" *ngIf="retificacao && arquivo.id"
+                                        [download]="arquivo.nome" (process)="downloadArquivo($event, arquivo.id)">
+                                        <i class="align-middle fa fa-download"></i>
+                                    </download>
+                                    <button type="button" class="btn" (click)="excluiUpload(indiceArquivo, arquivo.id)">
+                                        <i class="align-middle fas fa-fw fa-times"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-2" *ngIf="retificacao">
+            <strong>{{'TITLE_JUSTIFICATIVA_RETIFICACAO' | i18n}}</strong>
+            <form-valid [submitted]="submitted">
+                <div class="alert bg-green border shadow">
+                    <ckeditor id="dsJustificativa" required name="dsJustificativa"
+                        [config]="configuracaoCkeditorJustificativaRetificacao" (ready)="onReadyCKDescricaoJustificativaRetificacao($event)"
+                        (change)="onChangeCKJustificativaRetificacao($event)" [(ngModel)]="julgamentoRecurso.justificativa"></ckeditor>
+                    <input type="hidden" maxlength="2000" name="hideDescricaoJulgamento"
+                        #input_justificativa_retificacao_julgamento="ngModel" [(ngModel)]="julgamentoRecurso.justificativaRetificacaoJulgamentoSimpleText" required>
+                    <span>{{ getContagemJustificativaRetificacaoJulgamento() }}</span>
+                </div>
+            </form-valid>
+        </div>
+    </form>
+</div>
+
+<div class="modal-footer aling-left">
+    <div class="row p-2 py-3">
+        <div class="col-md-12 p-0 align-items-left">
+            <button class="btn btn-danger mr-4" type="button"
+                (click)="modalRef.hide()">{{'LABEL_CANCELAR' | i18n}}</button>
+            <button class="btn btn-primary" type="button" *ngIf="!retificacao"
+                (click)="concluir(formJulgarRecurso)">{{'LABEL_CONCLUIR' | i18n}}</button>
+            <button class="btn btn-warning" type="button" *ngIf="retificacao"
+                (click)="concluir(formJulgarRecurso)">{{'LABEL_RETIFICAR' | i18n}}</button>
+        </div>
+    </div>
+</div>

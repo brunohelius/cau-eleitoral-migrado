@@ -1,0 +1,31 @@
+{
+  "name": "cau-eleitoral",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CAU Sistema Eleitoral - Monorepo",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "dev:api": "dotnet watch run --project apps/api/CAU.Eleitoral.Api",
+    "dev:admin": "pnpm --filter @cau-eleitoral/admin dev",
+    "dev:public": "pnpm --filter @cau-eleitoral/public dev",
+    "build:api": "dotnet build apps/api/CAU.Eleitoral.sln -c Release",
+    "build:admin": "pnpm --filter @cau-eleitoral/admin build",
+    "build:public": "pnpm --filter @cau-eleitoral/public build",
+    "docker:build": "docker-compose -f infrastructure/docker/docker-compose.yml build",
+    "docker:up": "docker-compose -f infrastructure/docker/docker-compose.yml up -d",
+    "docker:down": "docker-compose -f infrastructure/docker/docker-compose.yml down",
+    "db:migrate": "dotnet ef database update --project apps/api/CAU.Eleitoral.Infrastructure --startup-project apps/api/CAU.Eleitoral.Api",
+    "db:migration:add": "dotnet ef migrations add --project apps/api/CAU.Eleitoral.Infrastructure --startup-project apps/api/CAU.Eleitoral.Api"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0"
+  },
+  "packageManager": "pnpm@10.28.2",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

@@ -1,0 +1,81 @@
+
+<div class="modal-header border-header-green">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 text-center">
+        <h6 class="modal-title pull-center">{{'LABEL_RECURSO_ADMISSIBILIDADE' |i18n}}</h6>
+    </div>
+    <div class="col-md-2 align-items-right">
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
+<div class="modal-body">
+    <form #form="ngForm">
+
+        <div class="p-2">
+            <strong>{{'LABEL_DESCRICAO_RECURSO_ADMISSIBILIDADE' | i18n}}</strong>
+            <form-valid [submitted]="submitted">
+                <div class="alert bg-green border shadow">
+                    <ckeditor id="dsDesignacaoRelator" required name="dsDesignacaoRelator"
+                              [config]="configuracaoCkeditor" (ready)="onReadyCKEditor($event)"
+                              (change)="onChangeCKDescricao($event)" [(ngModel)]="model.descricao"></ckeditor>
+                    <input type="hidden" maxlength="2000" name="hideDesignacaoRelator" [(ngModel)]="simpleText" required>
+                    <span>{{ getSimpleTextLength() }}</span>
+                </div>
+            </form-valid>
+        </div>
+
+        <div class="p-2">
+            <strong>{{'LABEL_DOCUMENTOS' | i18n}}</strong>
+            <div class="alert bg-green border shadow">
+                <div fxLayout="row">
+                    <div fxFlex>
+                        <label for="documento"><span>{{ 'LABEL_ARQUIVO' | i18n }}</span></label>
+                        <upload id="documento" title="{{'LABEL_SELECIONAR_ARQUIVO' | i18n}}"
+                                [name]="nomeArquivo" [disabled]="isQuantidadeUploadMaxima()"
+                                (process)="upload($event)">
+                            <i class="fa fa-file-o text-success" aria-hidden="true"></i>
+                            <span>{{'LABEL_SELECIONAR_ARQUIVO' | i18n}}</span>
+                        </upload>
+                    </div>
+                    <div fxFlex>
+                        <i aria-hidden="true" class="fa fa-info-circle fa-2x pointer center-info-doc" style="padding-top: 32px;padding-left: 5px;"
+                           [title]="getHintInformativoDocumento()"></i>
+                    </div>
+                </div>
+                <div class="lista-arquivos mt-2" fxLayout="row">
+                    <table class="table table-sm" *ngIf="model.arquivos.length > 0">
+                        <tbody>
+                        <tr *ngFor="let arquivo of model.arquivos let indiceArquivo = index">
+                            <td class="text-center bnt-upload-excluir">
+                                <div>
+                                    {{ arquivo.nome }}
+                                </div>
+                            </td>
+                            <td class="table-action text-center">
+                                <button type="button" class="btn" (click)="excluiUpload(indiceArquivo)">
+                                    <i class="align-middle fas fa-fw fa-times"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="modal-footer" style="display: block !important;">
+    <div class="row">
+        <div class="col-md-12">
+                <button class="btn btn-danger mr-4 btn-action-denuncia" type="button"
+                (click)="modalRef.hide()">{{'LABEL_CANCELAR' | i18n}}</button>
+                
+                <button class="btn btn-primary mr-4 btn-action-denuncia" type="button"
+                (click)="submit(form)">{{'LABEL_CONCLUIR' | i18n}}</button>
+            
+        </div>
+    </div>
+</div>

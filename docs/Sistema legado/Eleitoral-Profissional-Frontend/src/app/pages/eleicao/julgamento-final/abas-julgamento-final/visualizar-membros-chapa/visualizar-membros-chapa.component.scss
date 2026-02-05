@@ -1,0 +1,63 @@
+.white-font-bold {
+  color: white;
+  font-weight: bold;
+}
+
+.spinnerStatus {
+  text-align: center;
+
+  span{
+      display: block;
+
+      i {
+          font-size: 40px;
+          display: block;
+      }
+  }
+}
+
+.list-item  {
+  background: #fff;
+  border-radius: 2px;
+  width: 100%;
+  position: relative;
+}
+
+.list-item-card td{
+  box-shadow: 0 4px 0px 0px rgba(0,0,0,0.16);
+}
+
+.list-item-card{
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+.list-item-box{
+  align-content: center;
+  align-items: center;
+  height: 20px;
+  color: black;
+}
+
+.list-item td{
+  color: black;
+}
+
+.texto-titulo {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+#teste{
+  transform: rotate(20deg);
+}
+
+.fa-rotate-145 {
+  -webkit-transform: rotate(260deg) !important;
+  -moz-transform: rotate(260deg)!important;
+  -ms-transform: rotate(260deg) !important;
+  -o-transform: rotate(260deg) !important;
+  transform: rotate(260deg) !important;
+}
+.text-pendencia {
+  color: #ff6600;
+}

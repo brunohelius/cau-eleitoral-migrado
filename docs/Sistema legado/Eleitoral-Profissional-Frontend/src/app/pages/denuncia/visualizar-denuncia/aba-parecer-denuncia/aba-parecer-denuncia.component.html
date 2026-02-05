@@ -1,0 +1,124 @@
+<div class="card">
+    <div class="card-body">
+        <i class="fa fa-reply fa-2x mb-3" (click)="voltar()" aria-hidden="true"></i>
+
+        <h6 class="text-center"><strong>{{ 'LABEL_NUMERO_DENUNCIA' | i18n }}: </strong>{{ denuncia.numeroDenuncia }}</h6>
+        
+        <div class="border pl-2 pr-2 pb-4 pt-4" style="border-radius: 8px;">
+            <app-alerta-denuncia-sigilosa *ngIf="denuncia.isSigiloso"></app-alerta-denuncia-sigilosa>
+            <div class="card-body bg-green font-12" style="border-radius: 8px;">
+                <div class="row mt-2">
+                    <div class="col-md-12">
+                        <table *ngIf="encaminhamentos" [mfData]="encaminhamentos" #mf="mfDataTable" [mfRowsOnPage]="limitePaginacao" class="table table-borderless table-sm mt-0 table-parecer">
+                            <thead>
+                                <tr>
+                                    <td class="p-0" colspan="8">
+                                        <div fxLayout="row" class="font-weight-bold font-header text-center px-4">
+                                            <div fxFlex="5">
+                                                {{'LABEL_NUM' |i18n}}
+                                            </div>
+                                            <div fxFlex="15">
+                                                {{'LABEL_ETAPAS' |i18n}}
+                                            </div>
+                                            <div fxFlex="20">
+                                                {{'LABEL_RELATOR' |i18n}}
+                                            </div>
+                                            <div fxFlex="12">
+                                                {{'LABEL_DATA_SOLICITACAO' |i18n}}
+                                            </div>
+                                            <div fxFlex="12">
+                                                {{'LABEL_ENVIO_AGENDAMENTO' |i18n}}
+                                            </div>
+                                            <div fxFlex="20">
+                                                {{'LABEL_DESTINATARIO' |i18n}}
+                                            </div>
+                                            <div fxFlex="5">
+                                                {{'LABEL_STATUS' |i18n}}
+                                            </div>
+                                            <div fxFlex="12">
+                                                {{'LABEL_ACAO' |i18n}}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let encaminhamentoDenuncia of mf.data;">
+                                    <td class="p-0" colspan="8">
+                                        <div class="card shadow border rounded-2 my-1">
+                                            <div class="card-body p-8">
+                                                <div fxLayout="row" class="text-center align-items-center">
+                                                    <div class="px-2" fxFlex="5">
+                                                        {{ encaminhamentoDenuncia.numero }}
+                                                    </div>
+                                                    <div class="px-2 border-left" fxFlex="15">
+                                                        {{ encaminhamentoDenuncia.tipoEncaminhamento }}
+                                                    </div>
+                                                    <div class="px-2 border-left" fxFlex="20">
+                                                        {{ encaminhamentoDenuncia.relator }}
+                                                    </div>
+                                                    <div class="px-2 border-left" fxFlex="12">
+                                                        {{ encaminhamentoDenuncia.dataEncaminhamento | date:'dd/MM/yyyy' : '+0' }} às {{ encaminhamentoDenuncia.dataEncaminhamento | date:'HH:mm' : '+0' }}
+                                                    </div>
+                                                    <div class="px-2 border-left altura-minima" fxFlex="12">
+                                                        <span *ngIf="encaminhamentoDenuncia.prazoEnvio">
+                                                            {{ encaminhamentoDenuncia.prazoEnvio | date:'dd/MM/yyyy' : '+0' }}
+                                                        </span>
+                                                    </div>
+                                                    <div class="px-2 border-left altura-minima" fxFlex="20">
+                                                        <p class="m-1" *ngFor="let destinatario of encaminhamentoDenuncia.destinatarios">
+                                                            <ng-container *ngIf="denuncia.isSigiloso && encaminhamentoDenuncia.isDestinatarioDenunciante; else nomeDestinatario">
+                                                                <div class="bg-primary text-primary">{{ destinatario }}</div>
+                                                            </ng-container>
+                                                            <ng-template #nomeDestinatario>
+                                                                {{ destinatario }}
+                                                            </ng-template>
+                                                        </p>
+                                                    </div>
+                                                    <div class="px-2 border-left" fxFlex="5">
+                                                        <div [class]="getStatusEncaminhamento(encaminhamentoDenuncia.idStatus).classCss">
+                                                            <i [title]="getStatusEncaminhamento(encaminhamentoDenuncia.idStatus).title" [class]="getStatusEncaminhamento(encaminhamentoDenuncia.idStatus).icon"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="border-left" fxFlex="12">
+                                                            <button class="btn btn-primary btn-sm ml-2" *ngIf="encaminhamentoDenuncia.ativoInserir" (click)="tipoEncaminhamentoAcao[encaminhamentoDenuncia.idTipoEncaminhamento].action.inserir(encaminhamentoDenuncia, this)" [title]="tipoEncaminhamentoAcao[encaminhamentoDenuncia.idTipoEncaminhamento].label" type="button"><i class="fas {{tipoEncaminhamentoAcao[encaminhamentoDenuncia.idTipoEncaminhamento].icon}} icon-action"></i></button>
+                                                            <button class="btn btn-primary btn-sm ml-2" *ngIf="encaminhamentoDenuncia.ativoVisualizar" (click)="tipoEncaminhamentoAcao[encaminhamentoDenuncia.idTipoEncaminhamento].action.visualizar(encaminhamentoDenuncia, this)" title="{{'TITLE_VISUALIZAR' | i18n}}" type="button"><i class="far fa-list-alt icon-action"></i></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="7" class="col-12" *ngIf="encaminhamentos.length > 0">
+                                        <div class="mt-3 col-md-12 pr-0 mr-0">
+                                            <app-mfBootstrapPaginator [mfTable]="mf" class="float-right">
+                                            </app-mfBootstrapPaginator>
+                                        </div>
+                                    </td>
+                                    <td colspan="7" class="col-12" *ngIf="encaminhamentos.length == 0">
+                                        <div class="text-center">
+                                            {{'LABEL_NENHUM_REGISTRO_ENCONTRADO' |i18n}}
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="py-3">
+            <div class="p-6">
+                <button class="btn btn-primary mr-4" (click)="abrirModalAnalisarDenuncia()"  *ngIf="hasParametrosAcessoParaAnalise()"
+                    type="button">{{'LABEL_ANALISAR_DENUNCIA' | i18n}}</button>
+
+                <button class="btn btn-primary mr-4" (click)="abrirModalParecerFinalDenuncia()" *ngIf="hasParametrosAcessoParaParecerFinal()" 
+                    type="button">{{'LABEL_PARECER_FINAL' | i18n}}</button>                
+            </div>
+        </div>
+    </div>
+</div>

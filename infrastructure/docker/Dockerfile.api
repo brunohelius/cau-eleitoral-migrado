@@ -1,0 +1,38 @@
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+# Copy solution and project files
+COPY CAU.Eleitoral.sln .
+COPY CAU.Eleitoral.Api/CAU.Eleitoral.Api.csproj CAU.Eleitoral.Api/
+COPY CAU.Eleitoral.Application/CAU.Eleitoral.Application.csproj CAU.Eleitoral.Application/
+COPY CAU.Eleitoral.Domain/CAU.Eleitoral.Domain.csproj CAU.Eleitoral.Domain/
+COPY CAU.Eleitoral.Infrastructure/CAU.Eleitoral.Infrastructure.csproj CAU.Eleitoral.Infrastructure/
+
+# Restore packages
+RUN dotnet restore
+
+# Copy source code
+COPY . .
+
+# Build and publish
+RUN dotnet publish CAU.Eleitoral.Api/CAU.Eleitoral.Api.csproj -c Release -o /app/publish --no-restore
+
+# Runtime stage
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+WORKDIR /app
+
+# Create non-root user
+RUN adduser --disabled-password --gecos '' appuser && chown -R appuser /app
+USER appuser
+
+# Copy published app
+COPY --from=build /app/publish .
+
+# Set environment variables
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+EXPOSE 8080
+
+ENTRYPOINT ["dotnet", "CAU.Eleitoral.Api.dll"]

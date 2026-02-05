@@ -1,0 +1,194 @@
+<form #form="ngForm">
+
+    <div class="row">
+        <div class="col-md-3 col-xs-12">
+            <label for="anoEleicao">{{'LABEL_ANO' |i18n}}</label>
+            <input type="number" class="form-control" disabled="true" name="anoEleicao" id="anoEleicao"
+                title="{{'LABEL_ANO' |i18n}}" [value]="atividadeSecundaria.atividadePrincipalCalendario.calendario.eleicao.ano">
+        </div>
+
+        <div class="col-md-3 col-xs-12">
+            <label for="eleicao">{{'LABEL_ELEICAO' |i18n}}</label>
+            <input type="text" class="form-control" disabled="true" maxlength="4" title="{{'LABEL_ELEICAO' |i18n}}"
+                [value]="getDescricaoEleicao()">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 mt-2">
+            <div class="d-flex align-items-center">
+                <label for="eleicao">{{ 'LABEL_MAJORITARIO' | i18n }}:</label>
+
+                <ui-switch class="pl-3" title="{{'LABEL_MAJORITARIO' |i18n}}"
+                    [(ngModel)]="atividadeSecundaria.informacaoComissaoMembro.situacaoMajoritario"
+                    name="situacaoMajoritario" (valueChange)="atualizarMajoritario()"
+                    [disabled]="acaoSistema.isAcaoVisualizar() || isAtividadeExpirada()">
+                </ui-switch>
+
+                <label class="pl-2">{{ 'LABEL_SIM' | i18n }}</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 mt-2">
+            <div class="d-flex align-items-center">
+                <label for="eleicao">
+                    {{ 'LABEL_COORDENADOR_E_COORDENADOR_ADJUNTO' | i18n }}:
+                    {{ 'LABEL_NAO_CONSELHEIRO' | i18n }}
+                </label>
+
+                <ui-switch class="pl-2" [(ngModel)]="atividadeSecundaria.informacaoComissaoMembro.situacaoConselheiro"
+                    title="{{'LABEL_COORDENADOR_E_COORDENADOR_ADJUNTO' | i18n }}: {{ 'LABEL_NAO_CONSELHEIRO' | i18n }}"
+                    name="toggleCoordenadorAdjunto"
+                    [disabled]="acaoSistema.isAcaoVisualizar() || isAtividadeExpirada()">
+                </ui-switch>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <input type="radio" name="numeroOpcoes" id="duasOpcoes" [value]="1"
+                [(ngModel)]="atividadeSecundaria.informacaoComissaoMembro.tipoOpcao">
+            <label for="duasOpcoes" value="1" class="px-2">{{ 'LABEL_DUAS_OPCOES' | i18n }}</label>
+            <input type="radio" class="ml-2" name="numeroOpcoes" id="variasOpcoes" [value]="2"
+                [(ngModel)]="atividadeSecundaria.informacaoComissaoMembro.tipoOpcao"
+                [disabled]="acaoSistema.isAcaoVisualizar() || isAtividadeExpirada()">
+            <label for="variasOpcoes" value="2" class="px-2">{{ 'LABEL_VARIAS_OPCOES' | i18n }}</label>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3 col-xs-12">
+            <label for="anoEleicao">{{ 'LABEL_QUANTIDADE_MINIMA_MEMBROS' | i18n }}</label>
+            <input type="number" class="form-control" #quantidadeMinima="ngModel" name="quantidadeMinima"
+                id="quantidadeMinima" [(ngModel)]="atividadeSecundaria.informacaoComissaoMembro.quantidadeMinima"
+                title="{{ 'LABEL_QUANTIDADE_MINIMA_MEMBROS' | i18n }}" maxlength="999"
+                [disabled]="acaoSistema.isAcaoVisualizar() || isAtividadeExpirada()" required>
+
+            <validation-message [for]="quantidadeMinima" [submitted]="submitted">
+            </validation-message>
+        </div>
+
+        <div class="col-md-1 col-xs-12 text-center">
+            <label>&nbsp;</label>
+            <p class="font-weight-bold" *ngIf="isTipoOpcaoDuasOpcoes()">{{ 'LABEL_OU' | i18n | lowercase }}</p>
+            <p class="font-weight-bold" *ngIf="!isTipoOpcaoDuasOpcoes()">{{ 'LABEL_ENTRE' | i18n | lowercase }}</p>
+        </div>
+
+        <div class="col-md-3 col-xs-12">
+            <label for="eleicao">{{'LABEL_QUANTIDADE_MAXIMA_MEMBROS' | i18n}}</label>
+            <input type="text" class="form-control" #quantidadeMaxima="ngModel" name="quantidadeMaxima"
+                id="quantidadeMaxima" [(ngModel)]="atividadeSecundaria.informacaoComissaoMembro.quantidadeMaxima"
+                title="{{ 'LABEL_QUANTIDADE_MAXIMA_MEMBROS' | i18n }}" maxlength="999"
+                [disabled]="acaoSistema.isAcaoVisualizar() || isAtividadeExpirada()" required>
+
+            <validation-message [for]="quantidadeMaxima" [submitted]="submitted">
+            </validation-message>
+        </div>
+    </div>
+
+    <div class="row bg-calendario my-3 py-1">
+        <span class="pl-3">
+            {{ 'LABEL_SELECIONAR_EMAIL' | i18n }}
+        </span>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-sm">
+                <thead>
+                    <tr class="text-center">
+                        <th>{{ 'LABEL_QUANTIDADE_EMAIL' | i18n }}</th>
+                        <th>{{ 'LABEL_SELECIONE_EMAIL' | i18n }}</th>
+                        <th>{{ 'LABEL_REGRA_ENVIO' | i18n }}</th>
+                        <th>{{ 'LABEL_CORPO_EMAIL' | i18n }}</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    <tr>
+                        <td>{{ 'LABEL_EMAIL_001' | i18n }}</td>
+                        <td>
+                            <select id="emailSelecionado" name="emailSelecionado" class="form-control"
+                                [(ngModel)]="atividadeSecundaria.informacaoComissaoMembro.email.id"
+                                [disabled]="acaoSistema.isAcaoVisualizar() || isAtividadeExpirada()">
+                                <option [ngValue]="''">{{ 'LABEL_NENHUM' | i18n }}</option>
+                                <option *ngFor="let email of emails" [ngValue]="email.id">
+                                    {{ email.corpoEmail.assunto }}
+                                </option>
+                            </select>
+                        </td>
+                        <td>
+                            <textarea class="form-control no-resize" rows="3"
+                                disabled>{{ 'MSG_REGRA_ENVIO_INCLUIR_INFORMACAO_COMISSAO_ELEITORAL_01' | i18n }}</textarea>
+                        </td>
+                        <td>
+                            <button type="submit" class="btn btn-primary btn-sm my-3"
+                                (click)="visualizarCorpoEmail(templateVisualizarCorpoEmail, atividadeSecundaria.informacaoComissaoMembro.email.id)"
+                                [disabled]="!isEmailSelecionado()">
+                                {{ 'LABEL_VISUALIZAR' | i18n }}
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row" *ngIf="!acaoSistema.isAcaoVisualizar() && !isAtividadeExpirada()">
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary my-3" (click)="salvar(form)">
+                {{ 'LABEL_SALVAR' | i18n }}
+            </button>
+        </div>
+    </div>
+
+</form>
+
+<ng-template #templateVisualizarCorpoEmail>
+    <div class="card m-0">
+        <div class="card-header">
+            <a class="pointer" (click)="fecharModalVisualizarEmail()">
+                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+            </a>
+            {{ 'LABEL_VISUALIZAR_CORPO_EMAIL' | i18n }}
+        </div>
+        <div class="card-body">
+            <div class="row"
+                 *ngIf="emailSelecionado.corpoEmail.cabecalhoEmail != undefined && emailSelecionado.corpoEmail.cabecalhoEmail.isCabecalhoAtivo">
+                <div class="col-md-12" *ngIf="emailSelecionado.corpoEmail.cabecalhoEmail.imagemCabecalho">
+                    <p><img [src]="emailSelecionado.corpoEmail.cabecalhoEmail.imagemCabecalho" class="img-fluid" alt="">
+                    </p>
+                </div>
+
+                <div class="col-md-12" *ngIf="emailSelecionado.corpoEmail.cabecalhoEmail.textoCabecalho">
+                    <p [innerHTML]="emailSelecionado.corpoEmail.cabecalhoEmail.textoCabecalho"></p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <p [innerHTML]="emailSelecionado.corpoEmail.descricao"> </p>
+                </div>
+            </div>
+
+            <div class="row"
+                 *ngIf="emailSelecionado.corpoEmail.cabecalhoEmail != undefined && emailSelecionado.corpoEmail.cabecalhoEmail.isRodapeAtivo">
+                <div class="col-md-12" *ngIf="emailSelecionado.corpoEmail.cabecalhoEmail.textoRodape">
+                    <p [innerHTML]="emailSelecionado.corpoEmail.cabecalhoEmail.textoRodape"> </p>
+                </div>
+
+                <div class="col-md-12" *ngIf="emailSelecionado.corpoEmail.cabecalhoEmail.imagemRodape">
+                    <p><img [src]="emailSelecionado.corpoEmail.cabecalhoEmail.imagemRodape" class="img-fluid" alt=""></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer bg-transparent">
+            <button type="button" (click)="fecharModalVisualizarEmail()" class="btn btn-sm btn-primary">
+                {{ 'LABEL_FECHAR' | i18n }}
+            </button>
+        </div>
+    </div>
+</ng-template>

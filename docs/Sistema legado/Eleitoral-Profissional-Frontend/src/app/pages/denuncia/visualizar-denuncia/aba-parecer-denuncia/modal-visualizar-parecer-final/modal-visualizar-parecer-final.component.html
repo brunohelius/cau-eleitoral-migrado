@@ -1,0 +1,120 @@
+<div class="modal-header border-header-green">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 text-center">
+        <h6 class="modal-title pull-center">{{'LABEL_PARECER_FINAL' |i18n}}</h6>
+    </div>
+    <div class="col-md-2 align-items-right">
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
+
+<div class="modal-body">
+    <div class="card">
+        <div class="card-body">
+
+            <!-- Status parecer-->
+            <div class="card-body container">
+                <div class="float-right" fxFlexAlign="left" fxLayout="row" fxLayoutGap="10px">
+                    <div class="status-center mb-3" fxLayout="column" fxFlex *ngIf="isProcedente()">
+                        <i class="fa fa-spinner fa-4x pr-0 align-self-center"></i>
+                        <span class="texto-titulo">
+                            <strong>{{ 'LABEL_PROCEDENTE' | i18n }}</strong>
+                        </span>
+                    </div>
+                    <div class="status-center mb-3" fxLayout="column" fxFlex *ngIf="!isProcedente()">
+                        <i class="fa fa-spinner fa-4x pr-0 text-danger align-self-center"></i>
+                        <span class="texto-titulo text-danger">
+                            <strong>{{ 'LABEL_IMPROCEDENTE' | i18n }}</strong>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parecer-->
+            <div class="col-md-12 mb-3" >
+                <table class="col-md-12" *ngIf="isProcedente()">
+                    <thead>
+                        <tr>
+                            <td class="text-center tb-width-">
+                                <label class="font-weight-bold">{{'LABEL_PARECER_FINAL' | i18n}}</label>
+                            </td>
+                            <td class="text-center tb-width-10" *ngIf="encaminhamentoParecerFinal.quantidadeDias">
+                                <label class="font-weight-bold">{{'LABEL_PERIODO_SUSPENSAO' | i18n}}</label>
+                            </td>
+                            <td class="text-center tb-width-10">
+                                <label class="font-weight-bold">{{'LABEL_MULTA' | i18n}}</label>
+                            </td>
+                            <td class="text-center tb-width-10" *ngIf="encaminhamentoParecerFinal.multa">
+                                <label class="font-weight-bold">{{'LABEL_PERCENTUAL_MULTA' | i18n}}</label>
+                            </td>
+                        </tr>
+                    </thead>
+                    <tbody class="border shadow-sm rounded" style="border-radius: 8px;">
+                        <tr>
+                            <td class="text-center p-3 tb-width-10">
+                                <label class="font-weight-bold">{{getSentenca() | i18n}}</label>
+                            </td>
+                            <td class="text-center p-3 tb-width-10" *ngIf="encaminhamentoParecerFinal.quantidadeDias">
+                                <label class="font-weight-bold">{{encaminhamentoParecerFinal.quantidadeDias}} dias</label>
+                            </td>
+                            <td class="text-center p-3 tb-width-10">
+                                <label class="font-weight-bold">{{getMulta() | i18n}}</label>
+                            </td>
+                            <td class="text-center p-3 tb-width-10" *ngIf="encaminhamentoParecerFinal.multa">
+                                <label class="font-weight-bold">{{encaminhamentoParecerFinal.valorPercentual}}%</label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Data/hora cadastro -->
+            <div class="col-md-12">
+                <label class="font-weight-bold">{{'LABEL_DATA_HORA_CADASTRO' | i18n}}:</label>
+                <span> {{encaminhamentoParecerFinal.dataCadastro | date:'dd/MM/yyyy' : '+0' }} às
+                    {{ encaminhamentoParecerFinal.dataCadastro | date:'HH:mm ' : '+0' }}</span>
+            </div>
+
+            <!-- Cadastrado por -->
+            <div class="col-md-12">
+                <label class="font-weight-bold">{{'LABEL_CADASTRADO_POR' | i18n}}:</label>
+                <span> {{encaminhamentoParecerFinal.usuarioCadastro.nome}}</span>
+            </div>
+
+            <!-- Descrição -->
+            <div class="card-body bg-green font-12 border mb-3" style="border-radius: 8px;">
+                <h6 class="mb-3">{{'LABEL_DESCRICAO_ACAO_EXECUTADA'|i18n}}</h6>
+                <div class="mt-2 word-wrap" [innerHTML]="encaminhamentoParecerFinal.descricao"></div>
+            </div>
+
+            <!-- Documento -->
+            <div class="card-body bg-green font-12 border" style="border-radius: 8px;"
+                *ngIf="encaminhamentoParecerFinal.arquivos.length > 0">
+                <h6 class="mb-3">{{ 'LABEL_DOCUMENTO'|i18n}}</h6>
+                <span class="font-weight-bold arquivo">{{ 'TITLE_ARQUIVO'|i18n}}</span>
+                <div>
+                    <table class="border-top">
+                        <tbody>
+                            <tr *ngFor="let arquivoEncaminhamento of encaminhamentoParecerFinal.arquivos">
+                                <td>{{arquivoEncaminhamento.nome}}</td>
+                                <td>
+                                    <download title="{{arquivoEncaminhamento.nome}}" class="text-primary pointer p-0"
+                                        [download]="arquivoEncaminhamento.nome"
+                                        (process)="downloadArquivo($event, arquivoEncaminhamento.id)">
+                                        <i class="align-middle fa fa-download"></i>
+                                    </download>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <button type="button" class="btn btn-primary mr-4" (click)="modalRef.hide()">{{'LABEL_FECHAR'|i18n}}</button>
+    </div>
+</div>

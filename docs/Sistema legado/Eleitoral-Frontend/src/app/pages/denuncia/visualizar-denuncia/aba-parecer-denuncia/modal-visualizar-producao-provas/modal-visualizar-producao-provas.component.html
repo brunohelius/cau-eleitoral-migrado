@@ -1,0 +1,136 @@
+<div class="modal-header border-header-green">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 text-center">
+        <h6 class="modal-title pull-center">{{'LABEL_VISUALIZAR_PRODUCAO_PROVAS' |i18n}}</h6>
+    </div>
+    <div class="col-md-2 align-items-right">
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
+<div class="modal-body" *ngIf="producaoProvas">
+    <div class="alert bg-green border shadow">
+        <div class="p-2">
+            <strong>{{'LABEL_DESCRICAO_ENCAMINHAMENTO' | i18n}}</strong>
+            <div class="mt-2 word-wrap" [innerHTML]="producaoProvas.encaminhamento.descricao"></div>
+        </div>
+    </div>
+
+    <div class="alert bg-green border shadow" *ngIf="producaoProvas.encaminhamento.arquivoEncaminhamento ?.length > 0">
+        <div class="p-2">
+            <strong>{{'LABEL_DOCUMENTOS' | i18n}}</strong>
+            <div fxLayout="row">
+                <div fxFlex class="mt-2">
+                    <label for="documento"><span>{{ 'LABEL_ARQUIVO' | i18n }}</span></label>
+                </div>
+            </div>
+            <div class="lista-arquivos mt-2" fxLayout="row">
+                <table class="table table-sm" *ngIf="producaoProvas.encaminhamento.arquivoEncaminhamento ?.length > 0">
+                    <tbody>
+                        <tr *ngFor="let arquivo of producaoProvas.encaminhamento.arquivoEncaminhamento let indiceArquivo = index">
+                            <td class="text-center">
+                                <div>
+                                    {{ arquivo.nome }}
+                                </div>
+                            </td>
+                            <td>
+                                <download title="{{ arquivo.nome }}" class="text-primary pointer p-0"
+                                    [download]="arquivo.nome" (process)="downloadArquivoEncaminhamento($event, arquivo.id)">
+                                    <i class="align-middle fa fa-download"></i>
+                                </download>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="producaoProvas.denunciaProvas">
+
+        <hr class="border-header-green" />
+
+        <h6 class="text-center">
+            <strong>{{ 'LABEL_PROVAS_INSERIDAS' | i18n }} </strong>
+        </h6>
+
+        <h6>
+            <strong>{{'LABEL_DATA_HORA_CADASTRO' | i18n}}: </strong>
+            {{ producaoProvas.denunciaProvas.dataProva | date:'dd/MM/yyyy' : '+0' }} às {{ producaoProvas.denunciaProvas.dataProva | date:'HH:mm' : '+0' }}
+        </h6>
+
+        <div class="alert bg-green border shadow">
+            <div class="p-2">
+                <strong>{{'LABEL_DESCRICAO_PROVAS_APRESENTADAS' | i18n}}</strong>
+                <div class="mt-2 word-wrap" [innerHTML]="producaoProvas.denunciaProvas.descricaoProvasApresentadas"></div>
+            </div>
+        </div>
+
+        <div class="alert bg-green border shadow" *ngIf="producaoProvas.denunciaProvas.arquivosDenunciaProvas ?.length > 0">
+            <div class="p-2">
+                <strong>{{'LABEL_DOCUMENTOS' | i18n}}</strong>
+                <div fxLayout="row">
+                    <div fxFlex>
+                        <label for="documento"><span>{{ 'LABEL_ARQUIVO' | i18n }}</span></label>
+                    </div>
+                </div>
+                <div class="lista-arquivos mt-2" fxLayout="row">
+                    <table class="table table-sm" *ngIf="producaoProvas.denunciaProvas.arquivosDenunciaProvas ?.length > 0">
+                        <tbody>
+                            <tr *ngFor="let arquivo of producaoProvas.denunciaProvas.arquivosDenunciaProvas let indiceArquivo = index">
+                                <td class="text-center">
+                                    <div>
+                                        {{ arquivo.nome }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <download title="{{ arquivo.nome }}" class="text-primary pointer p-0"
+                                        [download]="arquivo.nome" (process)="downloadArquivoProvas($event, arquivo.id)">
+                                        <i class="align-middle fa fa-download"></i>
+                                    </download>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="isStatusEncaminhamentoTranscorrido()">
+        <hr class="border-header-green" />
+
+        <div class="alert bg-green border shadow">
+            <div class="p-2 text-center">
+                <strong>{{'LABEL_NAO_HOUVE_INSERCAO_PROVAS_PELO_DESTINATARIO' | i18n}}</strong>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="isStatusEncaminhamentoFechado()">
+        <hr class="border-header-green" />
+
+        <h6 class="text-center">
+            <strong>{{ 'LABEL_ENCAMINHAMENTO_FECHADO' | i18n }} </strong>
+        </h6>
+
+        <h6>
+            <strong>{{'LABEL_DATA_HORA_FECHAMENTO' | i18n}}: </strong>
+            {{ producaoProvas.encaminhamento.dataFechamento | date:'dd/MM/yyyy' : '+0' }} às {{ producaoProvas.encaminhamento.dataFechamento | date:'HH:mm' : '+0' }}
+        </h6>
+
+        <div class="alert bg-green border shadow">
+            <div class="p-2">
+                <strong>{{'LABEL_JUSTIFICATIVA' | i18n}}</strong>
+                <div class="mt-2 word-wrap" [innerHTML]="producaoProvas.encaminhamento.justificativa"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button class="btn btn-primary mr-auto" type="button" (click)="modalRef.hide()">
+        {{'LABEL_FECHAR' | i18n}}
+    </button>
+</div>

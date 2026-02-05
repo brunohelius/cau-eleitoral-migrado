@@ -1,0 +1,163 @@
+<div class="modal-header border-header-green">
+    <div class="col-md-12 text-center">
+        <h6 class="modal-title pull-center grey-font-bolder"  style="color: grey;">
+            {{'TITLE_REALIZAR_SUBSTITUICAO_DE_CANDIDATO' | i18n}}
+        </h6>
+    </div>
+</div>
+<div class="modal-body" style="height: 100%">
+    <div class="mb-3"> 
+        <card-panel [titulo]="'LABEL_INFORMACOES_IMPUGNADO'" >
+            
+            <div fxLayout="row" fxLayoutGap="10px" fxFlexFill>
+                <div fxFlex>
+                    <div fxLayout="row">
+                        <div fxFlex="50%" class="ml-2 text-center pb-1">
+                            <strong class="label-subtitle">{{'LABEL_NOME' | i18n}}</strong>
+                        </div>
+                        <div fxFlex="50%" class="ml-2 text-center pb-1">
+                            <strong class="label-subtitle">{{'LABEL_REGISTRO' | i18n}}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card text-center mt-2 mb-5" style="font-size: 0.8rem;">
+                <div fxFlexFill class="custom-grid-white">
+                    <div class="list-item list-item-card mt-1">
+                        <div fxLayout="row" fxLayoutGap="10px" class="list-item-box pt-1 pb-1">
+                            <div fxFlex="50%" fxLayoutAlign="center center" class="border-right pl-2 text-center">
+                                <span>{{impugnacao.informacoesCandidato.nome}}</span>
+                            </div>
+                            <div fxFlex="50%" fxLayoutAlign="center center" class="pl-2 text-center">
+                                <span>{{getRegistroComMask(impugnacao.informacoesCandidato.registro)}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </card-panel>
+    </div>
+    <div class="mb-3"> 
+        <card-panel [titulo]="'LABEL_PESQUISAR_CANDIDATO_SUBSTITUTO'" >
+            <div class="col-md-8  mb-5">
+                <div class=" mb-3">
+                    <strong class="label-subtitle">{{'LABEL_DADOS_CANDIDATO' | i18n}}</strong>
+                </div>
+                <app-autocomplete 
+                    [limitMax]="5"
+                    [(inputModel)]="profissional" 
+                    [placeholder]="getPlaceHolderRegistro()" 
+                    [isNumeroRegistro]="true"
+                    [membroChapaAtual]="profissional" 
+                    (onSelectProfissional)="adicionarProfissional($event)">
+                </app-autocomplete>
+                <div *ngIf="submitted && !membroSubstituto" class="text-danger">{{'required' | i18n}}</div>
+            </div>
+        </card-panel>
+    </div>
+    <div  class="mb-3" *ngIf="membroSubstituto?.profissional" > 
+        <card-panel 
+            [titulo]="'LABEL_RESULTADO'" 
+            [msgHint]="getHintMensagem()"
+        >
+            <div fxLayout="row" fxLayoutGap="10px" fxFlexFill>
+                <div fxFlex>
+                    <div fxLayout="row">
+                        <div fxFlex="33%" class="ml-2 text-center pb-1">
+                            <strong class="label-subtitle">{{'LABEL_NOME' | i18n}}</strong>
+                        </div>
+                        <div fxFlex="33%" class="ml-2 text-center pb-1">
+                            <strong class="label-subtitle">{{'LABEL_REGISTRO' | i18n}}</strong>
+                        </div>
+                        <div fxFlex="33%" class="ml-2 text-center pb-1">
+                            <strong class="label-subtitle">{{'LABEL_STATUS_VALIDACAO' | i18n}}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card text-center mt-2  mb-5" style="font-size: 0.8rem;">
+                <div fxFlexFill class="custom-grid-white">
+                    <div class="list-item list-item-card mt-1">
+                        <div fxLayout="row" fxLayoutGap="10px" class="list-item-box pt-1 pb-1">
+                            <div fxFlex="33%" fxLayoutAlign="center center" class="border-right pl-2 text-center">
+                                <span>{{membroSubstituto.profissional.nome}}</span>
+                            </div>
+                            <div fxFlex="33%" fxLayoutAlign="center center" class="border-right pl-2 text-center">
+                                <span>{{getRegistroComMask(membroSubstituto.profissional.registroNacional)}}</span>
+                            </div>
+                            <div fxFlex="33%" fxLayoutAlign="center center" class="pl-2 text-center">
+                               
+
+                                <div fxLayout="column" fxLayoutAlign="space-around center">
+                                    <i *ngIf="statusValidacao(membroSubstituto)" aria-hidden="true"
+                                    class="fa fa-check-circle text-success icone-size mb-3"></i>
+
+                                    <i *ngIf="!statusValidacao(membroSubstituto)" aria-hidden="true"
+                                    title="{{ 'MSG_SELECIONE_ICONE_PARA_DETALHAR_PENDENCIAS_PROFISSIONAL' | i18n }}"
+                                    (click)="abrirModalPendeciasMembro(templatePendeciasMembro, membroSubstituto)"
+                                    class="fa fa-exclamation-circle text-alert icone-size color-alert mb-3"></i>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </card-panel>
+    </div>
+
+
+    <div class="col-md-12 p-3">
+        <button class="btn btn-danger px-3 mr-3"
+            (click)="cancelaPedido()"
+        >
+            {{ 'LABEL_CANCELAR' | i18n }}
+        </button>  
+
+        <button  class="btn btn-primary px-3 mr-3"
+            (click)="salvar(membroSubstituto)"
+        >
+            {{ 'LABEL_CONFIRMAR' | i18n }}
+        </button>
+    </div>
+
+</div>
+
+<ng-template #templatePendeciasMembro>
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            <h6 class="modal-title pull-center">{{'TITLE_PENDECIAS_MEMBRO' |i18n}}</h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalPendeciasMembro.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        <div class="row">
+            <div class="col-md-12">
+                <p class="text-center pb-2" *ngFor="let pendencia of membroSubstituto.pendencias">
+                    {{ pendencia.tipoPendencia.descricao }}
+                </p>
+            </div>
+            <div class="col-md-12 text-center">
+                <button class="btn btn-primary" (click)="modalPendeciasMembro.hide()">{{'LABEL_FECHAR' |i18n}}</button>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #templateConfirmacao>
+    <modal-confirm
+        [isModalConfirmOk]="true"
+        [titulo]="tituloModalConfirmacao"
+        [descricao]="msgConfirmacao"
+        (confirmar)="redirecionaVisualizarSubstituicao()"
+    >
+    </modal-confirm>
+</ng-template>
+
+

@@ -1,0 +1,129 @@
+@import "~bootstrap/scss/functions";
+@import "~@cau/layout/variables";
+
+.active {
+    background-color: #ffffff !important;
+}
+p.nav-link {
+    color: #ffffff !important;
+}
+.nav-link {
+    color: $primary !important;
+}
+.texto-destaque {
+    font-size: 1.09375rem;
+    font-weight: bold;
+}
+.texto-preto-destaque {
+    font-size: 1.09375rem;
+}
+.box-destaque {
+    padding: 15px;
+    border-radius: 10px;
+    background: #e0f2f1;
+}
+.card-pricipal {
+    border-radius: 10px;
+    margin: 0.7rem !important;
+}
+.green-font-bolder{
+    text-shadow: 0px 0px, 0px 0px, 0px 0px;
+    font-weight: bolder;
+    color: $primary;
+}
+.list-item  {
+    background: #fff;
+    border-radius: 2px;
+    width: 100%;
+    position: relative;
+}
+.list-item-card td{
+    box-shadow: 0 4px 0px 0px rgba(0,0,0,0.16);
+    //box-shadow: 53px 0px 9px -56px red;
+}
+.btn-success{
+    background-color: $primary;
+}
+.btn-danger{
+    background-color: #A80018;
+}
+.list-item-card  .btn-success{
+    border-radius: 10px;    
+    padding: 0.1rem 1.3rem;
+}
+.list-item-card  .btn-danger{
+    border-radius: 10px;
+    padding: 0.1rem 1.3rem;
+}
+.borda-direita-cinza{
+    border-right: 1px solid #808584;
+}
+.borda-direita-preto{
+    border-right: 1px solid #1b1b1b;
+}
+.borda-redonda{
+    border: 1px solid #878787;
+    border-radius: 10px;
+}
+.box-separador-linha{
+    border-bottom: 6px solid $primary;
+}
+.custom-col{
+    -webkit-box-flex: 0;
+    flex: 0 0 50%;
+    max-width: 40%;
+}
+.custom-grid{
+    flex-direction: row;
+    box-sizing: border-box;
+    display: flex;
+    border-color: #80808066;
+    padding: 10px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    border-width: 1px;
+    border-style: solid;
+    background-color: #dcdcdc66;
+}
+.custom-grid-white{
+    flex: 1 1 0%;
+    flex-direction: row;
+    box-sizing: border-box;
+    border-color: #80808066;
+    padding: 10px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    border-width: 1px;
+    border-style: solid;
+}
+.icone-size{
+    font-size: 23px;
+}
+.ribbon {
+    padding: 2px;
+    color: #ffffff;
+    border-radius: 10px;
+    font-size: 0.65rem;
+    font-weight: bold;
+    margin-left: 24%;
+    margin-right: 25%;
+
+    &.ribbon-primary {
+        background-color: $primary;
+    }
+
+    &.ribbon-warning {
+        background-color: $warning;
+    }
+}
+.tamanho-membros{
+    width: 29% !important;
+}
+.sem-espaco-esquerda{
+    padding-left: 0px !important;
+}
+.color-cau {
+    color: $primary !important;
+    margin-left: -25%;
+}
+.color-alert{
+    color: $warning !important;
+}

@@ -1,0 +1,102 @@
+<div class="row conteudo" *ngIf="defesa">
+    <form #form="ngForm" class="w-100" id="aba-julgamento-impugnacao-form-id">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-12">
+
+                    <div class="card">
+                        <div class="card-body" style="border-radius: 8px;">
+                            <div class="row bg-primary m-0">
+                                <div class="col-md-12 py-3 px-0">
+                                    <span class="white-font-bold pl-3"> {{ 'LABEL_DESCRICAO_DEFESA' | i18n }} </span>
+                                </div>
+                            </div>
+                            <div class="row  m-0 bg-green p-3">
+                                <div class="col-md-12">
+
+                                    <div class="col-md-12 mt-4" style="padding: 2;">
+                                        <editor-de-texto
+                                            [isHabilitado]="!isVisualizacao()"
+                                            [tamanhoMaximo]="1000"
+                                            [valor]="defesa.descricao"
+                                            (valorChange)="adicionarDescricao($event)"
+                                            [isMostrarTamanhoTextoRestantes]="!isVisualizacao()">
+                                        </editor-de-texto>
+                                        <div class="text-danger" *ngIf="isSubmetido && !hasDescricao()">{{ 'required' | i18n }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body" style="border-radius: 8px;">
+                            <div class="row bg-primary m-0">
+                                <div class="col-md-12 py-3 px-0">
+                                    <span class="white-font-bold pl-3"> {{ 'LABEL_DOCUMENTO' | i18n }} </span>
+                                </div>
+                            </div>
+                            <div class="row  m-0 bg-green p-3">
+                                <div class="col-md-12">
+                                    <arquivo 
+                                        [maxArquivos]="5" 
+                                        [hasUpload]="!isVisualizacao()"
+                                        [hasDownload]="true" 
+                                        [arquivos]="defesa.arquivos" 
+                                        [hasExclusao]="!isVisualizacao()"
+                                        [isHabilitado]="!isVisualizacao()" 
+                                        (salvarEvent)="salvarArquivos($event)" 
+                                        (excluirArquivo)="excluirArquivo($event)"
+                                        [msgMaxArquivos]="'MSG_QTD_MAXIMA_UPLOAD_5'"
+                                        (download)="downloadArquivoDefesaImpugnacao($event)">
+                                    </arquivo>
+                                    <div class="col-md-4 col-xs-12" *ngIf="defesa.id && (!defesa.arquivos || !defesa.arquivos[0])">
+                                        <table class="table table-sm">
+                                            <tbody>
+                                                <td class="text-left pr-3 mt-3">
+                                                    <span>{{ 'LABEL_NAO_APLICADO' | i18n }}</span>
+                                                </td>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mx-0">
+                <div class="col-md-12 p-3" *ngIf="!isVisualizacao()">
+                    <button (click)="cancelarDefesaImpugnacao.emit()"
+                        class="btn btn-danger px-3 mr-3" style="width: 100px;">
+                        {{ 'LABEL_CANCELAR' | i18n }}
+                    </button>
+                    <button (click)="salvar(form)" class="btn btn-primary col-md-1 px-3">
+                        {{ 'LABEL_SALVAR' | i18n }}
+                    </button>
+                </div>
+            </div>
+
+        </div>
+        
+    </form>
+</div>
+<div class="row conteudo" *ngIf="!defesa && isFinalizadoAtividadeDefesa">
+    <form #form="ngForm" class="w-100">
+        <div class="col-md-12">
+            <div class="tab-pane fade card rounded-0 pl-4 pr-4 pb-2" [ngClass]="{ 'active show':true}">
+                <div class="card border pl-4 pr-4 pb-4 pt-4 mt-5 mb-4" style="border-radius: 8px mb-5">
+                    <div class="alert border bg-green shadow margin">
+                        <div fxLayout="row" fxLayoutAlign="center center">
+                            <b class="mt-4 mb-4">{{'TITLE_NAO_EXISTE_DEFESA_IMPUGNACAO' | i18n}}</b>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

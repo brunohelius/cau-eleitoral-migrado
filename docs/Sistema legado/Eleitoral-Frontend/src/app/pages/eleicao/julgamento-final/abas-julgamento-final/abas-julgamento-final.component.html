@@ -1,0 +1,139 @@
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-tabs">
+            <li class="nav-item pointer">
+                <a class="nav-link no-wrap-title-aba " [ngClass]="{ 'active': false}" [routerLink]="['/']">
+                    {{'LABEL_VISAO_GERAL' | i18n}}
+                </a>
+            </li>
+            <li class="nav-item pointer">
+                <a class="nav-link wrap-title-aba"
+                    (click)="mudarAbaSelecionada(tabs.acompanharChapa.nome)"
+                    [ngClass]="{ 'active': tabs.acompanharChapa.ativo }">
+                    <div class="aba" [innerHTML]="getTituloAbaAcompanharChapa()"></div>
+                </a>
+            </li>
+            <li class="nav-item pointer" *ngIf="isMostrarAbaJulgamento()">
+                <a class="nav-link wrap-title-aba"
+                    (click)="mudarAbaSelecionada(tabs.julgamentoPrimeiraInstancia.nome)"
+                    [ngClass]="{ 'active': tabs.julgamentoPrimeiraInstancia.ativo  }">
+                    <div class="aba" [innerHTML]="getTituloAbaJulgamentoPrimeiraInstancia()"></div>
+                </a>
+            </li>
+            <li class="nav-item pointer" *ngIf="isMostrarAbaRecurso()">
+                <a class="nav-link wrap-title-aba"
+                    (click)="mudarAbaSelecionada(tabs.recursoJulgamento.nome)"
+                    [ngClass]="{ 'active': tabs.recursoJulgamento.ativo  }">
+                    <div class="aba" [innerHTML]="getTituloAbaRecursoResponsavel()"></div>
+                </a>
+            </li>
+            <li class="nav-item pointer" *ngIf="hasRecursoSegundaInstancia">
+                <a class="nav-link wrap-title-aba"
+                (click)="mudarAbaSelecionada(tabs.julgamentoRecursoSegundaInstancia.nome)"
+                [ngClass]="{ 'active': tabs.julgamentoRecursoSegundaInstancia.ativo}">
+                    <div class="aba" [innerHTML]="getTituloAbaJulgamentoRecursoSegundaInstancia()"></div>
+                </a>
+            </li>
+            <li class="nav-item pointer"  *ngIf="isMostrarAbaPedidoSubstituicao()">
+                <a class="nav-link wrap-title-aba"
+                (click)="mudarAbaSelecionada(tabs.pedidoSubstituicao.nome)"
+                [ngClass]="{ 'active': tabs.pedidoSubstituicao.ativo}">
+                    <div class="aba" [innerHTML]="getTituloPedidoSubstituicao()"></div>
+                </a>
+            </li>
+            <li class="nav-item pointer" *ngIf="hasSubstituicaoSegundaInstancia">
+                <a class="nav-link wrap-title-aba"
+                (click)="mudarAbaSelecionada(tabs.julgamentoSubstituicaoSegundaInstancia.nome)"
+                [ngClass]="{ 'active': tabs.julgamentoSubstituicaoSegundaInstancia.ativo}">
+                    <div class="aba" [innerHTML]="getTituloAbaJulgamentoSubstituicaoSegundaInstancia()"></div>
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade card rounded-0" [ngClass]="{ 'active show': true }">
+                <div class="tab-pane fade card rounded-0" [ngClass]="{ 'active show': tabs.acompanharChapa.ativo }"
+                    *ngIf="tabs.acompanharChapa.ativo">
+                    <visualizar-membros-chapa
+                        [chapa]="dadosChapa"
+                        [numeroChapa]="dadosChapa.numeroChapa"
+                        [membrosPorSituacao]="membrosPorSituacao"
+                        [situacaoChapa]="dadosChapa.statusChapaVigente.id"
+                        (redirecionarVisualizarJulgamento)="redirecionaAbaVisualizarJulgamentoPrimeira($event)"
+                        (voltarAba)="voltar()"
+                        >
+                    </visualizar-membros-chapa>
+                </div>
+
+                <div class="tab-pane fade card rounded-0" [ngClass]="{ 'active show': tabs.julgamentoPrimeiraInstancia.ativo }"
+                    *ngIf="tabs.julgamentoPrimeiraInstancia.ativo">
+
+                      <visualizar-julgamento-final-primeira
+                    [chapa]="dadosChapa"
+                    [membrosPorSituacao]="membrosPorSituacao"
+                    [julgamentoFinal]="julgamentoFinal"
+                    [isIES]="isIES"
+                    (recarregarAba)="mudarAbaSelecionada($event, true)"
+                    (voltarAba)="mudarAbaSelecionada($event)">
+                    </visualizar-julgamento-final-primeira>
+
+                </div>
+
+                <div class="tab-pane fade card rounded-0" [ngClass]="{ 'active show': tabs.recursoJulgamento.ativo }"
+                    *ngIf="tabs.recursoJulgamento.ativo">
+                    <visualizar-recurso-julgamento
+                        [isIes]="isIES"
+                        [chapa]="dadosChapa"
+                        [recursoJulgamento]="recurso"
+                        [recursoReconsideracao]="recursoReconsideracao"
+                        (voltarAba)="mudarAbaSelecionada($event)"
+                        (recarregarAba)="mudarAbaSelecionada($event, true)"
+                        (redirecionarVisualizarJulgamento)="redirecionarAposSalvarJulgamento($event, true)"
+                        [membrosPorSituacao]="membrosPorSituacao"
+                    >
+                    </visualizar-recurso-julgamento>
+                </div>
+
+                <div class="tab-pane fade card rounded-0" [ngClass]="{ 'active show': tabs.julgamentoRecursoSegundaInstancia.ativo }"
+                    *ngIf="tabs.julgamentoRecursoSegundaInstancia.ativo && hasRecursoSegundaInstancia">
+                    <visualizar-julgamento-recurso-segunda-instancia
+                        [chapa]="dadosChapa"
+                        [julgamentoFinal]="julgamentoFinal"
+                        [recursoSegundaInstancia]="recursoSegundaInstancia"
+                        [recursoReconsideracao]="recursoReconsideracao"
+                        [membrosPorSituacao]="membrosPorSituacao"
+                        (voltarAba)="mudarAbaSelecionada($event)"
+                        (redirecionarVisualizarJulgamento)="redirecionarAposSalvarJulgamento($event, true)">
+                    </visualizar-julgamento-recurso-segunda-instancia>
+                </div>
+
+                <div class="tab-pane fade card rounded-0" [ngClass]="{ 'active show': tabs.pedidoSubstituicao.ativo }"
+                *ngIf="tabs.pedidoSubstituicao.ativo">
+                    <visualizar-pedido-substituicao
+                    [substituicaoJulgamento]="substituicaoJulgamento"
+                    [chapa]="dadosChapa"
+                    [hasSubstituicao]="dadosChapa.isCadastradoSubstituicaoJulgamentoFinal"
+                    (voltarAba)="mudarAbaSelecionada($event)"
+                    (redirecionarVisualizarJulgamento)="redirecionarAposSalvarJulgamento($event)"
+                    [membrosPorSituacao]="membrosPorSituacao"
+                    >
+                    </visualizar-pedido-substituicao>
+                </div>
+
+                <div class="tab-pane fade card rounded-0" [ngClass]="{ 'active show': tabs.julgamentoSubstituicaoSegundaInstancia.ativo }"
+                    *ngIf="tabs.julgamentoSubstituicaoSegundaInstancia.ativo && hasSubstituicaoSegundaInstancia">
+                    <visualizar-julgamento-substituicao-segunda-instancia
+                            [substituicaoJulgamento]="substituicaoJulgamento"
+                            [chapa]="dadosChapa"
+                            [julgamentoFinal]="julgamentoFinal"
+                            [membrosPorSituacao]="membrosPorSituacao"
+                            [substituicaoSegundaInstancia]="substituicaoSegundaInstancia"
+                            (voltarAba)="mudarAbaSelecionada($event)"
+                            (redirecionarVisualizarJulgamento)="redirecionarAposSalvarJulgamento($event)"
+                            [hasSubstituicao]="dadosChapa.isCadastradoSubstituicaoJulgamentoFinal">
+                    </visualizar-julgamento-substituicao-segunda-instancia>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

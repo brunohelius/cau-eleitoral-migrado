@@ -1,0 +1,152 @@
+<div class="row conteudo">
+    <form #form="ngForm" class="w-100" id="aba-julgamento-pedido-impugnacao-form-id">
+        <div class="col-md-12">
+            <div class="row pt-3">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <div class="rounded-0 mb-5">
+                        <div class="subtitle-line mt-3">
+                            <span class="bg-white"> {{'TITLE_JULGAMENTO_IMPUGNACAO_SEGUNDA_INSTANCIA' | i18n:title()}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 spinnerStatus text-center">
+                    <span *ngIf="julgamento.statusJulgamentoImpugnacao.id == 2">
+                        <i class="fa fa-spinner"></i>
+                        <span class="texto-titulo">{{ 'LABEL_IMPROCEDENTE' | i18n }}</span>
+                    </span>
+                    <span *ngIf="julgamento.statusJulgamentoImpugnacao.id == 1">
+                        <i class="fa fa-spinner"></i>
+                        <span class="texto-titulo">{{ 'LABEL_PROCEDENTE' | i18n }}</span>
+                    </span>
+                </div>
+            </div>
+            <div class="row p-3 mx-0">
+                <div class="col-md-12 p-3 border" style="border-radius: 8px;">
+                    <div class="card-body bg-green pl-5 pr-5"
+                        style="border-radius: 8px; padding-left: 15px; padding-right: 15px;">
+                        <div class="mb-5 text-center">
+                            <strong>{{'LABEL_INFORMACOES_IMPUGNADO' | i18n}}</strong>
+                        </div>
+
+                        <div fxLayout="row">
+                            <div fxFlex>
+                                <div fxLayout="row">
+                                    <div fxFlex="40%" class="ml-2 text-center pb-1">
+                                        <strong class="label-subtitle">{{'LABEL_NOME_CANDIDATO' | i18n}}</strong>
+                                    </div>
+                                    <div fxFlex="20%" class="text-center"><strong
+                                            class="label-subtitle">{{'LABEL_REGISTRO_IMPUGNACAO' | i18n}}</strong>
+                                    </div>
+                                    <div fxFlex="20%" class="text-center"><strong
+                                            class="label-subtitle">{{'LABEL_TIPO_DE_PARTICIPACAO' | i18n}}</strong>
+                                    </div>
+                                    <div fxFlex="20%" class="text-center"><strong
+                                            class="label-subtitle">{{'LABEL_POSICAO_CHAPA' |i18n}}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-item list-item-card mt-1" style="height: 50px;">
+                            <div fxLayout="row" class="list-item-box custom-grid pt-4">
+                                <div fxFlex="40%" class="pl-3 text-center pb-1 border-right">
+                                    <div fxLayout="column" fxLayoutAlign="space-around center">
+                                        {{impugnacao.informacoesCandidato.nome}}
+                                    </div>
+                                </div>
+                                <div fxFlex="20%" class="pl-3 text-center pb-1 border-right">
+                                    <div fxLayout="column" fxLayoutAlign="space-around center">
+                                        {{getRegistroComMask(impugnacao.informacoesCandidato.registro)}}
+                                    </div>
+                                </div>
+                                <div fxFlex="20%" class="pl-3 text-center pb-1 border-right">
+                                    <div fxLayout="column" fxLayoutAlign="space-around center">
+                                        {{impugnacao.informacoesCandidato.tipoParticipacao}}
+                                    </div>
+                                </div>
+                                <div fxFlex="20%" class="pl-3 text-center pb-1">
+                                    <div fxLayout="column" fxLayoutAlign="space-around center">
+                                        {{getPosicaoFormatada(impugnacao.informacoesCandidato.posicaoChapa)}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Informações do Impugnante -->
+                    <div class="card-body bg-green pl-5 pr-5 mt-3"
+                        style="border-radius: 8px; padding-left: 15px; padding-right: 15px;">
+
+                        <div fxLayout="row" class="mb-4">
+                            <div fxFlex="100%" class="ml-2 text-center pb-1">
+                                <strong class="label-subtitle">{{'LABEL_INFORMACOES_IMPUGNANTE' | i18n}}</strong>
+                            </div>
+                        </div>
+                        <div fxLayout="row" fxLayoutGap="10px" fxFlexFill>
+                            <div fxFlex>
+                                <div fxLayout="row">
+                                    <div fxFlex="50%" class="ml-2 text-center pb-1">
+                                        <strong class="label-subtitle">{{'LABEL_NOME' | i18n}}</strong>
+                                    </div>
+                                    <div fxFlex="50%" class="ml-2 text-center pb-1">
+                                        <strong class="label-subtitle">{{'LABEL_REGISTRO' | i18n}}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-item list-item-card" style="height: 50px;">
+                            <div fxLayout="row" fxLayoutGap="10px" class="list-item-box custom-grid pt-4">
+                                <div fxFlex="50%" class="pl-3 text-center pb-1 border-right">
+                                    <div fxLayout="column" fxLayoutAlign="space-around center">
+                                        {{impugnacao.informacoesImpugnante.nome}}
+                                    </div>
+                                </div>
+                                <div fxFlex="50%" class="pl-3 text-center pb-1 border-right">
+                                    <div fxLayout="column" fxLayoutAlign="space-around center">
+                                        {{getRegistroComMask(impugnacao.informacoesImpugnante.registro)}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body p-0" style="border-radius: 8px;">
+                            <div class="row bg-primary m-0">
+                                <div class="col-md-12 py-2 px-0 text-center">
+                                    <span class="white-font-bold">
+                                        {{ 'LABEL_PARECER_PEDIDO_IMPUGNACAO_DOCUMENTO' | i18n }} </span>
+                                </div>
+                            </div>
+                            <div class="row m-3 border"  style="border-radius: 8px;">
+                                <div class="col-md-12 mt-3">
+                                    <card-panel [titulo]="'LABEL_DESCRICAO'">
+                                        <impugnacao-justificativa-profissional label=" {{ 'LABEL_DESCRICAO' | i18n }}" [(valor)]="julgamento.descricao"
+                                            [isHabilitado]="false">
+                                        </impugnacao-justificativa-profissional>
+                                    </card-panel>
+                                </div>
+                                <!-- Documento -->
+                                <div class="col-md-12">
+                                    <card-panel [titulo]="'LABEL_DOCUMENTO'">
+                                        <arquivo 
+                                            [arquivos]="julgamento.arquivos" 
+                                            [hasDownload]="true" 
+                                            (download)="downloadArquivo($event)">
+                                        </arquivo>
+                                    </card-panel>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+

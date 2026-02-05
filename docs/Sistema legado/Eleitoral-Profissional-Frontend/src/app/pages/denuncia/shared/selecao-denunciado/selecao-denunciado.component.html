@@ -1,0 +1,45 @@
+<div class="alert bg-green pb-4" ngModelGroup="denunciado">
+    <div class="mt-2" fxLayout="row" fxLayout.sm="column" fxLayoutGap="15px">
+        <div fxFlex="32">
+            <span>{{ 'LABEL_TIPO_DENUNCIA' | i18n }}</span>
+            <select class="form-control mr-1" name="tipoDenuncia" #input_tipo_denuncia="ngModel" (change)="tipoDenunciaChanged()" required="denunciadoSelected.tipoDenuncia" [(ngModel)]="denunciadoSelected.tipoDenuncia">
+                <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                <option *ngFor="let tipoDenuncia of tiposDenuncia" value="{{tipoDenuncia.id}}">
+                    {{tipoDenuncia.descricao}}
+                </option>
+            </select>
+            <validation-message [for]="input_tipo_denuncia" [submitted]="submitted">
+            </validation-message>
+        </div>
+        <div fxFlex="32">
+            <span>{{ 'LABEL_UF' | i18n }}</span>
+            <select class="form-control mr-1" name="ufDenunciado" #input_uf_denunciado="ngModel" (change)="ufDenunciadoChanged()" required="denunciadoSelected.uf" [(ngModel)]="denunciadoSelected.uf">
+                <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                <option *ngFor="let uf of ufs" [ngValue]="uf">
+                    {{uf.prefixo}}
+                </option>
+            </select>
+            <validation-message [for]="input_uf_denunciado" [submitted]="submitted">
+            </validation-message>
+        </div>
+        <div *ngIf="denunciadoSelected.uf" fxFlex="34">
+            <div *ngIf="isTipoDenunciaChapa()">
+                <span class="mr-1">{{ 'LABEL_CHAPA' | i18n }}</span>
+                <select class="form-control mr-1" name="chapaDenunciada" #input_chapa_denunciada="ngModel" (change)="chapaDenunciadaChanged()" required="denunciadoSelected.chapa" [(ngModel)]="denunciadoSelected.chapa">
+                    <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                    <option *ngFor="let chapa of chapas" [ngValue]="chapa">
+                        {{chapa.numeroChapa}}
+                    </option>
+                </select>
+                <validation-message [for]="input_chapa_denunciada" [submitted]="submitted">
+                </validation-message>
+            </div>
+
+            <div *ngIf="isTipoDenunciaMembroChapa() || isTipoDenunciaMembroComissao()">
+                <span class="mr-1">{{ 'LABEL_MEMBRO' | i18n }}</span>
+                <app-autocomplete-membro [(inputModel)]="filtroMembro" [membroAtual]="denunciadoSelected.membro" (onSelectMembro)="setMembroDenunciado($event)" [placeholder]="getPlaceholderAutoCompleteMembro()" [methodService]="getMethodServiceAutocompleteMembro()">
+                </app-autocomplete-membro>
+            </div>
+        </div>
+    </div>
+</div>

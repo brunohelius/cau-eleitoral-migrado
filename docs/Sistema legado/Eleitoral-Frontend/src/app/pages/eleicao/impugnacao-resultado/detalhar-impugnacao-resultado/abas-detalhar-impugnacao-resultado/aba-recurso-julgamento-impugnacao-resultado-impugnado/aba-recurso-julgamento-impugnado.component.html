@@ -1,0 +1,142 @@
+<div class="col-md-12">
+  <a class="pointer" (click)="voltar()">
+  <i class="fa fa-arrow-left" aria-hidden="true"></i>
+  </a>
+  <i class="fa fa-desktop fa-2x m-2 pointer colorGray" aria-hidden="true" (click)="inicio()"></i>
+</div>
+<div class="col-md-12">
+  <h5 class="card-title colorGray"></h5>
+</div>
+<div class="box-separador bg-primary"></div>
+
+<div class="tab-content">
+  <div class="tab-pane fade rounded-0" [ngClass]="{ 'active show':true}">
+    <div class="tab-pane fade pl-3 pr-3 mt-3" id="tab-pane-principal"
+        [ngClass]="{ 'active show': true}">
+      <div class="rounded-0">
+        <div class="text-center title-comissao green-font-bolder mb-4">
+          <img
+            class="img-fluid rounded-circle img-bandeira"
+            [src]="bandeira?.imagemBandeira"
+            style="margin-right: 5px;"
+          >
+          {{ bandeira?.descricao }}
+        </div>
+      </div>
+    </div>
+    <div class="ml-4" *ngIf="recursos.length > 0">
+      <h6 class="green">
+        <strong>{{'LABEL_N_IMPUGNACAO_DE_RESULTADO' | i18n}}: </strong>
+        {{ impugnacao.numero }}
+      </h6>
+    </div>
+    <div class="card-pricipal alert">
+      <div class="row m-2">
+        <div class="card-body bg-green border shadow" *ngIf="recursos.length > 0">
+          <div class="p-4">
+            <div fxLayout="row" fxFlexFill>
+              <div fxFlex>
+                <div fxLayout="row">
+                  <div fxFlex="10%" class="ml-2 text-center pb-1">
+                    <strong class="label-subtitle">{{ 'LABEL_NUM' | i18n }}</strong>
+                  </div>
+                  <div fxFlex class="text-center">
+                    <strong class="label-subtitle">{{ 'LABEL_RESPONSAVEL_CADASTRO' | i18n }}</strong>
+                  </div>
+                  <div fxFlex class="text-center">
+                    <strong class="label-subtitle">{{ 'LABEL_NUMERO_CHAPA' | i18n }}</strong>
+                  </div>
+                  <div fxFlex class="text-center">
+                    <strong class="label-subtitle">{{ 'LABEL_DATA_HORA_DO_CADASTRO' | i18n }}</strong>
+                  </div>
+                  <div fxFlex="10%" class="text-center">
+                    <strong class="label-subtitle">{{ 'LABEL_ACAO' | i18n }}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="list-item mt-3">
+              <div *ngFor="let recurso of recursos">
+                <div fxLayout="row" class="list-item-box custom-grid mt-2">
+                  <div fxFlex="10%" fxLayoutAlign="center center" class="text-center border-grid-tbl h-100  bg-white">
+                    <div fxLayout="column" fxLayoutAlign="space-around center" class="w-100 border-right">
+                      <div>
+                        {{recurso.numero}}
+                      </div>
+                    </div>
+                  </div>
+                  <div fxFlex fxLayoutAlign="center center" class="text-center border-grid-tb h-100  bg-white">
+                    <div fxLayout="column" fxLayoutAlign="space-around center" class="w-100 border-right">
+                      <div>
+                        {{recurso.profissional.nome}}
+                      </div>
+                    </div>
+                  </div>
+                  <div fxFlex fxLayoutAlign="center center" class="text-center h-100 border-grid-tb bg-white">
+                    <div fxLayout="column" fxLayoutAlign="space-around center" class="w-100 border-right">
+                        <div>
+                            {{'LABEL_CHAPA_NUM' | i18n:getNumeroChapa(recurso)}}
+                        </div>
+                    </div>
+                </div>
+                  <div fxFlex fxLayoutAlign="center center" class="text-center h-100 border-grid-tb bg-white">
+                    <div fxLayout="column" fxLayoutAlign="space-around center" class="w-100 border-right">
+                      <div>
+                        {{ recurso.dataCadastro | date:'dd/MM/yyyy' }} às
+                        {{ recurso.dataCadastro | date:'HH:mm' : '+0' }}
+                      </div>
+                    </div>
+                  </div>
+                  <div fxFlex="10%" fxLayoutAlign="center center" class="text-center border-grid-tb h-100  bg-white">
+                    <div fxLayout="column" fxLayoutAlign="space-around center" class="w-100">
+                      <modal-visualizar-recurso-impugnado
+                        [recursos]="recurso"
+                        [impugnacao]="impugnacao"
+                        [contrarrazoes]="recursoContrarrazao.contrarrazoes"
+                      >
+                      </modal-visualizar-recurso-impugnado>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body bg-white border shadow"*ngIf="recursos.length == 0">
+          <div class="p-4">
+            <div class="card-body bg-green border shadow" >
+              <div class="text-center">
+                <div fxLayout="row" fxLayoutAlign="center center">
+                  <b class="mt-4 mb-4" *ngIf="!isIES()">{{'LABEL_INTERPOSICAO_RECURSO' | i18n}}</b>
+                  <b class="mt-4 mb-4" *ngIf="isIES()">{{'LABEL_INTERPOSICAO_RECONSIDERACAO' | i18n}}</b>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- btn julgamento segunda -->
+      <div class="pl-2 pt-3" *ngIf="isMostrarBotaoCadastrojugamentoSegundaInstancia()">
+        <button class="btn btn-primary" (click)="cadastrarJulgamentoSegundaInstancia()">
+          {{getLabelBotaoCadastrarJulgamento()}}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Template modal cadastrar julgamento segunda instância -->
+<ng-template #templateCadastroImpugnacaoResultadoJulgamentoSegundaInstancia>
+  <div class="col-md-12">
+    <modal-cadastro-impugnacao-resultado-julgamento-segunda-instancia
+      [cauUf]="bandeira"
+      [impugnacaoResultado]="impugnacao"
+      [isHomologacao]="isHomologacao()"
+      [isJulgamentoPrimeiraProcedente]="isjulgamentoProcedente()"
+      (afterCancelar)="modalRef.hide()"
+      (afterCadastrar)="afterCadastrarJulgamento($event)"
+    >
+    </modal-cadastro-impugnacao-resultado-julgamento-segunda-instancia>
+  </div>
+</ng-template>

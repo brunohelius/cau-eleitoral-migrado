@@ -1,0 +1,102 @@
+<div class="ml-4">
+    <h6>
+        <strong>{{'LABEL_NUMERO_IMPUGACAO_RESULTADO' | i18n}}: </strong>
+        {{ impugnacao.numero }}
+    </h6>
+    <h6><strong>{{'LABEL_DATA_HORA_CADASTRO' | i18n}}: </strong>
+        {{ impugnacao.dataCadastro | date:'dd/MM/yyyy' }} às
+        {{ impugnacao.dataCadastro | date:'HH:mm' : '+0' }}
+    </h6>
+</div>
+<div class="tab-content">
+    <div class="tab-pane active show rounded-0">
+        <div class="tab-pane fade pl-3 pr-3 pb-1 mt-3 mb-3" [ngClass]="{ 'active show': true}">
+            <div class="card card-pricipal shadow">
+                <div class="row m-2">
+                    <div class="card-body">
+                        
+                        <card-panel [titulo]="'LABEL_INFORMACOES_IMPUGNANTE'" class="mt-3">
+                            <div class="p-4">
+                                <div fxLayout="row" fxFlexFill>
+                                    <div fxFlex>
+                                        <div fxLayout="row">
+                                            <div fxFlex class="ml-2 text-center pb-1">
+                                                <strong class="label-subtitle">{{ 'LABEL_NOME_COMPLETO' | i18n }}</strong>
+                                            </div>
+                                            <div fxFlex class="text-center">
+                                                <strong class="label-subtitle">{{ 'LABEL_REGISTRO' | i18n }}</strong>
+                                            </div>
+                                            <div fxFlex class="text-center">
+                                                <strong class="label-subtitle">{{ 'LABEl_EMAIL_MIN' | i18n }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--Impugnantes-->
+                                <div class="list-item mt-3">
+                                    <div fxLayout="row" class="list-item-box custom-grid mt-2">
+                                        <div fxFlex fxLayoutAlign="center center" class="text-center border-grid-tbl h-100  bg-white">
+                                            <div fxLayout="column" fxLayoutAlign="space-around center" class="w-100 border-right">
+                                                <div>
+                                                    {{impugnacao.profissional?.nome}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div fxFlex fxLayoutAlign="center center" class="text-center border-grid-tb h-100  bg-white">
+                                            <div fxLayout="column" fxLayoutAlign="space-around center" class="w-100 border-right">
+                                                <div>
+                                                    {{getRegistroComMask(impugnacao.profissional?.registroNacional)}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div fxFlex fxLayoutAlign="center center" class="text-center h-100 border-grid-tb bg-white">
+                                            <div fxLayout="column" fxLayoutAlign="space-around center" class="w-100">
+                                                <div>
+                                                    {{impugnacao.profissional?.email}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </card-panel>
+
+                        <div class="mb-3 mt-3">
+                            <card-panel [titulo]="'TITLE_NARRACAO_FATOS'" class="mt-3">
+                                <editor-de-texto
+                                    [valor]="impugnacao.narracao">
+                                </editor-de-texto>
+                            </card-panel>
+                        </div>
+
+                        <div class="mb-3">
+                            <card-panel [titulo]="'LABEL_DOCUMENTO'" class="mt-3">
+                                <arquivo 
+                                    [hasDownload]="true" 
+                                    [arquivos]="impugnacao.arquivos"
+                                    (download)="downloadArquivo($event)">
+                                </arquivo>
+                                <div class="col-md-4 col-xs-12" *ngIf="impugnacao.id && (!impugnacao.arquivos || !impugnacao.arquivos[0])">
+                                    <table class="table table-sm">
+                                        <tbody>
+                                            <td class="text-left pr-3 mt-3">
+                                                <span>{{ 'LABEL_NAO_APLICADO' | i18n }}</span>
+                                            </td>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </card-panel>
+                        </div>
+
+                        <button 
+                            *ngIf="isMostrarCadastroAlegacao()"
+                            class="btn btn-primary" (click)="abrirModalCadastrarAlegacao()">
+                            {{ 'LABEL_CADASTRAR_ALEGACAO' | i18n }}
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

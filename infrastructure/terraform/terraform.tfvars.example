@@ -1,0 +1,121 @@
+# =============================================================================
+# CAU Sistema Eleitoral - Terraform Variables Example
+# =============================================================================
+# Copy this file to terraform.tfvars and fill in the values
+# DO NOT commit terraform.tfvars to version control
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# General Configuration
+# -----------------------------------------------------------------------------
+
+aws_region   = "us-east-1"
+environment  = "production"  # development, staging, production
+project_name = "cau-eleitoral"
+
+# -----------------------------------------------------------------------------
+# Domain Configuration
+# -----------------------------------------------------------------------------
+
+domain_name         = "cau-eleitoral.migrai.com.br"
+create_route53_zone = true
+# route53_zone_id   = "Z1234567890ABC"  # If using existing zone
+
+# -----------------------------------------------------------------------------
+# VPC Configuration
+# -----------------------------------------------------------------------------
+
+vpc_cidr           = "10.0.0.0/16"
+enable_nat_gateway = true
+single_nat_gateway = false  # Set to true for cost savings in non-prod
+
+# -----------------------------------------------------------------------------
+# RDS Configuration
+# -----------------------------------------------------------------------------
+
+db_instance_class          = "db.t3.medium"
+db_allocated_storage       = 100
+db_max_allocated_storage   = 500
+db_name                    = "cau_eleitoral"
+db_username                = "cau_admin"
+db_multi_az                = true
+db_backup_retention_period = 30
+db_deletion_protection     = true
+db_skip_final_snapshot     = false
+
+# -----------------------------------------------------------------------------
+# ECS Configuration
+# -----------------------------------------------------------------------------
+
+# API Service
+ecs_api_cpu           = 512
+ecs_api_memory        = 1024
+ecs_api_desired_count = 2
+
+# Admin Service
+ecs_admin_cpu           = 256
+ecs_admin_memory        = 512
+ecs_admin_desired_count = 2
+
+# Public Service
+ecs_public_cpu           = 256
+ecs_public_memory        = 512
+ecs_public_desired_count = 2
+
+enable_ecs_exec = true
+
+# -----------------------------------------------------------------------------
+# Auto Scaling Configuration
+# -----------------------------------------------------------------------------
+
+autoscaling_min_capacity  = 2
+autoscaling_max_capacity  = 10
+autoscaling_cpu_target    = 70
+autoscaling_memory_target = 80
+
+# -----------------------------------------------------------------------------
+# S3 Configuration
+# -----------------------------------------------------------------------------
+
+s3_versioning_enabled      = true
+s3_lifecycle_glacier_days  = 90
+s3_lifecycle_expiration_days = 0  # 0 = never expire
+
+# -----------------------------------------------------------------------------
+# CloudFront Configuration
+# -----------------------------------------------------------------------------
+
+cloudfront_price_class = "PriceClass_100"  # US, Canada, Europe
+cloudfront_min_ttl     = 0
+cloudfront_default_ttl = 3600
+cloudfront_max_ttl     = 86400
+
+# -----------------------------------------------------------------------------
+# Monitoring Configuration
+# -----------------------------------------------------------------------------
+
+enable_container_insights = true
+log_retention_days        = 30
+alarm_email               = "devops@cau.org.br"
+
+# -----------------------------------------------------------------------------
+# Security Configuration
+# -----------------------------------------------------------------------------
+
+allowed_cidr_blocks = ["0.0.0.0/0"]
+enable_waf          = true
+
+# -----------------------------------------------------------------------------
+# Backup Configuration
+# -----------------------------------------------------------------------------
+
+enable_aws_backup     = true
+backup_schedule       = "cron(0 5 ? * * *)"  # Daily at 5 AM UTC
+backup_retention_days = 35
+
+# -----------------------------------------------------------------------------
+# Cost Optimization
+# -----------------------------------------------------------------------------
+
+enable_spot_instances = false  # Set to true for non-prod
+spot_weight           = 50     # Percentage of Spot vs On-Demand

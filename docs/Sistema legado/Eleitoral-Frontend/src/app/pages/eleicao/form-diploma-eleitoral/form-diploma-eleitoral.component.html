@@ -1,0 +1,370 @@
+<form #form="ngForm">
+    <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="column" fxLayoutAlign="space-between stretch"
+        fxLayoutGap="10px">
+        <div fxFlex="noshrink" class="card">
+            <div class="card-body form-section">
+                <h5 class="card-title">
+                    <span>{{ 'TITLE_DADOS' | i18n }}</span>
+                </h5>
+
+                <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutGap="10px">
+                    <div fxFlex="100" class="card-list rounded" style="text-align: center; padding: 20px;">
+                        <strong style="font-size: 20px;" class="text-primary">DIPLOMA</strong>
+                        <div [innerHTML]="textoDiploma" class="mt-2"></div>
+                        <img src="{{ diploma.assinatura.arquivo }}" width="150">
+                        <p>{{ this.diploma.nomeCoordenador ? this.diploma.nomeCoordenador : '{Nome do(a) coordenador(a)}' }}<br>
+                            Coordenador(a) da {{ diploma.UfComissao ? ( diploma.UfComissao == 'BR' ||  diploma.UfComissao == 'CAU/BR'
+                            ? 'CEN-CAU/BR' : 'CE-' + diploma.UfComissao) : '{CE-UF ou CEN}' }}</p>
+                    </div>
+                </div>
+                
+                <div class="mt-5">
+                    <h5 class="card-title">
+                        <span>{{ 'TITLE_DATA_REALIZACAO_ELEICAO' | i18n }}:</span>
+                    </h5>
+                </div>
+
+                <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutGap="10px">
+                    <div class="form-group">
+                        <label for="input-dia-realizacao"> {{'LABEL_DIA' | i18n }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <select id="input-dia-realizacao" name="diaRealizacao" class="form-control"
+                            [(ngModel)]="diploma.diaRealizacao"
+                            #diaRealizacao="ngModel"
+                            required
+                            (change)="atualizarTexto()">
+                            <option *ngFor="let dia of dias" [value]="dia">{{ dia }}</option>
+                        </select>
+                        <validation-message [for]="diaRealizacao" [submitted]="submitted"></validation-message>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="input-dia-realizacao"> {{'LABEL_DIA' | i18n }}
+                        </label>
+                        <select id="input-dia-realizacao" name="diaRealizacao2" class="form-control"
+                            [(ngModel)]="diploma.diaRealizacao2"
+                            #novoDiaRealizacao="ngModel"
+                            (change)="atualizarTexto()">
+                            <option [value]=""></option>
+                            <option *ngFor="let dia of dias" [value]="dia">{{ dia }}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="input-mes-realizacao"> {{'LABEL_MES' | i18n }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <select id="input-mes-realizacao" name="mesRealizacao" class="form-control"
+                            [(ngModel)]="diploma.mesRealizacao"
+                            #mesRealizacao="ngModel"
+                            required
+                            (change)="atualizarTexto()">
+                            <option *ngFor="let mes of meses" [value]="mes.index">{{ mes.name }}</option>
+                        </select>
+                        <validation-message [for]="mesRealizacao" [submitted]="submitted"></validation-message>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="input-ano-realizacao"> {{'LABEL_ANO' | i18n }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <select id="input-ano-realizacao" name="anoRealizacao" class="form-control"
+                            [(ngModel)]="diploma.anoRealizacao"
+                            #anoRealizacao="ngModel"
+                            required
+                            (change)="atualizarTexto()">
+                            <option *ngFor="let ano of anos" value="{{ ano.eleicao.ano }}">{{ ano.eleicao.ano }}</option>
+                        </select>
+                        <validation-message [for]="anoRealizacao" [submitted]="submitted"></validation-message>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <h5 class="card-title">
+                        <span>{{ 'TITLE_DADOS_RESOLUCAO' | i18n }}:</span>
+                    </h5>
+                </div>
+
+                <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutGap="10px">
+                    <div class="form-group" fxFlex="8">
+                        <label for="input-numero-resolucao"> {{'LABEL_NUMERO' | i18n }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" id="input-numero_resolucao" name="numero_resolucao" title="{{ 'LABEL_NUMERO' | i18n }}"
+                            class="form-control" [(ngModel)]="diploma.numeroResolucao"
+                            #numeroResolucao="ngModel"
+                            maxlength="50"
+                            required
+                            (blur)="atualizarTexto()">
+                        <validation-message [for]="numeroResolucao" [submitted]="submitted"></validation-message>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="input-dia-resolucao"> {{'LABEL_DIA' | i18n }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <select id="input-dia-resolucao" name="diaResolucao" class="form-control"
+                            [(ngModel)]="diploma.diaResolucao"
+                            #diaResolucao="ngModel"
+                            required
+                            (change)="atualizarTexto()">
+                            <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                            <option *ngFor="let dia of dias" [value]="dia">{{ dia }}</option>
+                        </select>
+                        <validation-message [for]="diaResolucao" [submitted]="submitted"></validation-message>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="input-mes-resolucao"> {{'LABEL_MES' | i18n }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <select id="input-mes-resolucao" name="mesresolucao" class="form-control"
+                            [(ngModel)]="diploma.mesResolucao"
+                            #mesResolucao="ngModel"
+                            required
+                            (change)="atualizarTexto()">
+                            <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                            <option *ngFor="let mes of meses" [value]="mes.index">{{ mes.name }}</option>
+                        </select>
+                        <validation-message [for]="mesResolucao" [submitted]="submitted"></validation-message>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="input-ano-resolucao"> {{'LABEL_ANO' | i18n }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <select id="input-ano-resolucao" name="anoResolucao" class="form-control"
+                            [(ngModel)]="diploma.anoResolucao"
+                            #anodaResolucao="ngModel"
+                            required
+                            (change)="atualizarTexto()">
+                            <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                            <option *ngFor="let ano of anoResolucao" value="{{ ano }}">{{ ano }}</option>
+                        </select>
+                        <validation-message [for]="anodaResolucao" [submitted]="submitted"></validation-message>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <h5 class="card-title">
+                        <span>{{ 'TITLE_DADOS_CONSELHEIRO' | i18n }}:</span>
+                    </h5>
+                </div>
+        
+                <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutGap="10px">
+                    <div class="form-group">
+                        <label for="input-cpf-conselheiro"> {{'LABEL_CPF_ARQUITETO' | i18n }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" id="input-cpf-conselheiro" name="cpfConselheiro" title="{{ 'LABEL_CPF_ARQUITETO' | i18n }}"
+                            class="form-control" [(ngModel)]="diploma.cpfConselheiro" [inputMask]="'999.999.999-99'"
+                            [disabled]="membro"
+                            #cpfConselheiro="ngModel"
+                            required
+                            (blur)="atualizarTexto()">
+                        <validation-message [for]="cpfConselheiro" [submitted]="submitted"></validation-message>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="input-nome-conselheiro"> {{'LABEL_NOME_ARQUITETO' | i18n }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" id="input-nome-conselheiro" name="nomeconselheiro" title="{{ 'LABEL_NOME_ARQUITETO' | i18n }}"
+                            class="form-control" [(ngModel)]="diploma.nomeConselheiro"
+                            [disabled]="membro" #nomeConselheiro="ngModel" required (blur)="atualizarTexto()">
+                        <validation-message [for]="nomeConselheiro" [submitted]="submitted"></validation-message>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="input-uf-conselheiro"> {{'LABEL_UF' | i18n }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <select id="input-uf-conselheiro" name="UfConselheiro" class="form-control" [(ngModel)]="diploma.UfConselheiro"
+                            [disabled]="membro" #ufConselheiro="ngModel" required (change)="atualizarTexto()">
+                            <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                            <option *ngFor="let uf of ufs" value="{{ uf.prefixo }}">
+                                {{ uf.prefixo }}
+                            </option>
+                        </select>
+                        <validation-message [for]="ufConselheiro" [submitted]="submitted"></validation-message>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="input-tipo-conselheiro"> {{'LABEL_TIPO_CONSELHEIRO' | i18n }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <select id="input-tipo-conselheiro" name="tipoConselheiro" class="form-control" [(ngModel)]="diploma.tipoConselheiro"
+                            [disabled]="membro" #tipoConselheiro="ngModel" required (change)="atualizarTexto()">
+                            <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                            <option value="1">Conselheiro(a) Titular</option>
+                            <option value="2">Conselheiro(a) Suplente</option>
+                        </select>
+                        <validation-message [for]="tipoConselheiro" [submitted]="submitted"></validation-message>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <h5 class="card-title">
+                        <span>{{ 'TITLE_DATA_EMISSAO' | i18n }}:</span>
+                    </h5>
+                </div>
+        
+                <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutGap="10px">
+                    <div class="form-group">
+                        <label for="input-dia-emissao"> {{'LABEL_DIA' | i18n }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <select id="input-dia-emissao" name="diaEmissao" class="form-control"
+                            [(ngModel)]="diploma.diaEmissao"
+                            #diaEmissao="ngModel"
+                            required
+                            (change)="atualizarTexto()">
+                            <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                            <option *ngFor="let dia of dias" [value]="dia">{{ dia }}</option>
+                        </select>
+                        <validation-message [for]="diaEmissao" [submitted]="submitted"></validation-message>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="input-mes-emissao"> {{'LABEL_MES' | i18n }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <select id="input-mes-emissao" name="mesEmissao" class="form-control"
+                            [(ngModel)]="diploma.mesEmissao"
+                            #mesEmissao="ngModel"
+                            required
+                            (change)="atualizarTexto()">
+                            <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                            <option *ngFor="let mes of meses" [value]="mes.index">{{ mes.name }}</option>
+                        </select>
+                        <validation-message [for]="mesEmissao" [submitted]="submitted"></validation-message>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="input-ano-emissao"> {{'LABEL_ANO' | i18n }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <select id="input-ano-emissao" name="anoEmissao" class="form-control"
+                            [(ngModel)]="diploma.anoEmissao"
+                            #anoEmissao="ngModel"
+                            required
+                            (change)="atualizarTexto()">
+                            <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                            <option *ngFor="let ano of anos" value="{{ ano.eleicao.ano }}">{{ ano.eleicao.ano }}</option>
+                        </select>
+                        <validation-message [for]="anoEmissao" [submitted]="submitted"></validation-message>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="input-cidade-emissao"> {{'LABEL_CIDADE' | i18n }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" id="input-cidade-emissao" name="cidadeEmissao" title="{{ 'LABEL_CIDADE' | i18n }}"
+                            class="form-control" [(ngModel)]="diploma.cidadeEmissao" #cidadeEmissao="ngModel" required (blur)="atualizarTexto()">
+                        <validation-message [for]="cidadeEmissao" [submitted]="submitted"></validation-message>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="input-uf-emissao"> {{'LABEL_UF' | i18n }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <select id="input-uf-emissao" name="UfEmissao" class="form-control"
+                            [(ngModel)]="diploma.UfEmissao"
+                            #ufEmissao="ngModel"
+                            required
+                            (change)="atualizarTexto()">
+                            <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                            <option *ngFor="let uf of ufs" value="{{ uf.prefixo }}">
+                                {{ uf.prefixo }}
+                            </option>
+                        </select>
+                        <validation-message [for]="ufEmissao" [submitted]="submitted"></validation-message>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <h5 class="card-title">
+                        <span>{{ 'TITLE_DADOS_COORDENADOR' | i18n }}:</span>
+                    </h5>
+                </div>
+        
+                <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutGap="10px">
+                    <div class="form-group">
+                        <label for="input-cpf-coordenador"> {{'LABEL_CPF_COORDENADOR' | i18n }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" id="input-cpf-coordenador" name="cpfCoordenador" title="{{ 'LABEL_CPF_COORDENADOR' | i18n }}"
+                            class="form-control" [(ngModel)]="diploma.cpfCoordenador"
+                            [inputMask]="'999.999.999-99'"
+                            (blur)="buscarCoordenador()"
+                            #cpfCoordenador="ngModel"
+                            required>
+                        <validation-message [for]="cpfCoordenador" [submitted]="submitted"></validation-message>
+                    </div>
+
+                    <div class="form-group" fxFlex="35">
+                        <label for="input-nome-coordenador"> {{'LABEL_NOME_COORDENADOR' | i18n }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" id="input-nome-coordenador" name="nomeCoordenador" title="{{ 'LABEL_NOME_COORDENADOR' | i18n }}"
+                            class="form-control"
+                            [(ngModel)]="diploma.nomeCoordenador"
+                            #nomeCoordenador="ngModel"
+                            required
+                            (blur)="atualizarTexto()">
+                        <validation-message [for]="nomeCoordenador" [submitted]="submitted"></validation-message>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="input-uf-comissao"> {{'LABEL_UF_COMISSAO' | i18n }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <select id="input-uf-comissao" name="UfComissao" class="form-control"
+                            [(ngModel)]="diploma.UfComissao"
+                            #ufComissao="ngModel"
+                            required
+                            (change)="atualizarTexto()">
+                            <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                            <option *ngFor="let uf of ufs" value="{{ uf.prefixo }}">
+                                {{ uf.prefixo }}
+                            </option>
+                        </select>
+                        <validation-message [for]="ufComissao" [submitted]="submitted"></validation-message>
+                    </div>
+                </div>
+
+                <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutGap="10px">
+                    <div class="form-group">
+                        <label for="input-cpf-coordenador"> {{'LABEL_ANEXAR_ASSINATUTA' | i18n }}</label>
+                        <upload title="{{'LABEL_SELECIONAR_ARQUIVO' | i18n}}"
+                            [name]="this.diploma.assinatura?.nome ? this.diploma.assinatura.nome : ''"
+                            (process)="uploadDocumento($event)"
+                            name="upload">
+                            <i class="fa fa-file-o text-success" aria-hidden="true"></i>
+                            <span>{{'LABEL_SELECIONAR_ARQUIVO' | i18n}}</span>
+                        </upload>
+                        <span>Formatos permitidos: JPEG, JPG, PNG. Tamanho máximo permitido: 20mb</span>
+                    </div>
+                </div>
+
+                <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutGap="10px" class="mt-2" class="card-footer justify-content-end mb-1">
+                    <div>
+                        <button type="button" class="btn btn-outline-primary btn-lg btn-block" title="{{'LABEL_CANCELAR' | i18n}}"
+                            (click)="cancelar()" value="{{'LABEL_CANCELAR' | i18n}}">
+                            {{'LABEL_CANCELAR' | i18n}}
+                        </button>
+                    </div>
+
+                    <div>
+                        <button type="button" class="btn btn-primary btn-lg btn-block" title="{{'LABEL_CONFIRMAR' | i18n}}"
+                            (click)="salvar(form)" value="{{'LABEL_CONFIRMAR' | i18n}}">
+                            {{'LABEL_CONFIRMAR' | i18n}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+

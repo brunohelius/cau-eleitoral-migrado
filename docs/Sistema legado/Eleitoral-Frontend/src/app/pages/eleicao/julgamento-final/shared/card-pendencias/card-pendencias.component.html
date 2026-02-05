@@ -1,0 +1,162 @@
+<div class="row">
+	<div class="col-md-12 mt-5 p-5">
+        <card-panel-custom
+            [titulo]="'TITLE_PEDIDOS_CADASTRADOS'"
+            [background]="'white'"
+        >
+
+            <!-- Select de paginação -->
+            <div *ngIf="solicitacoes.length != 0"fxLayout="row" fxLayoutAlign="center center">
+                <div class="mb-4" style="width: 90%;">
+                    <div class="col-md-6 align-items-right form-inline green-font-bolder p-0">
+                        <div>
+                            <span><b class="font-color-bg-primary">{{ 'LABEL_MOSTRAR' | i18n }}: &nbsp;</b> </span>
+                            <select class="form-control" [(ngModel)]="limitePaginacao" [name]="limitePaginacao">
+                                <option *ngFor="let item of limitesPaginacao" [ngValue]="item">
+                                    {{ item }}
+                                </option>
+                            </select>
+                            <span> &nbsp; <b class="font-color-bg-primary">{{ 'LABEL_REGISTRO' | i18n}}</b></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <table
+                [mfData]="solicitacoes"
+                #mf="mfDataTable"
+                *ngIf="solicitacoes"
+                [mfRowsOnPage]="limitePaginacao"
+                class="w-100"
+            >
+                <!--  Paindel de conteúdo das solicitações-->
+                <div fxLayout="row" fxLayoutAlign="center center">
+
+                    <div class="card-pendencias">
+                        <div class="mb-4">
+                            <div fxLayout="row" fxLayoutAlign="space-around center" class="pt-2 pl-2 pr-2 mb-2">
+                                <div fxLayout="column"
+                                    fxLayoutAlign="center center"
+                                    class="titulo-card "
+                                    [innerHTML]="getTituloPedidoSubstituicao()">
+                                </div>
+                                <div fxLayout="column"
+                                    fxLayoutAlign="center center"
+                                    class="titulo-card "
+                                    [innerHTML]="getTituloPedidoImpugnacao()">
+                                </div>
+                                <div fxLayout="column"
+                                    fxLayoutAlign="center center"
+                                    class="titulo-card "
+                                    [innerHTML]="getTituloPedidoDenuncia()">
+                                </div>
+                            </div>
+
+                            <div *ngIf="solicitacoes.length != 0">
+                                <div fxLayout="row" fxLayoutAlign="space-around center" class="pt-2 pl-2 pr-2"
+                                    *ngFor="let solicitacao of mf.data; let index = index;">
+
+                                    <!-- Boloco Substituição -->
+                                    <div *ngIf="solicitacao.substituicao.protocolo"
+                                        class="card-informacoes list-item-card"
+                                        [ngClass]="getClassStatus(solicitacao?.substituicao?.status?.id)"
+                                        title="{{solicitacao?.substituicao?.status?.descricao}}"
+                                        fxLayout="row"
+                                        fxLayoutAlign="center center"
+                                        (click)="redirecionaServico(rotas.substituicao.id,solicitacao.substituicao.id)">
+                                        {{solicitacao.substituicao.protocolo}}
+                                    </div>
+                                    <div  *ngIf="!solicitacao.substituicao.protocolo"
+                                        [ngClass]="index == 0 && solicitacao.isPrimeiraLinha ? ['list-item-card' ,'color-sem-registro'] : ''"
+                                        class="card-informacoes"
+                                        fxLayout="row"
+                                        fxLayoutAlign="center center">
+                                        <span *ngIf="index == 0 && solicitacao.isPrimeiraLinha" style="text-align: center;">
+                                            {{'LABEL_CHAPA_PENDENCIA_SEM_PEDIDO_SUBSTITUICAO' | i18n }}
+                                        </span>
+                                    </div>
+
+                                    <!-- Boloco Impugnação -->
+                                    <div *ngIf="solicitacao.impugnacao.protocolo"
+                                        class="card-informacoes list-item-card"
+                                        [ngClass]="getClassStatus(solicitacao?.impugnacao?.status?.id)"
+                                        title="{{solicitacao?.impugnacao?.status?.descricao}}"
+                                        fxLayout="row"
+                                        fxLayoutAlign="center center"
+                                        (click)="redirecionaServico(rotas.impugnacao.id,solicitacao.impugnacao.id)">
+                                        {{solicitacao.impugnacao.protocolo}}
+                                    </div>
+                                    <div  *ngIf="!solicitacao.impugnacao.protocolo"
+                                        [ngClass]="index == 0 && solicitacao.isPrimeiraLinha ? ['list-item-card' ,'color-sem-registro'] : ''"
+                                        class="card-informacoes"
+                                        fxLayout="row"
+                                        fxLayoutAlign="center center">
+                                        <span *ngIf="index == 0 && solicitacao.isPrimeiraLinha" style="text-align: center;">
+                                            {{'LABEL_CHAPA_PENDENCIA_SEM_PEDIDO_IMPUGNACO' | i18n }}
+                                        </span>
+                                    </div>
+
+                                    <!-- Boloco Denuncia -->
+                                    <div *ngIf="solicitacao.denuncia.protocolo"
+                                        class="card-informacoes list-item-card"
+                                        [ngClass]="getClassStatus(solicitacao?.denuncia?.status?.id)"
+                                        title="{{solicitacao?.denuncia?.status?.descricao}}"
+                                        fxLayout="row"
+                                        fxLayoutAlign="center center"
+                                        (click)="redirecionaServico(rotas.denuncia.id,solicitacao.denuncia.id)">
+                                        {{solicitacao.denuncia.protocolo}}
+                                    </div>
+                                    <div  *ngIf="!solicitacao.denuncia.protocolo"
+                                        [ngClass]="index == 0 && solicitacao.isPrimeiraLinha? ['list-item-card' ,'color-sem-registro'] : ''"
+                                        class="card-informacoes"
+                                        fxLayout="row"
+                                        fxLayoutAlign="center center">
+                                        <span *ngIf="index == 0 && solicitacao.isPrimeiraLinha" style="text-align: center;">
+                                            {{'LABEL_CHAPA_PENDENCIA_SEM_PEDIDO_DENUNCIA' | i18n }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div *ngIf="solicitacoes.length == 0">
+                                <div fxLayout="row" fxLayoutAlign="space-around center" class="pt-2 pl-2 pr-2">
+
+                                    <div class="color-sem-registro card-informacoes"
+                                        fxLayout="row"
+                                        fxLayoutAlign="center center">
+                                        <span style="text-align: center;">
+                                            {{'LABEL_CHAPA_PENDENCIA_SEM_PEDIDO_SUBSTITUICAO' | i18n }}
+                                        </span>
+                                    </div>
+                                    <div class="color-sem-registro card-informacoes"
+                                        fxLayout="row"
+                                        fxLayoutAlign="center center">
+                                        <span style="text-align: center;">
+                                            {{'LABEL_CHAPA_PENDENCIA_SEM_PEDIDO_IMPUGNACO' | i18n }}
+                                        </span>
+                                    </div>
+                                    <div class="color-sem-registro card-informacoes"
+                                        fxLayout="row"
+                                        fxLayoutAlign="center center">
+                                        <span style="text-align: center;">
+                                            {{'LABEL_CHAPA_PENDENCIA_SEM_PEDIDO_DENUNCIA' | i18n }}
+                                        </span>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <!-- Controle de paginação -->
+                <div fxLayout="row" fxLayoutAlign="center center">
+                    <div class="mt-4" style="width: 90%;">
+                        <button class="btn btn-primary" (click)="voltar()">{{'LABEL_CHAPA_PENDENCIA_VOLTAR'| i18n}}</button>
+                        <app-mfBootstrapPaginator *ngIf="solicitacoes.length > 0" [mfTable]="mf" class="float-right"></app-mfBootstrapPaginator>
+                    </div>
+                </div>
+            </table>
+
+		</card-panel-custom>
+	</div>
+</div>

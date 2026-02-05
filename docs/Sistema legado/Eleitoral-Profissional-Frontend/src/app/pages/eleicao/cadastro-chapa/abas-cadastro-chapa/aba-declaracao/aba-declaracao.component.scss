@@ -1,0 +1,28 @@
+.titulo-declaracao-conclusao {
+    font-size: 1rem;
+    font-style: italic;
+    font-weight: bold;
+}
+
+.cor-corpo {
+    background-color: #f2f2f2;
+}
+
+.custom-control-label::before {
+    margin-right: 0.75rem !important;
+}
+
+.custom-font-declaracao {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.custom-control-label::before,
+.custom-control-label::after {
+    border-radius: 0;
+}
+
+.custom-control-label {
+    padding-left: .5rem !important;
+    margin-top: .5rem;
+}

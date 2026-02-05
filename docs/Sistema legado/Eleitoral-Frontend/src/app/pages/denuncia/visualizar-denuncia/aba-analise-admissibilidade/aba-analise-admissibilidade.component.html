@@ -1,0 +1,116 @@
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-sm-11">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h6 class="text-center"><strong>{{ 'LABEL_NUMERO_DENUNCIA' | i18n }}:
+                            </strong>{{ denuncia.numeroDenuncia }}
+                        </h6>
+                    </div>
+                    <div class="col-sm-12 margin-top-date">
+                        <h6><strong>{{'LABEL_DATA_HORA_CADASTRO' | i18n}}: </strong>
+                            {{ analiseAdmissibilidade.dataHora | date:'dd/MM/yyyy' : '+0' }} às
+                            {{ analiseAdmissibilidade.dataHora | date:'HH:mm' : '+0' }}
+                        </h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-1">
+                <div class="float-right mb-3" fxLayout="row" fxLayoutGap="10px">
+                    <div class="status-center" fxLayout="column" *ngIf="analiseAdmissibilidade.admitida"
+                        fxFlex>
+                        <i class="fa fa-spinner fa-4x pr-0"></i>
+                        <span class="texto-titulo">
+                            <strong>{{ 'LABEL_ADMITIDO' | i18n }}</strong>
+                        </span>
+                    </div>
+                    <div class="status-center mb-3" fxLayout="column" *ngIf="analiseAdmissibilidade.inadmitida"
+                        fxFlex>
+                        <i class="fa fa-spinner fa-4x pr-0 text-danger"></i>
+                        <span class="texto-titulo text-danger">
+                            <strong>{{ 'LABEL_INADMITIDO' | i18n }}</strong>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <ng-container *ngIf="hasAnaliseAdmissaoInadmissao(); else templateAnaliseAdmissibilidade">
+            <app-alerta-denuncia-sigilosa *ngIf="denuncia.isSigiloso"></app-alerta-denuncia-sigilosa>
+            <div fxLayout="column" class="mb-3">
+                <div>
+                    <ul class="nav nav-abas sub-nav-abas">
+                        <li class="nav-item pointer">
+                            <a class="nav-link border rounded-2-left py-3 px-4" (click)="mudarAba(abas.abaAdmissao.id)"
+                                [ngClass]="{ 'active': abas.abaAdmissao.ativa }">
+                                {{ 'LABEL_ADMISSAO' | i18n }}
+                            </a>
+                        </li>
+
+                        <li class="nav-item pointer">
+                            <a class="nav-link border rounded-2-right py-3 px-4" (click)="mudarAba(abas.abaInadmissao.id)"
+                                [ngClass]="{ 'active': abas.abaInadmissao.ativa }">
+                                {{'LABEL_INADMISSAO' | i18n}}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="tab-content border shadow">
+                    <div class="tab-pane fade" [ngClass]="{ 'active show': abas.abaAdmissao.ativa }" *ngIf="abas.abaAdmissao.ativa">
+                        <detalhes-analise 
+                            [denuncia]="denuncia" 
+                            [analiseAdmissibilidade]="analiseAdmissibilidadeAdmissao"
+                            [hasAnaliseAdmissaoInadmissao]="hasAnaliseAdmissaoInadmissao()">
+                        </detalhes-analise>
+                    </div>
+
+                    <div class="tab-pane fade" [ngClass]="{ 'active show': abas.abaInadmissao.ativa }" *ngIf="abas.abaInadmissao.ativa">
+                        <detalhes-analise 
+                            [denuncia]="denuncia" 
+                            [analiseAdmissibilidade]="analiseAdmissibilidadeInadmissao"
+                            [hasAnaliseAdmissaoInadmissao]="hasAnaliseAdmissaoInadmissao()">
+                        </detalhes-analise>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</div>
+
+<ng-template #templateAnaliseAdmissibilidade>
+    <detalhes-analise
+        [denuncia]="denuncia" 
+        [analiseAdmissibilidade]="analiseAdmissibilidade">
+    </detalhes-analise>
+</ng-template>
+
+<div *ngIf="denuncia.impedimentoSuspeicao?.length > 0">
+    <div *ngFor="let impedimento of denuncia.impedimentoSuspeicao">
+        <div class="modal fade" id="mdl{{impedimento.id}}" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header border-header-green">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-8 text-center">
+                        <h6 class="modal-title pull-center">{{'LABEL_VISUALIZAR_HISTORICO' |i18n}}</h6>
+                    </div>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert bg-green border shadow">
+                        <div class="p-2">
+                            <strong>{{'LABEL_DESPACHO_DESIGNACAO_RELATOR' | i18n}}</strong>
+                            <div class="mt-2 word-wrap" [innerHTML]="impedimento.denunciaAdmitida.descricaoDespacho"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-primary mr-auto" data-dismiss="modal">{{'LABEL_FECHAR' | i18n}}</button>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>

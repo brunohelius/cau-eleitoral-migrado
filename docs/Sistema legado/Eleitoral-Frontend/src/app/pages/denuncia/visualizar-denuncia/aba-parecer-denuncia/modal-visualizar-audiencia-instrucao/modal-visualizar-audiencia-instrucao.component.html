@@ -1,0 +1,132 @@
+<div class="modal-header border-header-green">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 text-center">
+        <h6 class="modal-title pull-center">{{'LABEL_VISUALIZAR_AUDIENCIA_INSTRUCAO' |i18n}}</h6>
+    </div>
+    <div class="col-md-2 align-items-right">
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
+<div class="modal-body">
+    <div class="card">     
+        <div class="card-body">
+            <!-- Relator -->
+            <div>
+                <label class="font-weight-bold">{{'LABEL_RELATOR' | i18n}}: </label>
+                <span> {{encaminhamentoAudiencia.membroComissao.profissionalEntity.nome}}</span>
+            </div>
+            <!-- Data/hora do cadastro-->
+            <div>
+                <label class="font-weight-bold">{{'LABEL_DATA_HORA_CADASTRO' | i18n}}:</label>
+                <span> {{encaminhamentoAudiencia.data | date:'dd/MM/yyyy' : '+0' }} às
+                    {{ encaminhamentoAudiencia.data | date:'HH:mm ' : '+0' }}</span>
+            </div>
+            <!-- Descrição do encaminhamento-->
+            <div class="card-body bg-green font-12 border mb-3" style="border-radius: 8px;">
+                <h6 class="mb-3">{{'LABEL_DESCRICAO_ENCAMINHAMENTO'|i18n}}</h6>
+                <div class="mt-2 word-wrap" [innerHTML]="encaminhamentoAudiencia.descricao"></div>
+            </div>
+            <!-- Arquivo do encaminhamento-->
+
+            <!-- Documento -->
+
+            <div class="card-body bg-green font-12 border" style="border-radius: 8px;"
+                *ngIf="encaminhamentoAudiencia.arquivoEncaminhamento.length > 0">
+                <h6 class="mb-3">{{ 'LABEL_DOCUMENTO'|i18n}}</h6>
+                <span class="font-weight-bold arquivo">{{ 'TITLE_ARQUIVO'|i18n}}</span>
+                <div>
+                    <table class="border-top">
+                        <tbody>
+                            <tr *ngFor="let arquivoEncaminhamento of encaminhamentoAudiencia.arquivoEncaminhamento">
+                                <td>{{arquivoEncaminhamento.nome}}</td>
+                                <td>
+                                    <download title="{{arquivoEncaminhamento.nome}}" class="text-primary pointer p-0"
+                                        [download]="arquivoEncaminhamento.nome"
+                                        (process)="downloadArquivo($event, arquivoEncaminhamento.id)">
+                                        <i class="align-middle fa fa-download"></i>
+                                    </download>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Encaminhamento Concluído-->
+        <div *ngIf="isConluido()">
+
+            <hr class="border-header-green" />
+            <div class="col-md-12 text-center">
+                <h5>{{'LABEL_AUDIENCIA_INSTRUCAO_REGISTRADA'|i18n}}</h5>
+            </div>
+            <div class="card-body" *ngFor="let audienciaInstrucao of encaminhamentoAudiencia.audienciaInstrucao">
+                <!-- Data/Hora da audiência-->
+                <div>
+                    <label class="font-weight-bold">{{'LABEL_DATA_HORA_AUDIENCIA' | i18n}}:</label>
+                    <span> {{ audienciaInstrucao.dataAudienciaInstrucao | date:'dd/MM/yyyy' : '+0' }} às
+                        {{ audienciaInstrucao.dataAudienciaInstrucao | date:'HH:mm ' : '+0' }}</span>
+                </div>
+                <!-- Descrição da audiência-->
+                <div class="card-body bg-green font-12 border mb-3" style="border-radius: 8px;">
+                    <h6 class="mb-3">{{'LABEL_DESCRICAO_AUDIENCIA_INSTRUCAO'|i18n}}</h6>
+                    <div class="mt-2 word-wrap" [innerHTML]="audienciaInstrucao.descricaoDenunciaAudienciaInstrucao"></div>
+                </div>
+                <!-- Documento do encaminhamento-->
+                <div class="card-body bg-green font-12 border" style="border-radius: 8px;"
+                    *ngIf="audienciaInstrucao.arquivosDenunciaAudienciaInstrucao.length > 0">
+                    <h6 class="mb-3">{{ 'LABEL_DOCUMENTO'|i18n}}</h6>
+                    <span class="font-weight-bold arquivo">{{ 'TITLE_ARQUIVO'|i18n}}</span>
+                    <div>
+                        <table class="border-top">
+                            <tbody>
+                                <tr
+                                    *ngFor="let arquivosDenunciaAudienciaInstrucao of audienciaInstrucao.arquivosDenunciaAudienciaInstrucao">
+                                    <td>{{arquivosDenunciaAudienciaInstrucao.nome}}</td>
+                                    <td>
+                                        <download title="{{arquivosDenunciaAudienciaInstrucao.nome}}"
+                                            class="text-primary pointer p-0"
+                                            [download]="arquivosDenunciaAudienciaInstrucao.nome"
+                                            (process)="downloadArquivoAudienciaInstrucao($event, arquivosDenunciaAudienciaInstrucao.id)">
+                                            <i class="align-middle fa fa-download"></i>
+                                        </download>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Encaminhamento Fechado-->
+        <div *ngIf="isFechado()">
+
+            <hr class="border-header-green" />
+            <div class="col-md-12 text-center">
+                <h5>{{'LABEL_ENCAMINHAMENTO_FECHADO' | i18n}}</h5>
+            </div>
+            <div class="card-body">
+
+                <!-- Data/Hora do fechamento-->
+                <div>
+                    <label class="font-weight-bold">{{'LABEL_DATA_HORA_FECHAMENTO' | i18n}}:</label>
+                    <span> {{ encaminhamentoAudiencia.dataFechamento | date:'dd/MM/yyyy' : '+0' }} às
+                        {{ encaminhamentoAudiencia.dataFechamento | date:'HH:mm ' : '+0' }}</span>
+                </div>
+
+                <div class="card-body bg-green font-12 border mb-3" style="border-radius: 8px;">
+                    <h6 class="mb-3">{{'LABEL_JUSTIFICATIVA'|i18n}}</h6>
+                    <div class="mt-2 word-wrap" [innerHTML]="encaminhamentoAudiencia.justificativa"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card-body">
+            <button type="button" class="btn btn-primary mr-4" (click)="modalRef.hide()">{{'LABEL_FECHAR'|i18n}}</button>
+        </div>
+    </div>

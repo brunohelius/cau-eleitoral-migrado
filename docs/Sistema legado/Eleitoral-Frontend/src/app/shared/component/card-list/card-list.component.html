@@ -1,0 +1,29 @@
+<table class="table table-borderless table-sm mt-0" [mfData]="inputConfig.data" #mf="mfDataTable"
+    [mfRowsOnPage]="limitePaginacao" *ngIf="inputConfig.data">
+    <thead>
+        <tr>
+            <td class="p-0" colspan="2">
+                <div fxLayout="row" class="font-weight-bold font-header text-center px-3">
+                    <div *ngFor="let col of inputConfig.header" fxFlex>
+                        {{ col.header }}
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let cardItem of mf.data">
+            <td class="p-0" colspan="2">
+                <div class="card shadow border rounded-2 my-1">
+                    <div class="card-body p-8">
+                        <div fxLayout="row" class="text-center">
+                            <div *ngFor="let col of inputConfig.header" fxFlex>
+                                {{ cardItem[col.field] }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>

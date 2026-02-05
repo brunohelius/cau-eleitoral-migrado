@@ -1,0 +1,172 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="tab-content">
+            <div class="tab-pane active show fade card rounded-0">
+                <div class="col-md-12">
+                    <a [routerLink]="['/']"> <i class="fa fa-desktop fa-2x m-2 pointer" aria-hidden="true"></i> </a>
+                </div>
+                <div class="col-md-12">
+                    <h5 class="card-title colorGray">
+                        <a class="pointer" (click)="voltar()">
+                            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                        </a>
+                        <b>{{'TITLE_VISUALIZAR_INTERPOSICAO_DA_SUBSTITUICAO' | i18n}}</b>
+                    </h5>
+                </div>
+                <div class="box-separador bg-primary"></div>
+
+                <div class="tab-pane fade pl-3 pr-3 pb-5 mt-3" id="tab-pane-julgamento"
+                    [ngClass]="{ 'active show': true}">
+                    <div class="row">
+                        <div class="col-md-2">
+                        </div>
+                        <div class="col-md-8 mt-2">
+                            <div *ngIf="!isIES" class="subtitle-line">
+                                <span class="bg-white">{{'TITLE_RECURSO_PEDIDO_DE_SUBSTITUICAO' | i18n}}</span>
+                            </div>
+                            <div *ngIf="isIES" class="subtitle-line">
+                                <span class="bg-white">{{'TITLE_RECONSIDERACAO_PEDIDO_DE_SUBSTITUICAO' | i18n}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="!hasRecurso()" class="card border pl-5 pr-5 pb-3 pt-3" style="border-radius: 8px mb-5">
+                    <div class="card-body bg-green pl-3 pr-3" style="border-radius: 8px;">
+                        <div fxLayout="row" fxLayoutAlign="center center" >
+                            <b *ngIf="!isIES">{{'MSG_NAO_HOUVE_INTERPOSICAO_RECURSO_SUBSTITUICAO' | i18n}}</b>
+                            <b *ngIf="isIES">{{'MSG_NAO_HOUVE_INTERPOSICAO_RECONSIDERACAO_SUBSTITUICAO' | i18n}}</b>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conteúdo dos dados de recurso cadastrado-->
+                <div *ngIf="hasRecurso()" >
+                    <membros-chapa-substituicao
+                        [membroSubstitutoTitular]="dados.membroSubstitutoTitular"
+                        [membroSubstituidoTitular]="dados.membroSubstituidoTitular"
+                        [membroSubstitutoSuplente]="dados.membroSubstitutoSuplente"
+                        [membroSubstituidoSuplente]="dados.membroSubstituidoSuplente">
+                    </membros-chapa-substituicao>
+
+                    <!-- Separador horizontal verde -->
+                    <div class="box-separador bg-primary font-white mt-5 mb-5">
+                        <div *ngIf="!isIES" fxLayout="row" fxLayoutAlign="center center" style="color: white;">
+                        {{'TITLE_INTERPOR_RECURSO_DOCUMENTO' | i18n}}
+                        </div>
+                        <div *ngIf="isIES" fxLayout="row" fxLayoutAlign="center center" style="color: white;">
+                        {{'TITLE_INTERPOR_RECONSIDERACAO_DOCUMENTO' | i18n}}
+                        </div>
+                    </div>
+                    <!-- Parecer -->
+                    <div class="tab-pane fade card rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}">
+                        <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px mb-5">
+                            <card-panel  [titulo]="tituloDescricao()">
+                                <editor-de-texto
+                                    [isHabilitado]="false"
+                                    [valor]="dadosRecurso.descricao"
+                                    [configuracao]="configuracaoCkeditor"
+                                    [isMostrarTamanhoTextoRestantes]="false">
+                                </editor-de-texto>
+                            </card-panel>
+
+                            <!-- Documento -->
+                            <card-panel [titulo]="'LABEL_DOCUMENTO'" class="mt-3">
+                                <div class="col-md-4 p-0">
+                                    {{ 'LABEL_ARQUIVO' | i18n }}
+                                    <hr>
+                                    <download  *ngIf="dadosRecurso.nomeArquivo" title="{{ dadosRecurso.nomeArquivo }}" class="center-no-arquivo pointer p-0"
+                                        [download]="dadosRecurso.nomeArquivo" (process)="download($event, dadosRecurso)"
+                                        style="background: none;">
+                                        {{ dadosRecurso.nomeArquivo }}
+                                        <i class="fa fa-download" aria-hidden="true"></i>
+                                    </download>
+                                    <div *ngIf="!dadosRecurso.nomeArquivo">
+                                        {{'LABEL_NAO_APLICADO' | i18n}}
+                                    </div>
+                                </div>
+                            </card-panel>
+                            <div class="col-md-2" *ngIf="isMostrarJulgamento()" style="margin-left: -1%;">
+                                <button *ngIf="!isIES" (click)="abrirModalJulgamento(templateJulgamento)"
+                                    class="btn btn-primary">
+                                    {{ 'LABEL_JULGAR_RECURSO' | i18n }}
+                                </button>
+                                <button *ngIf="isIES" (click)="abrirModalJulgamento(templateJulgamento)"
+                                    class="btn btn-primary">
+                                     {{ 'LABEL_JULGAR_RECONSIDERACAO' | i18n }}
+                            </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #templateJulgamento>
+    <div class="modal-header border-header-green">
+        <div class="col-md-8 offset-md-2 text-center">
+            <h6 class="modal-title pull-center">
+                {{'TITLE_ANALISAR_PEDIDO_SUBSTITUICAO' |i18n}}
+            </h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRecurso.hide()">
+                <span class="fa fa-times"></span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body" style="height: 100%">
+
+        <card-panel [titulo]="'LABEL_PARECER_RECURSO_PEDIDO_SUBISTUICAO'" class="mt-3">
+            <editor-de-texto
+                [isRequerido]="true"
+                [isHabilitado]="true"
+                [tamanhoMaximo]="1000"
+                [isSubmetido]="submitted"
+                [valor]="julgamento.descricao"
+                [configuracao]="configuracaoCkeditor"
+                [isMostrarTamanhoTextoRestantes]="true"
+                (valorChange)="adicionarDescricao($event)">
+            </editor-de-texto>
+        </card-panel>
+
+        <card-panel [titulo]="'LABEL_DOCUMENTO'" class="mt-3">
+            <arquivo
+                [maxArquivos]="1"
+                [hasUpload]="true"
+                [hasDownload]="true"
+                [hasExclusao]="true"
+                (salvarEvent)="salvarArquivos($event)"
+                (excluirArquivo)="excluirArquivo($event)"
+                [msgMaxArquivos]="'MSG_QTD_MAXIMA_UPLOAD_1'"
+                (download)="downloadArquivoRecurso($event)">
+            </arquivo>
+            <div class="text-danger" *ngIf="submitted && !hasArquivos()">{{ 'required' | i18n }}</div>
+        </card-panel>
+
+        <div class="col-md-12 p-3">
+
+            <button (click)="validarJulgamento(2)"
+                class="btn btn-danger px-3 mr-3">
+                {{ 'LABEL_INDEFIRIR' | i18n }}
+            </button>
+
+            <button (click)="validarJulgamento(1)"
+                 class="btn btn-primary px-3 mr-3">
+                {{ 'LABEL_DEFERIR' | i18n }}
+            </button>
+
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #templateConfirmacao>
+    <modal-confirm
+        [titulo]="tituloConfirmacaoJulgamento"
+        [descricao]="msgConfirmacao"
+        (confirmar)="salvarJulgamento()"
+        (cancelar)="voltarModalJulgamento(templateJulgamento)">
+    </modal-confirm>
+</ng-template>

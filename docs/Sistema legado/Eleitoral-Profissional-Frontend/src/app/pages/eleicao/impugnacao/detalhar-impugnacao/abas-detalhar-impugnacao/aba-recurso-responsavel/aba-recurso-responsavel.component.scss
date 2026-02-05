@@ -1,0 +1,25 @@
+.margin {
+    margin-left: 20%;
+    margin-right: 20%;
+    margin-top: 2%;
+    margin-bottom: 2%;
+}
+$primary:      #017479;
+
+.card-body {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.card-header{
+    color: white;
+    font-size: .9rem;
+}
+.grey-font-bolder {
+    text-shadow: 0px 0px, 0px 0px, 0px 0px;
+    font-weight: bolder;
+    color: #878787;
+}
+.text-primary{
+    color: $primary;
+}

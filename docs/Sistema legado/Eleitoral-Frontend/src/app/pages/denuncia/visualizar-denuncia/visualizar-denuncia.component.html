@@ -1,0 +1,177 @@
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-abas">
+            <li class="nav-item pointer">
+                <a class="nav-link" (click)="mudarAbaSelecionada(abas.abaVisaoGeral.id)"
+                    [ngClass]="{ 'active': abas.abaVisaoGeral.ativa }">
+                    {{ 'LABEL_VISAO_GERAL' | i18n }}
+                </a>
+            </li>
+
+            <li class="nav-item pointer">
+                <a class="nav-link" (click)="mudarAbaSelecionada(abas.abaCadastroDenuncia.id)"
+                    [ngClass]="{ 'active': abas.abaCadastroDenuncia.ativa }">
+                    {{'LABEL_ACOMPANHAR_DENUNCIA' | i18n}}
+                </a>
+            </li>
+
+            <li class="nav-item pointer" *ngIf="abas.abaAnaliseAdmissibilidade != undefined">
+                <a class="nav-link" (click)="mudarAbaSelecionada(abas.abaAnaliseAdmissibilidade.id)"
+                    [ngClass]="{ 'active': abas.abaAnaliseAdmissibilidade.ativa }">
+                    {{'LABEL_ANALISE_ADMISSIBILIDADE' | i18n}}
+                </a>
+            </li>
+
+            <li class="nav-item pointer" *ngIf="abas.abaJulgamentoAdmissibilidade != undefined">
+                <a class="nav-link" (click)="mudarAbaSelecionada(abas.abaJulgamentoAdmissibilidade.id)" [ngClass]="{ 'active': abas.abaJulgamentoAdmissibilidade.ativa }">
+                    {{'LABEL_JULGAMENTO_ADMISSIBILIDADE' | i18n}}
+                </a>
+            </li>
+
+            <li class="nav-item pointer" *ngIf="abas.abaRecursoJulgamentoAdmissibilidade  != undefined">
+                <a class="nav-link" (click)="mudarAbaSelecionada(abas.abaRecursoJulgamentoAdmissibilidade.id)" [ngClass]="{ 'active': abas.abaRecursoJulgamentoAdmissibilidade.ativa }">
+                    {{'LABEL_RECURSO_DE_ADMISSIBILIDADE' | i18n}}
+                </a>
+            </li>
+
+            <li class="nav-item pointer" *ngIf="abas.abaJulgamentoRecursoAdmissibilidade  != undefined">
+                <a class="nav-link" (click)="mudarAbaSelecionada(abas.abaJulgamentoRecursoAdmissibilidade.id)" [ngClass]="{ 'active': abas.abaJulgamentoRecursoAdmissibilidade.ativa }">
+                    {{'LABEL_JULGAMENTO_RECURSO_ADMISSIBILIDADE' | i18n}}
+                </a>
+            </li>
+
+            <li class="nav-item pointer" *ngIf="abas.abaDefesaApresentada != undefined">
+                <a class="nav-link" (click)="mudarAbaSelecionada(abas.abaDefesaApresentada.id)" [ngClass]="{ 'active': abas.abaDefesaApresentada.ativa }">
+                    {{'LABEL_DEFESA' | i18n}}
+                </a>
+            </li>
+
+            <li class="nav-item pointer" *ngIf="abas.abaParecerDenuncia != undefined">
+                <a class="nav-link" (click)="mudarAbaSelecionada(abas.abaParecerDenuncia.id)" [ngClass]="{ 'active': abas.abaParecerDenuncia.ativa }">
+                    {{'LABEL_PARECER' | i18n}}
+                </a>
+            </li>
+
+            <li class="nav-item pointer" *ngIf="abas.abaJulgamentoPrimeiraInstancia">
+                <a class="nav-link" (click)="mudarAbaSelecionada(abas.abaJulgamentoPrimeiraInstancia.id)" [ngClass]="{ 'active': abas.abaJulgamentoPrimeiraInstancia.ativa }">
+                    {{'LABEL_JULGAMENTO_PRIMEIRA_INSTANCIA' | i18n}}
+                </a>
+            </li>
+
+            <li class="nav-item pointer" *ngIf="abas.abaRecursoDenunciante">
+                <a class="nav-link" (click)="mudarAbaSelecionada(abas.abaRecursoDenunciante.id)" [ngClass]="{ 'active': abas.abaRecursoDenunciante.ativa }">
+                    {{'LABEL_ABA_RECURSO_DENUNCIANTE' | i18n}}
+                </a>
+            </li>
+
+            <li class="nav-item pointer" *ngIf="abas.abaRecursoDenunciado">
+                <a class="nav-link" (click)="mudarAbaSelecionada(abas.abaRecursoDenunciado.id)" [ngClass]="{ 'active': abas.abaRecursoDenunciado.ativa }">
+                    {{'LABEL_ABA_RECURSO_DENUNCIADO' | i18n}}
+                </a>
+            </li>
+
+            <li class="nav-item pointer" *ngIf="abas.abaJulgamentoSegundaInstancia">
+                <a class="nav-link" (click)="mudarAbaSelecionada(abas.abaJulgamentoSegundaInstancia.id)" [ngClass]="{ 'active': abas.abaJulgamentoSegundaInstancia.ativa }">
+                    {{'LABEL_JULGAMENTO_SEGUNDA_INSTANCIA' | i18n}}
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade" [ngClass]="{ 'active show': abas.abaVisaoGeral.ativa }"
+                *ngIf="abas.abaVisaoGeral.ativa">
+                <i class="fa fa-arrow-left fa-1x mb-3 pointer pl-4" (click)="voltar()" aria-hidden="true"></i>
+                <i class="fa fa-desktop fa-2x m-2 pointer" aria-hidden="true"></i>
+            </div>
+
+            <div class="tab-pane fade" [ngClass]="{ 'active show': abas.abaCadastroDenuncia.ativa }"
+                *ngIf="abas.abaCadastroDenuncia.ativa">
+                <i class="fa fa-arrow-left fa-1x mb-3 pointer pl-4" (click)="voltar()" aria-hidden="true"></i>
+                <i class="fa fa-desktop fa-2x m-2 pointer" aria-hidden="true"></i>
+                <div class="box-separador"></div>
+                <aba-detail-acompanhar-denuncia [denuncia]="dadosFormulario" [tipoDenuncia]="tipoDenuncia">
+                </aba-detail-acompanhar-denuncia>
+            </div>
+
+            <div class="tab-pane fade" [ngClass]="{ 'active show': abas.abaAnaliseAdmissibilidade.ativa }"
+                *ngIf="abas.abaAnaliseAdmissibilidade && abas.abaAnaliseAdmissibilidade.ativa">
+                <i class="fa fa-arrow-left fa-1x mb-3 pointer pl-4" (click)="voltar()" aria-hidden="true"></i>
+                <i class="fa fa-desktop fa-2x m-2 pointer" aria-hidden="true"></i>
+                <div class="box-separador"></div>
+                <aba-analise-admissibilidade [dadosDenuncia]="dadosFormulario">
+                </aba-analise-admissibilidade>
+            </div>
+
+            <div class="tab-pane fade" [ngClass]="{ 'active show': abas.abaJulgamentoAdmissibilidade.ativa }" *ngIf="abas.abaJulgamentoAdmissibilidade && abas.abaJulgamentoAdmissibilidade.ativa">
+                <i class="fa fa-arrow-left fa-1x mb-3 pointer pl-4" (click)="voltar()" aria-hidden="true"></i>
+                <i class="fa fa-desktop fa-2x m-2 pointer" aria-hidden="true"></i>
+                <div class="box-separador"></div>
+                <app-aba-julgamento-admissibilidade [denuncia]="dadosFormulario">
+                </app-aba-julgamento-admissibilidade>
+            </div>
+
+            <div class="tab-pane fade" [ngClass]="{ 'active show': abas.abaRecursoJulgamentoAdmissibilidade.ativa }" *ngIf="abas.abaRecursoJulgamentoAdmissibilidade && abas.abaRecursoJulgamentoAdmissibilidade.ativa">
+                <i class="fa fa-desktop fa-2x m-2 pointer pl-4" aria-hidden="true"></i>
+                <div class="box-separador"></div>
+                <app-aba-recurso-admissibilidade [denuncia]="dadosFormulario">
+                </app-aba-recurso-admissibilidade>
+            </div>
+
+            <div class="tab-pane fade" [ngClass]="{ 'active show': abas.abaJulgamentoRecursoAdmissibilidade.ativa }" *ngIf="abas.abaJulgamentoRecursoAdmissibilidade && abas.abaJulgamentoRecursoAdmissibilidade.ativa">
+                <i class="fa fa-desktop fa-2x m-2 pointer pl-4" aria-hidden="true"></i>
+                <div class="box-separador"></div>
+                <app-aba-julgamento-recurso-admissibilidade [dadosDenuncia]="dadosFormulario">
+                </app-aba-julgamento-recurso-admissibilidade>
+            </div>
+
+            <div class="tab-pane fade" [ngClass]="{ 'active show': abas.abaDefesaApresentada.ativa }" *ngIf="abas.abaDefesaApresentada && abas.abaDefesaApresentada.ativa">
+                <i class="fa fa-arrow-left fa-1x mb-3 pointer pl-4" (click)="voltar()" aria-hidden="true"></i>
+                <i class="fa fa-desktop fa-2x m-2 pointer" aria-hidden="true"></i>
+                <div class="box-separador"></div>
+                <aba-defesa-denuncia [dadosDenuncia]="dadosFormulario"></aba-defesa-denuncia>
+            </div>
+
+
+            <div class="tab-pane fade" [ngClass]="{ 'active show': abas.abaParecerDenuncia.ativa }" *ngIf="abas.abaParecerDenuncia && abas.abaParecerDenuncia.ativa">
+                <i class="fa fa-arrow-left fa-1x mb-3 pointer pl-4" (click)="voltar()" aria-hidden="true"></i>
+                <i class="fa fa-desktop fa-2x m-2 pointer" aria-hidden="true"></i>
+                <div class="box-separador"></div>
+                <aba-parecer-denuncia [dadosDenuncia]="dadosFormulario"
+                    [encaminhamentos]="encaminhamentosCarregados"
+                    (onEncaminhamentosCarregados)="setEncaminhamentosCarregadosParecer($event)"></aba-parecer-denuncia>
+            </div>
+
+            <div class="tab-pane fade" [ngClass]="{ 'active show': abas.abaJulgamentoPrimeiraInstancia.ativa }" *ngIf="abas.abaJulgamentoPrimeiraInstancia && abas.abaJulgamentoPrimeiraInstancia.ativa">
+                <i class="fa fa-arrow-left fa-1x mb-3 pointer pl-4" (click)="voltar()" aria-hidden="true"></i>
+                <i class="fa fa-desktop fa-2x m-2 pointer" aria-hidden="true"></i>
+                <div class="box-separador"></div>
+                <app-primeira-instancia [dadosDenuncia]="dadosFormulario"
+                    [julgamentosRetificados]="retificacoesPrimeiraInstanciaCarregadas"
+                    (onRetificacoesCarregadas)="setRetificacoesCarregadasPrimeiraInstancia($event)">
+                </app-primeira-instancia>
+            </div>
+
+            <div class="tab-pane fade" [ngClass]="{ 'active show': abas.abaRecursoDenunciante.ativa }" *ngIf="abas.abaRecursoDenunciante && abas.abaRecursoDenunciante.ativa">
+                <i class="fa fa-desktop fa-2x m-2 pointer pl-4" aria-hidden="true"></i>
+                <div class="box-separador"></div>
+                <aba-recurso-denunciante [dadosDenuncia]="dadosFormulario"></aba-recurso-denunciante>
+            </div>
+
+            <div class="tab-pane fade" [ngClass]="{ 'active show': abas.abaRecursoDenunciado.ativa }" *ngIf="abas.abaRecursoDenunciado && abas.abaRecursoDenunciado.ativa">
+                <i class="fa fa-desktop fa-2x m-2 pointer pl-4" aria-hidden="true"></i>
+                <div class="box-separador"></div>
+                <aba-recurso-denunciado [dadosDenuncia]="dadosFormulario"></aba-recurso-denunciado>
+            </div>
+
+            <div class="tab-pane fade" [ngClass]="{ 'active show': abas.abaJulgamentoSegundaInstancia.ativa }" *ngIf="abas.abaJulgamentoSegundaInstancia && abas.abaJulgamentoSegundaInstancia.ativa">
+                <i class="fa fa-arrow-left fa-1x mb-3 pointer pl-4" (click)="voltar()" aria-hidden="true"></i>
+                <i class="fa fa-desktop fa-2x m-2 pointer" aria-hidden="true"></i>
+                <div class="box-separador"></div>
+                <app-segunda-instancia [dadosDenuncia]="dadosFormulario"
+                    [julgamentosRetificados]="retificacoesSegundaInstanciaCarregadas"
+                    (onRetificacoesCarregadas)="setRetificacoesCarregadasSegundaInstancia($event)">
+                </app-segunda-instancia>
+            </div>
+        </div>
+    </div>
+</div>

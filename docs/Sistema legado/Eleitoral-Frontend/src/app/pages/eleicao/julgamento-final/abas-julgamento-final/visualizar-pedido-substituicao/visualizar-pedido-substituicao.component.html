@@ -1,0 +1,359 @@
+<div class="col-md-12">
+    <a [routerLink]="['/']"> <i class="fa fa-desktop fa-2x m-2 pointer font-color-bg-primary" aria-hidden="true"></i> </a>
+</div>
+<div class="col-md-12">
+    <h5 class="card-title colorGray">
+        <a class="pointer" (click)="voltar()">
+            <i class="fa fa-arrow-left colorGray" aria-hidden="true"></i>
+        </a>
+    </h5>
+</div>
+
+<div class="box-separador bg-primary"></div>
+
+<div class="tab-pane fade pl-3 pr-3 pb-5 mt-3" id="tab-pane-principal" [ngClass]="{ 'active show': true}">
+    <div class="rounded-0">
+        <div class="row pt-3">
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+                <div class="rounded-0 mb-5">
+                    <div class="subtitle-line">
+                        <span class="bg-white" *ngIf="!isRecurso()"> {{'LABEL_PEDIDO_SUBSTITUICAO_JULGAMENTO_FINAL' | i18n}} -
+                            {{'LABEL_JULGAMENTO_FINAL' | i18n}} </span>
+                        <span class="bg-white" *ngIf="isRecurso() && !inicializaIES()">{{'LABEL_RECURSO_SUBSTITUICAO_JULGAMENTO_FINAL' | i18n}} -
+                            {{'LABEL_JULGAMENTO_FINAL' | i18n}}</span>
+                        <span class="bg-white" *ngIf="isRecurso() && inicializaIES()">{{'LABEL_RECONSIDERACAO_SUBSTITUICAO_JULGAMENTO_FINAL' | i18n}} -
+                            {{'LABEL_JULGAMENTO_FINAL' | i18n}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 spinnerStatus text-center">
+            </div>
+        </div>
+
+        <div *ngIf="hasSubstituicao">
+            <div fxLayout="row" fxLayoutAlign="start center" class="pl-2 mb-3">
+                <div fxLayout="column" fxLayoutAlign="center start" class="colorVerdeCau">
+                    <b>{{'LABEL_UF' | i18n}}:&nbsp;{{ chapa.uf }}</b>
+                    <b>{{'LABEL_N_CHAPA' | i18n}}:&nbsp;{{ chapa.numeroChapa || "N/A"}}</b>
+                    <b *ngIf="hasSubstituicao"> {{'LABEL_DATA_HORA_CADASTRO' | i18n}}:&nbsp;
+                        {{ substituicao.dataCadastro | date:'dd/MM/yyy ' : '+0' }} às
+                        {{ substituicao.dataCadastro | date:'HH:mm ' : '+0' }} </b>
+                    <div *ngIf="hasSubstituicao">
+                        <b>{{'LABEL_REGISTRO_PEDIDO_SUBSTITUICAO' | i18n}}:&nbsp;</b>
+                        <b class="text-danger" *ngIf="!isRecurso()">{{getRegistroPedidoSubstituicao()}}</b>
+                        <b class="text-danger" *ngIf="!inicializaIES() && isRecurso()">{{getRegistroPedidoSubstituicao()}} - {{'LABEL_RECURSO' | i18n}}</b>
+                        <b class="text-danger" *ngIf="inicializaIES() && isRecurso()">{{getRegistroPedidoSubstituicao()}} - {{'LABEL_RECONSIDERACAO' | i18n}}</b>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="hasSubstituicao">
+            <div class="tab-pane fade card rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}">
+                <div class="card border pl-4 pr-4 pb-3 pt-4" style="border-radius: 8px mb-5">
+                    <div>
+                        <div class="mb-5" *ngIf="substituicao.membrosSubstitutosDaChapa.length > 0">
+                            <card-panel [titulo]="'TITLE_SUBSTITUICAO'" class="mb-5">
+                                <div class="body-card">
+
+                                    <div fxLayout fxLayout.xs="column" fxLayout.sm="column" fxLayoutAlign="space-between">
+                                        <div fxLayoutAlign="center center" fxFlex="40">
+                                            <h5 class="colorVerdeCau">
+                                                <strong>{{'TITLE_INFORMACOES_DO_SUBSTITUIDO' | i18n}}</strong>
+                                            </h5>
+                                        </div>
+                                        <div fxLayoutAlign="center center" fxFlex="55">
+                                            <h5 class="colorVerdeCau"><strong>{{'TITLE_INFORMACOES_DO_SUBSTITUTO' | i18n}}</strong>
+                                            </h5>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3" fxLayout fxLayout.xs="column" fxLayout.sm="column"
+                                        fxLayoutAlign="space-between" fxLayoutWrap="wrap">
+
+                                        <div fxFlex="40">
+                                            <div class="text-center mt-4">
+                                                <div class="custom-grid-dark colorVerdeCau">
+                                                    <div fxFlex="70" fxLayoutAlign="center center"
+                                                        class="border-right text-center">
+                                                        {{'LABEL_NOME' | i18n}}</div>
+                                                    <div fxFlex="30" fxLayoutAlign="center center" class="text-center">
+                                                        {{'LABEL_REGISTRO' | i18n}}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="ml-2" fxFlex="5"></div>
+
+                                        <div fxLayout fxLayout.xs="column" fxLayout.sm="column" fxLayoutWrap="wrap"
+                                            fxLayoutAlign="space-around" fxFlex="55">
+
+                                            <div fxFlex="100">
+                                                <div class="text-center mt-2">
+                                                    <div class="custom-grid-dark colorVerdeCau">
+                                                        <div fxLayoutAlign="center center" class="border-right text-center"
+                                                            fxFlex="60">{{'LABEL_NOME' | i18n}}</div>
+                                                        <div fxLayoutAlign="center center" class="border-right text-center"
+                                                            fxFlex="25">{{'LABEL_REGISTRO_IMPUGNACAO' | i18n}}</div>
+                                                        <div fxLayoutAlign="center center" class="text-center" fxFlex="15">
+                                                            <span [innerHTML]="getLabelStatusValidacaoQuebraLinha()"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        *ngFor="let membro of substituicao.membrosSubstitutosDaChapa; let key = index; last as isLast">
+                                        <div fxLayout fxLayout.xs="column" fxLayout.sm="column" fxLayoutAlign="space-between"
+                                            fxLayoutWrap="wrap">
+
+                                            <div class="widget" fxFlex="40">
+                                                <div class="card text-center font-card">
+                                                    <div class="custom-grid-white">
+                                                        <div fxFlex="70" fxLayoutAlign="center center"
+                                                            class="border-right text-center">
+                                                            <span *ngIf=" membro.substituido">{{ membro.substituido.profissional.nome | slice:0:35 }}</span>
+                                                            <span *ngIf="!membro.substituido"><div class="text-danger">{{'LABEL_SEM_INCLUSAO_MEMBRO' | i18n}}</div></span>
+                                                        </div>
+                                                        <div fxFlex="30" fxLayoutAlign="center center" class="text-center">
+                                                            <span *ngIf=" membro.substituido">{{ getRegistroComMask(membro.substituido.profissional.registroNacional) }}</span>
+                                                            <span *ngIf=" !membro.substituido">-</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="ml-2" fxFlex="5" fxLayoutAlign="space-around center"><i
+                                                    class="fa fa-exchange icone-32" aria-hidden="true"></i>
+                                            </div>
+
+                                            <div fxLayout fxLayout.xs="column" fxLayout.sm="column" fxLayoutWrap="wrap"
+                                                fxLayoutAlign="space-around" fxFlex="55">
+
+                                                <div class="widget" fxFlex="100">
+                                                    <div class="card text-center font-card">
+                                                        <div class="custom-grid-white">
+                                                            <div fxLayoutAlign="center center" class="border-right text-center"
+                                                                fxFlex="60"><span >{{ membro.substituto.profissional.nome | slice:0:40 }}</span>
+                                                            </div>
+                                                            <div fxLayoutAlign="center center" class="border-right text-center"
+                                                                fxFlex="25">
+                                                                <span>{{ getRegistroComMask(membro.substituto.profissional.registroNacional) }}</span>
+                                                            </div>
+
+                                                            <div *ngIf="statusValidacao(membro.substituto)"
+                                                                fxLayoutAlign="center center"
+                                                                class="border-right pl-2 text-center" fxFlex="15">
+                                                                <i aria-hidden="true"
+                                                                    class="fa fa-check-circle text-success icone-19"></i>
+                                                            </div>
+
+                                                            <div *ngIf="!statusValidacao(membro.substituto)"
+                                                                placement="left" fxLayoutAlign="center center"
+                                                                class="pl-2 text-center" fxFlex="15">
+                                                                <i aria-hidden="true"
+                                                                     title="{{ 'MSG_SELECIONE_ICONE_PARA_DETALHAR_PENDENCIAS_PROFISSIONAL' | i18n }}"
+                                                                    (click)="abrirModalPendeciasMembro(templateSubstituicaoPendeciasMembro, membro.substituto)"
+                                                                    class="fa fa-exclamation-circle text-alert icone-19 color-alert"></i>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <hr *ngIf="!isLast" class="mb-3 mt-0" />
+
+                                    </div>
+                                </div>
+                            </card-panel>
+                        </div>
+                    </div>
+
+                    <div class="mb-5">
+                        <card-panel [titulo]="getTituloEditor()" class="mt-3">
+                            <editor-de-texto
+                              [isRequerido]="false"
+                              [isHabilitado]="false"
+                              [valor]="substituicao.justificativa"
+                              [isMostrarTamanhoTextoRestantes]="false">
+                            </editor-de-texto>
+                        </card-panel>
+                    </div>
+                    <div>
+                        <card-panel [titulo]="'LABEL_DOCUMENTO'" class="mt-3">
+                            <div class="col-md-4 p-0" *ngIf="!isRecurso()">
+                                <arquivo
+                                    [maxArquivos]="1"
+                                    [hasUpload]="false"
+                                    [hasDownload]="true"
+                                    [hasExclusao]="false"
+                                    [arquivos]="substituicao.arquivos"
+                                    (download)="downloadArquivoDefesaImpugnacao($event)">
+                                </arquivo>
+                                <div class="col-md-4 col-xs-12" *ngIf="!substituicao.arquivos || !substituicao.arquivos[0]">
+                                    <table class="table table-sm">
+                                        <tbody>
+                                            <td class="text-left pr-3 mt-3">
+                                                <span>{{ 'LABEL_NAO_APLICADO' | i18n }}</span>
+                                            </td>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-4 p-0" *ngIf="isRecurso()">
+                              <b><arquivo
+                                    [maxArquivos]="1"
+                                    [hasUpload]="false"
+                                    [hasDownload]="true"
+                                    [hasExclusao]="false"
+                                    [arquivos]="substituicao.arquivos"
+                                    (download)="downloadArquivoRecursoSubstituicao($event)">
+                                </arquivo></b>
+                              <div class="col-md-4 col-xs-12" *ngIf="!substituicao.arquivos || !substituicao.arquivos[0]">
+                                  <table class="table table-sm">
+                                      <tbody>
+                                          <td class="text-left pr-3 mt-3">
+                                              <span>{{ 'LABEL_NAO_APLICADO' | i18n }}</span>
+                                          </td>
+                                      </tbody>
+                                  </table>
+                              </div>
+                            </div>
+                        </card-panel>
+                    </div>
+                </div>
+                  <!-- Julgar Deferido/Indeferido 2ª Instância -->
+                  <app-form-julgar-segunda-instancia *ngIf="hasSubstituicao && !substituicao.hasJulgamentoSegundaInstancia"
+                    [julgarTipo]="getTipoJulgamento()"
+                    [chapaEleicao]="chapa"
+                    [substituicaoJulgamento]="substituicao"
+                    [membrosPorSituacao]="membrosPorSituacao"
+                    [isChapaIES]="isChapaIES()"
+                    (redirecionarVisualizarJulgamento)="redirecionarAposSalvarJulgamento($event)"
+                    >
+                  </app-form-julgar-segunda-instancia>
+            </div>
+
+            <!-- Histórico  -->
+            <div class="card shadow rounded mb-3" *ngIf="historico.length > 0">
+              <div class="card-body">
+                <div class="col-md-12 bg-primary">
+                    <span class="text-white"><strong>Histórico do Pedido de Substituição</strong></span>
+                </div>
+                <div class="card">
+                    <div class="card-body bg-green">
+                        <table class="table table-borderless table-sm mt-0 table-parecer">
+                            <thead>
+                                <tr>
+                                    <td class="p-0" colspan="8">
+                                        <div fxLayout="row" class="font-weight-bold font-header text-center px-4">
+                                            <div fxFlex="7">
+                                                Registro
+                                            </div>
+                                            <div fxFlex="15">
+                                                Tipo Cadastro
+                                            </div>
+                                            <div fxFlex="20">
+                                                Data/Hora Cadastro
+                                            </div>
+
+                                            <div fxFlex>
+                                                Cadastrado por
+                                            </div>
+                                            <div fxFlex>
+                                                Descrição/Documento
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of historico; let indice = index">
+                                    <td class="p-0" colspan="8">
+                                        <div class="card shadow border rounded-2 my-1">
+                                            <div class="card-body p-8">
+                                                <div fxLayout="row" class="text-center align-items-center">
+                                                    <div class="px-2" fxFlex="7">
+                                                        {{item.registro}}
+                                                    </div>
+                                                    <div class="px-2 border-left" fxFlex="15">
+                                                        {{item.tipo}}
+                                                    </div>
+                                                    <div class="px-2 border-left" fxFlex="20">
+                                                        {{item.data_cadastro | date:'dd/MM/yyy ' : '+0' }} às
+                                                        {{item.data_cadastro | date:'HH:mm ' : '+0' }}
+                                                    </div>
+                                                    <div class="px-2 border-left" fxFlex>
+                                                        {{item.usuario}}
+                                                    </div>
+                                                    <div class="px-2 border-left" fxFlex>
+                                                        <a href="" [routerLink]="null" class="remove-link"
+                                                            (click)="carregarPedidoSubstituicao(item.id, item.registro)">
+                                                            {{ 'LABEL_VISUALIZAR' | i18n }}
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+              </div>
+            </div>
+            <!-- Fim histórico-->
+
+        </div>
+
+        <!-- Sem o Pedido de Substituição -->
+        <div class="row conteudo" *ngIf="!hasSubstituicao">
+            <form #form="ngForm" class="w-100" id="aba-defesa-impugnacao-form-id">
+                <div class="col-md-12">
+                    <div class="card border pl-4 pr-4 pb-4 pt-4 mb-4" style="border-radius: 8px mb-5">
+                        <div class="alert border bg-green shadow margin">
+                            <div fxLayout="row" fxLayoutAlign="center center">
+                                <b class="mt-4 mb-4 colorVerdeCau">{{'LABEL_NAO_HOUVE_PEDIDO_SUBSTITUICAO' | i18n}}</b>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<ng-template #templateSubstituicaoPendeciasMembro>
+    <div class="modal-header border-header-green">
+      <div class="col-md-2"></div>
+      <div class="col-md-8 text-center">
+          <h6 class="modal-title pull-center">{{'TITLE_PENDECIAS_MEMBRO' |i18n}}</h6>
+      </div>
+      <div class="col-md-2 align-items-right">
+          <button type="button" class="close pull-right" aria-label="Close" (click)="modalPendeciasMembro.hide()">
+              <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+    </div>
+      <div class="modal-body body-height">
+          <div class="row p-3">
+              <div class="col-md-12">
+                  <p class="text-center pb-2"
+                      *ngFor="let pendencia of membroChapaSelecionado.pendencias; let indice = index;">
+                      {{ pendencia.tipoPendencia.descricao }}
+                  </p>
+              </div>
+          </div>
+          <div class="row">
+              <div class="col-md-12 text-center pt-3">
+                  <button class="btn btn-primary" (click)="modalPendeciasMembro.hide()">{{'LABEL_FECHAR' |i18n}}</button>
+              </div>
+          </div>
+      </div>
+  </ng-template>

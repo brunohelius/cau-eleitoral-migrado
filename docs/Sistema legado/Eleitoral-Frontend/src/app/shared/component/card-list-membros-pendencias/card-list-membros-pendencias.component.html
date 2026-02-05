@@ -1,0 +1,81 @@
+<div class="tab-pane fade rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}">
+  <div fxLayout="row" fxFlexFill>
+    <div fxFlex>
+      <div fxLayout="row" [ngClass]="{ 'pr-4': isDivMembrosSelecionadosComBarraDeRolagem}">
+        <div [ngStyle]="{'width': isDivMembrosSelecionadosComBarraDeRolagem ? '90%' : '89%' }">
+          <div fxFlex="8%" class="ml-1 text-center pb-1">
+            <strong class="label-subtitle color-green">{{ 'LABEL_POSICAO' | i18n }}</strong>
+          </div>
+          <div fxFlex="20%" class="text-center"><strong
+              class="label-subtitle color-green">{{ 'LABEL_TIPO_PARTICIPACAO' | i18n }}</strong>
+          </div>
+          <div fxFlex="45%" class="text-center"><strong
+              class="label-subtitle color-green">{{ 'LABEL_NOME' | i18n }}</strong>
+          </div>
+          <div fxFlex class="text-center">
+            <strong class="label-subtitle color-green">{{ 'LABEL_REGISTRO' | i18n }}</strong>
+          </div>
+        </div>
+        <div [ngStyle]="{'width': isDivMembrosSelecionadosComBarraDeRolagem ? '10%' : '11%' }">
+          <div fxFlex class="text-center">
+            <i
+              class="fa fa-trash fa fa-times-circle fa-2x primary"
+              title="{{ 'LABEL_EXCLUIR_TODOS' | i18n }}"
+              (click)="excluirTodosEmit()"
+              aria-hidden="true">
+            </i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--Membros originais-->
+  <div *ngIf="membrosSelecionados" #divMembrosSelecionados class="list-item mt-1 bg-green" [ngClass]="{ 'barra-rolagem':barraRolagem}">
+    <div *ngFor="let membro of membrosSelecionados; let indice = index">
+      <div fxLayout="row" fxLayoutAlign="center center">
+        <div style="width: 92%;">
+          <div fxLayout="row" class="list-item-box custom-grid mt-2 bg-white ">
+            <div fxFlex="8%" class="text-center border-right">
+              <div fxLayout="column" fxLayoutAlign="space-around center">
+                <div *ngIf="membro.numeroOrdem != 0">{{membro.numeroOrdem}}</div>
+              </div>
+              <div fxLayout="column" fxLayoutAlign="space-around center">
+                <div *ngIf="membro.numeroOrdem == 0">{{'LABEL_FEDERAL' | i18n}}</div>
+              </div>
+            </div>
+            <div fxFlex="20%" class="border-right text-center">
+              <div fxLayout="column" fxLayoutAlign="space-around center">
+                <div>
+                  {{membro.tipoParticipacaoChapa.descricao}}
+                </div>
+              </div>
+            </div>
+            <div fxFlex="45%" class="border-right text-center">
+              <div fxLayout="column" fxLayoutAlign="space-around center">
+                <div *ngIf="membro.profissional">{{membro.profissional.nome}}</div>
+                <div *ngIf="!membro.profissional" class="red">{{ 'LABEL_SEM_MEMBRO_INCLUSAO' | i18n }}</div>
+              </div>
+            </div>
+            <div fxFlex class="text-center">
+              <div fxLayout="column" fxLayoutAlign="space-around center">
+                <div *ngIf="membro.profissional">{{getRegistroComMask(membro.profissional.registroNacional)}}</div>
+                <div *ngIf="!membro.profissional">-</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="width: 8%; padding-top: 5px;">
+          <div class=" text-center" *ngIf="temExcluir">
+            <div fxLayout="column" fxLayoutAlign="space-around center">
+              <i class="fa fa-times-circle fa-2x float-right pointer red-custom" aria-hidden="true"
+                (click)="excluirMembroEmit(membro, indice)"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+  </div>
+</div>

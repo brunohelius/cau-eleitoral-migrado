@@ -1,0 +1,72 @@
+image: "php:7.4-cli"
+
+stages:
+  - test
+  - analysis
+  - deploy
+
+  
+services:
+  - mysql:latest
+  
+variables:
+  MYSQL_DATABASE: plataforma
+  MYSQL_ROOT_PASSWORD: secret
+
+teste:
+    image: docker-registry.default.svc:5000/gitlab-runner/php:7.2t
+    stage: test
+    variables:
+      DB_CONNECTION: "mysql"
+      DB_HOST: "mysql"
+      DB_PORT: "3306"
+      DB_DATABASE: "plataforma"
+      DB_USERNAME: "root"
+      DB_PASSWORD: "secret"
+      GIT_COMMITTER_NAME: "gitlab-runner"
+      GIT_COMMITTER_EMAIL: "gitlab-runner@git.caubr.gov.br"
+
+    cache:
+      key: ${CI_COMMIT_REF_SLUG}
+      paths:
+        - vendor/
+    script:
+      - composer install
+      - php artisan migrate --force || true
+      - php vendor/bin/phpunit --coverage-text --colors=never || true
+      
+sonarqube_check:
+  image: sonarsource/sonar-scanner-cli:latest
+  variables:
+    SONAR_TOKEN: "a0602a6756815d0115d2ce84fb1d06e1539e34b7"
+    SONAR_HOST_URL: "http://sonarqube-sonarqube.apps.caubr.gov.br"
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar" # Defines the location of the analysis task cache
+    GIT_DEPTH: "0" # Tells git to fetch all the branches of the project, required by the analysis task 
+  cache:
+    key: ${CI_JOB_NAME}
+    paths:
+      - .sonar/cache
+  stage: analysis
+  script:
+    - sonar-scanner -Dsonar.qualitygate.wait=true -Dsonar.projectKey=eleitoral_back-end -Dsonar.sources=./ -Dsonar.exclusions=public/js/*.js,public/css/*.css,public/swagger/**
+  allow_failure: false
+
+deploy_dev:
+  stage: deploy
+  dependencies:
+    - teste
+  script:
+    - curl -X POST -k https://console.caubr.gov.br:443/apis/build.openshift.io/v1/namespaces/caubr-teste/buildconfigs/eleitoral-backend/webhooks/RiAd1WGfvM0YApxYMrjTAWlRsTlNIpSMFf08DFER/generic
+  only:
+    - homologacao
+  when: on_success
+
+deploy_hmg:
+  stage: deploy
+  dependencies:
+    - teste
+  script:
+    - curl -X POST -k https://console.caubr.gov.br:443/apis/build.openshift.io/v1/namespaces/caubr-hmg1/buildconfigs/eleitoral-backend/webhooks/svCrk8YgdWapjYMWxHXXqrmBy7TFW54yP5KSqPgx/generic
+  only:
+    - homologacao
+  when: manual

@@ -1,0 +1,68 @@
+<button class="btn btn-primary btn-sm ml-2" title="{{'TITLE_VISUALIZAR' | i18n}}" type="button" (click)="abrirModal(templateVisualizar)">
+  <i class="far fa-list-alt icon-action"></i>
+</button>
+<ng-template #templateVisualizar>
+  <div class="modal-header border-header-green">
+      <div class="col-md-12 text-center">
+          <h6 class="modal-title pull-center" style="color: grey;">
+              {{ 'LABEL_CONTRARRAZAO' | i18n }}
+          </h6>
+      </div>
+  </div>
+
+  <div class="row pt-3">
+    <div class="col-md-2"></div>
+    <div class="col-md-8">
+      <div class="rounded-0 mb-2 text-center">
+        <span class="bg-white text-center"><strong><h3> {{'LABEL_NUMERO_PEDIDO_IMPUGNACAO' | i18n}}{{impugnacao.numero}} </h3></strong></span>
+      </div>
+    </div>
+  </div>
+
+  <div fxLayout="column" fxLayoutAlign="center start" class="pl-4 pb-1 pt-3 colorGreen" >
+    <strong>
+        {{'LABEL_RESPONSAVEL_CADASTRO_CONTRARRAZAO' | i18n}}{{contrarrazoes.profissional.nome}}
+    </strong>
+    <strong>
+        {{'LABEL_DATA_CADASTRO' | i18n}}{{contrarrazoes.dataCadastro | date:'dd/MM/yyyy' : '+0' }}
+        às {{contrarrazoes.dataCadastro | date:'HH:mm' : '+0'}}
+    </strong>
+  </div>
+
+  <div class="modal-body pt-1" style="height: 100%">
+    <div class="mb-5">
+        <card-panel [titulo]="'LABEL_DESCRICAO_CONTRARRAZAO'" class="mt-3">
+            <editor-de-texto
+                [valor]="contrarrazoes.descricao"
+                [configuracao]="configuracaoCkeditor">
+            </editor-de-texto>
+        </card-panel>
+    </div>
+
+    <card-panel [titulo]="'LABEL_DOCUMENTO'" class="mt-3">
+        <arquivo
+            [hasDownload]="true"
+            [arquivos]="arquivos"
+            (download)="downloadArquivo($event)">
+        </arquivo>
+        <div class="col-md-4 col-xs-12" *ngIf="contrarrazoes.nomeArquivo == '' || contrarrazoes.nomeArquivo == undefined">
+            <table class="table table-sm">
+                <tbody>
+                    <td class="text-left pr-3 mt-3">
+                        <span>{{ 'LABEL_NAO_APLICADO' | i18n }}</span>
+                    </td>
+                </tbody>
+            </table>
+        </div>
+    </card-panel>
+
+    <div class="col-md-12 p-3">
+        <button
+        class="btn btn-primary px-3 mr-3"
+            (click)="modalVisualizar.hide()">
+            {{ 'LABEL_FECHAR' | i18n }}
+        </button>
+    </div>
+
+  </div>
+</ng-template>

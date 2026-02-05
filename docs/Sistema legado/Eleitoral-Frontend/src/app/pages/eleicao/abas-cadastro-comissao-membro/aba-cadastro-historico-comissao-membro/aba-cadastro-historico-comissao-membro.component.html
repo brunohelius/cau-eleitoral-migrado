@@ -1,0 +1,71 @@
+<div class="card-body" fxLayout="column" fxLayoutGap="15px">
+    <div class="row mt-3">
+        <div class="col-3">
+            <label class="mr-auto">{{ 'LABEL_ANO_ELEICAO' | i18n }}</label>
+            <select class="form-control" [disabled]="!editable"
+                [(ngModel)]="eleicao.eleicao.ano" name="ano">
+                <option *ngFor=" let anoEleicao of anosEleicoes" value="{{anoEleicao.ano}}">
+                    {{anoEleicao.ano}}
+                </option>
+            </select>
+        </div>
+
+
+        <div class="col-3">
+            <label class="mr-auto">{{ 'LABEL_ELEICAO' | i18n }}</label>
+            <select class="form-control" [disabled]="!editable" [(ngModel)]="eleicao.eleicao" [compareWith]="compareFn" name="eleicao">
+                <option *ngFor=" let eleicao of eleicoes" [ngValue]="eleicao.eleicao">
+                    {{eleicao.eleicao.descricao}}
+                </option>
+            </select>
+
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-3">
+            <label class="mr-auto">{{ 'LABEL_UF' | i18n }}</label>
+            <select class="form-control" [disabled]="!editable" [(ngModel)]="eleicao.cauUf" name="cauUf">
+                <option *ngFor="let cauUF of cauUfs" value="{{cauUF.id}}">{{cauUF.prefixo}}</option>
+            </select>
+        </div>
+        <div class="col-3">
+            <label class="mr-auto">{{ 'LABEL_NUMERO_MEMBROS' | i18n }}</label>
+            <select class="form-control" disabled [(ngModel)]="qtdMembros">
+                <option value="{{qtdMembros}}">{{qtdMembros}}</option>
+                
+            </select>
+        </div>
+    </div>
+    <div class="bg-primary text-white my-3 py-1 text-center">
+        <span class="pl-3 ">
+            <span >{{ 'LABEL_INCLUIR_MEMBROS_COMISSAO' | i18n }}
+                ({{cauUfSelecionada}})</span>
+        </span>
+    </div>
+    <div class="text-muted my-3 py-1 text-center">
+        <span class="pl-3 ">
+            <b>{{ 'LABEL_HISTORICO_ALTERACOES' | i18n }}</b>
+        </span>
+    </div>
+
+    <h5 class="text-center">{{ '' | i18n }}</h5>
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="text-center">{{ 'LABEL_RESPONSAVEL' | i18n }}</th>
+                <th class="text-center">{{ 'LABEL_DATA_HORA' | i18n }}</th>
+                <th class="text-center">{{ 'LABEL_ACAO' | i18n }}</th>
+                <th class="text-center">{{ 'LABEL_JUSTIFICATIVA' | i18n }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let ocorrencia of ocorrencias">
+                <td class="text-center">{{ocorrencia.dadosResponsavel.nome}}</td>
+                <td class="text-center">{{ocorrencia.dataHistorico | date:'dd/MM/yyyy HH:mm' : '+0' }}</td>
+                <td class="text-center">{{ocorrencia.descricaoAcao}}</td>
+                <td class="text-center">{{ocorrencia.justificativa}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>

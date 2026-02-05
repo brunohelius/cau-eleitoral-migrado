@@ -1,0 +1,29 @@
+.aling-left {
+  justify-content: flex-start;
+}
+
+.lista-arquivos {
+  width: 33em;
+}
+
+.bnt-upload-excluir {
+  padding-top: 14px;
+}
+
+.custom-control-label::before {
+  position: unset;
+  margin-right: 0.75rem !important;
+}
+
+.p-6 {
+  padding: 0 !important;
+}
+
+.p-7 {
+  padding: 2.5rem !important;
+}
+
+.center-info-doc {
+  padding-top: 1.1em !important;
+  margin-left: 10px;
+}

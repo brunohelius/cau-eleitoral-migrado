@@ -1,0 +1,241 @@
+<div class="header">
+    <h1 class="header-title">
+        <i class="fa fa-wpforms" style="margin-right: 10px; font-size: 30px" aria-hidden="true"></i>
+        {{'LABEL_PARAMETRIZAR_CORPO_EMAIL' | i18n}}
+    </h1>
+</div>
+
+<div class="container-grid">
+    <div class="row">
+        <div class="col-md-9 col-sm-9">
+            <div class="card card-box-shadow">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12">
+
+                            <div class="card-body">
+                                <div *ngIf="!isExibirMSGTableFiltroVazio()">
+
+                                    <div class="row mt-2 mb-2">
+                                        <div class="col-md-8">
+                                            <div class="h5 text-muted">
+                                                {{ 'LABEL_RESULTADO_PESQUISA' | i18n }}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control largura-campo" [(ngModel)]="search"
+                                                placeholder="{{ 'LABEL_BUSCAR' | i18n }}"
+                                                (ngModelChange)="filtroGrid($event)" maxlength="50">
+                                        </div>
+                                    </div>
+
+                                    <table class="table table-striped" [mfData]="corposEmailExibicao" #mf="mfDataTable"
+                                        [mfRowsOnPage]="numeroRegistrosPaginacao" *ngIf="corposEmailExibicao">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center tb-width-10">
+                                                    <mfDefaultSorter by="id">{{ 'LABEL_N' | i18n }}</mfDefaultSorter>
+                                                </th>
+                                                <th class="text-center tb-width-30">
+                                                    <mfDefaultSorter by="assunto">{{ 'LABEL_ASSUNTO' | i18n }}
+                                                    </mfDefaultSorter>
+                                                </th>
+                                                <th class="text-center tb-width-30">
+                                                    <mfDefaultSorter by="atividadesSecundariasAgrupadas">
+                                                        {{ 'LABEL_ATIVIDADE_SECUNDARIA' | i18n }} </mfDefaultSorter>
+                                                </th>
+                                                <th class="text-center tb-width-10">{{ 'LABEL_DESCRICAO' | i18n }}</th>
+                                                <th class="text-center tb-width-10">
+                                                    <mfDefaultSorter by="ativo">{{ 'LABEL_ATIVO' | i18n }}
+                                                    </mfDefaultSorter>
+                                                </th>
+                                                <th class="text-center tb-width-10">{{ 'LABEL_ACAO' | i18n }}</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            <tr *ngFor="let corpoEmail of mf.data;">
+                                                <td class="text-center tb-width-10">{{ corpoEmail.id }}</td>
+                                                <td class="text-center tb-width-30">{{ corpoEmail.assunto }}</td>
+                                                <td class="text-center tb-width-30">
+                                                    <ul class="list-unstyled">
+                                                        <li
+                                                            *ngFor="let atividadeSecundaria of corpoEmail.atividadesSecundarias">
+                                                            {{ atividadeSecundaria.descricao }}
+                                                        </li>
+                                                    </ul>
+                                                </td>
+                                                <td class="text-center tb-width-10">
+                                                    <button type="button" class="btn btn-primary btn-calendario"
+                                                        [disabled]="!corpoEmail.ativo"
+                                                        (click)="visualizarCorpoEmail(templateVisualizarCabecalhoEmail, corpoEmail)">
+                                                        {{ 'LABEL_VISUALIZAR' | i18n }}
+                                                    </button>
+                                                </td>
+                                                <td class="text-center tb-width-10">
+                                                    {{ getLabelAtivo(corpoEmail.ativo) | i18n }}
+                                                </td>
+                                                <td class="text-center tb-width-10">
+
+                                                    <div class="btn-group" dropdown triggers="hover"
+                                                        (mouseleave)="dp.hide()" #dp="bs-dropdown">
+                                                        <button dropdownToggle type="button"
+                                                            class="btn btn-link text-muted"
+                                                            aria-controls="dropdown-basic">
+                                                            <i class="align-middle colorAcao fas fa-ellipsis-v"
+                                                                aria-hidden="true"></i>
+                                                        </button>
+                                                        <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu"
+                                                            role="menu" aria-labelledby="button-basic">
+                                                            <li role="menuitem">
+                                                                <a href="#" class="dropdown-item"
+                                                                    title="{{'LABEL_ALTERAR' |i18n}}"
+                                                                    [routerLink]="getUrlAlterarCorpoEmail(corpoEmail.id)">{{'LABEL_ALTERAR' |i18n}}</a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="6" class="col-12"
+                                                    *ngIf="getTotalRegistrosCorposEmail() > 0">
+                                                    <paginacao [paginaAtual]="mf.activePage"
+                                                        [totalPorPagina]="numeroRegistrosPaginacao"
+                                                        [totalRegistros]="getTotalRegistrosCorposEmail()"></paginacao>
+                                                </td>
+                                                <td colspan="6" class="col-12"
+                                                    *ngIf="getTotalRegistrosCorposEmail() == 0">
+                                                    <div class="text-center">
+                                                        {{'LABEL_NENHUM_REGISTRO_ENCONTRADO' |i18n}}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+
+                                <div class="div-tabela-vazia text-center" *ngIf="isExibirMSGTableFiltroVazio()">
+                                    <span class="tabela-vazio">{{'LABEL_TABLE_FILTRO_VAZIO' |i18n}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3" id='div-filtro'>
+            <div class="card card-box-shadow">
+                <div class="header-filtro">
+                    <i class="fas fa-filter" aria-hidden="true"></i>
+                    <span class="h4">{{'LABEL_FILTROS' |i18n}}</span>
+                </div>
+
+                <div class="row  p-2">
+                    <div class="col-md-12">
+                        <a class="remove-link" href="#" [routerLink]="getUrlIncluirCorpoEmail()" title="Incluir">
+                            <i aria-hidden="true" class="fas fa-plus-square"></i><span>Incluir</span>
+                        </a>
+                    </div>
+                    <div class="col-md-12">
+                        <a class="remove-link" href="#" (click)="limpar($event)" title="{{'LABEL_LIMPAR' |i18n}}">
+                            <i class="fas fa-bars" aria-hidden="true"></i>
+                            <span>{{ 'LABEL_LIMPAR' | i18n }}</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row p-2">
+                    <div class="col-12">
+                        <label>{{ 'LABEL_ASSUNTO' | i18n }}</label>
+                        <ng-multiselect-dropdown placeholder="{{ 'LABEL_SELECIONAR' | i18n }}"
+                            [data]="getAssuntosCorpoEmail()" [(ngModel)]="filtro.corposEmail"
+                            [settings]="configuracaoDropdownAssunto" title="{{ 'LABEL_ASSUNTO' | i18n }}"
+                            (onSelect)="getAtividadesSecundariasAssunto()"
+                            (onSelectAll)="getTodasAtividadesSecundariasAssunto()"
+                            (onDeSelect)="removerAtividadeSecundariaAssunto($event)"
+                            (onDeSelectAll)="removerTodasAtividadesSecundariasAssunto()">
+                        </ng-multiselect-dropdown>
+                    </div>
+                </div>
+
+                <div class="row p-2">
+                    <div class="col-12">
+                        <label>{{ 'LABEL_ATIVIDADE_SECUNDARIA' | i18n }}</label>
+                        <ng-multiselect-dropdown placeholder="{{ 'LABEL_SELECIONAR' | i18n }}"
+                            [data]="atividadesSecundariasFiltro" [(ngModel)]="filtro.atividadesSecundarias"
+                            [settings]="configuracaoDropdownAtividadeSecundaria"
+                            [disabled]="isAtividadeSecundariaFiltroDisabled()"
+                            title="{{'LABEL_ATIVIDADE_SECUNDARIA' |i18n}}">
+                        </ng-multiselect-dropdown>
+                    </div>
+                </div>
+
+                <div class="row p-2">
+                    <div class="col-12">
+                        <label for="tpProcesso">{{ 'LABEL_ATIVO' | i18n }}</label>
+                        <ng-multiselect-dropdown placeholder="{{ 'LABEL_SELECIONAR' | i18n }}"
+                            [data]="getOpcoesFiltroAtivo()" [(ngModel)]="filtro.ativo"
+                            [settings]="configuracaoDropdownAtivo" title="{{'LABEL_ATIVO' |i18n}}">
+                        </ng-multiselect-dropdown>
+                    </div>
+                </div>
+
+                <div class="row p-2">
+                    <div class="col-12 text-center">
+                        <button type="button" class="btn btn-primary btn-calendario" (click)="pesquisar()"
+                            title="{{ 'LABEL_PESQUISAR' | i18n }}">
+                            {{ 'LABEL_PESQUISAR' | i18n }}
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<ng-template #templateVisualizarCabecalhoEmail>
+    <div class="card m-0">
+        <div class="card-header">
+            <a class="pointer" (click)="fecharModalVisualizarCorpoEmail()">
+                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+            </a>
+            {{ 'LABEL_VISUALIZAR_CORPO_EMAIL' | i18n }}
+        </div>
+        <div class="card-body">
+            <div class="row col-md-12">
+                <div class="row cold-md-12" *ngIf="corpoEmailVisualizar.cabecalhoEmail.isCabecalhoAtivo">
+                    <div class="col-md-12" *ngIf="corpoEmailVisualizar.cabecalhoEmail.imagemCabecalho">
+                        <p><img [src]="corpoEmailVisualizar.cabecalhoEmail.imagemCabecalho" class="img-fluid" alt="">
+                        </p>
+                    </div>
+                    <div class="col-md-12" *ngIf="corpoEmailVisualizar.cabecalhoEmail.textoCabecalho">
+                        <p [innerHTML]="getHtmlConfiavel(corpoEmailVisualizar.cabecalhoEmail.textoCabecalho)"></p>
+                    </div>
+                </div>
+
+                <div class="row col-md-12">
+                    <div class="col-md-12">
+                        <p [innerHTML]="getHtmlConfiavel(corpoEmailVisualizar.descricao)"></p>
+                    </div>
+                </div>
+
+                <div class="row col-md-12" *ngIf="corpoEmailVisualizar.cabecalhoEmail.isRodapeAtivo">
+                    <div class="col-md-12" *ngIf="corpoEmailVisualizar.cabecalhoEmail.textoRodape">
+                        <p [innerHTML]="getHtmlConfiavel(corpoEmailVisualizar.cabecalhoEmail.textoRodape)"> </p>
+                    </div>
+
+                    <div class="col-md-12" *ngIf="corpoEmailVisualizar.cabecalhoEmail.imagemRodape">
+                        <p><img [src]="corpoEmailVisualizar.cabecalhoEmail.imagemRodape" class="img-fluid" alt=""></p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</ng-template>

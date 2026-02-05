@@ -1,0 +1,101 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="tab-content">
+            <div class="tab-pane active show fade card rounded-0">
+                <div class="col-md-12">
+                    <a class="pointer">
+                        <i class="fa fa-desktop fa-2x m-2 pointer colorGray" aria-hidden="true"></i>
+                    </a>
+                </div>
+
+                <div class="box-separador bg-primary"></div>
+
+                <div class="tab-pane fade pl-3 pr-3 pb-5 mt-3" id="tab-pane-julgamento"
+                    [ngClass]="{ 'active show': true}">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-link p-0" (click)="voltar()">
+                                <h5 class="m-0"><i class="fa fa-reply text-primary"
+                                        title="{{'LABEL_VOLTAR' | i18n}}"></i></h5>
+                            </button>
+                        </div>
+                        <div class="col-md-8 mt-2">
+                            <div *ngIf="!isIES" class="subtitle-line">
+                                <span class="bg-white">{{'TITLE_RECURSO_PEDIDO_DE_SUBSTITUICAO' | i18n}}</span>
+                            </div>
+                            <div *ngIf="isIES" class="subtitle-line">
+                                <span class="bg-white">{{'TITLE_RECONSIDERACAO_PEDIDO_DE_SUBSTITUICAO' | i18n}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="!hasRecurso()" class="p-3">
+                    <div  class="card border p-3" style="border-radius: 8px mb-5"> 
+                        <div class="card-body bg-green pl-3 pr-3 py-5" style="border-radius: 8px;">
+                            <div fxLayout="row" fxLayoutAlign="center center" >
+                                <b *ngIf="!isIES">{{'MSG_NAO_HOUVE_INTERPOSICAO_RECURSO_SUBSTITUICAO' | i18n}}</b>
+                                <b *ngIf="isIES">{{'MSG_NAO_HOUVE_INTERPOSICAO_RECONSIDERACAO_SUBSTITUICAO' | i18n}}</b>
+                            </div>
+                        </div> 
+                    </div>
+                </div>
+        
+                <!-- Conteúdo dos dados de recurso cadastrado-->
+                <div *ngIf="hasRecurso()" >
+                    <card-substituicao 
+                        [membroSubstitutoTitular]="dados.membroSubstitutoTitular"
+                        [membroSubstituidoTitular]="dados.membroSubstituidoTitular" 
+                        [membroSubstitutoSuplente]="dados.membroSubstitutoSuplente"
+                        [membroSubstituidoSuplente]="dados.membroSubstituidoSuplente">
+                    </card-substituicao>
+                
+                    <!-- Separador horizontal verde -->
+                    <div class="box-separador bg-primary font-white mt-5 mb-5">
+                        <div *ngIf="!isIES" fxLayout="row" fxLayoutAlign="center center" style="color: white;">
+                        {{'TITLE_INTERPOR_RECURSO_DOCUMENTO' | i18n}}
+                        </div>
+                        <div *ngIf="isIES" fxLayout="row" fxLayoutAlign="center center" style="color: white;">
+                        {{'TITLE_INTERPOR_RECONSIDERACAO_DOCUMENTO' | i18n}}
+                        </div>
+                    </div>
+                    <!-- Parecer -->
+                    <div class="tab-pane fade card rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}">
+                        <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px mb-5"> 
+                            <card-panel *ngIf="!isIES" [titulo]="'LABEL_RECURSO_DO_JULGAMENTO'">
+                                <ckeditor name="paracerRecurso" id="paracerRecurso" [(ngModel)]="dadosRecurso.descricao" [readOnly]="true"
+                                    [config]="configuracaoCkeditor">
+                                </ckeditor>
+                            </card-panel>
+
+                            <card-panel  *ngIf="isIES" [titulo]="'LABEL_RECONSIDERACAO_DO_JULGAMENTO'">
+                                <ckeditor name="paracerRecurso" id="paracerRecurso" [(ngModel)]="dadosRecurso.descricao" [readOnly]="true"
+                                    [config]="configuracaoCkeditor">
+                                </ckeditor>
+                            </card-panel>
+
+                            <!-- Documento -->
+                            <card-panel [titulo]="'LABEL_DOCUMENTO'" class="mt-3">
+                                <div class="col-md-4 p-0">
+                                    {{ 'LABEL_ARQUIVO' | i18n }}
+                                    <hr>
+                                    <download  *ngIf="dadosRecurso.nomeArquivo" title="{{ dadosRecurso.nomeArquivo }}" class="center-no-arquivo pointer p-0"
+                                        [download]="dadosRecurso.nomeArquivo" (process)="download($event, dadosRecurso)"
+                                        style="background: none;">
+                                        {{ dadosRecurso.nomeArquivo }}
+                                        <i class="fa fa-download" aria-hidden="true"></i>
+                                    </download>
+                                    <div *ngIf="!dadosRecurso.nomeArquivo">
+                                        {{'LABEL_NAO_APLICADO' | i18n}}
+                                    </div>
+                                </div>
+                            </card-panel>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,181 @@
+<div class="rounded-0 mb-5">
+    <div class="subtitle-line mt-3">
+        <span class="bg-white"> {{'TITLE_PEDIDO_IMPUGNACAO_CANDIDATURA' | i18n}}</span>
+    </div>
+</div>
+<div class="tab-pane fade card rounded-0 pl-4 pr-4 pb-4" [ngClass]="{ 'active show':true}">
+    <div class="card border pl-3 pr-3 pb-3 pt-3" style="border-radius: 8px;">
+
+        <div class="card-body bg-green pl-5 pr-5" style="border-radius: 8px; padding-left: 15px; padding-right: 15px;">
+            <div class="mb-5 text-center">
+                <strong>{{'LABEL_INFORMACOES_IMPUGNADO' | i18n}}</strong>
+            </div>
+
+            <div fxLayout="row" >
+                <div fxFlex>
+                    <div fxLayout="row">
+                        <div fxFlex="40%" class="ml-2 text-center pb-1">
+                            <strong class="label-subtitle">{{'LABEL_NOME_CANDIDATO' | i18n}}</strong>
+                        </div>
+                        <div fxFlex="20%" class="text-center"><strong class="label-subtitle">{{'LABEL_REGISTRO_IMPUGNACAO' | i18n}}</strong>
+                        </div>
+                        <div fxFlex="20%" class="text-center"><strong class="label-subtitle">{{'LABEL_TIPO_DE_PARTICIPACAO' | i18n}}</strong>
+                        </div>
+                        <div fxFlex="20%" class="text-center"><strong class="label-subtitle">{{'LABEL_POSICAO_CHAPA' |i18n}}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="list-item list-item-card mt-1" style="height: 50px;">
+                <div fxLayout="row" class="list-item-box custom-grid pt-4">
+                    <div fxFlex="40%" class="pl-3 text-center pb-1 border-right">
+                        <div fxLayout="column" fxLayoutAlign="space-around center">
+                           {{impugnacao.informacoesCandidato.nome}}
+                        </div>
+                    </div>
+                    <div fxFlex="20%" class="pl-3 text-center pb-1 border-right">
+                        <div fxLayout="column" fxLayoutAlign="space-around center">
+                            {{getRegistroComMask(impugnacao.informacoesCandidato.registro)}}
+                        </div>
+                    </div>
+                    <div fxFlex="20%" class="pl-3 text-center pb-1 border-right">
+                        <div fxLayout="column" fxLayoutAlign="space-around center">
+                            {{impugnacao.informacoesCandidato.tipoParticipacao}}
+                        </div>
+                    </div>
+                    <div fxFlex="20%" class="pl-3 text-center pb-1">
+                        <div fxLayout="column" fxLayoutAlign="space-around center">
+                            {{getPosicaoFormatada(impugnacao.informacoesCandidato.posicaoChapa)}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informações do Impugnante -->
+
+        <div class="card-body bg-green pl-5 pr-5 mt-3"
+            style="border-radius: 8px; padding-left: 15px; padding-right: 15px;">
+
+            <div fxLayout="row" class="mb-4">
+                <div fxFlex="100%" class="ml-2 text-center pb-1">
+                    <strong class="label-subtitle">{{'LABEL_INFORMACOES_IMPUGNANTE' | i18n}}</strong>
+                </div>
+            </div>
+            <div fxLayout="row" fxLayoutGap="10px" fxFlexFill>
+                <div fxFlex>
+                    <div fxLayout="row">
+                        <div fxFlex="50%" class="ml-2 text-center pb-1">
+                            <strong class="label-subtitle">{{'LABEL_NOME' | i18n}}</strong>
+                        </div>
+                        <div fxFlex="50%" class="ml-2 text-center pb-1">
+                            <strong class="label-subtitle">{{'LABEL_REGISTRO' | i18n}}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="list-item list-item-card" style="height: 50px;">
+                <div fxLayout="row" fxLayoutGap="10px" class="list-item-box custom-grid pt-4">
+                    <div fxFlex="50%" class="pl-3 text-center pb-1 border-right">
+                        <div fxLayout="column" fxLayoutAlign="space-around center">
+                            {{impugnacao.informacoesImpugnante.nome}}
+                        </div>
+                    </div>
+                    <div fxFlex="50%" class="pl-3 text-center pb-1 border-right">
+                        <div fxLayout="column" fxLayoutAlign="space-around center">
+                            {{getRegistroComMask(impugnacao.informacoesImpugnante.registro)}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3" >
+            <div class="col-md-12">
+                <accordion>
+                    <div class="card-body custom-card-body">
+                        <accordion-group panelClass="customClass">
+                            <button class="btn btn-block clearfix accordionPrimay"
+                                 accordion-heading type="button">
+                                <div class="pull-left float-left">{{ 'LABEL_FUNDAMENTACAO' | i18n }}</div>
+                                <span class="float-right pull-right" style="color: white;">
+                                    <i class="fa fa-bars" aria-hidden="true"></i>
+                                </span>
+                            </button>
+                            <div class="card-body bg-green" fxLayout="column" fxLayoutGap="10px">
+                                <div class="col-md-12" style="padding: 2;">
+                                    <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="start stretch">
+                                        <div *ngFor="let declaracao of impugnacao.declaracoes; let i = index">
+                                            <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutGap="10px"
+                                                fxLayoutAlign="left left">
+                                                <b class="py-3">{{declaracao?.titulo}}</b>
+                                            </div>
+                                            <div class="text-justify mt-3" fxLayout="column" fxLayoutGap="10px">
+                                                <div [innerHTML]="declaracao.textoInicial"></div>
+                                            </div>
+                                            <div *ngFor="let item of declaracao.itensDeclaracao; let indice = index">
+                                                <ng-template [ngIf]="declaracao.tipoResposta == 2">
+                                                    <div class="custom-control custom-radio mb-2">
+                                                        <input type="radio" id="item{{i}}{{indice}}" name="itemDeclaracao{{i}}"
+                                                            class="custom-control-input" disabled [checked]="item.resposta == true">
+                                                        <label class="custom-control-label" for="item{{i}}{{indice}}">{{item.descricao}}</label>
+                                                    </div>
+                                                </ng-template>
+                                                <ng-template [ngIf]="declaracao.tipoResposta == 1">
+                                                    <div class="custom-control custom-checkbox mb-2">
+                                                        <input type="checkbox" class="custom-control-input" id="item{{i}}{{indice}}"
+                                                            name="itemDeclaracao" disabled [checked]="item.resposta == true">
+                                                        <label class="custom-control-label" for="item{{i}}{{indice}}">{{item.descricao}}</label>
+                                                    </div>
+                                                </ng-template>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </accordion-group>
+                        <accordion-group panelClass="customClass">
+                            <button class="btn btn-block clearfix accordionPrimay"
+                                 accordion-heading type="button">
+                                <div class="pull-left float-left">{{ 'LABEL_DESCRICAO_PEDIDO_IMPUGNACAO' | i18n }}</div>
+                                <span class="float-right pull-right" style="color: white;">
+                                    <i class="fa fa-bars" aria-hidden="true"></i>
+                                </span>
+                            </button>
+                            <div class="card-body bg-green" fxLayout="column" fxLayoutGap="10px">
+                                <div class="col-md-12 mt-4" style="padding: 2;">
+                                    <editor-de-texto
+                                        [isHabilitado]="false"
+                                        [valor]="impugnacao.descricao"
+                                        [configuracao]="configuracaoCkeditor">
+                                    </editor-de-texto>
+                                </div>
+                                <div class="mb-3"></div>
+                            </div>
+                        </accordion-group>
+                        <accordion-group panelClass="customClass">
+                            <button class="btn btn-block clearfix accordionPrimay"
+                                 accordion-heading type="button">
+                                <div class="pull-left float-left">{{ 'LABEL_DOCUMENTOS_COMPROBATORIOS' | i18n }}</div>
+                                <span class="float-right pull-right" style="color: white;">
+                                    <i class="fa fa-bars" aria-hidden="true"></i>
+                                </span>
+                            </button>
+                            <div class="card-body bg-green" fxLayout="column" fxLayoutGap="10px">
+                                <div class="col-md-12 mt-4" style="padding: 2;">
+                                    <arquivo
+                                        [arquivos]="impugnacao.arquivos"
+                                        (download)="downloadArquivo($event)"
+                                        [hasDownload]="true">
+                                    </arquivo>
+                                </div>
+                            </div>
+                        </accordion-group>
+                    </div>
+                </accordion>
+            </div>
+        </div>
+
+    </div>
+</div>

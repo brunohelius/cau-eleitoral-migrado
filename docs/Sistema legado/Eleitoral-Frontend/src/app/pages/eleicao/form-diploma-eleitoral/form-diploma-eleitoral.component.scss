@@ -1,0 +1,52 @@
+
+$primary: #14385D;
+
+.text-primary {
+    color: #14385D !important;
+}
+
+.card-list {
+    border: 1px solid #14385D !important;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #14385d !important;
+    border-color: #14385d !important;
+}
+
+.btn-outline-primary {
+    color: #14385d;
+    background-color: #ffffff !important;
+    border-color: #14385d !important;
+}
+
+.card-title {
+    color: #14385D !important;
+}
+
+.form-section {
+    h5 {
+        font-weight: bold;
+        position: relative;
+        color: $primary;
+        z-index: 1;
+        margin-bottom: 15px;
+
+        &:before {
+            border-bottom: 1px solid #E4F0F0;
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 20%;
+            z-index: -1;
+        }
+
+        span {
+            background: #fff;
+            padding-right: 5px;
+        }
+    }
+}

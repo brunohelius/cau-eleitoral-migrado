@@ -1,0 +1,257 @@
+<div class="card-body" fxLayout="column" fxLayoutGap="15px">
+    <div class="row mt-3">
+        <div class="col-3">
+            <label class="mr-auto">{{ 'LABEL_ANO_ELEICAO' | i18n }}</label>
+            <select class="form-control" [disabled]="!editable" [(ngModel)]="eleicao.eleicao.ano" name="eleicao">
+                <option *ngFor=" let anoEleicao of anosEleicoes" value="{{anoEleicao.ano}}">
+                    {{anoEleicao.ano}}
+                </option>
+            </select>
+        </div>
+
+
+        <div class="col-3">
+            <label class="mr-auto">{{ 'LABEL_ELEICAO' | i18n }}</label>
+            <select class="form-control" [compareWith]="compareFn" [disabled]="!editable" [(ngModel)]="eleicao.eleicao"
+                name="descricao">
+                <option *ngFor=" let eleicao of eleicoes" [ngValue]="eleicao.eleicao">
+                    {{eleicao.eleicao.descricao}}
+                </option>
+            </select>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-3">
+            <label class="mr-auto">{{ 'LABEL_UF' | i18n }}</label>
+            <select class="form-control" [(ngModel)]="eleicao.cauUf" (change)="getMembrosComissao()" name="cauUf">
+                <option value="">{{ 'LABEL_TODAS' | i18n }}</option>
+                <option *ngFor="let cauUF of cauUfs" value="{{cauUF.id}}">{{cauUF.prefixo}}</option>
+            </select>
+        </div>
+    </div>
+    <div class="bg-primary text-white my-3 py-1">
+        <span class="pl-3 ">
+            <span>{{ 'LABEL_VISUALIZAR_MEMBROS_COMISSOES' | i18n }}</span>
+        </span>
+    </div>
+
+    <div *ngFor="let comissao of membrosComissoes">
+        <div class="text-center title-comissao"><img class="img-fluid rounded-circle mb-2"
+                src="{{comissao.cauUf.imagemBandeira}}" alt="{{comissao.cauUf.prefixo}}"> {{comissao.cauUf.prefixo}}
+        </div>
+        <div class="alert bg-green">
+            <h6 class="subtitle-line">{{ 'LABEL_COORDENADORES' | i18n }}</h6>
+            <div fxLayout="row">
+                <div fxFlex class="ml-3 text-center">
+                    <label class="label-subtitle">{{ 'LABEL_NOME' | i18n }}</label>
+                </div>
+                <div fxFlex class="ml-3 text-center">
+                    <label class="label-subtitle">{{ 'LABEL_CPF' | i18n }}</label>
+                </div>
+                <div fxFlex class="ml-4 text-center">
+                    <label class="label-subtitle">{{ 'LABEL_TIPO_PARTICIPACAO' | i18n }}</label>
+                </div>
+
+                <div fxFlex class="ml-3 text-center">
+                    <label class="label-subtitle">{{ 'LABEL_EMAIL' | i18n }}</label>
+                </div>
+                <div fxFlex class="text-center"><label class="label-subtitle">{{ 'LABEL_STATUS' | i18n }}</label></div>
+            </div>
+
+            <div *ngFor="let coordenador of comissao.coordenadores">
+                <div class="list-item list-item-card mt-1">
+                    <div fxLayout="row" fxLayoutGap="15px" class="list-item-box">
+                        <div fxFlex="24%" class="border-left pl-3 text-center">
+                            <span>{{coordenador.profissional.nome}}</span>
+                        </div>
+                        <div fxFlex class="border-left pl-3 text-center">
+                            <span>{{coordenador.profissional.cpf}}</span>
+                        </div>
+                        <div fxFlex class="border-left pl-3 text-center">
+                            <span>{{coordenador.tipoParticipacao.descricao}}</span>
+                        </div>
+                        <div fxFlex="24%" class="border-left pl-3 text-center">
+                            <span>{{coordenador.profissional.email}}</span>
+                        </div>
+                        <div fxFlex class="border-left pl-3 pr-3 text-center" [title]="getMsgStatusMembro(coordenador)">
+                            <div class="progress"
+                                *ngIf="coordenador.situacaoVigente.id === constants.SITUACAO_MEMBRO_PENDENTE">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: 100%;"
+                                    aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                    {{coordenador.situacaoVigente.descricao}}</div>
+                            </div>
+                            <div class="progress"
+                                *ngIf="coordenador.situacaoVigente.id === constants.SITUACAO_MEMBRO_CONFIRMADO">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 100%;"
+                                    aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                    {{coordenador.situacaoVigente.descricao}}</div>
+                            </div>
+                            <div class="progress"
+                                *ngIf="coordenador.situacaoVigente.id === constants.SITUACAO_MEMBRO_REJEITADO">
+                                <div class="progress-bar bg-danger" role="progressbar" style="width: 100%;"
+                                    aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                    {{coordenador.situacaoVigente.descricao}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h6 class="subtitle-line mt-3">{{ 'LABEL_MEMBROS' | i18n }}</h6>
+            <div fxLayout="row">
+                <div fxFlex class="ml-3 text-center">
+                    <label class="label-subtitle">{{ 'LABEL_NOME' | i18n }}</label>
+                </div>
+                <div fxFlex class="ml-3 text-center">
+                    <label class="label-subtitle">{{ 'LABEL_CPF' | i18n }}</label>
+                </div>
+                <div fxFlex class="ml-4 text-center">
+                    <label class="label-subtitle">{{ 'LABEL_TIPO_PARTICIPACAO' | i18n }}</label>
+                </div>
+
+                <div fxFlex class="ml-3 text-center">
+                    <label class="label-subtitle">{{ 'LABEL_EMAIL' | i18n }}</label>
+                </div>
+                <div fxFlex class="text-center"><label class="label-subtitle">{{ 'LABEL_STATUS' | i18n }}</label></div>
+            </div>
+            <div *ngFor="let membro of comissao.membros">
+                <div class="list-item list-item-card mt-1">
+                    <div fxLayout="row">
+                        <div fxFlex>
+                            <div fxLayout="row" fxLayoutGap="15px" class="list-item-box">
+                                <div fxFlex="24%" class="border-left pl-3 text-center">
+                                    <span>{{membro.profissional.nome}}</span>
+                                </div>
+                                <div fxFlex class="border-left pl-3 text-center">
+                                    <span>{{membro.profissional.cpf}}</span>
+                                </div>
+                                <div fxFlex class="border-left pl-3 text-center">
+                                    <span>{{membro.tipoParticipacao.descricao}}</span>
+                                </div>
+                                <div fxFlex="24%" class="border-left pl-3 text-center">
+                                    <span>{{membro.profissional.email}}</span>
+                                </div>
+                                <div fxFlex class="border-left pl-3 pr-3 text-center"
+                                    [title]="getMsgStatusMembro(membro)">
+                                    <div class="progress"
+                                        *ngIf="membro.situacaoVigente.id === constants.SITUACAO_MEMBRO_PENDENTE">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 100%;"
+                                            aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                            {{membro.situacaoVigente.descricao}}</div>
+                                    </div>
+                                    <div class="progress"
+                                        *ngIf="membro.situacaoVigente.id === constants.SITUACAO_MEMBRO_CONFIRMADO">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 100%;"
+                                            aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                            {{membro.situacaoVigente.descricao}}</div>
+                                    </div>
+                                    <div class="progress"
+                                        *ngIf="membro.situacaoVigente.id === constants.SITUACAO_MEMBRO_REJEITADO">
+                                        <div class="progress-bar bg-danger" role="progressbar" style="width: 100%;"
+                                            aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                            {{membro.situacaoVigente.descricao}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h6 class="subtitle-line mt-3">{{ 'LABEL_SUBSTITUTO' | i18n }}</h6>
+            <div fxLayout="row">
+                <div fxFlex class="ml-3 text-center">
+                    <label class="label-subtitle">{{ 'LABEL_NOME' | i18n }}</label>
+                </div>
+                <div fxFlex class="ml-3 text-center">
+                    <label class="label-subtitle">{{ 'LABEL_CPF' | i18n }}</label>
+                </div>
+                <div fxFlex class="ml-4 text-center">
+                    <label class="label-subtitle">{{ 'LABEL_TIPO_PARTICIPACAO' | i18n }}</label>
+                </div>
+
+                <div fxFlex class="ml-3 text-center">
+                    <label class="label-subtitle">{{ 'LABEL_EMAIL' | i18n }}</label>
+                </div>
+                <div fxFlex class="text-center"><label class="label-subtitle">{{ 'LABEL_STATUS' | i18n }}</label></div>
+            </div>
+            <div *ngFor="let coordenador of comissao.coordenadores">
+                <div class="list-item list-item-card mt-1"
+                    *ngIf="coordenador.membroSubstituto.profissional.cpf !== undefined">
+                    <div fxLayout="row" fxLayoutGap="15px" class="list-item-box">
+                        <div fxFlex="24%" class="border-left pl-3 text-center">
+                            <span>{{coordenador.membroSubstituto.profissional.nome}}</span>
+                        </div>
+                        <div fxFlex class="border-left pl-3 text-center">
+                            <span>{{coordenador.membroSubstituto.profissional.cpf}}</span>
+                        </div>
+                        <div fxFlex class="border-left pl-3 text-center">
+                            <span>{{coordenador.membroSubstituto.tipoParticipacao.descricao}}</span>
+                        </div>
+                        <div fxFlex="24%" class="border-left pl-3 text-center">
+                            <span>{{coordenador.membroSubstituto.profissional.email}}</span>
+                        </div>
+                        <div fxFlex [title]="getMsgStatusMembro(coordenador.membroSubstituto)" class="text-center">
+                            <i class="fa fa-exclamation-circle fa-2x text-warning"
+                                *ngIf="coordenador.membroSubstituto.situacaoVigente.id === constants.SITUACAO_MEMBRO_PENDENTE"></i>
+                            <i class="fa fa-check-circle fa-2x text-success"
+                                *ngIf="coordenador.membroSubstituto.situacaoVigente.id === constants.SITUACAO_MEMBRO_CONFIRMADO"></i>
+                            <i class="fa fa-times-circle fa-2x text-danger"
+                                *ngIf="coordenador.membroSubstituto.situacaoVigente.id === constants.SITUACAO_MEMBRO_REJEITADO"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngFor="let membro of comissao.membros">
+                <div class="list-item list-item-card mt-1"
+                    *ngIf="membro.membroSubstituto.profissional.cpf !== undefined">
+                    <div fxLayout="row">
+                        <div fxFlex>
+                            <div fxLayout="row" fxLayoutGap="15px" class="list-item-box border-left">
+                                <div fxFlex="24%" class="pl-3 text-center">
+                                    <span>{{membro.membroSubstituto.profissional.nome}}</span>
+                                </div>
+                                <div fxFlex class="border-left pl-3 text-center">
+                                    <span>{{membro.membroSubstituto.profissional.cpf}}</span>
+                                </div>
+                                <div fxFlex class="border-left pl-3 text-center">
+                                    <span>{{membro.membroSubstituto.tipoParticipacao.descricao}}</span>
+                                </div>
+                                <div fxFlex="24%" class="border-left pl-3 text-center">
+                                    <span>{{membro.membroSubstituto.profissional.email}}</span>
+                                </div>
+                                <div fxFlex [title]="getMsgStatusMembro(membro.membroSubstituto)" class="text-center">
+                                    <i class="fa fa-exclamation-circle fa-2x text-warning"
+                                        *ngIf="membro.membroSubstituto.situacaoVigente.id === constants.SITUACAO_MEMBRO_PENDENTE"></i>
+                                    <i class="fa fa-check-circle fa-2x text-success"
+                                        *ngIf="membro.membroSubstituto.situacaoVigente.id === constants.SITUACAO_MEMBRO_CONFIRMADO"></i>
+                                    <i class="fa fa-times-circle fa-2x text-danger"
+                                        *ngIf="membro.membroSubstituto.situacaoVigente.id === constants.SITUACAO_MEMBRO_REJEITADO"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div fxLayout="row" *ngIf="hasPermissaoAlterarMembrosComissao(comissao)">
+                <div fxFlex="15">
+                    <a href="#" routerLink="../../{{eleicao.idEleicao}}/alterar/{{comissao.cauUf.id}}"
+                        class="btn btn-sm btn-primary mt-3 btn-block">
+                        {{ 'LABEL_ALTERAR' | i18n }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div fxLayout="row">
+        <div fxFlex="20">
+            <download title="Comissão_Eleitoral.docx" class="text-left" [download]="'Comissão_Eleitoral.docx'"
+                (process)="downloadDocComissaoEleitoral($event)">
+                Gerar Doc. <i class="fa fa-file-word-o ml-2"></i>
+            </download>
+        </div>
+    </div>
+</div>

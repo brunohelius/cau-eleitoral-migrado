@@ -1,0 +1,113 @@
+<div class="modal-header border-header-green">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 text-center">
+        <h6 class="modal-title pull-center">
+            <span> 
+                <b class="colorGray titulo">
+                    {{'LABEL_REGISTRO_PLATAFORMA_ELEITORAL_REDES_SOCIAIS' | i18n}}: {{formatSequencia()}}
+                </b> 
+            </span>
+        </h6>
+    </div>
+    <div class="col-md-2 align-items-right">
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
+
+<div class="modal-body">
+
+    <!--Título-->
+    <div class="text-center py-3 cor-corpo">
+        <div class="row">
+            <div class="col-md-2 text-center">
+               <!-- <i class="fa fa-reply fa-2x pointer" (click)="voltar.emit(isCamposAlterados())" aria-hidden="true"></i> -->
+            </div>
+            <div class="col-md-8">
+                <div class="subtitle-lines">
+                    <span *ngIf="!isIES">{{ 'LABEL_CADASTRAR_PLATAFORMA_ELEITORAL_UF' | i18n }}</span>
+                    <span *ngIf="isIES">{{ 'LABEL_CADASTRAR_PLATAFORMA_ELEITORAL_IES' | i18n }}</span>
+                </div>
+            </div>
+            <div class="">
+            </div>
+        </div>
+    </div>
+    <!--Descrição da Plataforma-->
+    <div class="row m-2">
+        <div class="col-md-12">
+            <div class="box-destaque shadow mt-4 mb-4">
+                <ckeditor name="dsPlataforma" id="dsPlataforma" #descricaoPlataforma="ngModel"
+                    [readOnly]="true"
+                    [(ngModel)]="dadosRetificacao.descricaoPlataforma"
+                    [config]="configuracaoCkeditor">
+                </ckeditor>
+            </div>
+        </div>
+    </div>
+
+    <div class="box-separador mt-4"></div>
+    
+    <div class="text-center py-3 cor-corpo">
+        <span class="subtitle-lines">{{ 'LABEL_CADASTRAR_MEIOS_OFICIAIS_PROPAGANDAS' | i18n }}</span>
+    </div>
+
+    <!--Redes Sociais-->
+    <div class="row m-2">
+        <div class="col-md-12">
+            <div class="box-destaque shadow mt-4 mb-4">
+
+                <div class="row my-2" *ngFor="let redeSocial of redesSociaisChapaFixas; let index = index;">
+                    <div class="col-md-1">
+                        <i [ngClass]="redeSocial.icone" aria-hidden="true"></i>
+                    </div>
+
+                    <div class="col-md-10" *ngIf="isDescricaoRedeSocialVisivel(redeSocial)">
+                        <input type="text" class="form-control form-control-sm" name="rede-social-{{ index }}"
+                            [(ngModel)]="redeSocial.descricao" [disabled]="isdescricaoRedeSocialDesabilitada(redeSocial)">
+                    </div>
+
+                    <div class="col-md-1">
+                        <ui-switch class="pl-2 btn-sm" title="{{ 'LABEL_ATIVAR' | i18n }}" name="toggleRedeSocial"
+                            [(ngModel)]="redeSocial.isAtivo" [disabled]="isDisabled()">
+                        </ui-switch>
+                    </div>
+                </div>
+
+                <div class="row my-2">
+                    <div class="col-md-1">
+                        {{ 'LABEL_OUTROS' | i18n }}
+                    </div>
+
+                    <div class="col-md-2">
+                        <ui-switch class="pl-2" title="{{ 'LABEL_ATIVAR' | i18n }}" name="toggleOutros"
+                            [disabled]="isDisabled()"
+                            [(ngModel)]="redesSociaisChapaOutrasAtiva">
+                        </ui-switch>
+                    </div>
+
+                    <div class="col-md-12" *ngIf="isRedesSociaisChapaOutrasVisivel(redesSociaisChapaOutras)">
+                        <div class="row my-2" *ngFor="let outro of redesSociaisChapaOutras; let indice = index;">
+                            <div class="col-md-9 offset-md-1">
+                                <input type="text" class="form-control form-control-sm" name="link-outro"
+                                [(ngModel)]="outro.descricao" [disabled]="isRedesSociaisChapaOutrasDescricaoDesabilitada()">
+                            </div>
+
+                            <div class="col-md-2">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal-footer">
+    <button class="btn btn-primary mr-auto" type="button" (click)="modalRef.hide()">
+        {{'LABEL_FECHAR' | i18n}}
+    </button>
+</div>

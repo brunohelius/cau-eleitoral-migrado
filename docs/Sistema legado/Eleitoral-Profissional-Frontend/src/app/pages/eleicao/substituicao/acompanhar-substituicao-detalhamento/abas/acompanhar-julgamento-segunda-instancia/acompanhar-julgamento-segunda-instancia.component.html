@@ -1,0 +1,99 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="tab-content">
+            <div class="tab-pane active show fade card rounded-0">
+                <div class="col-md-12">
+                    <a class="pointer">
+                        <i class="fa fa-desktop fa-2x m-2 pointer colorGray" aria-hidden="true"></i>
+                    </a>
+                </div>
+
+                <div class="box-separador bg-primary"></div>
+
+                <div class="tab-pane fade pl-3 pr-3 pb-5 mt-3" id="tab-pane-julgamento"
+                    [ngClass]="{ 'active show': true}">
+                    <div class="row mb-5">
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-link p-0" (click)="voltar()">
+                                <h5 class="m-0"><i class="fa fa-reply text-primary"
+                                    title="{{'LABEL_VOLTAR' | i18n}}"></i></h5>
+                            </button>
+                        </div>
+                        <div class="col-md-8 mt-2">
+                            <div class="subtitle-line">
+                                <span *ngIf="!isIES; else msg" class="bg-white">{{ 'TITLE_JULGAMENTO_SUBSTITUICAO_SEGUNDA_INSTANCIA' | i18n }}</span>
+                                <ng-template #msg>                                    
+                                    <span class="bg-white">{{ 'TITLE_JULGAMENTO_SUBSTITUICAO_SEGUNDA_INSTANCIA_RECONSIDERACAO' | i18n }}</span>
+                                </ng-template>
+                            </div>
+                        </div>
+                        <div class="col-md-2 spinnerStatus">
+                                <div *ngIf="julgamentoSubstituicao.statusJulgamentoSubstituicao.id == 2">
+                                    <div class="icons-title">
+                                        <i class="fa fa-spinner text-danger"></i>
+                                        <i class="fas fa-times text-danger"></i>
+                                    </div>
+
+                                    <div class="texto-titulo text-danger">{{ 'LABEL_INDEFERIDO' | i18n }}</div>
+                                </div> 
+                            <div *ngIf="julgamentoSubstituicao.statusJulgamentoSubstituicao.id == 1">
+                                <div>
+                                    <div class="icons-title">
+                                        <i class="fa fa-spinner"></i>
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="texto-titulo">{{ 'LABEL_DEFERIDO' | i18n }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card de membros substituicao da chapa -->
+                    <card-substituicao
+                        [membroSubstitutoTitular]="membroSubstitutoTitular"
+                        [membroSubstituidoTitular]="membroSubstituidoTitular"
+                        [membroSubstitutoSuplente]="membroSubstitutoSuplente"
+                        [membroSubstituidoSuplente]="membroSubstituidoSuplente"
+                    ></card-substituicao>
+
+                    <!-- Separador horizontal verde -->
+                    <div class="box-separador bg-primary font-white mt-5 mb-5">
+                        <div fxLayout="row" fxLayoutAlign="center center" style="color: white;">                            
+                            <span>{{'TITLE_PARECER_RECURSO_DE_SUBSTITUICAO_DOCUMENTO' | i18n:title2()}}</span>
+                        </div>
+                    </div>
+
+                    <!-- Parecer -->
+                    <div class="tab-pane fade card rounded-0 pl-0 pr-0 pb-2" [ngClass]="{ 'active show':true}">
+                        <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px mb-5">
+                                <card-panel [titulo]="titleDescricao()">
+                                    <editor-de-texto
+                                        [isHabilitado]="false"
+                                        [configuracao]="configuracaoCkeditor"
+                                        [valor]="julgamentoSubstituicao.descricao"
+                                        [isMostrarTamanhoTextoRestantes]="false">
+                                    </editor-de-texto>
+                                </card-panel>
+                            
+                            <!-- Documento -->
+                            <div class="col-md-12">
+                                <card-panel [titulo]="'LABEL_DOCUMENTO'">
+                                    <div class="col-md-6 p-0">
+                                        {{ 'LABEL_ARQUIVO' | i18n }}
+                                        <hr>
+                                        <download title="{{ julgamentoSubstituicao.nomeArquivo }}" class="center-no-arquivo pointer p-0"
+                                            [download]="julgamentoSubstituicao.nomeArquivo" (process)="download($event, julgamentoSubstituicao)"
+                                            style="background: none;">
+                                            {{ julgamentoSubstituicao.nomeArquivo }}
+                                            <i class="fa fa-download" aria-hidden="true"></i>
+                                        </download>
+                                    </div>
+                                </card-panel>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

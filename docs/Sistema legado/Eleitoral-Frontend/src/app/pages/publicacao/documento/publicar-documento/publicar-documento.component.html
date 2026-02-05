@@ -1,0 +1,202 @@
+<div class="header">
+  <h1 class="header-title">
+    <i class="fa fa-wpforms" style="margin-right: 10px; font-size: 30px" aria-hidden="true"></i>
+    {{ 'LABEL_PUBLICAR_DOCUMENTOS' | i18n }}
+  </h1>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <div class="card rounded-0">
+      <div class="card-header rounded-0">
+        <h5 class="card-title">
+          <a class="pointer" (click)="voltar()">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+          </a>
+          <span>{{ 'LABEL_DOCUMENTOS' | i18n }}</span>
+        </h5>
+      </div>
+
+      <div class="card-body pt-0" fxLayout="column" fxLayoutGap="15px">
+        <div class="ml-2 colorCircle">
+          <i class="fa fa-files-o fa-3x text-primary" aria-hidden="true"></i>
+        </div>
+
+        <div class="bg-calendario my-0 py-1">
+          <span class="pl-3">&nbsp;</span>
+        </div>
+
+        <form #form="ngForm">
+          <div class="itemAtividadePrincipal my-3 px-5">
+            <h5 class="card-title">
+              <i class="fa fa-upload" aria-hidden="true"></i>
+              <span class="negrito">{{ 'LABEL_UPLOAD' | i18n }}</span>
+            </h5>
+
+            <div class="row mt-3">
+                <div class="col-md-3 col-sm-12">
+                  <label class="mr-auto">{{ 'LABEL_ANO_ELEICAO' | i18n }}</label>
+                  <select class="form-control" [disabled]="true" [(ngModel)]="calendario.eleicao.id" name="anoEleicao">
+                    <option [ngValue]="calendario.eleicao.id" >{{ calendario.eleicao.ano }}</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6 col-sm-12">
+                  <label class="mr-auto">{{ 'LABEL_ARQUIVO' | i18n }}</label>
+                  <div class="d-flex flex-row">
+                      <div class="col-md-12 col-sm-12 pl-0 pr-0">
+                        <upload title="{{ 'LABEL_PROCURAR' | i18n }}" [name]="documentoEleicao.nomeArquivo"
+                          (process)="selecionarArquivo($event)">
+                          <i class="fa fa-file-o text-success" aria-hidden="true"></i>
+                          <span>{{ 'LABEL_PROCURAR' | i18n }}</span>
+                        </upload>
+                    </div>
+                    <div class="d-flex align-items-center">
+                      <a class="float-right" title="&bull; Tamanho máximo: 10 MB &#13;&bull; Extensões permitidas: .PDF, .DOC, .DOCX"><i
+                        class="align-middle fas fa-exclamation-circle colorCircle pl-2" aria-hidden="true"></i></a>
+                    </div>
+                  </div>
+                  <div class="text-danger" *ngIf="submitted && !documentoEleicao.arquivo">{{ 'required' | i18n }}</div>
+                </div>
+            </div>
+
+            <div class="row mt-2 mb-3">
+              <div class="col-md-3 col-sm-12">
+                <label class="mr-auto">{{ 'LABEL_ELEICAO' | i18n }}</label>
+                <select class="form-control" [disabled]="true" [(ngModel)]="documentoEleicao.eleicao.id" name="eleicao">
+                  <option [ngValue]="calendario.eleicao.id">{{ calendario.eleicao.descricao }}</option>
+                </select>
+              </div>
+              <div class="col-md-9 col-sm-12">
+                <label class="mr-auto">{{ 'LABEL_LOCAL_PUBLICACAO' | i18n }}</label>
+                <div class="row mx-0 pt-2">
+                  <div class="mr-3 d-flex align-items-center">
+                    <input type="checkbox" id="inputCorporativo" name="corporativo"
+                      [(ngModel)]="documentoEleicao.corporativo">
+                    <label class="my-0 ml-1" for="inputCorporativo">{{ 'LABEL_ELEITORAL_CORPORATIVO' | i18n }}</label>
+                  </div>
+                  <div class="mr-3 d-flex align-items-center">
+                    <input type="checkbox" id="inputProfissional" name="profissional"
+                      [(ngModel)]="documentoEleicao.profissional">
+                    <label class="my-0 ml-1" for="inputProfissional">{{ 'LABEL_ELEITORAL_PROFISSIONAL' | i18n }}</label>
+                  </div>
+                  <div class="mr-3 d-flex align-items-center">
+                    <input type="checkbox" id="inputPublico" name="publico" [(ngModel)]="documentoEleicao.publico">
+                    <label class="my-0 ml-1" for="inputPublico">{{ 'LABEL_ELEITORAL_PUBLICO' | i18n }}</label>
+                  </div>
+                </div>
+                <div class="text-danger" *ngIf="submitted && !isLocaisPublicacaoPreenchido()">{{ 'required' | i18n }}</div>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" (click)="publicarDocumento()"
+            class="btn btn-sm btn-primary btn-calendario">
+            {{ 'LABEL_PUBLICAR' | i18n }}
+          </button>
+        </form>
+
+        <div class="bg-calendario my-3 py-1">
+          <span class="pl-3">
+            {{ 'LABEL_DOCUMENTOS_PUBLICADOS' | i18n }}
+          </span>
+        </div>
+
+        <table [mfData]="documentosPublicadosExibicao" #mf="mfDataTable" [mfRowsOnPage]="numeroRegistrosPaginacao"
+          *ngIf="documentosPublicadosExibicao">
+          <tbody>
+            <div class="itemAtividadePrincipal">
+              <div class="col-md-6 offset-md-6 pr-4 pt-4">
+                <input type="text" class="form-control largura-campo" [(ngModel)]="search"
+                  placeholder="{{ 'LABEL_BUSCAR' | i18n }}" (ngModelChange)="filtroGrid($event)" maxlength="50">
+              </div>
+
+              <div class="itemAtividadeSecudaria col-md-auto" *ngFor="let documento of mf.data">
+                <div class="row" class="itemAtividadeSecudariaConteudo">
+                  <div class="col-xs-12">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th class="text-center">{{ 'LABEL_N' | i18n }}</th>
+                          <th class="text-center">{{ 'LABEL_ARQUIVO' | i18n }}</th>
+                          <th class="text-center">{{ 'LABEL_ELEICAO' | i18n }}</th>
+                          <th class="text-center">{{ 'LABEL_TIPO_PROCESSO' | i18n }}</th>
+                          <th class="text-center">{{ 'LABEL_RESOLUCAO' | i18n }}</th>
+                          <th class="text-center">{{ 'LABEL_PUBLICADO_POR' | i18n }}</th>
+                          <th class="text-center">{{ 'LABEL_DATA_HORA_PUBLICACAO' | i18n }}</th>
+                          <th class="text-center">{{ 'LABEL_LOCAL_PUBLICACAO' | i18n }}</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        <tr>
+                          <td class="text-center td-width-10">
+                            {{ documento.sequencial }}</td>
+                          <td class="text-center td-width-10">
+                            <download title="{{ documento.nomeArquivo }}" class="center-no-arquivo"
+                              [download]="documento.nomeArquivo" (process)="downloadDocumento($event, documento.id)">
+                              <i class="fa fa-file-pdf-o pointer p-0" aria-hidden="true" *ngIf="!isArquivoExtensaoWord(documento.nomeArquivo)"></i>
+                              <i class="fa fa-file-word-o pointer p-0" aria-hidden="true" *ngIf="isArquivoExtensaoWord(documento.nomeArquivo)"></i>
+                            </download>
+                          </td>
+                          <td class="text-center td-width-10">
+                            {{ calendario.eleicao.descricao }}
+                          </td>
+                          <td class="text-center td-width-10">
+                            {{ calendario.eleicao.tipoProcesso.descricao }}
+                          </td>
+                          <td class="text-center td-width-10">
+                            <download title="{{ calendario.resolucao }}" class="center-no-arquivo"
+                              [download]="calendario.resolucao" (process)="downloadResolucao($event, calendario.idResolucao)">
+                              <i class="fa fa-file-pdf-o pointer" aria-hidden="true"></i>
+                            </download>
+                          </td>
+                          <td class="text-center td-width-10">
+                            {{ documento.nomeUsuario }}
+                          </td>
+                          <td class="text-center td-width-10">
+                            {{ documento.dataPublicacao | date:'dd/MM/yyyy' : '+0' }}
+                            <br>
+                            {{ documento.dataPublicacao | date:'HH:mm' : '+0' }} {{ 'LABEL_HRS' | i18n }}
+                          </td>
+                          <td class="text-center td-width-10">
+                            <div *ngIf="documento.corporativo">{{ 'LABEL_CORPORATIVO' | i18n }}</div>
+                            <div *ngIf="documento.profissional">{{ 'LABEL_PROFISSIONAL' | i18n }}</div>
+                            <div *ngIf="documento.publico">{{ 'LABEL_PUBLICO' | i18n }}</div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </tbody>
+
+          <tfoot>
+            <tr>
+              <td colspan="5" class="col-12">
+                <div class="mt-2">
+                  <paginacao [paginaAtual]="mf.activePage" [totalPorPagina]="numeroRegistrosPaginacao"
+                    [totalRegistros]="documentosPublicadosExibicao.length" [mostrarTotalDeRegistros]="!showMessageFilter">
+                  </paginacao>
+                </div>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div *ngIf="showMessageFilter" fxFlex fxLayoutAlign="center center">
+          {{'LABEL_NENHUM_REGISTRO_ENCONTRADO' |i18n}}
+        </div>
+
+      </div>
+
+      <div class="card-footer bg-transparent">
+        <button type="button" (click)="voltar()" class="btn btn-sm btn-primary btn-calendario">
+          {{ 'LABEL_FECHAR' | i18n }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,49 @@
+import { SecurityService } from '@cau/security';
+import { Observable } from "rxjs"
+import { Injectable } from "@angular/core"
+import { Resolve, ActivatedRouteSnapshot, Router } from "@angular/router"
+import { MessageService } from '@cau/message'
+import { CauUFService } from './cau-uf-client.service'
+import { Constants } from 'src/app/constants.service'
+
+@Injectable({
+  providedIn: 'root'
+})
+export class BandeiraCauUFPorProfissionalLogadoResolve implements Resolve<any> {
+
+  /**
+   * Construtor da classe
+   * 
+   * @param router 
+   * @param cauUFService 
+   * @param messageService 
+   */
+  constructor(
+    private router: Router,
+    private cauUFService: CauUFService,
+    private messageService: MessageService,
+    private securityService: SecurityService
+  ) { }
+  
+    /**
+     * 
+     * @param route 
+     */
+    resolve(route: ActivatedRouteSnapshot): Observable<any> {
+        let usuarioLogado = this.securityService.credential.user;
+        let idCauUf = usuarioLogado.cauUf.id;
+        
+        return new Observable(observer => {          
+          this.cauUFService.getBandeiraPorCauUF(idCauUf).subscribe(
+            data => {
+              observer.next(data);
+              observer.complete();
+            },
+            error => {
+              observer.error(error);
+              this.messageService.addMsgDanger(error);
+            }
+          );
+        });
+      }
+}

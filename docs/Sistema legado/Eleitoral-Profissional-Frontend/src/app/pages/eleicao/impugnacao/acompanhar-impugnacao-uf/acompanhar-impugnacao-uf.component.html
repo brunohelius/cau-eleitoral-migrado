@@ -1,0 +1,98 @@
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-tabs">
+            <li class="nav-item pointer">
+                <a class="nav-link" [ngClass]="{ 'active':false }"
+                    (click)="voltar()"
+                    [ngClass]="{ 'active': false}">{{'LABEL_VISAO_GERAL' | i18n}}
+                </a>
+            </li>
+            <li class="nav-item pointer text-center">
+                <a class="nav-link" [ngClass]="{ 'active':true }"
+                    (click)="voltar()"
+                    [ngClass]="{ 'active': false}">{{ 'LABEL_PEDIDO_IMPUGNACAO' | i18n }}
+                </a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane fade card rounded-0" [ngClass]="{ 'active show':true}">
+                <div class="col-md-12" (click)="voltar()">
+                    <i class="fa fa-desktop fa-2x m-2 pointer" aria-hidden="true"></i>
+                </div>
+
+                <div class="box-separador bg-primary"></div>
+
+                <div class="tab-pane fade pl-3 pr-3 pb-5 mt-3" id="tab-pane-principal"
+                    [ngClass]="{ 'active show': true}">
+                    <button type="button" class="btn btn-link p-0" (click)="voltar()">
+                        <h5 class="m-0"><i class="fa fa-reply text-primary" title="{{'LABEL_VOLTAR' | i18n}}"></i></h5>
+                    </button>
+                    <div class="rounded-0">
+                        <div class="subtitle-line">
+                            <span class="bg-white"> {{'TITLE_PEDIDOS_IMPUGNACAO_POR_ESTADO' | i18n}} </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade card rounded-0 pl-4 pr-4 pb-4" [ngClass]="{ 'active show':true}">
+                    <div class="card border pl-5 pr-5 pb-5 pt-4" style="border-radius: 8px;">
+                        <div class="card-body bg-green pl-5 pr-5" style="border-radius: 8px; padding-left: 15px; padding-right: 15px;">
+                            <table class="table" [mfData]="solicitacoesImpugnacao" #mf="mfDataTable"
+                                *ngIf="solicitacoesImpugnacao">
+                                <thead>
+                                    <tr class="green-font-bolder">
+                                        <th class="text-center tb-width-10"> {{'LABEL_ESTADO' |i18n}} </th>
+                                        <th class="text-center tb-width-10">{{'LABEL_QTD_IMPUGNACAO_SUBSTITUICAO' |i18n}}</th>
+                                        <th class="text-center tb-width-10">{{'LABEL_ACAO' |i18n}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let solicitacoesImpugnacao of mf.data;"
+                                        [ngClass]="{ 'chapa-ies': isIES(solicitacoesImpugnacao.idCauUf) }"
+                                        class="td-cauf list-item list-item-card">
+                                        <td class="text-center tb-width-10 p-3">
+                                            <div class="text-center title-comissao green-font-bolder"
+                                                [ngClass]="{ 'bandeiraBr': isIES(solicitacoesImpugnacao.idCauUf) }"
+                                            >
+                                                <img class="img-fluid rounded-circle img-bandeira"
+                                                    [src]="getImagemBandeira( solicitacoesImpugnacao.idCauUf )"
+                                                    [alt]="solicitacoesImpugnacao.uf">
+                                                {{ solicitacoesImpugnacao.siglaUf }}
+                                            </div>
+                                        </td>
+                                        <td class="text-center p-3 tb-width-10">
+                                            {{ solicitacoesImpugnacao.quantidadePedidosEmAnalise }}
+                                        </td>
+                                        <td class="text-center p-3 tb-width-10">
+                                            <div class="btn-group" dropdown triggers="hover" (mouseleave)="dp.hide()"
+                                                #dp="bs-dropdown">
+                                                <button dropdownToggle type="button" class="btn btn-link text-muted"
+                                                    aria-controls="dropdown-basic">
+                                                    <i class="align-middle colorAcao fas fa-ellipsis-v"
+                                                        aria-hidden="true"></i>
+                                                </button>
+                                                <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu" role="menu"
+                                                    aria-labelledby="button-basic">
+                                                    <li role="menuitem" class="pointer">
+                                                        <a (click)="redirecionaUf(solicitacoesImpugnacao.idCauUf)"
+                                                            class="dropdown-item">
+                                                            {{'LABEL_VISUALIZAR' | i18n}}
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="p-3">
+                                <span class="green-font-bolder"> {{'LABEL_TOTAL_PEDIDOS_IMPUGNACAO' |i18n}} </span>
+                                <b>{{ getTotalPedidos(solicitacoesImpugnacao) }}</b>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

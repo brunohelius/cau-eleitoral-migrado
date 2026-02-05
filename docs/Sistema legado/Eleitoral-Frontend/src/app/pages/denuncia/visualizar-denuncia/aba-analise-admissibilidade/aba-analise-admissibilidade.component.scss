@@ -1,0 +1,36 @@
+.status-center {
+    align-items: center;
+    justify-content: center;
+}
+
+.lista-arquivos {
+    width: 22em;
+}
+
+.margin-top-date {
+    margin-top: 40px !important;
+}
+
+.sub-nav-abas {
+    margin-bottom: -1px;
+}
+
+.sub-nav-abas .nav-item > .nav-link {
+    color: #495057 !important;
+}
+
+.sub-nav-abas .nav-item > .nav-link.active {
+    font-weight: bold;
+    color: white !important;
+    background-color: #14385D;
+}
+
+.rounded-2-left {
+    border-top-left-radius: 0.3rem !important;
+    border-bottom-left-radius: 0.3rem !important;
+}
+
+.rounded-2-right {
+    border-top-right-radius: 0.3rem !important;
+    border-bottom-right-radius: 0.3rem !important;
+}

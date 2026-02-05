@@ -1,0 +1,114 @@
+<div class="col-md-12">
+  <a [routerLink]="['/']"> <i class="fa fa-desktop fa-2x m-2 pointer font-color-bg-primary" aria-hidden="true"></i> </a>
+</div>
+<div class="col-md-12">
+  <h5 class="card-title colorGray">
+      <a class="pointer" (click)="voltar()">
+          <i class="fa fa-arrow-left colorGray" aria-hidden="true"></i>
+      </a>
+  </h5>
+</div>
+
+<div class="box-separador bg-primary"></div>
+<div class="tab-pane fade pl-3 pr-3 pb-5 mt-3" id="tab-pane-principal" [ngClass]="{ 'active show': true}">
+  <div class="rounded-0">
+
+      <div class="row pt-3">
+          <div class="col-md-2"></div>
+          <div class="col-md-8">
+              <div class="rounded-0 mb-5">
+                  <div class="subtitle-line mt-3">
+                      <span class="bg-white"> {{'LABEL_VISUALIZAR_MEMBROS_CHAPA' | i18n}}</span>
+                  </div>
+              </div>
+          </div>
+          <div class="col-md-2 spinnerStatus text-center">
+              <span *ngIf="!isChapaPendente()">
+                  <i class="fa fa-spinner"></i>
+                  <span class="texto-titulo">{{ 'LABEL_CONCLUIDA' | i18n }}</span>
+              </span>
+              <span *ngIf="isChapaPendente()">
+                  <i class="fas fa-spinner text-pendencia fa-rotate-145"></i>
+                  <span class="text-pendencia"><b>{{ 'LABEL_COM_PENDENCIA' | i18n }}</b></span>
+              </span>
+          </div>
+      </div>
+
+      <div>
+        <div fxLayout="row" fxLayoutAlign="start center" class="pl-2 mb-3">
+          <div fxLayout="column" fxLayoutAlign="center start"  class="font-color-bg-primary">
+            <b>{{'LABEL_UF' | i18n}}: {{chapa.uf}}</b>
+            <b>{{'LABEL_NUMERO_CHAPA' | i18n}}: {{numeroChapa || "N/A"}}</b>
+          </div>
+        </div>
+        <div class="tab-pane fade card rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}">
+          <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px mb-5">
+            <div class="row">
+              <div class="col-md-12 mb-3 pr-5 font-color-bg-primary" fxLayout="row" fxLayoutAlign="center center" >
+                <b>{{'LABEL_CONSELHEIRO_FEDERAL' | i18n}}</b>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="card-body bg-green pl-3 pr-3" style="border-radius: 8px;">
+                  <membros-chapa
+                    [title]="true"
+                    [membros]="conselheiros"
+                    [isMostraCheckVazio]="true"
+                  >
+                  </membros-chapa>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="membrosChapas" class="box-separador bg-primary mb-3"></div>
+        <div *ngIf="membrosChapas" class="tab-pane fade card rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}">
+          <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px mb-5">
+            <div class="row">
+              <div class="col-md-12 mb-3 pr-5 font-color-bg-primary" fxLayout="row" fxLayoutAlign="center center" >
+                <b>{{'LABEL_CONSELHEIROS_ESTADUAIS' | i18n}}</b>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <list-membros-chapa [membrosChapa]="membrosChapas">
+                </list-membros-chapa>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div >
+
+        <div fxLayout="row" fxLayoutAlign="start center" class="pl-3" >
+          <button
+            class="btn btn-danger mr-3"
+            (click)="validaPeriodoAtividadeJulgamentoPrimeiraInstancia(acoes.julgarIndeferido)"
+            *ngIf="!chapa.isCadastradoJulgamentoFinal"
+            >
+              {{'LABEL_JULGAR_INDEFERIDO' | i18n}}
+            </button>
+          <button
+            class="btn btn-primary"
+            (click)="validaPeriodoAtividadeJulgamentoPrimeiraInstancia(acoes.julgarDeferido)"
+            *ngIf="!chapa.isCadastradoJulgamentoFinal"
+          >
+            {{'LABEL_JULGAR_DEFERIDO' | i18n}}
+          </button>
+        </div>
+  </div>
+</div>
+
+<ng-template #templateJulgamento>
+  <div class="col-md-12">
+      <form-julgar
+          [idChapaEleicao]="chapa.id"
+          [idStatusJulgamento]="acaoJulgamento"
+          [membrosPorSituacao]="membrosPorSituacao"
+          [isChapaIES]="isChapaIES()"
+          (fecharModal)="fecharformJulgamentoDeferido()"
+          (redirecionarVisualizarJulgamento)="redirecionarVisualizarSubstituicao($event)"
+      >
+      </form-julgar>
+  </div>
+</ng-template>

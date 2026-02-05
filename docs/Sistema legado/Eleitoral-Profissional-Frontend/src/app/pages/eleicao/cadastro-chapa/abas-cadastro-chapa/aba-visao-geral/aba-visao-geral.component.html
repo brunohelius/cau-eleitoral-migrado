@@ -1,0 +1,28 @@
+<div class="text-center py-3 cor-corpo">
+    <i class="fa fa-reply fa-2x float-left pointer" (click)="voltar()" aria-hidden="true"></i>
+    <span class="subtitle-lines">{{ 'TITLE_DEFINICAO_TIPO_CANDIDATURA' | i18n }}</span>
+</div>
+
+<div class="card text-center">
+    <div class="row m-2 text-center">
+        <div class="col-md-12 mt-4 mb-4">
+            <p class="box-destaque texto-destaque shadow" [innerHtml]="getMensagemSelecaoRepresentacaoChapa()"></p>
+        </div>
+
+        <div class="col-md-12">
+            <div class="d-flex justify-content-center">
+                <div class="col-md-3" *ngIf="isOrdinarioIES() || isExtraordinarioSemIES()">
+                    <button class="btn btn-primary btn-block mb-4" [disabled]="isChapaConcluida()" (click)="salvar(tipoCandidatura.getConselheiroUfBr())">
+                        {{ 'LABEL_CONSELHEIRO_UF_BR' | i18n }}
+                    </button>
+                </div>
+
+                <div class="col-md-3" *ngIf="isOrdinarioIES() || isExtraordinarioIES()">
+                    <button class="btn btn-primary btn-block mb-4" [disabled]="isChapaConcluida()" (click)="salvar(tipoCandidatura.getConselheiroIes())">
+                        {{ 'LABEL_IES' | i18n }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

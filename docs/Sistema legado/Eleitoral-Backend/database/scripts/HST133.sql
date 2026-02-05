@@ -1,0 +1,8 @@
+insert into eleitoral.TB_TP_CORPO_EMAIL (id_tp_corpo_email, ds_corpo_email)values (128, 'Envia e-mail para o coordenador CE ou CEN, informando que ele possui uma denúncia julgada provida pelo assessor CE e que ele precisa selecionar um relator para a denúncia');
+insert into eleitoral.TB_TP_CORPO_EMAIL (id_tp_corpo_email, ds_corpo_email)values (129, 'Envia e-mail para o assessor CEN informando que ele julgou a denúncia');
+insert into eleitoral.TB_TP_CORPO_EMAIL (id_tp_corpo_email, ds_corpo_email)values (130, 'Envia e-mail para o assessor CE ou CEN a cada 24h caso a denúncia provida ainda não possua um relator');
+insert into eleitoral.TB_TP_CORPO_EMAIL (id_tp_corpo_email, ds_corpo_email)values (131, 'Envia e-mail para o denunciante informando que a denúncia foi admitida');
+insert into eleitoral.TB_TP_CORPO_EMAIL (id_tp_corpo_email, ds_corpo_email)values (132, 'Envia e-mail para o denunciado informando que a denúncia foi admitida');
+insert into eleitoral.TB_TP_CORPO_EMAIL (id_tp_corpo_email, ds_corpo_email)values (133, 'Envia e-mail para o coordenador CEN, informando que a denúncia foi julgada improvida');
+insert into eleitoral.TB_TP_CORPO_EMAIL (id_tp_corpo_email, ds_corpo_email)values (134, 'Envia e-mail para o assessor CEN, informando que ele julgou a denúncia improvida');
+insert into eleitoral.TB_TP_CORPO_EMAIL (id_tp_corpo_email, ds_corpo_email)values (135, 'Envia e-mail para quem cadastrou a denúncia com o improvimento da denúncia');

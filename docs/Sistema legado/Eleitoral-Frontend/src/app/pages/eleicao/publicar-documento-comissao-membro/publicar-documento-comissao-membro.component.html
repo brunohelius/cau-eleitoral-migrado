@@ -1,0 +1,225 @@
+<div class="row">
+    <div class="col-md-12">
+        <!--Listagem de publicações.-->
+        <div class="tab-content">
+            <div class="tab-pane fade show active " *ngIf="publicacoes.length > 0">
+                <div class="card rounded-0">
+                    <div class="card-header rounded-0">
+                        <h5 class="card-title">
+                            <a class="pointer" >
+                                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                            </a>
+                            {{'LABEL_PUBLICAR_QUANTIDADE_MEMBROS_COMISSAO_ELEITORAL' |i18n}}
+                        </h5>
+                    </div>
+                    <div class="col-md-12 p-3">
+                        <!--Listagem de publicações-->
+                        <span class="div-font-weight">{{'LABEL_ARQUIVO_PUBLICADO' |i18n}}</span>
+                        <div class="row mt-3">
+                            <div class="col-md-1"></div>
+                            <div class="col-md-10">
+                                <table class="table table-sm" id="tabela-publicacoes" [mfData]="publicacoes"
+                                    #mf="mfDataTable" [mfRowsOnPage]="numeroRegistrosPaginacao">
+                                    <thead>
+                                        <tr class="text-center ">
+                                            <th class="bg-calendario">{{ 'LABEL_ARQUIVO' | i18n }}</th>
+                                            <th class="bg-calendario-lighten">{{ 'LABEL_DATAHORA_PUBLICACAO' | i18n }}
+                                            </th>
+                                            <th class="bg-calendario">{{ 'LABEL_USUARIO' | i18n }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-center">
+                                        <tr *ngFor="let publicacao of mf.data;">
+                                            <td>
+                                             
+                                            </td>
+                                            <td>{{ publicacao.data | date:'dd/MM/yyyy HH:mm' : '+0' }}</td>
+                                            <td class="negrito">{{ publicacao.usuario.nome}} </td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="6" class="col-12">
+                                                <paginacao [paginaAtual]="mf.activePage"
+                                                    [totalPorPagina]="numeroRegistrosPaginacao"
+                                                    [totalRegistros]="publicacoes.length"></paginacao>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <div class="col-md-1"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--Visualização do Documento.-->
+            <div class="tab-pane fade show active ">
+                <div class="card rounded-0" style="min-height: 60ch;">
+                    <div class="card-header rounded-0">
+                        <h5 class="card-title">
+                            <a class="pointer" *ngIf="publicacoes.length == 0">
+                                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                            </a>
+                            {{'LABEL_DOCUMENTO_QUANTIDADE_MEMBROS_COMISSAO_ELEITORAL' |i18n}}
+                        </h5>
+                    </div>
+                    <div class="col-md-12 p-3">
+                        <div class="row">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12" *ngIf="documento.situacaoCabecalhoAtivo">
+                                        <p [innerHTML]="documento.descricaoCabecalho"></p>
+                                    </div>
+
+                                    <div class="col-md-12" *ngIf="documento.situacaoTextoInicial">
+                                        <p [innerHTML]="documento.descricaoTextoInicial"></p>
+                                    </div>
+                                    
+                                    <div class="col-md-12">
+                                        <div class="col-md-12 my-3">
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <table class="table table-sm">
+                                                        <thead>
+                                                            <tr class="text-center">
+                                                                <th class="bg-calendario">{{ 'LABEL_UF' | i18n }}</th>
+                                                                <th class="bg-calendario-lighten">
+                                                                    {{ 'LABEL_QUANTIDADE' | i18n }}</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="text-center">
+                                                            <tr *ngFor="let cauUf of getUfsTabelaSegmento(1);">
+                                                                <td>{{ cauUf.prefixo }}</td>
+                                                                <td>
+                                                                    <span *ngIf="cauUf.quantidade == 0"
+                                                                        class="text-danger">
+                                                                        {{ 'LABEL_NAO_APLICADO' | i18n }}
+                                                                    </span>
+                                                                    <span *ngIf="cauUf.quantidade > 0">
+                                                                        {{ cauUf.quantidade }}
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                                <div class="col-md-3">
+                                                    <table class="table table-sm">
+                                                        <thead>
+                                                            <tr class="text-center">
+                                                                <th class="bg-calendario">{{ 'LABEL_UF' | i18n }}</th>
+                                                                <th class="bg-calendario-lighten">
+                                                                    {{ 'LABEL_QUANTIDADE' | i18n }}</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="text-center">
+                                                            <tr *ngFor="let cauUf of getUfsTabelaSegmento(2)">
+                                                                <td>{{ cauUf.prefixo }}</td>
+                                                                <td>
+                                                                    <span *ngIf="cauUf.quantidade == 0"
+                                                                        class="text-danger">
+                                                                        {{ 'LABEL_NAO_APLICADO' | i18n }}
+                                                                    </span>
+                                                                    <span *ngIf="cauUf.quantidade > 0">
+                                                                        {{ cauUf.quantidade }}
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                                <div class="col-md-3">
+                                                    <table class="table table-sm">
+                                                        <thead>
+                                                            <tr class="text-center">
+                                                                <th class="bg-calendario">{{ 'LABEL_UF' | i18n }}</th>
+                                                                <th class="bg-calendario-lighten">
+                                                                    {{ 'LABEL_QUANTIDADE' | i18n }}</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="text-center">
+                                                            <tr *ngFor="let cauUf of getUfsTabelaSegmento(3)">
+                                                                <td>{{ cauUf.prefixo }}</td>
+                                                                <td>
+                                                                    <span *ngIf="cauUf.quantidade == 0"
+                                                                        class="text-danger">
+                                                                        {{ 'LABEL_NAO_APLICADO' | i18n }}
+                                                                    </span>
+                                                                    <span *ngIf="cauUf.quantidade > 0">
+                                                                        {{ cauUf.quantidade }}
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                                <div class="col-md-3">
+                                                    <table class="table table-sm">
+                                                        <thead>
+                                                            <tr class="text-center">
+                                                                <th class="bg-calendario">{{ 'LABEL_UF' | i18n }}</th>
+                                                                <th class="bg-calendario-lighten">
+                                                                    {{ 'LABEL_QUANTIDADE' | i18n }}</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="text-center">
+                                                            <tr *ngFor="let cauUf of getUfsTabelaSegmento(4)">
+                                                                <td>{{ cauUf.prefixo }}</td>
+                                                                <td>
+                                                                    <span *ngIf="cauUf.quantidade == 0"
+                                                                        class="text-danger">
+                                                                        {{ 'LABEL_NAO_APLICADO' | i18n }}
+                                                                    </span>
+                                                                    <span *ngIf="cauUf.quantidade > 0">
+                                                                        {{ cauUf.quantidade }}
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                
+                                    <div class="col-md-12" *ngIf="documento.situacaoTextoFinal">
+                                        <p [innerHTML]="documento.descricaoTextoFinal"></p>
+                                    </div>
+
+                                    <div class="col-md-12" *ngIf="documento.situacaoTextoRodape">
+                                        <p [innerHTML]="documento.descricaoTextoRodape"></p>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <span title="{{ 'LABEL_GERAR_PDF' | i18n }}" class="colapse">
+                                    <i class="fa fa-lg fa-file-pdf-o colorCircle" aria-hidden="true"></i>
+                                    {{ 'LABEL_GERAR_PDF' | i18n }}
+                                </span>
+                            </div>
+                            <div class="col-md-2">
+                                <span title="{{ 'LABEL_GERAR_DOC' | i18n }}" class="colapse">
+                                    <i class="fa fa-lg fa-file-word-o  colorCircle" aria-hidden="true"></i>
+                                    {{ 'LABEL_GERAR_DOC' | i18n }}
+                                </span>
+                            </div>
+                            <div class="col-md-2">
+                                <span title="{{ 'LABEL_PUBLICAR' | i18n }}" href="#" class="colapse">
+                                    <i class="fa fa-external-link fa-lg colorCircle " aria-hidden="true"></i>
+                                    {{ 'LABEL_PUBLICAR' | i18n }}
+                                </span>
+                            </div>
+                            <div class="col-md-6"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>

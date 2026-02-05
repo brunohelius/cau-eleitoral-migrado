@@ -1,0 +1,184 @@
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-tabs">
+            <li class="nav-item pointer">
+                <a class="nav-link" [ngClass]="{ 'active': false}" [routerLink]="['/']">{{'LABEL_VISAO_GERAL' | i18n}}
+                </a>
+            </li>
+            <li class="nav-item pointer">
+                <a class="nav-link" [ngClass]="{ 'active':true }">
+                    {{'LABEL_ACOMPANHAR_DENUNCIA' | i18n}}
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+
+            <div class="tab-pane fade card rounded-0" [ngClass]="{ 'active show':true}">
+                <div class="col-md-12">
+                    <button type="button" class="btn btn-link p-0" (click)="voltar()">
+                        <h5 class="m-0"><i class="fa fa-arrow-left text-primary" title="{{'LABEL_VOLTAR' | i18n}}"></i>
+                        </h5>
+                    </button>
+                    <button type="button" class="btn btn-link p-0" [routerLink]="['/']">
+                        <h5 class="m-0">
+                            <i class="fa fa-desktop fa-2x m-2 pointer colorGray" aria-hidden="true"></i>
+                        </h5>
+                    </button>
+                </div>
+
+                <div class="box-separador bg-primary"></div>
+                <div class="tab-pane fade card rounded-0 pl-4 pr-4 pb-4" [ngClass]="{ 'active show':true}">
+
+                    <div class="card border pl-5 pr-5 pb-5 pt-4" style="border-radius: 8px;">
+                        <div class="card-body bg-green pl-5 pr-5" style="border-radius: 8px;">
+
+                            <div class="row pt-3 pb-3">
+                                <div class="col-md-6 align-items-right form-inline green-font-bolder">
+                                    <div>
+                                        <span>{{ 'LABEL_MOSTRAR' | i18n }}: </span>
+                                        <select class="form-control" [(ngModel)]="limitePaginacao"
+                                            [name]="limitePaginacao">
+                                            <option *ngFor="let item of limitesPaginacao" [ngValue]="item">
+                                                {{ item }}
+                                            </option>
+                                        </select>
+                                        <span> {{ 'LABEL_REGISTRO' | i18n}}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 align-items-left">
+                                    <div class="div-right">
+                                        <input type="text" class="form-control largura-campo" [(ngModel)]="search"
+                                            placeholder="{{'LABEL_BUSCAR' |i18n}}" (ngModelChange)="filter($event)"
+                                            maxlength="50">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <table [mfData]="denunciasDetalhadas" #mf="mfDataTable" *ngIf="denunciasDetalhadas"
+                                        [mfRowsOnPage]="limitePaginacao" class="col-md-12">
+                                        <thead>
+                                            <tr class="green-font-bolder">
+                                                <th class="text-center tb-width-10">
+                                                    <mfDefaultSorter by="numero_denuncia">
+                                                        {{'LABEL_NUMERO_DENUNCIA' |i18n}}
+                                                    </mfDefaultSorter>
+                                                </th>
+                                                <th class="text-center tb-width-10">
+                                                    <mfDefaultSorter by="dt_denuncia">
+                                                        {{'LABEL_DATA_HORA_CADASTRO' |i18n}}
+                                                    </mfDefaultSorter>
+                                                </th>
+                                                <th class="text-center tb-width-10">
+                                                    <mfDefaultSorter by="nome_denunciante">
+                                                        {{'LABEL_DENUNCIANTE' |i18n}}
+                                                    </mfDefaultSorter>
+                                                </th>
+                                                <th class="text-center tb-width-10">
+                                                    <mfDefaultSorter by="nome_denunciado">
+                                                        {{'LABEL_DENUNCIADO' |i18n}}
+                                                    </mfDefaultSorter>
+                                                </th>
+                                                <th class="text-center tb-width-10">
+                                                    <mfDefaultSorter by="id_situacao_denuncia">
+                                                        {{'LABEL_STATUS' |i18n}}
+                                                    </mfDefaultSorter>
+                                                </th>
+                                                <th class="text-center tb-width-10"> {{'LABEL_ACAO' |i18n}} </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let denuncia of mf.data;"
+                                                class="td-cauf list-item list-item-card">
+
+                                                <td class="text-center p-3 tb-width-10">
+                                                    {{ denuncia.numero_denuncia }}
+                                                </td>
+                                                <td class="text-center p-3 tb-width-10">
+                                                    {{ denuncia.dt_denuncia | date:'dd/MM/yyyy' : '+0' }} às 
+                                                    {{ denuncia.dt_denuncia | date:'HH:mm' : '+0' }}
+                                                </td>
+                                                <td class="text-center p-3 tb-width-10">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            {{ denuncia.nome_denunciante }}
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-center p-3 tb-width-10">
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            {{ denuncia.nome_denunciado }}
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+                                                <td class="text-center tb-width-10 p-3">
+                                                    <div class="progress bg-white" style="min-width: 80px;">
+                                                        <div class="progress-bar {{getStatusDenuncia(denuncia.id_situacao_denuncia).style}}"
+                                                            role="progressbar" style="width: 100%; border-radius: 50px;"
+                                                            aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                                            {{getStatusDenuncia(denuncia.id_situacao_denuncia).descricao}}
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+                                                <td class="text-center p-3 tb-width-10" (mouseleave)="dp.hide()">
+                                                    <div class="btn-group" dropdown triggers="hover" #dp="bs-dropdown">
+                                                        <button dropdownToggle type="button"
+                                                            class="btn btn-link text-muted"
+                                                            aria-controls="dropdown-basic">
+                                                            <i class="align-middle colorAcao fas fa-ellipsis-v"
+                                                                aria-hidden="true"></i>
+                                                        </button>
+                                                        <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu"
+                                                            role="menu" aria-labelledby="button-basic">
+                                                            <li role="menuitem">
+                                                                <a href="javascript:;" (click)="visualizar(denuncia)"
+                                                                    class="dropdown-item"
+                                                                    title="{{'LABEL_VISUALIZAR' | i18n}}">
+                                                                    {{'LABEL_VISUALIZAR' | i18n}}
+                                                                </a>
+                                                            </li>
+                                                            <li role="menuitem">
+                                                                <a href="javascript:;" (click)="abrirModalGerarDocumento(denuncia)"
+                                                                    class="dropdown-item"
+                                                                    title="{{'LABEL_GERAR_DOCUMENTO' | i18n}}">
+                                                                    {{'LABEL_GERAR_DOCUMENTO' | i18n}}
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="7" class="col-12" *ngIf="denunciasDetalhadas.length > 0">
+
+                                                    <div class="mt-3 col-md-12 pr-0 mr-0">
+                                                        <app-mfBootstrapPaginator [mfTable]="mf" class="float-right">
+                                                        </app-mfBootstrapPaginator>
+                                                    </div>
+
+                                                </td>
+                                                <td colspan="7" class="col-12" *ngIf="denunciasDetalhadas.length == 0">
+                                                    <div class="text-center">
+                                                        {{'LABEL_NENHUM_REGISTRO_ENCONTRADO' |i18n}}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

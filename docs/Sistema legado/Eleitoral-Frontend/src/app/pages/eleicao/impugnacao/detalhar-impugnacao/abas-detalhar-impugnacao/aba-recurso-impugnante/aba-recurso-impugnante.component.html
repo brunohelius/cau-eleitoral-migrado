@@ -1,0 +1,295 @@
+<!-- Com o Recurso -->
+<div class="row conteudo" *ngIf="hasRecurso">
+    <form #form="ngForm" class="w-100" id="aba-defesa-impugnacao-form-id">
+        <div class="tab-pane fade pl-3 pr-3 pb-5 mt-3" id="tab-pane-julgamento" [ngClass]="{ 'active show': true}">
+            <div class="row">
+                <div class="col-md-2">
+                </div>
+                <div class="col-md-8 mt-2">
+                    <div class="subtitle-line">
+                        <span class="bg-white">{{'TITLE_INTEPOR_RECURSO_RECONSIDERACAO_PEDIDO_IMPUGNACAO' | i18n:title() }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="tab-pane fade card rounded-0 pl-4 pr-4 pb-2" [ngClass]="{ 'active show':true}">
+                <div class="card border pl-3 pr-3 pb-3 pt-3" style="border-radius: 8px mb-5"> 
+
+                    <card-panel [titulo]="labelDescricao()" class="mt-3">
+                        <editor-de-texto
+                            [isHabilitado]="false"
+                            [configuracao]="configuracaoCkeditor"
+                            [valor]="recursoImpugnante.descricao"
+                            [isMostrarTamanhoTextoRestantes]="false">
+                        </editor-de-texto>
+                    </card-panel>
+
+                    <card-panel [titulo]="'LABEL_DOCUMENTO'" class="mt-3">
+                        <arquivo 
+                            [hasDownload]="true" 
+                            [arquivos]="recursoImpugnante.arquivos" 
+                            (download)="downloadArquivoRecurso($event, recursoImpugnante.id)">
+                        </arquivo>
+                        <div class="col-md-4 col-xs-12" *ngIf="!recursoImpugnante.arquivos">
+                            <table class="table table-sm">
+                                <tbody>
+                                    <td class="text-left pr-3 mt-3">
+                                        <span>{{ 'LABEL_NAO_APLICADO' | i18n }}</span>
+                                    </td>
+                                </tbody>
+                            </table>
+                        </div>
+                    </card-panel>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<ng-template #templateJulgamento>
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            <h6 class="modal-title pull-center title-grey">{{'TITLE_ANALISAR_RECURSO_RECONSIDERACAO_PEDIDO_IMPUGNACAO' |i18n:title()}}</h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="fecharJulgamento()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body" style="height: 100%; background-color: white">
+        <form #formjulgamento="ngForm">
+            <card-panel [titulo]="'LABEL_DESCRICAO'">
+                <editor-de-texto name="julgamentoDescricao" 
+                [isRequerido]="true" 
+                [isHabilitado]="true" 
+                [tamanhoMaximo]="1000" 
+                [isSubmetido]="submitted"
+                [(valor)]="julgamento.descricao" 
+                [configuracao]="configuracaoCkeditor" 
+                [isMostrarTamanhoTextoRestantes]="true">
+            </editor-de-texto>
+        </card-panel>
+        
+        <card-panel [titulo]="'LABEL_DOCUMENTO'">
+            <div class="row">
+                <div class="col-md-12 p-0">
+                    <arquivo 
+                    [maxArquivos]="1" 
+                    [hasUpload]="true" 
+                    [hasDownload]="true" 
+                    [hasExclusao]="true" 
+                    [hasCadastro]="true"
+                    [arquivos]="julgamento.arquivos"
+                    [msgMaxArquivos]="'MSG_PERMISSAO_UPLOAD_1'"
+                    (download)="downloadArquivoJulgamentoImpugnacao($event)">
+                </arquivo>
+            </div>
+        </div>
+        <div class="text-danger" *ngIf="submitted && !hasArquivosJulgameto()">{{ 'required' | i18n }}</div>
+    </card-panel>
+    <div class="row">
+        <div class="col-md-12 text-left pt-3">
+            <button class="btn btn-danger"
+            (click)="modalConfirmacao(templateConfirmacao, 2)">{{'LABEL_IMPROCEDENTE' |i18n}}</button>
+            <button class="btn btn-primary ml-3"
+            (click)="modalConfirmacao(templateConfirmacao, 1)">{{'LABEL_PROCEDENTE' |i18n}}</button>
+        </div>
+    </div>
+</form>
+</div>
+</ng-template>
+
+<ng-template #templateConfirmacao style="margin-top: 25%;">
+    <div class="modal-header border-header-green">
+        <div class="col-md-12 text-center">
+            <h6 class="modal-title pull-center title-grey">{{ 'TITLE_CONFIRMAR_JULGAMENTO_RECURSO_IMPUGNACAO' |i18n}}</h6>
+        </div>
+    </div>
+    <div class="modal-body" style="height: 100%; background-color: white">
+        <div class=" pl-3 pr-3">
+            <div class="box-separador-linha"></div>
+            <div class="row">
+                <div class="box-destaque shadow text-center">
+                    {{'MSG_CONFIRMACAO_JULGAMENTO_RECURSO_IMPUGNACAO' | i18n: [valorStatusJulgamento, numeroProtocolo] }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-left pt-3 pl-0">
+                    <button class="btn btn-danger" (click)="cancelarJulgamento()">{{'LABEL_CANCELAR' |i18n}}</button>
+                    <button class="btn btn-primary ml-3" (click)="confirmarJulgamento()">{{'LABEL_CONFIRMAR' |i18n}}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<!-- Sem o Recurso -->
+<div class="row conteudo" *ngIf="!hasRecurso">
+    <form #form="ngForm" class="w-100">
+        <div class="col-md-12">
+            <div class="tab-pane fade card rounded-0 pl-4 pr-4 pb-2" [ngClass]="{ 'active show':true}">
+                <div class="card border pl-4 pr-4 pb-4 pt-4 mt-5 mb-4" style="border-radius: 8px mb-5"> 
+                    <div class="alert border bg-green shadow margin">
+                        <div fxLayout="row" fxLayoutAlign="center center">
+                            <b *ngIf="!isIes" class="mt-4 mb-4">{{'MSG_NAO_HOUVE_INTERPOSICAO_RECURSO' | i18n}}</b>
+                            <b *ngIf="isIes"  class="mt-4 mb-4">{{'MSG_NAO_HOUVE_INTERPOSICAO_RECONSIDERACAO' | i18n}}</b>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- RECURSO E CONTRARRAZÃO -->
+<div class="row" *ngIf="isMostrarRecursoResponsavel()">
+    <div class="col-md-12">
+        <accordion>
+            <div class="card-body custom-card-body">
+                <accordion-group panelClass="customClass" >
+                    <button class="btn btn-block clearfix accordionPrimay"
+                            accordion-heading type="button">
+                        <div class="pull-left float-left">{{ 'LABEL_RECURSO_RECONSIDERACAO_DO_RESPONSAVEL' | i18n:title() }}</div>
+                        <span class="float-right pull-right" style="color: white;">
+                            <i class="fa fa-bars" aria-hidden="true"></i>
+                        </span>
+                    </button>
+                    <div class="col-md-12 mb-2 mt-1 label-dados">
+                        <span>{{ 'LABEL_RESPONSAVEL_DA_CHAPA' | i18n }}: {{recursoResponsavel.profissional.nome }}</span>
+                    </div>
+                    <div class="col-md-12 label-dados">
+                        <span>{{ 'LABEL_DATA' | i18n }}: {{recursoResponsavel.dataCadastro | date:'dd/MM/yyyy'}}</span>
+                    </div>
+                    <div class="col-md-12 mt-4" style="padding: 2;">
+                        <div class="card">
+                            <span class="card-header bg-primary">
+                                {{ 'TITLE_RECURSO_RECONSIDERACAO_IMPUGNACAO_PRIMEIRA_INSTANCIA' | i18n:title() }}
+                            </span>
+                            <div class="custom-card-body bg-green">
+                                <editor-de-texto
+                                    [isHabilitado]="false"
+                                    [valor]="recursoResponsavel.descricao"
+                                    [configuracao]="configuracaoCkeditor">
+                                </editor-de-texto>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 mt-4" style="padding: 2;">
+                        <div class="card">
+                            <span class="card-header bg-primary">
+                                {{ 'LABEL_DOCUMENTO' | i18n }}
+                            </span>
+                            <div class="custom-card-body bg-green">
+                                <arquivo
+                                    [arquivos]="recursoResponsavel.arquivos"
+                                    (download)="downloadArquivoRecurso($event, recursoResponsavel.id)"
+                                    [hasDownload]="true">
+                                </arquivo>
+                                <div class="col-md-4 col-xs-12" *ngIf="!recursoResponsavel.arquivos">
+                                    <table class="table table-sm">
+                                        <tbody>
+                                            <td class="text-left pr-3 mt-3">
+                                                <span>{{ 'LABEL_NAO_APLICADO' | i18n }}</span>
+                                            </td>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </accordion-group>
+                <accordion-group panelClass="customClass" *ngIf="isMostrarContrarrazao()">
+                    <button class="btn btn-block clearfix accordionPrimay"
+                            accordion-heading type="button">
+                        <div class="pull-left float-left">{{ 'LABEL_CONTRARRAZAO' | i18n }}</div>
+                        <span class="float-right pull-right" style="color: white;">
+                            <i class="fa fa-bars" aria-hidden="true"></i>
+                        </span>
+                    </button>
+                    <div *ngIf="!isMostrarMsgContrarrazao()">
+                        <div class="col-md-12 mb-2 mt-1 label-dados">
+                            <span>{{ 'LABEL_RESPONSAVEL_IMPUGNANTE' | i18n }}:
+                                {{recursoResponsavel.contrarrazaoRecursoImpugnacao.profissional.nome }}</span>
+                        </div>
+                        <div class="col-md-12 label-dados">
+                            <span>{{ 'LABEL_DATA' | i18n }}:
+                                {{recursoResponsavel.contrarrazaoRecursoImpugnacao.dataCadastro | date:'dd/MM/yyyy'}}</span>
+                        </div>
+                        <div class="col-md-12 mt-4" style="padding: 2;">
+                            <div class="card">
+                                <span class="card-header bg-primary">
+                                    {{ 'LABEL_CONTRARRAZAO_RECURSO_RECONSIDERACAO' | i18n:title2() }}
+                                </span>
+                                <div class="custom-card-body bg-green">
+                                    <editor-de-texto
+                                        [isHabilitado]="false"
+                                        [valor]="recursoResponsavel.contrarrazaoRecursoImpugnacao.descricao"
+                                        [configuracao]="configuracaoCkeditor">
+                                    </editor-de-texto>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 mt-4" style="padding: 2;">
+                            <div class="card">
+                                <span class="card-header bg-primary">
+                                    {{ 'LABEL_DOCUMENTO' | i18n }}
+                                </span>
+                                <div class="custom-card-body bg-green">
+                                    <arquivo
+                                        [arquivos]="recursoResponsavel.contrarrazaoRecursoImpugnacao.arquivos"
+                                        (download)="downloadArquivoContrarrazao($event)"
+                                        [hasDownload]="true">
+                                    </arquivo>
+                                    <div class="col-md-4 col-xs-12" *ngIf="!recursoResponsavel.contrarrazaoRecursoImpugnacao.arquivos">
+                                        <table class="table table-sm">
+                                            <tbody>
+                                                <td class="text-left pr-3 mt-3">
+                                                    <span>{{ 'LABEL_NAO_APLICADO' | i18n }}</span>
+                                                </td>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row conteudo" *ngIf="isMostrarMsgContrarrazao()">
+                        <form #form="ngForm" class="w-100">
+                            <div class="col-md-12">
+                                <div class="tab-pane fade card rounded-0 pl-4 pr-4 pb-2" [ngClass]="{ 'active show':true}">
+                                    <div class="card border pl-4 pr-4 pb-4 pt-4 mt-5 mb-4" style="border-radius: 8px mb-5">
+                                        <div class="alert border bg-green shadow margin">
+                                            <div fxLayout="row" fxLayoutAlign="center center">
+                                                <b class="mt-4 mb-4">{{'MGS_N_HOUVE_CONTRARRAZAO_CADASTRADA' | i18n}}</b>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </accordion-group>
+            </div>
+        </accordion>
+    </div>
+</div>
+
+<div class="row mx-0" *ngIf="validarBotao()">
+    <div class="mt-3 mb-3">
+        <div *ngIf="!isIes">
+            <button (click)="modalJulgar(templateJulgamento)" class="btn btn-primary px-3 ml-4">
+                {{ 'LABEL_JULGAR_RECURSO' | i18n }}
+            </button>
+        </div>
+        <div *ngIf="isIes">
+            <button (click)="modalJulgar(templateJulgamento)" class="btn btn-primary px-3 ml-4">
+                {{ 'LABEL_JULGAR_RECONSIDERACAO' | i18n }}
+            </button>
+        </div>
+    </div>
+</div>

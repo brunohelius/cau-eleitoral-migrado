@@ -1,0 +1,34 @@
+<div class="card">
+    <fieldset class="p-4" [ngClass]="isAbaVisivel ? 'fieldset' : 'no-fieldset'">
+        <legend  style="min-width: 150px; max-width: 250px; height: 50px;" *ngIf="isAbaVisivel == true">
+            <div fxLayout="row" fxLayoutAlign="center center" >
+                <div 
+                    fxLayout="row" 
+                    fxLayoutAlign="center center" 
+                    class="aba-content left aba-active"
+                    [ngClass]="{'aba-active': abaAtiva == label_a}"
+                    (click)="ativarLabel(label_a)"
+                >
+                    {{ label_a | i18n }}
+                </div>
+                <div 
+                    fxLayout="row" 
+                    fxLayoutAlign="center center"  
+                    class="aba-content rigth"
+                    [ngClass]="{'aba-active': abaAtiva == label_b}"
+                    (click)="ativarLabel(label_b)"
+                    >
+                    {{ label_b | i18n }}
+                </div>
+            </div>
+        </legend>
+        <div>
+            <div [ngClass]="abaAtiva == label_a ? '' : 'esconde'">
+                <ng-content select="[primeira-aba]" ></ng-content>
+            </div>
+            <div [ngClass]="abaAtiva == label_b && isAbaVisivel == true ? '' : 'esconde'">
+                <ng-content select="[segunda-aba]"></ng-content>
+            </div>
+        </div>
+    </fieldset>
+</div>

@@ -1,0 +1,132 @@
+<div class="modal-header border-header-green">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 text-center">
+        <h6 class="modal-title pull-center">
+            <span> <b class="colorGray titulo">{{getTitleModal() | i18n}} : {{dadosRecurso.sequencia}}</b> </span>
+        </h6>
+    </div>
+    <div class="col-md-2 align-items-right">
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
+
+<div class="modal-body">
+
+    <titulo-substituicao
+    [titleTab]="getTitleTab()"
+    [isIndeferido]="isIndeferido()"
+    >
+    </titulo-substituicao>
+    
+    <!-- Label da Chapa -->
+    <div class="row" style="margin-top: 2px; margin-left: 0px; margin-bottom: ‒14;">
+        <div class="col-4 colorGreen">
+            <span class="texto-titulo">{{ 'LABEL_UF' | i18n }}: {{chapa.uf}}</span><br>
+            <span class="texto-titulo">{{ 'LABEL_N_CHAPA' | i18n }}: {{chapa.numeroChapa || "N/A"}}</span><br>
+            <span class="texto-titulo">
+                <b>{{ 'LABEL_DATA_HORA_CADASTRO' | i18n }}:</b>
+                {{ dadosRecurso.dataCadastro | date:'dd/MM/yyyy' : '+0' }} às
+                {{ dadosRecurso.dataCadastro | date:'HH:mm' : '+0' }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Membros com Solicitação de Recurso -->
+    <div class="tab-pane fade card rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}">
+        <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px; margin-top: 10px;">
+            <!-- Membros indicados recurso -->
+            <card-panel [titulo]="getLabelMembrosComRecurso()">
+                <card-recurso-julgamento-final 
+                    *ngIf="dadosRecurso.recursoJulgamentoFinal.recursosIndicacao.length > 0"
+                    [temExcluir]="false"
+                    [membrosSelecionados]="dadosRecurso.recursoJulgamentoFinal.recursosIndicacao">
+                </card-recurso-julgamento-final>
+
+                <div *ngIf="dadosRecurso.recursoJulgamentoFinal.recursosIndicacao.length == 0 || dadosRecurso.recursoJulgamentoFinal.recursosIndicacao == undefined"
+                    fxLayout="row" fxLayoutAlign="center center" class="mb-5">
+                    <b class="colorGreen">{{'LABEL_SUBSTITUICAO_MEMBRO'| i18n}}</b>
+                </div>
+            </card-panel>
+        </div>
+    </div>
+
+    <div class="tab-pane fade card rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}">
+        <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px; margin-top: 10px;">
+            <!-- Parecer -->
+            <card-panel [titulo]="getTitleDescription()" class="mt-3">
+                <editor-de-texto 
+                    name="paracerJulgamento" 
+                    id="paracerJulgamento" 
+                    [isHabilitado]="false"
+                    [configuracao]="configuracaoCkeditor" 
+                    [valor]="dadosRecurso.descricao">
+                </editor-de-texto>
+            </card-panel>
+        </div>
+    </div>
+
+    <div class="tab-pane fade card rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}">
+        <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px; margin-top: 10px;">
+            <!-- Documento download -->
+            <card-panel [titulo]="'LABEL_DOCUMENTO'" class="mt-4">
+                <div class="col-md-4 p-0">
+                    <arquivo
+                        [maxArquivos]="1"
+                        [hasUpload]="false"
+                        [hasDownload]="true"
+                        [hasExclusao]="false"
+                        [arquivos]="arquivo"
+                        (download)="downloadArquivo($event)">
+                    </arquivo>
+                </div>
+            </card-panel>
+        </div>
+    </div>
+
+    <div 
+        class="tab-pane fade card rounded-0 pl-2 pr-2 pb-2" 
+        [ngClass]="{ 'active show':true}" 
+        *ngIf="dadosRecurso.indicacoes.length > 0 "
+    >
+        <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px; margin-top: 10px;">
+            <!-- Indicações dos membros -->
+            <card-panel [titulo]="'LABEL_RESULTADO_DOS_MEMBROS_COM_PENDENCIA'">
+                <card-julgamento-final 
+                    [temExcluir]="false"
+                    [membrosSelecionados]="dadosRecurso.indicacoes"
+                    *ngIf="dadosRecurso.indicacoes.length > 0 " 
+                >
+                </card-julgamento-final>
+                <div 
+                    *ngIf="dadosRecurso.indicacoes.length == 0 && isIndeferido()"
+                    fxLayout="row" 
+                    fxLayoutAlign="center center">
+                    <b class="mt-4 mb-4 colorGreen">{{'LABEL_SUBSTITUICAO_MEMBRO' | i18n }}</b>
+                </div>
+            </card-panel>
+        </div>
+    </div>
+
+    <div 
+        class="tab-pane fade card rounded-0 pl-2 pr-2 pb-2" 
+        [ngClass]="{ 'active show':true}"
+        *ngIf="dadosRecurso.retificacaoJustificativa != null || dadosRecurso.retificacaoJustificativa != undefined"
+        >
+        <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px; margin-top: 10px;">
+            <!--Justificativa da retificação-->
+            <card-panel [titulo]="'LABEL_JUSTIFICATIVA_RETIFICACAO'" class="mt-3">
+                <editor-de-texto name="paracerJulgamento" id="paracerJulgamento" [isHabilitado]="false"
+                    [configuracao]="configuracaoCkeditor" [valor]="dadosRecurso.retificacaoJustificativa">
+                </editor-de-texto>
+            </card-panel>
+        </div>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button class="btn btn-primary mr-auto" type="button" (click)="modalRef.hide()">
+        {{'LABEL_FECHAR' | i18n}}
+    </button>
+</div>

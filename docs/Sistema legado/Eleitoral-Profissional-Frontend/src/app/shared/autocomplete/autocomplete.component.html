@@ -1,0 +1,10 @@
+<input type="text" [placeholder]="placeholder" class="form-control" name="cpfNome" title="{{'LABEL_CPF_NOME' | i18n}}" [disabled]="disabled" maxlength="50"
+    [(ngModel)]="inputModel" (ngModelChange)="inputModelChange.emit(inputModel)" (focusout)="focusout()" [typeahead]="search"
+    [typeaheadAsync]="true" typeaheadOptionField="nome" [typeaheadWaitMs]="1000" [typeaheadOptionsInScrollableView]="10"
+    (typeaheadOnSelect)="adicionarMembroChapa($event)" [typeaheadMinLength]="5" [typeaheadScrollable]="true"
+    [adaptivePosition]="true" [typeaheadItemTemplate]="isNumeroRegistro ? templateNomeRegistro : templateNomeCpf" [typeaheadOptionsLimit]="limitMax"
+    [required]="true">
+
+<!-- CPF/Nome -->
+<ng-template #templateNomeCpf let-model="item">{{ model.nome }} - {{ model.cpf | mask:'000.000.000-00' }}</ng-template>
+<ng-template #templateNomeRegistro let-model="item">{{ model.nome }} - {{getRegistroComMask(model.registroNacional)}}</ng-template>

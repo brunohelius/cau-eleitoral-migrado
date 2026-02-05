@@ -1,0 +1,176 @@
+<div fxLayout="row" fxLayoutAlign="start center" class="p-4"
+*ngIf="true || !chapaEleicao.isCadastradoJulgamentoFinalSegunda">
+  <button class="btn btn-danger mr-3"
+    (click)="abrirModalJulgar(templateJulgarSegundaInstancia, statusIndeferido, chapaEleicao)"
+    >
+    {{'LABEL_JULGAR_INDEFERIDO' | i18n}}
+  </button>
+  <button class="btn btn-primary"
+    (click)="abrirModalJulgar(templateJulgarSegundaInstancia, statusDeferido, chapaEleicao)"
+    >
+    {{'LABEL_JULGAR_DEFERIDO' | i18n}}
+  </button>
+</div>
+
+<!-- Julgar Deferido/Indeferido -->
+<ng-template #templateJulgarSegundaInstancia>
+
+  <div class="modal-header border-header-green">
+    <div class="col-md-12 text-center">
+        <h6 class="modal-title pull-center grey-font-bolder"  style="color: grey;">
+            {{ getTituloFormulario() }} {{ tipoJulgamentoAtual }}
+        </h6>
+    </div>
+  </div>
+  <div class="modal-body" style="height: 100%">
+
+    <div class="mb-3" *ngIf="isIndeferido()">
+        <card-panel [titulo]="'LAVEL_SELECIONE_CANDIDATO'" class="mt-3">
+            <div class="row">
+                <div class="col-md-5 p-3">
+                  <select class="form-control mr-1" (change)="adicionaMembroListaPendencia($event)">
+                    <option [value]="-1" selected="selected">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                    <option *ngIf="isMostrarOpcaoSelecionarTodosMembroListaPendencia()" [value]="-2">
+                      <div>
+                        <span> {{ 'LABEL_TODOS' | i18n }} </span>
+                      </div>
+                    </option>
+                    <option *ngFor="let membro of profissionaisComboBox; let indice = index" [value]="indice">
+                        <div>
+                            <span *ngIf="membro.numeroOrdem != 0">{{ membro.numeroOrdem}}</span>
+                            <span *ngIf="membro.numeroOrdem == 0">{{ 'LABEL_FEDERAL'| i18n}}</span>
+                            - {{ membro.tipoParticipacaoChapa.descricao }}
+                            - {{ membro?.profissional?.nome || getLabelSemMembrosCadastrados() }}
+                        </div>
+                    </option>
+                  </select>
+                </div>
+                <div class="col-md-7 text-right p-3">
+                    <i aria-hidden="true"
+                        title="{{ 'MSG_LISTA_MEMBROS_COMPOEM_CHAPA' | i18n }}"
+                        class="fa fa-exclamation-circle text-alert icone-size primary mb-3">
+                    </i>
+                </div>
+            </div>
+        </card-panel>
+    </div>
+
+    <div class="mb-3" *ngIf="isIndeferido()">
+        <card-panel *ngIf="membrosPorSituacao.membrosComPendencia" [titulo]="'LABEL_RESULTADO_DOS_MEMBROS_COM_PENDENCIA'">
+            <card-list-membros-pendencias *ngIf="possuiRegistroLista"
+                [barraRolagem]="true"
+                [temExcluir]="true"
+                [membrosSelecionados]="membrosPorSituacao.membrosComPendencia"
+                (excluirMembro)="removeMembroListaPendencia($event)"
+                (excluirTodos)="excluirTodos()"
+            >
+            </card-list-membros-pendencias>
+
+            <div fxLayout="row" fxLayoutAlign="center center" *ngIf="!possuiRegistroLista && !possuiMembrosComPendencia" class="mb-5">
+              <b class="colorGreen">{{'MSG_CHAPA_SEM_MEMBROS_PENDENCIA'| i18n}}</b>
+            </div>
+            <div fxLayout="row" fxLayoutAlign="center center" *ngIf="!possuiRegistroLista && possuiMembrosComPendencia" class="mb-5">
+                <b class="colorGreen">{{'LABEL_SUBSTITUICAO_MEMBRO'| i18n}}</b>
+            </div>
+        </card-panel>
+    </div>
+
+
+    <div class="mb-3">
+        <card-panel [titulo]="'LABEL_DESCRICAO'" >
+            <editor-de-texto
+                [isRequerido]="true"
+                [isHabilitado]="true"
+                [tamanhoMaximo]="2000"
+                [valor]="julgamento.descricao"
+                [configuracao]="configuracaoCkeditor"
+                [isMostrarTamanhoTextoRestantes]="true"
+                [isSubmetido]="submitted"
+                (valorChange)="adicionarParecerJulgamento($event)">
+            </editor-de-texto>
+        </card-panel>
+    </div>
+    <div class="mb-3">
+        <card-panel [titulo]="'LABEL_DOCUMENTO'" >
+            <div class="row">
+                <div class="col-md-12 p-0">
+                    <arquivo
+                    [maxArquivos]="1"
+                    [hasUpload]="true"
+                    [hasDownload]="true"
+                    [hasExclusao]="true"
+                    [hasCadastro]="true"
+                    [msgMaxArquivos]="'MSG_PERMISSAO_UPLOAD_1'"
+                    (salvarEvent)="salvarArquivoJulgamento($event)"
+                    (download)="downloadArquivoJulgamento($event)"
+                    (excluirArquivo)="excluirArquivo()">
+                    </arquivo>
+                </div>
+            </div>
+            <div class="text-danger" *ngIf="submitted && !hasArquivos()">{{ 'required' | i18n }}</div>
+        </card-panel>
+    </div>
+
+    <div class="col-md-12 p-3">
+        <button class="btn btn-danger px-3 mr-3"
+            (click)="cancelaPedido()"
+        >
+            {{ 'LABEL_CANCELAR' | i18n }}
+        </button>
+
+        <button  class="btn btn-primary px-3 mr-3"
+            (click)="salvar()"
+        >
+            {{ 'LABEL_CONCLUIR' | i18n }}
+        </button>
+    </div>
+
+  </div>
+
+</ng-template>
+
+<ng-template #templatePendeciasMembro>
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            <h6 class="modal-title pull-center">{{'TITLE_PENDECIAS_MEMBRO' |i18n}}</h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalPendeciasMembro.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        <div class="row">
+            <div class="col-md-12">
+
+            </div>
+            <div class="col-md-12 text-center">
+                <button class="btn btn-primary" (click)="modalPendeciasMembro.hide()">{{'LABEL_FECHAR' |i18n}}</button>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #templateConfirmacao>
+    <modal-confirm
+        [titulo]="tituloModalConfirmacao"
+        [descricao]="msgConfirmacao"
+        (confirmar)="persiteDados()"
+        (cancelar)="fecharFormularios()"
+    >
+    </modal-confirm>
+</ng-template>
+
+<ng-template #templateConfirmacaoExclusaoMembroPendencia>
+    <modal-confirm
+        [titulo]="tituloModalExclusaoMembroPendencia"
+        [descricao]="msgConfirmacaoExclusaoMembroPendencia"
+        (confirmar)="confirmaExclusaoMembroPendencia()"
+        (cancelar)="fecharConfirmacaoExclusaoMembroPendencia()"
+        [isModalConfirmSimNao]="true"
+    >
+    </modal-confirm>
+</ng-template>
+

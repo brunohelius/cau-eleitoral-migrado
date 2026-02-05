@@ -1,0 +1,6 @@
+@CAU.Eleitoral.Api_HostAddress = http://localhost:5198
+
+GET {{CAU.Eleitoral.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

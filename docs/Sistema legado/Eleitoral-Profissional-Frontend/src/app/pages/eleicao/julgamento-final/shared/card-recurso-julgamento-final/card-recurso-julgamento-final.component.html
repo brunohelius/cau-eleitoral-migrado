@@ -1,0 +1,60 @@
+<div class="tab-pane fade rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}">
+    <div fxLayout="row" fxFlexFill>
+        <div fxFlex>
+            <div fxLayout="row">
+                <div fxFlex="8%" class="ml-2 text-center pb-1">
+                    <strong class="label-subtitle">{{ 'LABEL_POSICAO' | i18n }}</strong>
+                </div>
+                <div fxFlex="20%" class="text-center"><strong
+                        class="label-subtitle">{{ 'LABEL_TIPO_PARTICIPACAO' | i18n }}</strong>
+                </div>
+                <div fxFlex class="text-center"><strong
+                        class="label-subtitle">{{ 'LABEL_NOME' | i18n }}</strong>
+                </div>
+                <div fxFlex class="text-center">
+                    <strong class="label-subtitle">{{ 'LABEL_REGISTRO' | i18n }}</strong>
+                </div>
+                <div fxFlex="8%" class="text-center" *ngIf="temExcluir">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Membros originais-->
+    <div class="list-item list-item-card mt-1" style="background-color: #e4f0f0;">
+        <div *ngFor="let membro of membrosSelecionados; let indice = index">
+            <div fxLayout="row" class="list-item-box custom-grid mb-2" style="background-color: white;">
+                <div fxFlex="8%" class="text-center border-right">
+                    <div fxLayout="column" fxLayoutAlign="space-around center">
+                        <div *ngIf="membro.indicacaoJulgamentoFinal.numeroOrdem != 0">{{membro.indicacaoJulgamentoFinal.numeroOrdem}}</div>
+                        <div *ngIf="membro.indicacaoJulgamentoFinal.numeroOrdem == 0">{{'LABEL_FEDERAL' | i18n}}</div>
+                    </div>
+                </div>
+                <div fxFlex="20%" class="border-right text-center">
+                    <div fxLayout="column" fxLayoutAlign="space-around center">
+                        <div>
+                            {{membro.indicacaoJulgamentoFinal.tipoParticipacaoChapa.descricao}}
+                        </div>
+                    </div>
+                </div>
+                <div fxFlex class="border-right text-center">
+                    <div fxLayout="column" fxLayoutAlign="space-around center">
+                        <div *ngIf="membro.indicacaoJulgamentoFinal.membroChapa">{{membro.indicacaoJulgamentoFinal.membroChapa.profissional.nome}}</div>
+                        <div *ngIf="!membro.indicacaoJulgamentoFinal.membroChapa" class="red">{{ 'LABEL_SEM_MEMBRO_INCLUSAO' | i18n }}</div>
+                    </div>
+                </div>
+                <div fxFlex class="border-right text-center">
+                    <div fxLayout="column" fxLayoutAlign="space-around center">
+                        <div *ngIf="membro.indicacaoJulgamentoFinal.membroChapa">{{getRegistroComMask(membro.indicacaoJulgamentoFinal.membroChapa.profissional.registroNacional)}}</div>
+                        <div *ngIf="!membro.indicacaoJulgamentoFinal.membroChapa">-</div>
+                    </div>
+                </div>
+                <div fxFlex="8%" class="border-right text-center" *ngIf="temExcluir">
+                    <div fxLayout="column" fxLayoutAlign="space-around center">
+                        <i class="fa fa-times-circle fa-2x float-right pointer primary" aria-hidden="true" (click)="excluirMembroEmit(membro, indice)"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

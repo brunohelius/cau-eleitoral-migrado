@@ -1,0 +1,186 @@
+<div class="header">
+    <h1 class="header-title">
+        <i class="fa fa-wpforms" style="margin-right: 10px; font-size: 30px" aria-hidden="true"></i>
+        {{'LABEL_PARAMETRIZAR_CABECALHO_RODAPE_EMAIL' | i18n}}
+    </h1>
+</div>
+
+<div class="container-grid">
+    <div class="row">
+        <div class="col-md-9 col-sm-9">
+            <div class="card card-box-shadow">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12">
+
+                            <div class="card-body">
+                                <div *ngIf="!isExibirMSGTableFiltroVazio()">
+                                    <div class="row mt-2 mb-2">
+                                        <div class="col-md-8">
+                                            <span class="h5 text-muted">{{ 'LABEL_RESULTADO_PESQUISA' | i18n }}</span>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control largura-campo" [(ngModel)]="search"
+                                                placeholder="{{'LABEL_BUSCAR' |i18n}}" (ngModelChange)="filter($event)"
+                                                maxlength="50">
+                                        </div>
+                                    </div>
+
+                                    <table class="table table-striped" [mfData]="cabecalhos" #mf="mfDataTable"
+                                        [mfRowsOnPage]="numeroRegistrosPaginacao" *ngIf="cabecalhos">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center tb-width-10">
+                                                    <mfDefaultSorter by="id">{{ 'LABEL_N' | i18n }}</mfDefaultSorter>
+                                                </th>
+                                                <th class="text-center tb-width-20">
+                                                    <mfDefaultSorter by="titulo">{{ 'LABEL_TITULO' | i18n }}
+                                                    </mfDefaultSorter>
+                                                </th>
+                                                <th class="text-center tb-width-20">
+                                                    <mfDefaultSorter by="ufsAgrupados">
+                                                        {{ 'LABEL_UF' | i18n }}</mfDefaultSorter>
+                                                </th>
+                                                <th class="text-center tb-width-30">
+                                                    <mfDefaultSorter by="ativo">{{ 'LABEL_ATIVO' | i18n }}
+                                                    </mfDefaultSorter>
+                                                </th>
+                                                <th class="text-center tb-width-10">{{ 'LABEL_ACAO' | i18n }}</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            <tr *ngFor="let cabecalho of mf.data;">
+                                                <td class="text-center tb-width-10">{{ getDescricaoId(cabecalho.id) }}
+                                                </td>
+                                                <td class="text-center tb-width-10">{{ cabecalho.titulo }}</td>
+                                                <td class="text-center tb-width-20">
+                                                    {{ getDescricaoUfs(cabecalho.cabecalhoEmailUfs) }}
+                                                </td>
+                                                <td class="text-center tb-width-20">
+                                                    {{ getDescricaoAtivo(cabecalho.ativo) }}
+                                                </td>
+                                                <td class="text-center tb-width-10">
+                                                    <div class="btn-group" dropdown triggers="hover"
+                                                        (mouseleave)="dp.hide()" #dp="bs-dropdown">
+                                                        <button dropdownToggle type="button"
+                                                            class="btn btn-link text-muted"
+                                                            aria-controls="dropdown-basic">
+                                                            <i class="align-middle colorAcao fas fa-ellipsis-v"
+                                                                aria-hidden="true"></i>
+                                                        </button>
+                                                        <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu"
+                                                            role="menu" aria-labelledby="button-basic">
+                                                            <li role="menuitem">
+                                                                <a href="#" class="dropdown-item"
+                                                                    title="{{'LABEL_VISUALIZAR' |i18n}}"
+                                                                    [routerLink]="getURLCabecalhoVisualizar(cabecalho.id)">{{'LABEL_VISUALIZAR' |i18n}}</a>
+                                                            </li>
+                                                            <li role="menuitem">
+                                                                <a href="#" class="dropdown-item"
+                                                                    title="{{'LABEL_VISUALIZAR' |i18n}}"
+                                                                    [routerLink]="getURLCabecalhoAlterar(cabecalho.id)">{{'LABEL_ALTERAR' |i18n}}</a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="6" class="col-12" *ngIf="isExibirPaginacao()">
+                                                    <paginacao [paginaAtual]="mf.activePage"
+                                                        [totalPorPagina]="numeroRegistrosPaginacao"
+                                                        [totalRegistros]="getTotalRegistrosCabacalho()"></paginacao>
+                                                </td>
+                                                <td colspan="6" class="col-12"
+                                                    *ngIf="isExibirMsgNenhumRegistroEncontrado()">
+                                                    <div class="text-center">
+                                                        {{'LABEL_NENHUM_REGISTRO_ENCONTRADO' |i18n}}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                                <br />
+                                <div class="div-tabela-vazia text-center" *ngIf="isExibirMSGTableFiltroVazio()">
+                                    <span class="tabela-vazio">{{'LABEL_TABLE_FILTRO_VAZIO' |i18n}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3" id='div-filtro'>
+            <div class="card card-box-shadow p-3">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="header-filtro">
+                            <i class="fas fa-filter" aria-hidden="true"></i>
+                            <span class="h4">{{'LABEL_FILTROS' |i18n}}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row action-filtro mt-3 mb-3">
+                    <div class="col-md-12">
+                        <a class="remove-link" href="#" [routerLink]="getURLCabecalhoIncluir()" title="Incluir">
+                            <i aria-hidden="true" class="fas fa-plus-square"></i><span>Incluir</span>
+                        </a>
+                    </div>
+                    <div class="col-md-12">
+                        <a href="#" (click)="limpar($event)" title="{{'LABEL_LIMPAR' |i18n}}">
+                            <i class="fas fa-bars" aria-hidden="true"></i>
+                            <span>{{'LABEL_LIMPAR' |i18n}}</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <label>{{'LABEL_TITULO' |i18n}}</label>
+                        <ng-multiselect-dropdown placeholder="{{'LABEL_SELECIONAR' |i18n}}" [data]="titulos"
+                            [(ngModel)]="filtro.idsCabecalhosEmail" [settings]="dropdownSettingsTitulo"
+                            title="{{'LABEL_TITULO' |i18n}}">
+                        </ng-multiselect-dropdown>
+
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <label>{{'LABEL_UF' |i18n}}</label>
+                        <ng-multiselect-dropdown placeholder="{{'LABEL_SELECIONAR' |i18n}}" [data]="ufs"
+                            [(ngModel)]="filtro.ufs" [settings]="dropdownSettingsUF" title="{{'LABEL_UF' |i18n}}">
+                        </ng-multiselect-dropdown>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <label for="tpProcesso">{{'LABEL_ATIVO' |i18n}}</label>
+                        <ng-multiselect-dropdown placeholder="{{'LABEL_SELECIONAR' |i18n}}" [data]="getTiposAtivo()"
+                            [(ngModel)]="filtro.ativo" [settings]="dropdownSettingsAtivo"
+                            title="{{'LABEL_Ativo' |i18n}}">
+                        </ng-multiselect-dropdown>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12 text-center">
+                        <button type="button" class="btn btn-primary" (click)="pesquisar()"
+                            title=" {{'LABEL_PESQUISAR' |i18n}}">
+                            {{'LABEL_PESQUISAR' |i18n}}
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,107 @@
+<div class="row text-center py-3 cor-corpo">
+    <div class="col-md-12">
+        <i class="fa fa-reply fa-2x float-left pointer" (click)="voltar.emit(isCamposAlterados())" aria-hidden="true"></i>
+    </div>
+</div>
+
+<div class="card" *ngIf="!isChapaConcluida()">
+    <div class="row m-2">
+        <div class="col-md-12 mt-4 mb-4">
+            <div class="box-destaque texto-destaque shadow" *ngIf="declaracaoParametrizada?.declaracao">
+
+                <p class="text-center titulo-declaracao-conclusao">
+                    {{ declaracaoParametrizada.declaracao.titulo }}
+                </p>
+
+                <p class="text-justify" [innerHTML]="declaracaoParametrizada.declaracao.textoInicial"> </p>
+
+                <div class="col-md-12 form-inline" *ngIf="declaracaoParametrizada.declaracao.itensDeclaracao">
+                    <div class="row col-md-12 p-0"
+                        *ngFor="let itemDeclaracao of declaracaoParametrizada.declaracao.itensDeclaracao; let indice = index;">
+                        <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="start stretch" class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="item{{indice}}"
+                                name="itemDeclaracao" (ngModelChange)="onChanteItemDeclaracao(itemDeclaracao)"
+                                [(ngModel)]="itemDeclaracao.valor">
+                            <label class="custom-control-label ml-1"
+                                for="item{{indice}}">{{itemDeclaracao.descricao}}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12 pt-3" *ngIf="declaracaoParametrizada.declaracao.permiteUpload">
+                    <div class="row">
+                        <div class="col-md-6 pl-0">
+                            <div class="form-group" *ngIf="true">
+                                <label for="">
+                                    <span style="font-weight: bold;">
+                                        {{ 'LABEL_ARQUIVO' | i18n }}
+                                    </span>
+                                </label>
+
+                                <upload title="{{'LABEL_PROCURAR' | i18n}}" [name]="nomeDocumentoDeclaracao"
+                                    required="true" [disabled]="isDocumentoDeclaracaoDesabilitado()"
+                                    (process)="uploadDocumentoDeclaracao($event)" (click)="onClickUpload()" >
+                                    <i class="fa fa-file-o text-success" aria-hidden="true"></i>
+                                    <span>{{'LABEL_PROCURAR' | i18n}}</span>
+                                </upload>
+
+                                <input type="hidden" name="hideDocumentoDeclaracao" #input_documentoDeclaracao="ngModel"
+                                    [required]="false" [(ngModel)]="nomeDocumentoDeclaracao">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 pl-0">
+                            <table class="table" *ngIf="documentosDeclaracao">
+                                <tbody *ngFor="let documentoDeclaracao of documentosDeclaracao; let indice = index;">
+                                    <td>
+                                        {{ documentoDeclaracao.nome }}
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-trash" (click)="removerDocumentoDeclaracao(indice)"></i>
+                                    </td>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-12 py-4 cor-corpo" *ngIf="!isChapaConcluida()">
+    <button class="btn btn-danger mr-4" (click)="cancelar.emit()">
+        {{ 'LABEL_CANCELAR' | i18n }}
+    </button>
+
+    <button class="btn btn-primary mr-4" (click)="anterior()">
+        {{ 'LABEL_ANTERIOR' | i18n }}
+    </button>
+
+    <button class="btn btn-primary mr-4" id="btn-declaracao-confirmar" (click)="confirmar()">
+        {{ 'LABEL_CONFIRMAR' | i18n }}
+    </button>
+</div>
+
+<div class="card" *ngIf="isChapaConcluida()">
+    <div class="row m2">
+        <div class="col-md-12 h-50">
+            <div class="h-25 py-3">
+                <p class="text-center titulo-declaracao-conclusao">
+                    {{ 'TITLE_DECLARACAO_PREENCHIDA_COM_SUCESSO' | i18n }}
+                </p>
+
+                <p class="text-center custom-font-declaracao" [innerHTML]="getMensagemChapaCadastrada()"></p>
+
+                <p class="text-center">
+                    <button class="btn btn-primary mr-4" id="btn-declaracao-fechar" (click)="fechar()">
+                        {{ 'LABEL_FECHAR' | i18n }}
+                    </button>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

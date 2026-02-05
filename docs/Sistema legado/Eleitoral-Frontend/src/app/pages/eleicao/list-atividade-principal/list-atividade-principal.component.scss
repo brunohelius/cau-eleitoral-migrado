@@ -1,0 +1,68 @@
+.itemAtividadePrincipalTitulo{
+    font-weight: bold;
+    border-bottom: 1px solid black;
+}
+
+.itemAtividadePrincipalRow{
+    margin-bottom: 40px;
+}
+
+.negrito{
+    text-shadow: 0px 0px, 0px 0px, 0px 0px;
+    font-weight: bolder;
+}
+
+.itemAtividadePrincipal{
+    padding: .375rem .75rem;
+    border: 1px solid #ced4da;
+    border-radius: .955rem;
+    border-color: #E3EFEF;
+    background-color: #E3EFEF;
+}
+
+.itemAtividadeSecudariaConteudo table{
+    padding: 5px 0px 5px;
+    border-collapse: separate;
+    border-spacing:0;
+    border: 1px solid #797979;
+    border-radius: 10px;
+    table-layout: fixed;
+    width: 100%;
+    background-color: white;
+}
+
+.itemAtividadeSecudariaConteudo table thead tr th{
+    border-bottom: 1px solid #818181;
+    border-collapse:separate;
+}
+
+.itemAtividadeSecudaria{
+    margin: 10px 15px 15px 15px;
+    padding: 5px 10px 5px 10px;
+}
+
+.status-sub-atividade{
+    @extend .negrito;
+    font-size: .70rem;
+}
+
+#div-filtro .body-filtro{
+    height: auto;
+    min-height: 0px;
+}
+
+.background-grey:hover{
+ background-color: #bebbbb;
+}
+
+.text-status-1 {
+    color: #5F99D6;
+}
+
+.text-status-2 {
+    color: #FF7B24;
+}
+
+.text-status-3 {
+    color: #E13F26;
+}

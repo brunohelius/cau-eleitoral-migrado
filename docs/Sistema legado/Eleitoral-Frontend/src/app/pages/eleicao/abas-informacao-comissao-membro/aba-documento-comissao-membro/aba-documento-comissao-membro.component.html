@@ -1,0 +1,204 @@
+<form #form="ngForm">
+
+    <div class="row">
+        <div class="col-md-12 border-bottom">
+            <div class="d-flex align-items-center justify-content-between my-3">
+
+                <label class="mr-auto">
+                    {{ 'LABEL_PARAMETRIZAR_CABECALHO' | i18n }}
+                </label>
+
+                <label>{{ 'LABEL_ATIVAR' | i18n }}</label>
+                <ui-switch class="pl-2" title="{{ 'LABEL_ATIVAR' | i18n }}" name="toggleParametrizarCabecalho"
+                    [disabled]="isAcaoVisualizar()" [(ngModel)]="documento.situacaoCabecalhoAtivo">
+                </ui-switch>
+
+            </div>
+        </div>
+
+        <div class="col-md-12 my-3" *ngIf="exibirCampos.campoParametrizarCabecalho && documento.situacaoCabecalhoAtivo">
+            <ckeditor name="descricaoCabecalho" id="descricaoCabecalho" #descricaoCabecalho="ngModel"
+                [(ngModel)]="documento.descricaoCabecalho" [config]="configuracaoCkeditor" required></ckeditor>
+
+            <validation-message [for]="descricaoCabecalho" [submitted]="submitted">
+            </validation-message>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 border-bottom">
+            <div class="d-flex align-items-center justify-content-between my-3">
+                <label class="mr-auto">
+                    <i class="fa fa-arrow-right botao-exibir" data-toggle="collapse"
+                        [attr.data-target]="'#acordion-parametro-cabecalho'"
+                        (click)="alterarExibicaoCampo('campoParametrizarTextoInicial')"
+                        [ngClass]="exibirCampos.campoParametrizarTextoInicial ? 'fa-arrow-up' : 'fa-arrow-down'"
+                        aria-expanded="true" *ngIf="documento.situacaoTextoInicial"></i>
+                    {{ 'LABEL_PARAMETRIZAR_TEXTO_INICIAL' | i18n }}
+                </label>
+                <label>{{ 'LABEL_ATIVAR' | i18n }}</label>
+                <ui-switch class="pl-2" title="{{ 'LABEL_ATIVAR' | i18n }}" name="toggleParametrizarTextoInicial"
+                    [disabled]="isAcaoVisualizar()" [(ngModel)]="documento.situacaoTextoInicial">
+                </ui-switch>
+            </div>
+        </div>
+
+        <div class="col-md-12 my-3"
+            *ngIf="exibirCampos.campoParametrizarTextoInicial && documento.situacaoTextoInicial">
+            <ckeditor name="descricaoTextoInicial" id="descricaoTextoInicial" #descricaoTextoInicial="ngModel"
+                [(ngModel)]="documento.descricaoTextoInicial" [config]="configuracaoCkeditor" required
+                [disabled]="isAcaoVisualizar()"></ckeditor>
+
+            <validation-message [for]="descricaoTextoInicial" [submitted]="submitted">
+            </validation-message>
+
+            <button type="button" *ngIf="!isAcaoVisualizar()"
+                class="btn btn-sm btn-primary float-right mt-2"
+                (click)="limparCampo('descricaoTextoInicial')">
+                {{ 'LABEL_LIMPAR' | i18n }}
+            </button>
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-12 border-bottom">
+            <div class="d-flex align-items-center justify-content-between my-3">
+                <label class="mr-auto">
+                    <i class="fa fa-arrow-right botao-exibir" data-toggle="collapse"
+                        [attr.data-target]="'#acordion-parametro-cabecalho'"
+                        (click)="alterarExibicaoCampo('campoQuantidadeMembros')"
+                        [ngClass]="exibirCampos.campoQuantidadeMembros ? 'fa-arrow-up' : 'fa-arrow-down'"
+                        aria-expanded="true"></i>
+                    {{ 'LABEL_QUANTIDADE_MEMBROS' | i18n }}
+                </label>
+            </div>
+        </div>
+
+        <div class="col-md-12 my-3" *ngIf="exibirCampos.campoQuantidadeMembros">
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr class="text-center">
+                                <th class="bg-calendario">{{ 'LABEL_UF' | i18n }}</th>
+                                <th class="bg-calendario-lighten">{{ 'LABEL_QUANTIDADE' | i18n }}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-center">
+                            <tr *ngFor="let cauUf of getUfsTabela1(numeroMembrosComissao);">
+                                <td>{{ cauUf.prefixo }}</td>
+                                <td>
+                                    <span *ngIf="cauUf.quantidade == 0" class="text-danger">
+                                        {{ 'LABEL_NAO_APLICADO' | i18n }}
+                                    </span>
+                                    <span *ngIf="cauUf.quantidade > 0">
+                                        {{ cauUf.quantidade }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-md-6">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr class="text-center">
+                                <th class="bg-calendario">{{ 'LABEL_UF' | i18n }}</th>
+                                <th class="bg-calendario-lighten">{{ 'LABEL_QUANTIDADE' | i18n }}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-center">
+                            <tr *ngFor="let cauUf of getUfsTabela2(numeroMembrosComissao)">
+                                <td>{{ cauUf.prefixo }}</td>
+                                <td>
+                                    <span *ngIf="cauUf.quantidade == 0" class="text-danger">
+                                        {{ 'LABEL_NAO_APLICADO' | i18n }}
+                                    </span>
+                                    <span *ngIf="cauUf.quantidade > 0">
+                                        {{ cauUf.quantidade }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 border-bottom">
+            <div class="d-flex align-items-center justify-content-between my-3">
+                <label class="mr-auto">
+                    <i class="fa fa-arrow-right botao-exibir" data-toggle="collapse"
+                        [attr.data-target]="'#acordion-parametro-cabecalho'"
+                        (click)="alterarExibicaoCampo('campoParametrizarTextoFinal')"
+                        [ngClass]="exibirCampos.campoParametrizarTextoFinal ? 'fa-arrow-up' : 'fa-arrow-down'"
+                        aria-expanded="true" *ngIf="documento.situacaoTextoFinal"></i>
+                    {{ 'LABEL_PARAMETRIZAR_TEXTO_FINAL' | i18n }}
+                </label>
+                <label>{{ 'LABEL_ATIVAR' | i18n }}</label>
+                <ui-switch class="pl-2" title="{{ 'LABEL_ATIVAR' | i18n }}" name="toggleParametrizarTextoFinal"
+                    [disabled]="isAcaoVisualizar()" [(ngModel)]="documento.situacaoTextoFinal">
+                </ui-switch>
+            </div>
+        </div>
+
+        <div class="col-md-12 my-3" *ngIf="exibirCampos.campoParametrizarTextoFinal && documento.situacaoTextoFinal">
+            <ckeditor name="descricaoTextoFinal" id="descricaoTextoFinal" #descricaoTextoFinal="ngModel"
+                [(ngModel)]="documento.descricaoTextoFinal" [config]="configuracaoCkeditor" required
+                [disabled]="isAcaoVisualizar()"></ckeditor>
+
+            <validation-message [for]="descricaoTextoFinal" [submitted]="submitted">
+            </validation-message>
+
+            <button type="button" *ngIf="!isAcaoVisualizar()"
+                class="btn btn-sm btn-primary float-right mt-2"
+                (click)="limparCampo('descricaoTextoFinal')">
+                {{ 'LABEL_LIMPAR' | i18n }}
+            </button>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 border-bottom">
+            <div class="d-flex align-items-center justify-content-between my-3">
+                <label class="mr-auto">
+                    {{ 'LABEL_PARAMETRIZAR_RODAPE' | i18n }}
+                </label>
+                <label>{{ 'LABEL_ATIVAR' | i18n }}</label>
+                <ui-switch class="pl-2" title="{{ 'LABEL_ATIVAR' | i18n }}" name="toggleParametrizarRodape"
+                    [disabled]="isAcaoVisualizar()" [(ngModel)]="documento.situacaoTextoRodape">
+                </ui-switch>
+            </div>
+        </div>
+
+        <div class="col-md-12 my-3" *ngIf="exibirCampos.campoParametrizarRodape && documento.situacaoTextoRodape">
+            <ckeditor name="descricaoTextoRodape" id="descricaoTextoRodape" [disabled]="isAcaoVisualizar()"
+                #descricaoTextoRodape="ngModel" [(ngModel)]="documento.descricaoTextoRodape"
+                [config]="configuracaoCkeditor" required></ckeditor>
+
+            <validation-message [for]="descricaoTextoRodape" [submitted]="submitted">
+            </validation-message>
+        </div>
+    </div>
+
+    <div class="row" *ngIf="!acaoSistema.isAcaoVisualizar()">
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary my-3" (click)="salvar(form)">
+                {{ 'LABEL_SALVAR' | i18n }}
+            </button>
+
+            <button type="submit" class="btn btn-primary my-3 ml-2" *ngIf="documento.id !== undefined"
+                (click)="concluir()">
+                {{ 'LABEL_CONCLUIR' | i18n }}
+            </button>
+        </div>
+    </div>
+
+</form>

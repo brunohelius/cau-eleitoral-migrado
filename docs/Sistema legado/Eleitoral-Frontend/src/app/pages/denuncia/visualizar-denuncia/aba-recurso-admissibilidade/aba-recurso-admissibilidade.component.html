@@ -1,0 +1,72 @@
+<div class="card">
+    <div class="card-body" *ngIf="denuncia.julgamentoAdmissibilidade !== undefined && denuncia.julgamentoAdmissibilidade.recursoJulgamentoAdmissibilidade === undefined">
+            <i class="fa fa-reply fa-2x mb-3" (click)="voltar()" aria-hidden="true"></i>
+            <h6 class="text-center"><strong>{{ 'LABEL_NUMERO_DENUNCIA' | i18n }}: </strong>{{ denuncia.numeroDenuncia }}
+            </h6>
+            <div class="p-2 text-center">
+                <div class="alert border bg-green font-12 p-4">
+                    <strong>{{'MSG_NAO_HOUVE_APRESENTACAO_RECURSO_ADMISSIBILIDADE' | i18n}}</strong>
+                </div>
+            </div>
+    </div>
+    <div class="card-body" *ngIf="denuncia.julgamentoAdmissibilidade !== undefined && denuncia.julgamentoAdmissibilidade.recursoJulgamentoAdmissibilidade !== undefined">
+        <i class="fa fa-reply fa-2x mb-3" (click)="voltar()" aria-hidden="true"></i>
+
+
+        <h6 class="text-center"><strong>{{ 'LABEL_NUMERO_DENUNCIA' | i18n }}: </strong>{{ denuncia.numeroDenuncia }}
+        </h6>
+
+        <h6><strong>{{'LABEL_DATA_HORA_CADASTRO' | i18n}}: </strong>
+            {{ dataCriacao }}
+        </h6>
+
+        <div class="border shadow rounded p-2">
+            <div class="p-2">
+                <app-alerta-denuncia-sigilosa *ngIf="denuncia.isSigiloso"></app-alerta-denuncia-sigilosa>
+                <div class="bg-primary text-white p-2">
+                    <strong>{{'LABEL_DESCRICAO_RECURSO_JULGAMENTO_ADMISSIBILIDADE' | i18n}}</strong>
+                </div>
+
+                <div class="alert bg-green">
+                    <ckeditor id="dsAdmissibilidade" [config]="configuracaoCkeditor" [(ngModel)]="denuncia.julgamentoAdmissibilidade.recursoJulgamentoAdmissibilidade.descricao"
+                              [readOnly]="true">
+                    </ckeditor>
+                    <span>{{ getContagemRecursoAdmissibilidade() }}</span>
+                </div>
+            </div>
+
+            <div class="p-2" *ngIf="denuncia.julgamentoAdmissibilidade.recursoJulgamentoAdmissibilidade.arquivos?.length > 0">
+                <div class="bg-primary text-white p-2">
+                    <strong>{{'LABEL_DOCUMENTOS' | i18n}}</strong>
+                </div>
+                <div class="alert bg-green">
+                    <span>{{ 'LABEL_ARQUIVO' | i18n }}</span>
+                    <div class="lista-arquivos mt-2" fxLayout="row">
+                        <table class="table table-sm">
+                            <tbody>
+                            <tr *ngFor="let arquivo of denuncia.julgamentoAdmissibilidade.recursoJulgamentoAdmissibilidade.arquivos">
+                                <td class="text-center">
+                                    <div>
+                                        {{ arquivo.nome }}
+                                    </div>
+                                </td>
+                                <td class="table-action text-center">
+                                    <download title="{{ arquivo.nome }}" class="text-primary pointer p-0"
+                                              [download]="arquivo.nome" (process)="downloadArquivo($event, arquivo.id)">
+                                        <i class="align-middle fa fa-download"></i>
+                                    </download>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="p-2" *ngIf="hasHabilitadoJulgarRecursoAdmissibilidade()">
+            <button class="btn btn-primary" type="button" title="Julgar recurso admissibilidade" (click)="julgarRecursoAdmissibilidade()">
+                Julgar
+            </button>
+        </div>
+    </div>
+</div>

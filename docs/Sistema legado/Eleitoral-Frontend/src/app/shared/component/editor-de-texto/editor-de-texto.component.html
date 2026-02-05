@@ -1,0 +1,15 @@
+<div>
+    <ckeditor 
+        [(ngModel)]="valor"
+        #ckeditorReferencia="ngModel"
+        (ngModelChange)="valorChange.emit(valor)"
+        [readOnly]="!isHabilitado" [config]="configuracao"
+        (change)="onChangeCkeditor($event)"
+        (ready)="onRedyCkeditor($event)"
+        [required]="isRequerido">
+    </ckeditor>
+    <p *ngIf="isMostrarTamanhoTextoRestantes">{{ getTamanhoTextoRestantes() }}</p>
+    <validation-message
+          [for]="ckeditorReferencia" [submitted]="isSubmetido">
+  </validation-message>
+</div>

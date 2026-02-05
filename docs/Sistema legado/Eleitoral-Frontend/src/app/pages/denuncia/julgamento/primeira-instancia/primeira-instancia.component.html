@@ -1,0 +1,175 @@
+<ng-container *ngIf="visualizacaoRetificacao; else atualPrimeiraInstancia">
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8"></div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="fecharModalVisualizacaoRetificacao()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body">
+        <ng-container [ngTemplateOutlet]="atualPrimeiraInstancia"></ng-container>
+    </div>
+</ng-container>
+
+<ng-template #atualPrimeiraInstancia>
+<div class="card">
+    <div class="card-body">
+        <i class="fa fa-reply fa-2x mb-3" *ngIf="!visualizacaoRetificacao" (click)="voltar()" aria-hidden="true"></i>
+        <ng-container *ngIf="!visualizacaoRetificacao && julgamentoDenuncia.retificacao; else primeiraInstancia">
+            <div fxLayout="column" class="mb-3">
+                <div>
+                    <ul class="nav nav-abas sub-nav-abas">
+                        <li class="nav-item pointer">
+                            <a class="nav-link border rounded-2-left py-3 px-4" (click)="mudarAba(abas.abaAtual.id)"
+                                [ngClass]="{ 'active': abas.abaAtual.ativa }">
+                                {{ 'LABEL_ATUAL' | i18n }}
+                            </a>
+                        </li>
+
+                        <li class="nav-item pointer">
+                            <a class="nav-link border rounded-2-right py-3 px-4" (click)="mudarAba(abas.abaRetificacoes.id)"
+                                [ngClass]="{ 'active': abas.abaRetificacoes.ativa }">
+                                {{'LABEL_RETIFICADO' | i18n}}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="tab-content border shadow">
+                    <div class="tab-pane fade" [ngClass]="{ 'active show': abas.abaAtual.ativa }" *ngIf="abas.abaAtual.ativa">
+                        <ng-container [ngTemplateOutlet]="primeiraInstancia"></ng-container>
+                    </div>
+
+                    <div class="tab-pane fade" [ngClass]="{ 'active show': abas.abaRetificacoes.ativa }" *ngIf="abas.abaRetificacoes.ativa">
+                        <list-julgamentos-retificados
+                            [dadosDenuncia]="dadosDenuncia"
+                            [primeiraInstancia]="true"
+                            [julgamentosRetificados]="julgamentosRetificados">
+                        </list-julgamentos-retificados>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</div>
+</ng-template>
+
+<ng-template #primeiraInstancia>
+    <div class="card">
+        <div class="card-body">
+            <div fxLayout="row" class="mb-3">
+                <div class="text-center" fxFlex="10">
+                    <div class="status-center" >
+                        <i class="fa fa-spinner fa-4x pr-0"
+                            [ngClass]="{'text-danger': isJulgamentoImprocedente(), 'text-primary' : isJulgamentoProcedente()}"></i>
+                        <div class="texto-primary"
+                            [ngClass]="{'text-danger': isJulgamentoImprocedente(), 'text-primary' : isJulgamentoProcedente()}">
+                            <strong>{{julgamentoDenuncia.descricaoTipoJulgamento}}</strong>
+                        </div>
+                    </div>
+                </div>
+                <div fxFlex="80" fxLayoutAlign="center center" >
+                    <strong>{{ 'LABEL_NUMERO_DENUNCIA' | i18n }}: </strong>{{dadosDenuncia.numeroDenuncia}}
+                </div>
+                <div class="text-center" fxFlex="10">
+                    <div class="status-center" *ngIf="julgamentoDenuncia.descricaoTipoSentencaJulgamento" fxFlex>
+                        <i class="fa fa-spinner fa-4x pr-0 text-primary"></i>
+                        <div class="text-primary">
+                            <strong>{{julgamentoDenuncia.descricaoTipoSentencaJulgamento}}</strong>
+                        </div>
+                        <div class="text-primary" *ngIf="julgamentoDenuncia.multa && !isSentencaMulta()">
+                            <strong>{{'LABEL_ACRESCIDO_MULTA' | i18n}}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h5 id="retificado" *ngIf="visualizacaoRetificacao && julgamentoDenuncia.justificativa">
+                {{'LABEL_JULGAMENTO_RETIFICADO' | i18n}}
+            </h5>
+
+            <h6><strong>{{'LABEL_DATA_HORA_CADASTRO' | i18n}}: </strong>
+                {{ julgamentoDenuncia.data | date:'dd/MM/yyyy' }} às
+                {{ julgamentoDenuncia.data | date:'HH:mm' : '+0' }}
+            </h6>
+
+            <div class="border rounded p-2">
+                <div class="px-2">
+                    <app-alerta-denuncia-sigilosa *ngIf="dadosDenuncia.isSigiloso"></app-alerta-denuncia-sigilosa>
+                </div>
+                <div class="p-2" *ngIf="dadosDenuncia.analiseAdmissibilidade.admitida">
+                    <div class="bg-primary text-white p-2">
+                        <strong>{{'TITLE_DETALHAMENTO_JULGAMENTO' | i18n}}</strong>
+                    </div>
+
+                    <div class="alert bg-green">
+                        <card-list [config]="infoJulgamento"></card-list>
+                    </div>
+                </div>
+
+                <div class="p-2">
+                    <div class="bg-primary text-white p-2">
+                        <strong>{{'TITLE_DESCRICAO_JULGAMENTO' | i18n}}</strong>
+                    </div>
+
+                    <div class="alert bg-green">
+                        <ckeditor id="dsJulgamento" [config]="configuracaoCkeditor"
+                            [(ngModel)]="julgamentoDenuncia.descricaoJulgamento" [readOnly]="true">
+                        </ckeditor>
+                        <span>{{ getContagemDescricaoJulgamento() }}</span>
+                    </div>
+                </div>
+
+                <div class="p-2"
+                    *ngIf="julgamentoDenuncia.arquivosJulgamentoDenuncia && julgamentoDenuncia.arquivosJulgamentoDenuncia.length > 0">
+                    <div class="bg-primary text-white p-2">
+                        <strong>{{'LABEL_DOCUMENTOS' | i18n}}</strong>
+                    </div>
+                    <div class="alert bg-green">
+                        <label for="documento"><span>{{ 'LABEL_ARQUIVO' | i18n }}</span></label>
+                        <div class="lista-arquivos mt-2 w-50" fxLayout="row">
+                            <table class="table table-sm">
+                                <tbody>
+                                    <tr *ngFor="let arquivo of julgamentoDenuncia.arquivosJulgamentoDenuncia">
+                                        <td class="text-center">
+                                            <div>
+                                                {{ arquivo.nome }}
+                                            </div>
+                                        </td>
+                                        <td class="table-action text-center">
+                                            <download title="{{ arquivo.nome }}" class="text-primary pointer p-0"
+                                                [download]="arquivo.nome" (process)="downloadArquivo($event, arquivo.id)">
+                                                <i class="align-middle fa fa-download"></i>
+                                            </download>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-2" *ngIf="visualizacaoRetificacao && julgamentoDenuncia.justificativa">
+                    <div class="bg-primary text-white p-2">
+                        <strong>{{'TITLE_JUSTIFICATIVA_RETIFICACAO' | i18n}}</strong>
+                    </div>
+
+                    <div class="alert bg-green">
+                        <ckeditor id="dsRetificacao" [config]="configuracaoCkeditorRetificacao"
+                            [(ngModel)]="julgamentoDenuncia.justificativa" [readOnly]="true">
+                        </ckeditor>
+                        <span>{{ getContagemJustificativaRetificacao() }}</span>
+                    </div>
+                </div>
+
+                <div class="py-3" *ngIf="!visualizacaoRetificacao && isSituacaoJulgamentoPrimeiraInstancia()">
+                    <div class="p-6">
+                        <button class="btn btn-warning ml-2" (click)="abrirModalRetificacao()"
+                            type="button">{{'LABEL_RETIFICAR' | i18n}}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>

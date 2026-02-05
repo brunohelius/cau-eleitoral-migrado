@@ -1,0 +1,46 @@
+<h6 class="pl-2"><strong>{{'LABEL_RESPONSAVEL' | i18n}}: </strong> <span [ngClass]="{'bg-primary text-primary': recurso.isSigiloso}">{{recurso.nomeResponsavel}}</span></h6>
+  
+<h6 class="pl-2"><strong>{{'LABEL_DATA_HORA_CADASTRO' | i18n}}: </strong>
+    {{ recurso.data | date:'dd/MM/yyyy':'+0' }} às {{ recurso.data | date:'HH:mm':'+0' }}
+</h6>
+
+<div class="p-2">
+    <div class="bg-primary text-white p-2">
+        <strong>{{ descricao }}</strong>
+    </div>
+
+    <div class="alert bg-green">
+        <ckeditor id="dsRecurso" [config]="configuracaoCkeditor" [(ngModel)]="recurso.descricao"
+            [readOnly]="true">
+        </ckeditor>
+        <span>{{ getContagemDescricaoRecurso() }}</span>
+    </div>
+</div>
+
+<div class="p-2" *ngIf="recurso.arquivos?.length > 0">
+    <div class="bg-primary text-white p-2">
+        <strong>{{'LABEL_DOCUMENTOS' | i18n}}</strong>
+    </div>
+    <div class="alert bg-green">
+        <label for="documento"><span>{{ 'LABEL_ARQUIVO' | i18n }}</span></label>
+        <div class="lista-arquivos mt-2" fxLayout="row">
+            <table class="table table-sm">
+                <tbody>
+                    <tr *ngFor="let arquivo of recurso.arquivos">
+                        <td class="text-center">
+                            <div>
+                                {{ arquivo.nome }}
+                            </div>
+                        </td>
+                        <td class="table-action text-center">
+                            <download title="{{ arquivo.nome }}" class="text-primary pointer p-0"
+                                [download]="arquivo.nome" (process)="downloadArquivo($event, arquivo.id)">
+                                <i class="align-middle fa fa-download"></i>
+                            </download>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

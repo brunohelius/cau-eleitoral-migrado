@@ -1,0 +1,103 @@
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-tabs">
+            <li class="nav-item pointer">
+                <a href="/" class="nav-link no-wrap-title-aba"
+                    [ngClass]="{ 'active': false}">{{'LABEL_VISAO_GERAL' | i18n}}
+                </a>
+            </li>
+            <li class="nav-item pointer">
+                <a class="nav-link wrap-title-aba" [ngClass]="{ 'active':true }">
+                    <div class="aba" [innerHTML]="getTituloAbaAcompanharChapa()"></div>
+
+                </a>
+        </ul>
+
+        <div class="tab-content">
+
+        <div class="tab-pane fade card rounded-0" [ngClass]="{ 'active show':true}" >
+            <div class="col-md-12">
+                <a [routerLink]="['/']"><i class="fa fa-desktop fa-2x m-2 pointer colorGray" aria-hidden="true"></i></a>
+            </div>
+
+            <div class="box-separador bg-primary"></div>
+
+            <div class="col-md-2">
+                <button type="button" class="btn btn-link p-0" (click)="voltar()" style="margin-top: 5px;">
+                    <h5 class="m-0"><i class="fa fa-reply text-primary"
+                        title="{{'LABEL_VOLTAR' | i18n}}"></i></h5>
+                </button>
+            </div>
+
+            <div class="tab-pane fade pl-3 pr-3 pb-5 mt-3" id="tab-pane-principal" [ngClass]="{ 'active show': true}">
+                <div class="rounded-0">
+                    <div class="subtitle-line">
+                        <span class="bg-white"> {{'LABEL_CHAPAS_CADASTRADAS_POR_ESTADO' | i18n}} </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade card rounded-0 pl-4 pr-4 pb-4" [ngClass]="{ 'active show':true}" >
+
+                <div class="card border pl-5 pr-5 pb-5 pt-4" style="border-radius: 8px;">
+                    <div class="card-body bg-green pl-5 pr-5" style="border-radius: 8px;">
+                        <table class="table" [mfData]="chapas" #mf="mfDataTable" *ngIf="chapas">
+                            <thead>
+                                <tr class="green-font-bolder">
+                                    <th class="text-center tb-width-10"> {{'LABEL_ESTADO' |i18n}} </th>
+                                    <th class="text-center tb-width-10"><div  [innerHTML]="getLabelQuantidadeDeChapas()"></div></th>
+                                    <th class="text-center tb-width-10"><div  [innerHTML]="getLabelQuantidadeDeChapasComPendencia()"></div></th>
+                                    <th class="text-center tb-width-10"><div  [innerHTML]="getLabelQuantidadeDeChapasSemPendencia()"></div></th>
+                                    <th class="text-center tb-width-10">{{'LABEL_ACAO' |i18n}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let dadosChapas of mf.data;" [ngClass]="{ 'chapa-ies': isIES(dadosChapas) }"
+                                    class="td-cauf list-item list-item-card">
+                                    <td class="text-center tb-width-10 p-3">
+                                        <div class="text-center title-comissao green-font-bolder">
+                                            <img class="img-fluid rounded-circle img-bandeira"
+                                                [src]="getImagemBandeira(dadosChapas.idCauUf)" [alt]="dadosChapas.uf">
+                                             {{ dadosChapas.uf }}
+                                        </div>
+                                    </td>
+                                    <td class="text-center p-3 tb-width-10">{{ dadosChapas.quantidadeTotalChapas }}</td>
+                                    <td class="text-center p-3 tb-width-10">{{ dadosChapas.quantidadeChapasPendentes }}</td>
+                                    <td class="text-center p-3 tb-width-10">{{ dadosChapas.quantidadeChapasSemPendentes }}</td>
+                                    <td class="text-center p-3 tb-width-10">
+                                        <div *ngIf="dadosChapas.quantidadeTotalChapas > 0"
+                                            class="btn-group"
+                                            dropdown triggers="hover"
+                                            (mouseleave)="dp.hide()"
+                                            #dp="bs-dropdown">
+
+                                            <button dropdownToggle type="button" class="btn btn-link text-muted"
+                                                aria-controls="dropdown-basic"
+                                                >
+                                                <i class="align-middle colorAcao fas fa-ellipsis-v"
+                                                    aria-hidden="true"></i>
+                                            </button>
+                                            <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu" role="menu"
+                                                aria-labelledby="button-basic">
+                                                <li role="menuitem" class="pointer">
+                                                    <a  (click)="redirecionaUf(dadosChapas.idCauUf, dadosChapas)"
+                                                         class="dropdown-item">
+                                                        {{'LABEL_VISUALIZAR_CHAPAS' | i18n}}
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="p-3">
+                            <span class="green-font-bolder"> {{'LABEL_QUANTIDADE_TOTAL_CHAPAS_CADASTRADAS' |i18n}} </span>
+                            <b>{{ getTotalPedidos(chapas) }}</b>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,508 @@
+<form #form="ngForm">
+
+    <div class="card-body" fxLayout="column" fxLayoutGap="15px" #cardBodyFormCalendario>
+        <div fxLayout="column" fxLayoutGap="1.5%" fxLayoutGap.xs="2%" class="mb-2">
+            <progressbar-cadastrar-calendario [inputCalendario]="inputCalendario">
+            </progressbar-cadastrar-calendario>
+        </div>
+        <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutGap="20px" class="mt-4"
+            *ngIf="!isAbaPrazo && !isAcaoVisualizar()">
+            <div fxFlex>
+                <label for="replicar">{{'LABEL_REPLICAR' |i18n}}</label>
+                <div class="input-group">
+                    <select class="form-control" id="replicar" [(ngModel)]="anoReplicar" name="replicar"
+                        title="{{'LABEL_REPLICAR' |i18n}}"
+                        [disabled]="isAcaoVisualizar() || isStatusCalendario() || inputCalendario?.id">
+                        <option value="">{{'LABEL_SELECIONAR' |i18n}}</option>
+                        <option *ngFor=" let anos of calendarioAnos">
+                            {{anos.eleicao.descricao}}
+                        </option>
+                    </select>
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-primary btn-sm" title="{{'LABEL_IMPORTAR' |i18n}}"
+                            (click)="replicarCalendario($event)"
+                            [disabled]="isAcaoVisualizar() || isStatusCalendario() || inputCalendario?.id">
+                            {{'LABEL_IMPORTAR' |i18n}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div fxFlex></div>
+
+            <div fxFlex fxLayoutAlign="end center">
+                <label class="pr-2">{{'LABEL_ATIVAR_ELEICAO' |i18n}}</label>
+                <ui-switch (valueChange)="onAtivarDesativarCalendario($event)" [(ngModel)]="inputCalendario.ativo"
+                    title="{{'LABEL_ATIVAR_ELEICAO' |i18n}}"
+                    [disabled]="isAcaoVisualizar() || isStatusCalendario() || !inputCalendario?.id || isAbaPrazo"
+                    name="ativarCal">
+                </ui-switch>
+            </div>
+        </div>
+        <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutGap="20px">
+            <div fxFlex>
+                <div class="form-group">
+                    <label>{{'LABEL_ANO_ELEICAO' |i18n}}</label>
+                    <form-valid [submitted]="submitted">
+                        <input type="text" id="anoEleicao" class="form-control" title="{{'LABEL_ANO_ELEICAO' |i18n}}"
+                            placeholder="{{'LABEL_ANO_ELEICAO' |i18n}}" [(ngModel)]="inputCalendario.eleicao.ano"
+                            name="anoEleicao" [disabled]="isAcaoVisualizar() || isStatusCalendario() || isAbaPrazo"
+                            [inputMask]="'0000'" min="2012" max="3000" required>
+                    </form-valid>
+                </div>
+            </div>
+            <div fxFlex>
+                <div class="form-group">
+                    <label>{{'LABEL_VIGENCIA' |i18n}}</label>
+                    <calendar id="inputPeriodoVigenciaInicial"
+                        title="{{'LABEL_VIGENCIA' |i18n}} {{'LABEL_ATIVIDADES_DATA_INICIO' |i18n}}"
+                        [(ngModel)]="inputCalendario.dataInicioVigencia" name="inputPeriodoVigenciaInicial"
+                        [disabled]="isAcaoVisualizar() || isStatusCalendario() || isAbaPrazo" required
+                        #inputPeriodoVigenciaInicial="ngModel">
+                    </calendar>
+                    <validation-message [for]="inputPeriodoVigenciaInicial" [submitted]="submitted">
+                    </validation-message>
+                </div>
+            </div>
+            <div fxFlex>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <div class="input-group">
+                        <calendar fxFlex id="inputPeriodoVigenciaFinal" prependLabel="Até"
+                            title="{{'LABEL_VIGENCIA' |i18n}} {{'LABEL_ATIVIDADES_DATA_FIM' |i18n}}"
+                            [(ngModel)]="inputCalendario.dataFimVigencia" name="inputPeriodoVigenciaFinal"
+                            [disabled]="isAcaoVisualizar() || isStatusCalendario() || isAbaPrazo" required
+                            #inputPeriodoVigenciaFinal="ngModel">
+                        </calendar>
+                    </div>
+                    <validation-message [for]="inputPeriodoVigenciaFinal" [submitted]="submitted">
+                    </validation-message>
+                </div>
+            </div>
+        </div>
+
+        <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutGap="20px">
+            <div fxFlex>
+                <div class="form-group">
+                    <label>{{'LABEL_TIPO_PROCESSO' |i18n}}</label>
+                    <select class="form-control" id="tpProcesso" [(ngModel)]="inputCalendario.eleicao.tipoProcesso"
+                        title="{{'LABEL_TIPO_PROCESSO' |i18n}}" #tpProcesso="ngModel" (change)="changeProcesso($event)"
+                        [compareWith]="compareTipoProcesso"
+                        [disabled]="isAcaoVisualizar() || isStatusCalendario() || isAbaPrazo" name="tpProcesso"
+                        required>
+                        <option value="undefined">{{'LABEL_SELECIONAR' |i18n}}</option>
+                        <option *ngFor="let tipo of tipoProcesso" [ngValue]="tipo">{{tipo.descricao}}</option>
+                    </select>
+                    <validation-message [for]="tpProcesso" [submitted]="submitted"></validation-message>
+                </div>
+            </div>
+            <div fxFlex>
+                <div class="form-group">
+                    <label>{{'LABEL_IDADE_VOTO_OBRIGATORIO' |i18n}}</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" [(ngModel)]="inputCalendario.idadeInicio" min="0"
+                            max="999" [disabled]="isAcaoVisualizar() || isStatusCalendario() || isAbaPrazo"
+                            name="anoInicial" #anoInicial="ngModel" id="anoInicial" required [inputMask]="'999'"
+                            title="{{'LABEL_IDADE_VOTO_OBRIGATORIO' |i18n}}">
+                        <div class="input-group-append">
+                            <span class="input-group-text">Anos</span>
+                        </div>
+                    </div>
+                    <validation-message [for]="anoInicial" [submitted]="submitted"></validation-message>
+                </div>
+            </div>
+            <div fxFlex>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Até</span>
+                        </div>
+
+                        <input type="text" class="form-control" [(ngModel)]="inputCalendario.idadeFim" min="0" max="999"
+                            [disabled]="isAcaoVisualizar() || isStatusCalendario() || isAbaPrazo" name="anoFinal"
+                            #anoFinal="ngModel" id="anoFinal" required [inputMask]="'999'"
+                            title="{{'LABEL_IDADE_VOTO_OBRIGATORIO' |i18n}}">
+
+                        <div class="input-group-append">
+                            <span class="input-group-text">Anos</span>
+                        </div>
+                    </div>
+                    <validation-message [for]="anoFinal" [submitted]="submitted"></validation-message>
+                </div>
+            </div>
+        </div>
+
+        <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutGap="20px">
+            <div fxFlex>
+                <div class="form-group">
+                    <label>{{'LABEL_IES' |i18n}}</label>
+                    <select class="form-control" id="ies" name="ies" #ies="ngModel" title="{{'LABEL_IES' |i18n}}"
+                        [(ngModel)]="inputCalendario.situacaoIES" [disabled]="isDisableIes() || isAbaPrazo"
+                        (change)="changeSituacaoIes($event)" required>
+                        <option value="undefined">{{'LABEL_SELECIONAR' |i18n}}</option>
+                        <option value=true>{{'LABEL_SIM' |i18n}}</option>
+                        <option value=false>{{'LABEL_NAO' |i18n}}</option>
+                    </select>
+                    <validation-message [for]="ies" [submitted]="submitted"></validation-message>
+                </div>
+            </div>
+            <div fxFlex>
+                <div class="form-group">
+                    <label>{{'LABEL_MANDATO' |i18n}}</label>
+                    <calendar id="inputDataInicialMandato" name="inputDataInicialMandato"
+                        title="{{'LABEL_MANDATO' |i18n}} {{'LABEL_ATIVIDADES_DATA_INICIO' |i18n}}"
+                        [(ngModel)]="inputCalendario.dataInicioMandato" #inputDataInicialMandato="ngModel"
+                        [disabled]="isAcaoVisualizar() || isStatusCalendario() || isAbaPrazo" required name="mandato">
+                    </calendar>
+                    <validation-message [for]="inputDataInicialMandato" [submitted]="submitted">
+                    </validation-message>
+                </div>
+            </div>
+            <div fxFlex>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <div class="input-group">
+                        <calendar id="inputDataFinalMandato" name="inputDataFinalMandato" prependLabel="Até"
+                            title="{{'LABEL_MANDATO' |i18n}} {{'LABEL_ATIVIDADES_DATA_FIM' |i18n}}"
+                            [(ngModel)]="inputCalendario.dataFimMandato"
+                            [disabled]="isAcaoVisualizar() || isStatusCalendario() || isAbaPrazo"
+                            #inputDataFinalMandato="ngModel" required>
+                        </calendar>
+                        <validation-message [for]="inputDataFinalMandato" [submitted]="submitted">
+                        </validation-message>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div fxLayout="row" fxLayoutAlign="space-between" fxLayoutGap="20px">
+            <div fxFlex *ngIf="!isAbaPrazo && !isAcaoVisualizar() && !isStatusCalendario()">
+                <div class="form-group">
+                    <label>{{'LABEL_RESOLUCAO'|i18n}}</label>
+                    <upload title="{{'LABEL_SELECIONAR_ARQUIVO' | i18n}}" [name]="arquivo"
+                        (process)="uploadDocumento($event)" name="upload">
+                        <i class="fa fa-file-o text-success" aria-hidden="true"></i>
+                        <span>{{'LABEL_SELECIONAR_ARQUIVO' | i18n}}</span>
+                    </upload>
+                </div>
+            </div>
+            <div fxFlex>
+                <div class="form-group" [class.dropup-multiselect]="isDropUfMultSelectUf">
+                    <label>{{'LABEL_CAU_UF'|i18n}}</label>
+                    <ng-multiselect-dropdown placeholder="UF" [data]=" dropdownList" [(ngModel)]="selectedItems"
+                        [settings]="dropdownSettings" (onSelect)="onItemSelect($event)"
+                        (onDeSelect)="onRemoveItemSelect($event)" title="{{'LABEL_CAU_UF'|i18n}}"
+                        (onSelectAll)="onSelectAll()" (onDeSelectAll)="onDeSelectAll()"
+                        [disabled]="isDisableCauUf() || isAbaPrazo" id="cauUf" name="cauUf" #cauUf="ngModel" required
+                        (click)="detectarPosicao()">
+                    </ng-multiselect-dropdown>
+                </div>
+                <validation-message [for]="cauUf" [submitted]="submitted" *ngIf="!isDisableCauUf()">
+                </validation-message>
+            </div>
+        </div>
+        <div class="row" fxLayoutGap="20px">
+            <div class="col-md-6 col-xs-12" *ngIf="!isAbaPrazo && !isAcaoVisualizar() && !isStatusCalendario()">
+                <table class="table table-sm" *ngIf="inputCalendario.arquivos?.length > 0">
+                    <thead>
+                        <tr class="text-center">
+                            <th>{{'LABEL_ARQUIVO' |i18n}}</th>
+                            <th>{{'LABEL_ACAO' |i18n}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let resolucao of inputCalendario.arquivos">
+                            <td class="text-center">
+                                <download title=" {{resolucao.nome}}" class="center-no-arquivo pointer"
+                                    [download]="resolucao.nome" (process)="downloadResolucao($event, resolucao)">
+                                    {{ resolucao.nome }}
+                                </download>
+                            </td>
+                            <td class="table-action text-center">
+                                <button class="btn" (click)="deleteArquivo(resolucao)">
+                                    <i class="align-middle fas fa-fw fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-md-12" *ngIf="isAbaPrazo || isAcaoVisualizar() || isStatusCalendario()">
+                <label>{{'LABEL_RESOLUCAO' | i18n}}</label>
+                <div class="row" *ngFor="let resolucao of inputCalendario.arquivos">
+                    <download title="{{resolucao.nome}}" class="center-no-arquivo pointer" [download]="resolucao.nome"
+                        (process)="downloadResolucao($event, resolucao)">
+                        {{ resolucao.nome }}
+                    </download>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Atividades e subAtividades migracao do componente devido a elementos de controls do form nao responder adequadamente-->
+        <hr class="line m-0" *ngIf="(inputCalendario?.id || inputCalendario.atividadesPrincipais) && !isAbaPrazo">
+
+        <div class="card-body" fxLayout="column" fxLayoutGap="15px"
+            *ngIf="(inputCalendario?.id || inputCalendario.atividadesPrincipais) && !isAbaPrazo">
+
+            <div fxLayout="row" fxLayoutGap="20px" class="mt-4">
+                <div fxFlex>
+                    <h6> {{'LABEL_ATIVIDADE' |i18n}}</h6>
+                </div>
+                <div fxFlex fxLayoutAlign="end center" *ngIf="!isAcaoVisualizar()">
+                    <button (click)="criarAtividade()" class="btn mb-1 btn-primary botao-adicionar-atividade"
+                        title="{{'LABEL_INCLUIR_ATIVIDADE' |i18n}}" [disabled]="isStatusCalendario()"><i
+                            class="fa fa-plus-square" aria-hidden="true" name="btn-atividades"></i>
+                        {{'LABEL_INCLUIR_ATIVIDADE' |i18n}}
+                    </button>
+                </div>
+            </div>
+
+            <div
+                *ngFor="let atividade of (inputCalendario.atividadesPrincipais | orderBy: 'nivel') ;  index as ativKey">
+                <div class="card border"
+                    *ngIf="!atividade.excluir && (inputCalendario?.id || inputCalendario.atividadesPrincipais)">
+                    <div class="card-header">
+                        <span><b>{{'LABEL_ATIVIDADE' | i18n}} {{atividade.nivel}} </b></span>
+                    </div>
+
+                    <div class="card-body" fxLayout="column" fxLayoutGap="5px">
+
+                        <div fxLayout="row" fxLayoutGap="20px" class="mt-4">
+                            <div fxFlex>
+                                <div class="form-group">
+                                    <label>{{atividade.nivel}}.
+                                        {{'LABEL_ATIVIDADE_PRINCIPAL' |i18n}}</label>
+                                    <form-valid [submitted]="submitted">
+                                        <div class="input-group">
+
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text pointer" data-toggle="collapse"
+                                                    [attr.data-target]="'#acordion-' + atividade.nivel"
+                                                    (click)="accordionsAtividades[ativKey] = !accordionsAtividades[ativKey]">
+                                                    <i class="fa fa-arrow-right p-0"
+                                                        [ngClass]="accordionsAtividades[ativKey] ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
+                                                </span>
+                                            </div>
+
+                                            <input class="form-control" type="text" [(ngModel)]="atividade.descricao"
+                                                [disabled]="isAcaoVisualizar() || isStatusCalendario()"
+                                                id="{{'descricao_' + ativKey}}" name="{{'descricao_' + ativKey}}"
+                                                maxlength="250" required (change)="validarDescricaoAtividade(ativKey)"
+                                                [style.border]="isAtividadeDuplicada(ativKey) ? '1px solid #ff0000' : null">
+                                        </div>
+                                    </form-valid>
+                                </div>
+                            </div>
+
+                            <div fxFlex="200px">
+                                <div class="form-group">
+                                    <label> {{'LABEL_DATA_INICIO' |i18n}}</label>
+                                    <form-valid [submitted]="submitted">
+                                        <calendar id="{{atividade.id}}" title="{{'LABEL_DATA_INICIO' |i18n}}"
+                                            [(ngModel)]="atividade.dataInicio"
+                                            [disabled]="isAcaoVisualizar() || isStatusCalendario()"
+                                            id="{{'dataInicio_' + ativKey}}" name="{{'dataInicio_' + ativKey}}"
+                                            required>
+                                        </calendar>
+                                    </form-valid>
+                                </div>
+                            </div>
+
+                            <div fxFlex="200px">
+                                <div class="form-group">
+                                    <label> {{'LABEL_DATA_FIM' |i18n}}</label>
+                                    <form-valid [submitted]="submitted">
+                                        <calendar title="{{'LABEL_DATA_FIM' |i18n}}"
+                                            [disabled]="isAcaoVisualizar() || isStatusCalendario()"
+                                            [(ngModel)]="atividade.dataFim" id="{{'dataFim_' + ativKey}}"
+                                            name="{{'dataFim_' + ativKey}}" required>
+                                        </calendar>
+                                    </form-valid>
+                                </div>
+                            </div>
+
+                            <div *ngIf="isSituacaoEmPreenchimento() || isCalendarioReplicado" fxFlex="30px"
+                                fxLayoutAlign="end center" class="pt-70">
+                                <button class="btn botao-excluir-atividade" [disabled]="isAcaoVisualizar()"
+                                    (click)="excluirAtividade(ativKey)">
+                                    <i class=" fas fa-trash" id="{{ativKey}}"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div fxLayout="row" fxLayoutGap="5px">
+
+                            <div fxFlex="170px" *ngIf="!isStatusCalendario()">
+                                <button
+                                    (click)="accordionsAtividades[ativKey] = true; criarAtividadeSecundaria($event, ativKey)"
+                                    id="{{ativKey}}" class="btn btn-primary botao-adicionar-sub-atividade"
+                                    data-toggle="collapse" [attr.data-target]="'#acordion-' + atividade.nivel"
+                                    [disabled]="isAcaoVisualizar() || isStatusCalendario()"
+                                    *ngIf="!accordionsAtividades[ativKey]">
+                                    <i class="fa fa-plus-square" aria-hidden="true"></i>
+                                    {{'LABEL_INCLUIR_SUB_ATIVIDADE' |i18n}}
+                                </button>
+
+                                <button (click)="criarAtividadeSecundaria($event, ativKey)" id="{{ativKey}}"
+                                    class="btn btn-primary botao-adicionar-sub-atividade"
+                                    [disabled]="isAcaoVisualizar() || isStatusCalendario()"
+                                    *ngIf="accordionsAtividades[ativKey]">
+                                    <i class="fa fa-plus-square" aria-hidden="true"></i>
+                                    {{'LABEL_INCLUIR_SUB_ATIVIDADE' |i18n}}
+                                </button>
+                            </div>
+
+                            <div fxFlex fxLayoutAlign="start">
+                                <div class="form-group form-check">
+                                    <input type="checkbox" id="vigencia" class="form-check-input"
+                                        [(ngModel)]="atividade.obedeceVigencia"
+                                        [disabled]="isAcaoVisualizar() || isStatusCalendario()"
+                                        name="{{'vigencia_' + ativKey}}">
+                                    <label class="form-check-label" for="vigencia">{{'LABEL_OBEDECER_VIGENCIA'
+                                        |i18n}}</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="collapse collapse-atividades-secundarias show" id="acordion-{{atividade.nivel}}">
+
+                            <div fxLayout="row" fxLayoutGap="20px"
+                                *ngFor="let atividadeSecundaria of (atividade.atividadesSecundarias | orderBy: 'nivel'); index as sub_key">
+                                <div fxFlex *ngIf="!atividadeSecundaria.excluir">
+                                    <div class="form-group">
+                                        <label>{{atividade.nivel}}.{{atividadeSecundaria.nivel}}
+                                            {{'LABEL_ATIVIDADE_SECUNDARIA' |i18n}}</label>
+                                        <form-valid [submitted]="submitted">
+                                            <input class="form-control" type="text"
+                                                [(ngModel)]="atividadeSecundaria.descricao"
+                                                [disabled]="isAcaoVisualizar() || isStatusCalendario()"
+                                                id="{{'descricaoSub_' + ativKey + '_' + sub_key}}"
+                                                name="{{'descricaoSub_' + ativKey + '_' + sub_key}}}}" maxlength="250"
+                                                required (change)="validarDescricaoSubAtividade(ativKey, sub_key)"
+                                                [style.border]="isSubatividadeDuplicada(ativKey, sub_key) ? '1px solid #ff0000' : null">
+                                        </form-valid>
+                                    </div>
+                                </div>
+                                <div fxFlex="200px" *ngIf="!atividadeSecundaria.excluir">
+                                    <div class="form-group">
+                                        <label> {{'LABEL_DATA_INICIO' |i18n}} </label>
+                                        <form-valid [submitted]="submitted">
+                                            <calendar title="{{'LABEL_DATA_INICIO' |i18n}}"
+                                                [(ngModel)]="atividadeSecundaria.dataInicio"
+                                                [disabled]="isAcaoVisualizar() || isStatusCalendario()"
+                                                id="{{'dataInicioSub_' + ativKey + '_' + sub_key}}"
+                                                name="{{'dataInicioSub_' + ativKey + '_' + sub_key}}" required>
+                                            </calendar>
+                                        </form-valid>
+                                    </div>
+                                </div>
+                                <div fxFlex="200px" *ngIf="!atividadeSecundaria.excluir">
+                                    <div class="form-group">
+                                        <label> {{'LABEL_DATA_FIM' |i18n}}</label>
+                                        <form-valid [submitted]="submitted">
+                                            <calendar title="{{'LABEL_DATA_FIM' |i18n}}"
+                                                [(ngModel)]="atividadeSecundaria.dataFim"
+                                                [disabled]="isAcaoVisualizar() || isStatusCalendario()"
+                                                id="{{'dataFimSub_' + ativKey + '_' + sub_key}}"
+                                                name="{{'dataFimSub_' + ativKey + '_' + sub_key}}" required>
+                                            </calendar>
+                                        </form-valid>
+                                    </div>
+                                </div>
+                                <div fxFlex="30px" fxLayoutAlign="end center" class="pt-70"
+                                    *ngIf="isSituacaoEmPreenchimento() || isCalendarioReplicado">
+                                    <button class="btn botao-excluir-atividade"
+                                        [disabled]="isAcaoVisualizar() || isStatusCalendario()"
+                                        (click)="excluirAtividadeSecundaria(ativKey, sub_key)">
+                                        <i class=" fas fa-trash" id="{{ativKey}}-{{sub_key}}"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="line m-0">
+
+        <div *ngIf="!isAbaPrazo && !isAcaoVisualizar()">
+            <div fxLayout="row">
+                <div fxFlex>
+                    <button type="submit" class="btn btn-primary mr-2"
+                        (click)="salvarCadastroPeriodo(templateJustificativa, form, inputCalendario, true)"
+                        id="formCadastroPeriodoCalendario-salvar-rascunho"
+                        *ngIf="!isAcaoVisualizar() && !isStatusCalendario() && isSituacaoEmPreenchimento()">
+                        {{'LABEL_SALVAR_RASCUNHO' |i18n}}
+                    </button>
+                    <button type="submit" class="btn btn-primary mr-2"
+                        [disabled]="isAcaoVisualizar() || isStatusCalendario()"
+                        (click)="salvarCadastroPeriodo(templateJustificativa, form, inputCalendario)"
+                        id="formCadastroPeriodoCalendario-salvar">
+                        {{'LABEL_SALVAR' |i18n}}
+                    </button>
+
+                    <button type="submit" class="btn btn-primary"
+                        *ngIf="inputCalendario?.id && inputCalendario.atividadesDefinidas" (click)="avancar(form)"
+                        id="formCadastroPeriodoCalendario-avancar">
+                        {{'LABEL_AVANCAR' |i18n}}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Níveis de template  start-->
+<ng-template #templateJustificativa>
+    <div class="modal-header">
+        <h6 class="modal-title pull-left">{{aba}}</h6>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form #formJust="ngForm">
+            {{'LABEL_MESSAGE_JUSTIFICATIVA' |i18n}}
+            <div class="mt-2 body-justify" *ngIf="!isAbaPrazo">
+                <div *ngFor="let atividades of atividadesPeriodoAlteracao; index as i" class="mt-3">
+                    <i class="fa fa-bell" aria-hidden="true"></i>
+                    {{'LABEL_MESSAGE_JUSTIFICATIVA_ALTERACAO' |i18n}} -
+                    {{ i + 1 }} - {{atividades.descricao}}
+                    <div class="mt-2">
+                        <form-valid [submitted]="submitted">
+                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
+                                [(ngModel)]="atividades.justificativa" maxlength="200" id="{{'justificativa_' + i}}"
+                                name="{{'justificativa_' + i}}" required></textarea>
+                        </form-valid>
+                    </div>
+
+                </div>
+            </div>
+            <div class="mt-2 body-justify" *ngIf="isAbaPrazo">
+                <div *ngFor="let atividadesPrazo of inputCalendario.atividadesPrincipais; index as i" class="mt-3">
+                    <i class="fa fa-bell" aria-hidden="true"></i>
+                    {{'LABEL_MESSAGE_JUSTIFICATIVA_ALTERACAO' |i18n}} -
+                    {{atividadesPrazo.id}}.{{i}} -
+                    {{atividadesPrazo.descricao}}
+                    <div class="mt-2">
+                        <form-valid [submitted]="submitted">
+                            <textarea class="form-control" id="exampleFormControlTextarea2" rows="3"
+                                [(ngModel)]="atividadesPrazo.justificativa" maxlength="200"
+                                id="{{'justificativaPrazo_' + i}}" name="{{'justificativaPrazo_' + i}}"
+                                required></textarea>
+                        </form-valid>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3 mb-2" (click)="salvarJustificativa(formJust)">
+                {{'LABEL_SALVAR' |i18n}}
+            </button>
+        </form>
+    </div>
+</ng-template>
+<!-- NIveis de template  end-->

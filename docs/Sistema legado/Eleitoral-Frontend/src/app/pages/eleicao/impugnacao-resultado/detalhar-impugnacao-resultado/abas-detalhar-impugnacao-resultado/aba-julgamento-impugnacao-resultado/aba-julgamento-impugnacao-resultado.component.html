@@ -1,0 +1,101 @@
+<div class="col-md-12">
+  <a class="pointer" (click)="voltar()">
+  <i class="fa fa-arrow-left" aria-hidden="true"></i>
+</a>
+  <i i class="fa fa-desktop fa-2x m-2 pointer colorGray" aria-hidden="true" (click)="inicio()"></i>
+</div>
+<div class="col-md-12">
+  <h5 class="card-title colorGray"></h5>
+</div>
+<div class="box-separador bg-primary"></div>
+<div class="row">
+  <div class="col-md-12 mt-3">
+    <div class="text-center title-comissao green-font-bolder mb-4">
+      <img
+        class="img-fluid rounded-circle img-bandeira"
+        [src]="bandeira?.imagemBandeira"
+        style="margin-right: 5px;"
+      >
+      <strong style="font-weight: 800; color:#14385D">{{ bandeira?.descricao }}</strong>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+      <div class="col-md-12">
+          <div class="row pt-3">
+              <div class="col-md-8 offset-md-2">
+                  <div class="rounded-0 mb-5 text-center">
+                    <div class="subtitle-line mt-3">
+                      <span class="bg-white"> {{'LABEL_JULGAMENTO_IMPUGNACAO_RESULTADO_PRIMEIRA_INSTANCIA' | i18n}}</span>
+                  </div>
+                  </div>
+              </div>
+
+              <div class="col-md-2 spinnerStatus">
+                <div *ngIf="!isDeferido()">
+                    <div class="icons-title">
+                        <i class="fa fa-spinner text-danger"></i>
+                        <i class="fas fa-times text-danger"></i>
+                    </div>
+
+                    <div class="texto-titulo text-danger">{{ 'LABEL_IMPROCEDENTE' | i18n }}</div>
+                </div>
+                <div *ngIf="isDeferido()">
+                    <div class="icons-title">
+                        <i class="fa fa-spinner"></i>
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="texto-titulo">{{ 'LABEL_PROCEDENTE' | i18n }}</div>
+                </div>
+              </div>
+          </div>
+
+          <div fxLayout="column" fxLayoutAlign="center start" class="pl-4 pb-2 colorGreen" >
+            <strong>
+                {{'LABEL_NUMERO_IMPUGNACAO_RESULTADO' | i18n}}{{julgamento.impugnacaoResultado.numero}}
+            </strong>
+            <strong>
+                {{'LABEL_DATA_CADASTRO' | i18n}}{{julgamento.dataCadastro | date:'dd/MM/yyyy' : '+0' }}
+                às {{julgamento.dataCadastro | date:'HH:mm' : '+0'}}
+            </strong>
+          </div>
+          <div class="row">
+              <div class="col-md-12">
+                  <div class="card">
+                      <div class="card-body p-0" style="border-radius: 8px;">
+                          <!-- Justificativa -->
+                          <div class="row m-3 border"  style="border-radius: 8px;">
+                              <div class="col-md-12 mt-3">
+                                  <card-panel [titulo]="'LABEL_DETALHAMENTO_JULGAMENTO'" class="mt-3">
+                                    <editor-de-texto
+                                      [isRequerido]="false"
+                                      [isHabilitado]="false"
+                                      [tamanhoMaximo]="2000"
+                                      [valor]="julgamento.descricao"
+                                      [isMostrarTamanhoTextoRestantes]="false"
+                                      >
+                                    </editor-de-texto>
+                                  </card-panel>
+                              </div>
+                              <!-- Documento -->
+                              <div class="col-md-12">
+                                  <card-panel [titulo]="'LABEL_DOCUMENTO'" class="mt-3">
+                                    <arquivo
+                                    [maxArquivos]="1"
+                                    [hasUpload]="false"
+                                    [hasDownload]="true"
+                                    [hasExclusao]="false"
+                                    [arquivos]="this.julgamento.arquivos"
+                                    (download)="downloadArquivo($event)">
+                                </arquivo>
+                                  </card-panel>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+</div>
+

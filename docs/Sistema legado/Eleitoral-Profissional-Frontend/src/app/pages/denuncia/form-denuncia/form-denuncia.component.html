@@ -1,0 +1,32 @@
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-abas">
+            <li class="nav-item pointer">
+                <a class="nav-link" (click)="mudarAbaSelecionada(abas.abaVisaoGeral.id)"
+                   [ngClass]="{ 'active': abas.abaVisaoGeral.ativa }">
+                    {{ 'LABEL_VISAO_GERAL' | i18n }}
+                </a>
+            </li>
+
+            <li class="nav-item pointer">
+                <a class="nav-link" (click)="mudarAbaSelecionada(abas.abaCadastroDenuncia.id)"
+                   [ngClass]="{ 'active': abas.abaCadastroDenuncia.ativa }">
+                    {{'LABEL_CADASTRO_DENUNCIA' | i18n}}
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade" [ngClass]="{ 'active show': abas.abaVisaoGeral.ativa }" *ngIf="abas.abaVisaoGeral.ativa">
+                <i class="fa fa-desktop fa-2x m-2 pointer pl-4" aria-hidden="true"></i>
+            </div>
+
+            <div class="tab-pane fade" [ngClass]="{ 'active show': abas.abaCadastroDenuncia.ativa }" *ngIf="abas.abaCadastroDenuncia.ativa">
+                <i class="fa fa-desktop fa-2x m-2 pointer pl-4" aria-hidden="true"></i>
+                <div class="box-separador"></div>
+                <aba-cadastro-denuncia></aba-cadastro-denuncia>
+            </div>
+        </div>
+    </div>
+</div>
+

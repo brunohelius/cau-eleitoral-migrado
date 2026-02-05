@@ -1,0 +1,22 @@
+.header {
+  background-color: #14385D;
+  color: white;
+}
+.content {
+  background-color: white;
+  color: #0c3635;
+}
+.shadow {
+  -webkit-box-shadow: 1px 3px 11px -2px rgba(0,0,0,0.75);
+  -moz-box-shadow: 1px 3px 11px -2px rgba(0,0,0,0.75);
+  box-shadow: 1px 3px 11px -2px rgba(0,0,0,0.75);
+}
+
+.link:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.colorGreen {
+  color: #14385D;
+}

@@ -1,0 +1,48 @@
+<div class="row"> 
+    <div class="col-md-6 col-xs-6">
+        <span>{{'TITLE_ARQUIVO' | i18n}}</span>
+        <div class="mt-2"></div>
+        <div class="form-group">
+            <upload title="{{'LABEL_PROCURAR' | i18n}}"
+                required="true" *ngIf="hasUpload"
+                [disabled]="!isHabilitado"
+                (process)="upload($event)">
+                <i class="fa fa-file-o text-success" aria-hidden="true"></i>
+                <span>{{'LABEL_PROCURAR' | i18n}}</span>
+            </upload>
+
+            <input type="hidden" name="hideArquivo" #input_arquivo="ngModel"
+                [required]="true" [(ngModel)]="nomeArquivo">
+        </div>
+    </div>
+    <div class="col-md-6 col-xs-6">
+        <i *ngIf="msgHint.icon" class="fa fa-info-circle fa-2x pointer card-icon mt-4"  aria-hidden="true"  [title]="msgHint.msg"></i>
+    </div>
+</div> 
+<div class="col-md-6 col-xs-12 pl-0">
+    <table class="table table-sm" *ngIf="arquivos?.length > 0">
+        <tbody>
+            <tr *ngFor="let arquivo of arquivos let indice = index">
+                <td class="text-center pr-3 mt-3 pl-0">
+                    <download title="{{ arquivo.nome }}" style="background: none;"
+                        class="center-no-arquivo pointer p-0" *ngIf="hasDownload"
+                        [download]="arquivo.nome" 
+                        (process)="downloadArquivo($event, indice)">
+                            {{ arquivo.nome }}
+                    </download>
+                    <span *ngIf="!hasDownload">{{ arquivo.nome }}</span>
+                </td>
+                <td class="table-action text-center">
+                    <download title="{{ arquivo.nome }}" style="background: none;"
+                        class="center-no-arquivo pointer p-0" *ngIf="hasDownload"
+                        [download]="arquivo.nome" (process)="downloadArquivo($event, indice)">
+                        <i class="fas fa-fw fa-download color-cau"></i>
+                    </download>
+                    <button class="btn" (click)="excluiUpload(indice)" *ngIf="hasExclusao">
+                        <i class="align-middle fas fa-fw fa-times color-cau"></i>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

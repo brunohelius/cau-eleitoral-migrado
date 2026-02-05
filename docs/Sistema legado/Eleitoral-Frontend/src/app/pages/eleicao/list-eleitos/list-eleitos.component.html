@@ -1,0 +1,260 @@
+<form #formPesquisa="ngForm" fxFlex="30" class="mr-4" (keydown.enter)="$event.preventDefault()">
+    <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="column" fxLayoutAlign="space-between stretch"
+        fxLayoutGap="10px">
+        <div fxFlex="noshrink" class="card">
+            <div class="card-body form-section">
+                <h4 class="text-primary font-weight-bold mb-3">
+                    <i class="fa fa-filter" aria-hidden="true"></i>
+                    {{ 'LABEL_FILTRAR' | i18n }}
+                </h4>
+
+                <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutGap="10px">
+                    <div fxFlex="35">
+                        <div class="form-group">
+                            <label for="input-uf">{{ 'LABEL_UF' | i18n }}</label>
+                            <select id="input-uf" name="Uf" class="form-control" [(ngModel)]="filtro.idFilial"
+                                [disabled]="user?.cauUf.id != 165">
+                                <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                                <option *ngFor="let uf of ufs" value="{{ uf.id }}">
+                                    {{ uf.prefixo }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div fxFlex="65">
+                        <div class="form-group">
+                            <label for="input-cpf">{{ 'LABEL_CPF' | i18n }}</label>
+                            <input type="text" id="input-cpf" name="cpf" title="{{ 'LABEL_CPF' | i18n }}"
+                                class="form-control" [(ngModel)]="filtro.cpf" 
+                                [inputMask]="'999.999.999-99'">
+                        </div>
+                    </div>
+                </div>
+
+                <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutGap="10px">
+                    <div fxFlex="100">
+                        <div class="form-group">
+                            <label for="input-nome">{{ 'LABEL_NOME' | i18n }}</label>
+                            <input type="text" id="input-nome" name="nome" title="{{ 'LABEL_NOME' | i18n }}"
+                                class="form-control" [(ngModel)]="filtro.nome">
+                        </div>
+                    </div>
+                </div>
+
+                <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutGap="10px">
+                    <div fxFlex="70">
+                        <div class="form-group">
+                            <label for="input-representacao">{{ 'LABEL_REPRESENTACAO' | i18n }}</label>
+                            <select id="input-representacao" name="representacao" class="form-control"
+                                [(ngModel)]="filtro.representacao">
+                                <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                                <option value="1">Federal</option>
+                                <option value="2">Estadual</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div fxFlex="30">
+                        <div class="form-group">
+                            <label for="input-ano">{{ 'LABEL_ANO' | i18n }}<span class="text-danger">*</span></label>
+                            <select id="input-ano" name="ano" class="form-control"
+                                [(ngModel)]="filtro.ano"
+                                #ano="ngModel"
+                                required>
+                                <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                                <option *ngFor="let ano of anos" value="{{ ano.eleicao.ano }}">
+                                    {{ ano.eleicao.ano }}
+                                </option>
+                            </select>
+                            <validation-message [for]="ano" [submitted]="submitted"></validation-message>
+                        </div>
+                    </div>
+                </div>
+
+                <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutGap="10px">
+                    <div fxFlex="100">
+                        <div class="form-group">
+                            <label for="input-tipo-conselheiro">{{ 'LABEL_TIPO_CONSELHEIRO' | i18n }}</label>
+                            <select id="input-tipo-conselheiro" name="tipoConselheiro" class="form-control"
+                                [(ngModel)]="filtro.tipoConselheiro">
+                                <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                                <option value="1">Conselheiro(a) Titular</option>
+                                <option value="2">Conselheiro(a) Suplente</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutGap="10px" class="mt-2">
+                    <div fxFlex="50">
+                        <button type="button" class="btn btn-outline-primary btn-lg btn-block" title="{{'LABEL_LIMPAR' | i18n}}"
+                            (click)="limparPesquisa()" value="{{'LABEL_LIMPAR' | i18n}}">
+                            {{'LABEL_LIMPAR' | i18n}}
+                        </button>
+                    </div>
+
+                    <div fxFlex="50">
+                        <button type="button" class="btn btn-primary btn-lg btn-block" title="{{'LABEL_PESQUISAR' | i18n}}"
+                            (click)="validarPesquisar(formPesquisa)" value="{{'LABEL_FILTRAR' | i18n}}">
+                            {{'LABEL_FILTRAR' | i18n}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div fxLayout.xs="column" fxLayout.sm="column" fxLayout="column" fxLayoutAlign="space-between stretch"
+    fxLayoutGap="10px" fxFlex="70">
+    <div fxFlex="noshrink" class="card">
+        <div class="card-body form-section">
+            <h4 class="text-primary font-weight-bold">
+                <span>{{ 'TITLE_RESULTADOS' | i18n }}</span>
+            </h4>
+
+            <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutGap="10px"
+                *ngIf="filtros">
+                <label for="input-pesquisa">{{'LABEL_PESQUISAR_FILTRO' | i18n }}</label>
+                <div *ngFor="let filtro of filtros">
+                    <strong> {{ filtro }}; </strong>
+                </div>
+            </div>
+
+            <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutGap="10px">
+                <div fxFlex="30">
+                    <div class="form-group">
+                        <label for="input-ordenacao"> {{'LABEL_ORDENAR_POR' | i18n }}:</label>
+                        <select id="input-pesquisar" name="pesquisar" class="form-control"
+                            (change)="validarPesquisar(formPesquisa)" [(ngModel)]="filtro.ordenar">
+                            <option value="1" *ngIf="!filtro.idFilial">
+                                {{'LABEL_ORDENAR_UF' | i18n }}
+                            </option>
+                            <option value="2" *ngIf="!filtro.representacao">
+                                {{'LABEL_ORDENAR_REPRESENTACAO' | i18n }}
+                            </option>
+                            <option value="3" *ngIf="!filtro.tipoConselheiro">
+                                {{'LABEL_ORDENAR_TIPO_CONSELHEIRO' | i18n }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div fxFlex="30">
+                    <div class="form-group" style="margin-top: 28px;">
+                        <input type="text" id="input-query" name="query"
+                            class="form-control"
+                            [(ngModel)]="query" name="denuncias" (keyup)="validarCaracterEspecial()">
+                        <span class="fas fas fa-search icon-in-input text-primary"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutGap="10px" class="mt-2">
+                <table class="table" [mfData]="resultado" #dataTable="mfDataTable" #mf="mfDataTable" [mfRowsOnPage]="pageSize">
+                    <div *ngFor="let membro of dataTable.data | filtroPesquisa: query | slice: (page-1) * pageSize : page * pageSize"
+                        class="mb-0 mt-3 border rounded card-list">
+                        <tr style="width:100%;">
+                            <div fxFlex="70">
+                                <td style="border: none !important">
+                                    <div>
+                                        {{ 'LABEL_NOME' | i18n }}: <span class="font-weight-bold"> {{ membro.nome }}</span>
+                                    </div>
+    
+                                    <div>
+                                        {{ 'LABEL_CPF' | i18n }}: <span class="font-weight-bold">{{ membro.cpf |
+                                            mask:'000.000.000-00' }}</span>
+                                    </div>
+    
+                                    <div>
+                                        {{ 'LABEL_ANO' | i18n }}: <span class="font-weight-bold">{{ membro.ano }}</span>
+                                    </div>
+    
+                                    <div>
+                                        {{ 'LABEL_UF' | i18n }}: <span class="font-weight-bold">{{ membro.uf }}</span>
+                                    </div>
+    
+                                    <div>
+                                        {{ 'LABEL_REPRESENTACAO' | i18n }}: <span class="font-weight-bold">{{ membro.representacao }}</span>
+                                    </div>
+    
+                                    <div>
+                                        {{ 'LABEL_TIPO_CONSELHEIRO' | i18n }}: <span class="font-weight-bold">{{ membro.tipo }}</span>
+                                    </div>
+                                </td>
+                            </div>
+
+                            <div fxFlex="35">
+                                <td style="border: none !important;" width="60%">
+                                    <div>
+                                        <a *ngIf="!membro.diploma" class="text-primary cursor-pointer ml-1"
+                                            (click)="abrirDiplomaEleitoral(membro)">
+                                            <i class="fa fa-file-text" aria-hidden="true"></i>
+                                            <u class="font-weight-bold">{{ 'LABEL_EMITIR_DIPLOMA' | i18n }}</u>
+                                        </a>
+                                        <a *ngIf="membro.diploma" class="text-primary cursor-pointer ml-1"
+                                            (click)="abrirDiplomaEleitoral(membro)">
+                                            <i class="fa fa-file-text" aria-hidden="true"></i>
+                                            <u class="font-weight-bold">{{ 'LABEL_ALTERAR_DIPLOMA' | i18n }}</u>
+                                        </a>
+                                    </div>
+    
+                                    <div>
+                                        <a *ngIf="membro.diploma" class="text-primary cursor-pointer ml-1"
+                                            (click)="baixarDiplomaEleitoral(membro.diploma)">
+                                            <i class="fa fa-download" aria-hidden="true"></i>
+                                            <u class="font-weight-bold">{{ 'LABEL_BAIXAR_DIPLOMA' | i18n }}</u>
+                                        </a>
+                                    </div>
+
+                                    <div>
+                                        <a *ngIf="!membro.termo && permitirTermo" class="text-primary cursor-pointer ml-1" 
+                                            (click)="abrirTermoDePosse(membro)">
+                                            <i class="fa fa-file-text" aria-hidden="true"></i>
+                                            <u class="font-weight-bold">{{ 'LABEL_EMITIR_TERMO' | i18n }}</u>
+                                        </a>
+                                        <a *ngIf="membro.termo && permitirTermo"  class="text-primary cursor-pointer ml-1"
+                                            (click)="abrirTermoDePosse(membro)">
+                                            <i class="fa fa-file-text" aria-hidden="true"></i>
+                                            <u class="font-weight-bold">{{ 'LABEL_ALTERAR_TERMO' | i18n }}</u>
+                                        </a>
+                                    </div>
+    
+                                    <div>
+                                        <a *ngIf="membro.termo" class="text-primary cursor-pointer ml-1"
+                                            (click)="baixarTermoDePosse(membro.termo)">
+                                            <i class="fa fa-download" aria-hidden="true"></i>
+                                            <u class="font-weight-bold">{{ 'LABEL_BAIXAR_TERMO' | i18n }}</u>
+                                        </a>
+                                    </div>
+                                </td> 
+                            </div> 
+                        </tr>
+                    </div>
+
+                    <div *ngIf="resultado.length" class="d-flex justify-content-center p-2">
+                        <mfBootstrapPaginator class=""></mfBootstrapPaginator>
+
+                        <select class="ml-4 page-link text-primary" style="margin-bottom: 2rem; padding: 7px"
+                            [(ngModel)]="pageSize">
+                            <option [ngValue]="10">10</option>
+                            <option [ngValue]="20">20</option>
+                            <option [ngValue]="50">50</option>
+                            <option [ngValue]="100">100</option>
+                        </select>
+                    </div>
+
+                    <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutAlign="start stretch"
+                        fxLayoutGap="10px" class="d-flex justify-content-center p-2" style="margin-top: -2rem;"
+                        *ngIf="resultado.length">
+                        <span>
+                            Mostrando de {{ dataTable.rowsOnPage*(dataTable.activePage-1) + 1  }}
+                            até {{ resultado.length < dataTable.rowsOnPage*dataTable.activePage ? resultado.length : dataTable.rowsOnPage*dataTable.activePage }}
+                            de {{ resultado.length }} total registros.
+                        </span>
+                    </div>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

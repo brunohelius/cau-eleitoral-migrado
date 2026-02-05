@@ -1,0 +1,37 @@
+$primary: #104240;
+.active {
+    background-color: #ffffff !important;
+}
+a.nav-link {
+    color: $primary !important;
+}
+.texto-destaque {
+    font-size: 1.09375rem;
+    font-weight: bold;
+}
+
+.box-destaque {
+    padding: 15px;
+    border-radius: 10px;
+    background: #e0f2f1;
+}
+.green-font-bolder{
+    text-shadow: 0px 0px, 0px 0px, 0px 0px;
+    font-weight: bolder;
+    color: $primary;
+}
+.box-curriculo{
+    border: 1px solid #878787;
+}
+.btn-success{
+    background-color: $primary;
+}
+.btn-danger{
+    background-color: #A80018;
+}
+.box-separador-linha{
+    border-bottom: 1px solid #B2B7BA;
+}
+upload {
+    width: 100%;
+}

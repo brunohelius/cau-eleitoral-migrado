@@ -1,0 +1,388 @@
+<div class="col-md-12">
+    <a [routerLink]="['/']"> <i class="fa fa-desktop fa-2x m-2 pointer font-color-bg-primary" aria-hidden="true"></i> </a>
+</div>
+<div class="col-md-12">
+    <h5 class="card-title colorGray">
+        <a class="pointer" (click)="voltarAbaPrincipal()">
+            <i class="fa fa-arrow-left colorGray" aria-hidden="true"></i>
+        </a>
+    </h5>
+</div>
+
+<div class="box-separador bg-primary"></div>
+
+<div class="tab-content">
+    <div class="tab-pane active show fade rounded-0">
+
+        <titulo-substituicao
+            [label]="'LABEL_JULGAMENTO_EDITADO'"
+            [isMostraLabel]="_isAbaRetificacao"
+            [isMostraIcone]="_isMostraIconeTitulo"
+            [titleTab]="titleTab"
+            [isIndeferido]="isJulgamentoIndeferido()"
+        >
+        </titulo-substituicao>
+
+        <!-- Label da Chapa -->
+        <div class="row" style="margin-top: 2px; margin-left: 0px; margin-bottom: ‒14; min-height: 84px;">
+            <div class="col-4" *ngIf="_isMostraIconeTitulo || _isMostraIconeTitulo == undefined">
+                <span class="texto-titulo colorGreen">{{ 'LABEL_UF' | i18n }}: {{chapa.uf}}</span><br>
+                <span class="texto-titulo colorGreen">{{ 'LABEL_N_CHAPA' | i18n }}: {{chapa.numeroChapa || "N/A"}}</span><br>
+                <span class="texto-titulo colorGreen" *ngIf="hasSubstituicao">
+                    <b>{{ 'LABEL_DATA_BARA_HORA_CADASTRO' | i18n }}: </b>
+                    {{ substituicao.dataCadastro | date:'dd/MM/yyyy' : '+0' }} às {{ substituicao.dataCadastro | date:'HH:mm' : '+0' }}
+                </span><br>
+                <span class="texto-titulo colorGreen">
+                    {{ 'LABEL_REGISTRO_JULGAMENTO' | i18n }}:
+                    <span class="text-danger">
+                        {{ substituicao.registro }}
+                        <span *ngIf="isRecurso() && isChapaIES()"> - {{'LABEL_RECONSIDERACAO' | i18n}}</span>
+                        <span *ngIf="isRecurso() && !isChapaIES()"> - {{'LABEL_RECURSO' | i18n}}</span>
+                    </span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Sub ABAS -->
+        <sub-abas-content
+            [isAbaVisivel]="substituicao.isAlterado"
+            [label_a]="'LABEL_ATUAL'"
+            [label_b]="'LABEL_RETIFICACAO'"
+            (labelAtiva)="processaAbaRetificacao($event)"
+        >
+
+            <!-- PRIMEIRA ABA  -->
+            <div primeira-aba >
+                <!-- Membros para substituição -->
+                <div *ngIf="hasSubstituicao">
+                    <div class="tab-pane fade rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}">
+                        <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px; margin-top: 10px;">
+                            <div *ngIf="substituicao.membrosSubstitutosDaChapa.length > 0">
+                                <card-panel [titulo]="'LABEL_SUBSTITUICAO_SOLICITADA_PELO_RESPONSAVEL_CHAPA'">
+                                    <div class="body-card">
+
+                                        <div fxLayout fxLayout.xs="column" fxLayout.sm="column" fxLayoutAlign="space-between">
+                                            <div fxLayoutAlign="center center" fxFlex="40">
+                                                <h5 class="colorVerdeCau">
+                                                    <strong>{{'TITLE_INFORMACOES_DO_SUBSTITUIDO' | i18n}}</strong>
+                                                </h5>
+                                            </div>
+                                            <div fxLayoutAlign="center center" fxFlex="55">
+                                                <h5 class="colorVerdeCau"><strong>{{'TITLE_INFORMACOES_DO_SUBSTITUTO' | i18n}}</strong>
+                                                </h5>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3" fxLayout fxLayout.xs="column" fxLayout.sm="column"
+                                            fxLayoutAlign="space-between" fxLayoutWrap="wrap">
+
+                                            <div fxFlex="40">
+                                                <div class="text-center mt-4">
+                                                    <div class="custom-grid-dark colorVerdeCau">
+                                                        <div fxFlex="70" fxLayoutAlign="center center"
+                                                            class="border-right text-center">
+                                                            {{'LABEL_NOME' | i18n}}</div>
+                                                        <div fxFlex="30" fxLayoutAlign="center center" class="text-center">
+                                                            {{'LABEL_REGISTRO' | i18n}}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="ml-2" fxFlex="5"></div>
+
+                                            <div fxLayout fxLayout.xs="column" fxLayout.sm="column" fxLayoutWrap="wrap"
+                                                fxLayoutAlign="space-around" fxFlex="55">
+
+                                                <div fxFlex="100">
+                                                    <div class="text-center mt-2">
+                                                        <div class="custom-grid-dark colorVerdeCau">
+                                                            <div fxLayoutAlign="center center" class="border-right text-center"
+                                                                fxFlex="60">{{'LABEL_NOME' | i18n}}</div>
+                                                            <div fxLayoutAlign="center center" class="border-right text-center"
+                                                                fxFlex="25">{{'LABEL_REGISTRO_IMPUGNACAO' | i18n}}</div>
+                                                            <div fxLayoutAlign="center center" class="text-center" fxFlex="15">
+                                                                <span [innerHTML]="getLabelStatusValidacao()"></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div
+                                            *ngFor="let membro of substituicao.membrosSubstitutosDaChapa; let key = index; last as isLast">
+                                            <div fxLayout fxLayout.xs="column" fxLayout.sm="column" fxLayoutAlign="space-between"
+                                                fxLayoutWrap="wrap">
+
+                                                <div class="widget" fxFlex="40">
+                                                    <div class="card text-center font-card">
+                                                        <div class="custom-grid-white">
+                                                            <div fxFlex="70" fxLayoutAlign="center center"
+                                                                class="border-right text-center">
+                                                                <span *ngIf=" membro.substituido">{{ membro.substituido.profissional.nome | slice:0:35 }}</span>
+                                                                <span *ngIf="!membro.substituido"><div class="text-danger">{{'LABEL_SEM_INCLUSAO_MEMBRO' | i18n}}</div></span>
+                                                            </div>
+                                                            <div fxFlex="30" fxLayoutAlign="center center" class="text-center">
+                                                                <span *ngIf=" membro.substituido">{{ getRegistroComMask(membro.substituido.profissional.registroNacional) }}</span>
+                                                                <span *ngIf=" !membro.substituido">-</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="ml-2" fxFlex="5" fxLayoutAlign="space-around center"><i
+                                                        class="fa fa-exchange icone-32 mb-4" aria-hidden="true"></i>
+                                                </div>
+
+                                                <div fxLayout fxLayout.xs="column" fxLayout.sm="column" fxLayoutWrap="wrap"
+                                                    fxLayoutAlign="space-around" fxFlex="55">
+
+                                                    <div class="widget" fxFlex="100">
+                                                        <div class="card text-center font-card">
+                                                            <div class="custom-grid-white">
+                                                                <div fxLayoutAlign="center center" class="border-right text-center" fxFlex="60">
+                                                                    <span *ngIf="membro.substituto">
+                                                                        {{ membro.substituto.profissional.nome | slice:0:40 }}
+                                                                    </span>
+                                                                    <span *ngIf="!membro.substituto" class="red">{{ 'LABEL_SEM_MEMBRO_INCLUSAO' | i18n }}</span>
+                                                                </div>
+                                                                <div fxLayoutAlign="center center" class="border-right text-center" fxFlex="25">
+                                                                    <span *ngIf="membro.substituto">{{ getRegistroComMask(membro.substituto.profissional.registroNacional) }}</span>
+                                                                    <span *ngIf="!membro.substituto">-</span>
+                                                                </div>
+
+                                                                <div *ngIf="statusValidacao(membro.substituto)"
+                                                                    fxLayoutAlign="center center"
+                                                                    class="border-right pl-2 text-center" fxFlex="15">
+                                                                    <i aria-hidden="true"
+                                                                        class="fa fa-check-circle text-success icone-19"></i>
+                                                                </div>
+
+                                                                <div *ngIf="!statusValidacao(membro.substituto)"
+                                                                    placement="left" fxLayoutAlign="center center"
+                                                                    class="border-right pl-2 text-center" fxFlex="15">
+                                                                    <i aria-hidden="true"
+                                                                        (click)="abrirModalPendeciasMembro(templateSubstituicaoPendeciasMembro, membro.substituto)"
+                                                                        class="fa fa-exclamation-circle text-alert icone-19 color-alert"></i>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr *ngIf="!isLast" class="mt-0" />
+                                        </div>
+                                    </div>
+                                </card-panel>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}">
+                        <div class="card border pl-2 pr-2 pb-3" style="border-radius: 8px mb-5;">
+                            <card-panel [titulo]="'LABEL_DESCRICAO'" class="mt-3">
+                                <editor-de-texto
+                                    [isHabilitado]="false"
+                                    [valor]="substituicao.descricao"
+                                    [isMostrarTamanhoTextoRestantes]="false"
+                                    [configuracao]="configuracaoCkeditor">
+                                </editor-de-texto>
+                            </card-panel>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}">
+                        <div class="card border pl-2 pr-2 pb-3" style="border-radius: 8px mb-5;">
+                            <card-panel [titulo]="'LABEL_DOCUMENTO'" class="mt-3">
+                                <div class="col-md-4 p-0">
+                                    <arquivo [maxArquivos]="1" [hasUpload]="false" [hasDownload]="true" [hasExclusao]="false"
+                                        [arquivos]="substituicao.arquivos"
+                                        (download)="downloadArquivo($event)">
+                                    </arquivo>
+                                </div>
+                                <div class="col-md-4 col-xs-12" *ngIf="!substituicao.arquivos || !substituicao.arquivos[0]">
+                                    <table class="table table-sm">
+                                        <tbody>
+                                            <td class="text-left pr-3 mt-3">
+                                                <span>{{ 'LABEL_NAO_APLICADO' | i18n }}</span>
+                                            </td>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </card-panel>
+                        </div>
+                    </div>
+
+                    <!-- Membros com Solicitação de Recurso -->
+                    <div *ngIf="substituicao.indicacoes.length > 0">
+                        <div class="tab-pane fade card rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}" *ngIf="substituicao.indicacoes.length > 0">
+                            <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px mb-5; margin-top: 10px;">
+                                <card-panel [titulo]="'LABEL_RESULTADO_DOS_MEMBROS_COM_PENDENCIA'">
+                                    <card-julgamento-final
+                                        [temExcluir]="false"
+                                        [membrosSelecionados]="substituicao.indicacoes"
+                                    >
+                                    </card-julgamento-final>
+                                </card-panel>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="substituicao.indicacoes.length == 0 && isJulgamentoIndeferido()">
+                        <card-panel [titulo]="'LABEL_MEMBRO_JULGAMENTO_FINAL'">
+                            <div fxLayout="row" fxLayoutAlign="center center" style="height: 100px;" >
+                                <strong class="colorGreen">{{'MSG_CHAPA_SEM_INDICACAO_DE_SUBSTITUICAO_DE_MEMBROS' | i18n}}</strong>
+                            </div>
+                        </card-panel>
+                    </div>
+
+                    <div *ngIf="substituicao.isAlterado" class="tab-pane fade rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}">
+                        <div class="card border pl-2 pr-2 pb-3" style="border-radius: 8px mb-5;">
+                            <card-panel [titulo]="'LABEL_JUSTIFICATIVA_DA_RETIFICACAO'" class="mt-3">
+                                <editor-de-texto
+                                    [isHabilitado]="false"
+                                    [valor]="substituicao.retificacao"
+                                    [isMostrarTamanhoTextoRestantes]="false"
+                                    [configuracao]="configuracaoCkeditor">
+                                </editor-de-texto>
+                            </card-panel>
+                        </div>
+                    </div>
+
+                  <app-alterar-julgamento-final-segunda-instancia
+                    *ngIf="isAcessorCenBr()"
+                    [chapaEleicao]="chapa"
+                    [membrosPorSituacao]="membrosPorSituacao"
+                    [julgamentoSubstituicaoPai]="substituicao"
+                    [julgarTipo]="getTipoJulgamentoAlteracao()"
+                    [idSubstituicaoJulgamento]="idRecursoOuSubstituicao"
+                    [isChapaIES]="isChapaIES()"
+                    (redirecionarVisualizarJulgamento)="redirecionarAposSalvarJulgamento($event)"
+                  >
+                  </app-alterar-julgamento-final-segunda-instancia>
+
+                    <!-- Histórico do pedido de substituição -->
+                    <div *ngIf="substituicao.historico">
+                        <div class="tab-pane fade card rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}" *ngIf="substituicao.historico.length > 0">
+                            <div class="card border pl-2 pr-2 pb-3" style="border-radius: 8px mb-5;">
+                                <card-panel [titulo]="'LABEL_HISTORICO_JULGAMENTO_PEDIDO_SUBSTITUICAO'" class="mt-3">
+                                    <!-- Substituição-->
+                                    <table class="table table-borderless table-sm mt-0 table-parecer">
+                                        <thead>
+                                            <tr>
+                                                <td class="p-0" colspan="8">
+                                                    <div fxLayout="row" class="font-weight-bold font-header text-center px-4">
+                                                        <div fxFlex="7">{{'LABEL_REGISTRO' | i18n}}</div>
+                                                        <div fxFlex="15"> {{'LABEL_TIPO_CADASTRO' | i18n}}</div>
+                                                        <div fxFlex="20"> {{'LABEL_DATA_BARA_HORA_CADASTRO' | i18n}} </div>
+                                                        <div fxFlex> {{'LABEL_CADASTRADO_POR' | i18n}}</div>
+                                                        <div fxFlex> {{'LABEL_DESCRICAO_DOCUMENTO' | i18n}}</div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let historico_substituicao of substituicao.historico">
+                                                <td class="p-0" colspan="8">
+                                                    <div class="card shadow border rounded-2 my-1">
+                                                        <div class="card-body p-8">
+                                                            <div fxLayout="row" class="text-center align-items-center">
+                                                                <div class="px-2" fxFlex="9" *ngIf="historico_substituicao.tipo == 'recurso'">
+                                                                    {{ historico_substituicao.sequencia }} - {{'LABEL_RECURSO' | i18n}}
+                                                                </div>
+                                                                <div class="px-2" fxFlex="9" *ngIf="historico_substituicao.tipo == 'substituicao'">
+                                                                    {{ historico_substituicao.sequencia }}
+                                                                </div>
+                                                                <div class="px-2 border-left" fxFlex="15" *ngIf="historico_substituicao.tipo == 'recurso'">
+                                                                    {{'LABEL_RECURSO' | i18n}}
+                                                                </div>
+                                                                <div class="px-2 border-left" fxFlex="15" *ngIf="historico_substituicao.tipo == 'substituicao'">
+                                                                    {{'LABEL_SUBSTITUICAO' | i18n}}
+                                                                </div>
+                                                                <div class="px-2 border-left" fxFlex="20">
+                                                                    {{ historico_substituicao.dataCadastro | date:'dd/MM/yyyy' : '+0' }} às {{ historico_substituicao.dataCadastro | date:'HH:mm' : '+0' }}
+                                                                </div>
+                                                                <div class="px-2 border-left" fxFlex *ngIf="historico_substituicao.profissional">
+                                                                    {{ historico_substituicao.profissional.nome }}
+                                                                </div>
+                                                                <div class="px-2 border-left" fxFlex *ngIf="!historico_substituicao.profissional">
+                                                                    -
+                                                                </div>
+                                                                <div class="px-2 border-left" fxFlex>
+                                                                    <a href="" [routerLink]="null" class="remove-link"
+                                                                        (click)="carregarPedidoSubstituicao(historico_substituicao)">
+                                                                        <span>{{'LABEL_VISUALIZAR' |i18n}}</span>
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </card-panel>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sem o Pedido de Substituição -->
+                <div class="row conteudo" *ngIf="!hasSubstituicao">
+                    <form #form="ngForm" class="w-100" id="aba-defesa-impugnacao-form-id">
+                        <div class="col-md-12">
+                            <div class="tab-pane fade card rounded-0 pl-4 pr-4 pb-2" [ngClass]="{ 'active show':true}">
+                                <div class="card border pl-4 pr-4 pb-4 pt-4 mt-5 mb-4" style="border-radius: 8px mb-5">
+                                    <div class="alert border bg-green shadow margin">
+                                        <div fxLayout="row" fxLayoutAlign="center center">
+                                            <b class="mt-4 mb-4">{{'LABEL_NAO_HOUVE_PEDIDO_SUBSTITUICAO' | i18n}}</b>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+            <!-- SEGUNDA ABA -->
+            <div segunda-aba>
+                <table-retificacao
+                    *ngIf="substituicao.isAlterado"
+                    [dados]="retificacoes"
+                    (retificacaoAtual)="carregarPedidoSubstituicao($event, true)"
+                >
+                </table-retificacao>
+            </div>
+        </sub-abas-content>
+    </div>
+</div>
+
+<ng-template #templateSubstituicaoPendeciasMembro>
+    <div class="modal-header border-header-green">
+      <div class="col-md-2"></div>
+      <div class="col-md-8 text-center">
+          <h6 class="modal-title pull-center">{{'TITLE_PENDECIAS_MEMBRO' |i18n}}</h6>
+      </div>
+      <div class="col-md-2 align-items-right">
+          <button type="button" class="close pull-right" aria-label="Close" (click)="modalPendeciasMembro.hide()">
+              <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+    </div>
+      <div class="modal-body body-height">
+          <div class="row p-3">
+              <div class="col-md-12">
+                  <p class="text-center pb-2"
+                      *ngFor="let pendencia of membroChapaSelecionado.pendencias; let indice = index;">
+                      {{ pendencia.tipoPendencia.descricao }}
+                  </p>
+              </div>
+          </div>
+          <div class="row">
+              <div class="col-md-12 text-center">
+                  <button class="btn btn-primary" (click)="modalPendeciasMembro.hide()">{{'LABEL_FECHAR' |i18n}}</button>
+              </div>
+          </div>
+      </div>
+  </ng-template>

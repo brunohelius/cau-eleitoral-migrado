@@ -1,0 +1,112 @@
+# Default values for api-externa.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+# env:
+#   APP_NAME: Plataforma
+#   APP_ENV: dev
+#   APP_KEY: gO19v4TgVgRG6gfdsgGGAmDN0XfJCuNPoBeHb6p7
+#   APP_DEBUG: "true"
+#   APP_URL: https://test-portal-backend.caubr.gov.br
+#   APP_TIMEZONE: UTC
+
+#   LOG_CHANNEL: single
+
+#   DB_CONNECTION: pgsql
+#   DB_HOST: "172.16.0.80"
+#   DB_PORT: "5401"
+#   DB_DATABASE: cau_corp_db
+#   DB_USERNAME: causer
+#   DB_PASSWORD: 3kRxWKgdJSLtkkX
+
+#   CACHE_DRIVER: file
+#   QUEUE_CONNECTION: sync
+
+#   JWT_SECRET: yXjB5gDc2DJtwIEoQjMULddb7ic4UTHV
+
+#   SICCAU_STORAGE_PATH: /opt/volumes/pvc-devops-siccau-hmg-dev
+
+#   URL_SICCAU: https://siccau-teste.caubr.gov.br/
+#   URL_SERVICO_COMPLEMENTO_PROFISSIONAIS: "https://servicos-teste11.caubr.gov.br/app/view/sight/noLayout.php?form=validaProfissionaisEleitoral"
+#   URL_ELEITORAL: https://eleitoral-backend.caubr.gov.br/
+#   URL_RRT: https://test-rrt-social-backend.caubr.gov.br/
+
+container:
+  port: 80
+
+replicaCount: 1
+
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+hostMapping: false
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  className: "nginx"
+  annotations:
+    #    nginx.ingress.kubernetes.io/enable-cors: "true"
+    #    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    #    nginx.ingress.kubernetes.io/cors-allow-credentials: "false"
+    #    nginx.ingress.kubernetes.io/cors-allow-methods: "*"
+    #    nginx.ingress.kubernetes.io/cors-allow-headers: "*"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 60
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+hostAliases: []

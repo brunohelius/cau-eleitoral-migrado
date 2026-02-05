@@ -1,0 +1,261 @@
+<div class="row">
+    <div class="col-md-12">
+
+        <ul class="nav nav-tabs">
+            <li class="nav-item pointer">
+                <a class="nav-link" [ngClass]="{ 'active': true }">{{'LABEL_VISAO_GERAL' |i18n}}
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade active show">
+
+                <div class="card rounded-0">
+
+                    <div class="card-header rounded-0 pt-0 pb-1">
+                        <div class="d-flex flex-row align-items-center customColorGray">
+                            <div class="pt-1 pb-1">
+                                <i class="fa fa-television pl-3 pr-4" aria-hidden="true" style="font-size: 30px"></i>
+                            </div>
+                            <div class="pl-2">
+                                <h6 class="m-0 pl-2 border-left">
+                                    <i class="fa fa-file-text-o icone-bar pr-1" aria-hidden="true"></i>
+                                    {{'CADASTRO_MEMBROS_COMISSAO_ELEITORAL' |i18n}}
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border mt-3">
+                    <div class="card-body p-0 mt-1">
+                        <button type="button" class="btn btn-link p-0" (click)="voltarNivelProgresso()">
+                            <h5 class="m-0"><i class="fa fa-reply text-primary" title="{{'LABEL_VOLTAR' | i18n}}"></i></h5>
+                        </button>
+                        <div class="subtitle-line">
+                            <span class="bg-white">{{'TITLE_DECLARACAO_MEMBRO_COMISSAO' | i18n}} ({{dados.prefixo}})</span>
+                        </div>
+
+                        <!-- Mensagem que mostra usuário sem acesso a funcionalidade -->
+                        <form #formDadosDeclaracaoConfirmacao="ngForm" *ngIf="!declaracao && statusConvite == 0 || !this.situacaoCalendario" class="mt-1 p-2">
+                            <div class="card border">
+                                <div class="card-body">
+                                    <div class="alert border bg-green shadow">
+                                        <div fxLayout="row" fxLayoutAlign="center center">
+                                            <b>{{'MSG_SEM_ACESSO' | i18n}}</b>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Mensagem que mostra ao usuário que ele rejeitou o convite -->
+                        <form #formDadosDeclaracaoConfirmacao="ngForm" *ngIf="declaracao && statusConvite === 3" class="mt-1 p-2">
+                            <div class="card border">
+                                <div class="card-body">
+                                    <div class="alert border bg-green shadow">
+                                        <div fxLayout="row" fxLayoutAlign="center center">
+                                            <b><u>{{'MSG_DECLARACAO_REJEITOU_CONVITE' | i18n}}({{dados.prefixo}}).</u></b>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Formulário de saudações por ter recebido o convite -->
+                        <form #formDadosDeclaracaoConvite="ngForm" *ngIf="controleProgresso === 1 && declaracao && statusConvite === 1" class="mt-1 p-2">
+                            <div class="card border">
+                                <div class="card-body">
+                                    <div class="alert border bg-green shadow">
+                                        <div fxLayout="row" fxLayoutAlign="center center">
+                                            <b>{{'MSG_DECLARACAO_CONVITE_MEMBRO_COMISSAO' | i18n}} ({{dados.prefixo}}).</b>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutAlign="center stretch"
+                                            fxLayoutGap="10px">
+                                            <button fxFlex="12" class="btn btn-primary" title="{{'LABEL_ACEITAR' | i18n}}"
+                                                (click)="avancarNivelProgresso()">
+                                                {{'LABEL_ACEITAR' | i18n}}
+                                            </button>
+                                            <button fxFlex="12" class="btn btn-danger" title="{{'LABEL_RECUSAR' | i18n}}"
+                                                (click)="recusarConvite()">
+                                                {{'LABEL_RECUSAR' | i18n}}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Formulário de recusar convite de membro de comissão -->
+                        <form #formDadosDeclaracaoRecusar="ngForm" *ngIf="controleProgressoRecusar === true && statusConvite === 1" class="mt-1 p-2">
+                            <div class="card border">
+                                <div class="card-body">
+                                    <div class="alert border bg-green shadow">
+                                        <div fxLayout="row" fxLayoutAlign="center center">
+                                            <b>{{'MSG_DECLARACAO_RECUSAR_CONVITE_MEMBRO_COMISSAO' | i18n}} ({{dados.prefixo}})?</b>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutAlign="center stretch"
+                                            fxLayoutGap="10px">
+                                            <button fxFlex="12" class="btn btn-primary" title="{{'LABEL_CONFIRMAR' | i18n}}"
+                                                (click)="acaoRecusarConvite()">
+                                                {{'LABEL_CONFIRMAR' | i18n}}
+                                            </button>
+                                            <button fxFlex="12" class="btn btn-danger" title="{{'LABEL_CANCELAR' | i18n}}"
+                                                (click)="cancelarRecusarConvite()">
+                                                {{'LABEL_CANCELAR' | i18n}}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Formulário de confirmação de ciência de preencher declaração -->
+                        <form #formDadosDeclaracaoConfirmacao="ngForm" *ngIf="controleProgresso === 2 && statusConvite === 1" class="mt-1 p-2">
+                            <div class="card border">
+                                <div class="card-body">
+                                    <div class="alert border bg-green shadow">
+                                        <div fxLayout="row" fxLayoutAlign="center center">
+                                            <b>{{'MSG_DECLARACAO_MEMBRO_COMISSAO_ACEITAR_TERMO' | i18n}}.</b>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutAlign="center stretch"
+                                            fxLayoutGap="10px">
+                                            <button fxFlex="12" class="btn btn-primary" title="{{'LABEL_OK' | i18n}}"
+                                                (click)="avancarNivelProgresso()">
+                                                {{'LABEL_OK' | i18n}}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Formulário de preenchimento da declaração -->
+                        <form #formDeclaracao="ngForm" *ngIf="controleProgresso === 3 && statusConvite === 1">
+                            <div fxLayout="column" fxLayout.xs="column" fxLayout.sm="column" fxLayoutAlign="space-between stretch"
+                                fxLayoutGap="10px">
+                                <div fxFlex class="card">
+                                    <div class="card-body">
+
+                                        <hr class="bg-primary py-2" />
+                                        <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutGap="10px"
+                                            fxLayoutAlign="center center">
+                                            <span class="h2 py-3">{{declaracao?.titulo}}</span>
+                                        </div>
+                                        <div class="card-body" fxLayout="column" fxLayoutGap="10px">
+                                            <div [innerHTML]="declaracao.textoInicial"></div>
+                                        </div>
+
+                                        <div class="card-body" fxLayout="column" fxLayoutGap="10px">
+                                            <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="start stretch">
+                                                <ng-template [ngIf]="declaracao.tipoResposta == 2">
+                                                    <div class="custom-control custom-radio"
+                                                        *ngFor="let item of declaracao.itensDeclaracao; let indice = index">
+                                                        <input type="radio" id="item{{indice}}" name="itemDeclaracao"
+                                                            class="custom-control-input" (change)="addItemDeclaracao(item, declaracao.tipoResposta)">
+                                                        <label class="custom-control-label" for="item{{indice}}">{{item.descricao}}</label>
+                                                    </div>
+                                                    <div class="text-danger" *ngIf="submitted && !isItensRespondidos()">{{ 'required' | i18n }}</div>
+                                                </ng-template>
+                                                <ng-template [ngIf]="declaracao.tipoResposta == 1">
+                                                    <div class="custom-control custom-checkbox"
+                                                        *ngFor="let item of declaracao.itensDeclaracao; let indice = index">
+                                                        <input type="checkbox" class="custom-control-input" id="item{{indice}}"
+                                                            name="itemDeclaracao" (change)="addItemDeclaracao(item, declaracao.tipoResposta, indice)">
+                                                        <label class="custom-control-label" for="item{{indice}}">{{item.descricao}}</label>
+                                                    </div>
+                                                    <div class="text-danger" *ngIf="submitted && !isItensRespondidos()">{{ 'required' | i18n }}</div>
+                                                </ng-template>
+                                            </div>
+                                        </div>
+                                        <!-- Upload de arquivos -->
+                                        <div class="card-body" fxLayout="column" fxLayoutGap="10px">
+                                            <div fxFlex *ngIf="declaracao.permiteUpload === true || declaracao.permiteUpload == 1">
+                                                <div class="row" fxLayoutGap="20px">
+
+                                                    <div class="col-md-6 col-xs-12">
+                                                        <div class="form-group">
+                                                            <upload title="{{'LABEL_SELECIONAR_ARQUIVO' | i18n}}" [name]="arquivo"
+                                                                (process)="uploadDocumento($event)" name="upload">
+                                                                <i class="fa fa-file-o text-success" aria-hidden="true"></i>
+                                                                <span>{{'LABEL_SELECIONAR_ARQUIVO' | i18n}}</span>
+                                                            </upload>
+                                                            <div class="text-danger" *ngIf="submitted && !isUploadValido()">{{ 'required' | i18n }}</div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-6 col-xs-12">
+                                                        <table class="table table-sm" *ngIf="dadosFormulario.arquivos?.length > 0">
+                                                            <tbody>
+                                                                <tr *ngFor="let arquivo of dadosFormulario.arquivos let indiceArquivo = index">
+                                                                    <td class="text-center">
+                                                                        <div>
+                                                                            {{ arquivo.nome }}
+                                                                        </div>
+                                                                    </td>
+                                                                    <td class="table-action text-center">
+                                                                        <button class="btn" (click)="excluiUpload(indiceArquivo)">
+                                                                            <i class="align-middle fas fa-fw fa-times"></i>
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutAlign="start stretch"
+                                            fxLayoutGap="10px">
+                                            <button fxFlex="12" class="btn btn-primary" id="btn-convite-confirmar" title="{{'LABEL_CONFIRMAR' | i18n}}"
+                                                (click)="acaoAceitarConvite()">
+                                                {{'LABEL_CONFIRMAR' | i18n}}
+                                            </button>
+                                            <button fxFlex="12" class="btn btn-danger" title="{{'LABEL_CANCELAR' | i18n}}"
+                                                (click)="voltarNivelProgresso()">
+                                                {{'LABEL_CANCELAR' | i18n}}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Formulário de confirmação de aceite do convite -->
+                        <form #formDadosDeclaracaoConfirmacaoAceite="ngForm" *ngIf="controleProgresso === 4" class="mt-1 p-2">
+                            <div class="card border">
+                                <div class="card-body">
+                                    <div class="alert border bg-green shadow">
+                                        <div fxLayout="row" fxLayoutAlign="center center">
+                                            <b>{{'MSG_DECLARACAO_PREENCHIDA_COM_SUCESSO' | i18n}} ({{dados.prefixo}})</b>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutAlign="center stretch"
+                                            fxLayoutGap="10px">
+                                            <button fxFlex="12" class="btn btn-primary" title="{{'LABEL_FECHAR' | i18n}}"
+                                                (click)="redirecionaListaMembrosComissao()">
+                                                {{'LABEL_FECHAR' | i18n}}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

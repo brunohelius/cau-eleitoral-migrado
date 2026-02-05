@@ -1,0 +1,235 @@
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-tabs">
+            <li class="nav-item pointer">
+                <a href="/" class="nav-link no-wrap-title-aba"
+                    [ngClass]="{ 'active': false}">{{'LABEL_VISAO_GERAL' | i18n}}
+                </a>
+            </li>
+            <li class="nav-item pointer">
+                <a class="nav-link wrap-title-aba" [ngClass]="{ 'active':true }">
+                    <div class="aba" [innerHTML]="getTituloAbaAcompanharChapa()"></div>
+
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+
+        <div class="tab-pane fade card rounded-0" [ngClass]="{ 'active show':true}" >
+            <div class="col-md-12">
+                <i class="fa fa-desktop fa-2x m-2 pointer color-primary" aria-hidden="true"></i>
+            </div>
+            <div class="col-md-12">
+                <h5 class="card-title colorGray">
+                    <a class="pointer" (click)="voltar()">
+                        <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                    </a>
+                    <b>{{'LABEL_PESQUISAR_ELEICAO' |i18n}}</b>
+                </h5>
+            </div>
+
+            <div class="box-separador bg-primary"></div>
+
+            <div class="tab-pane fade pl-3 pr-3 pb-5 mt-3" id="tab-pane-principal" [ngClass]="{ 'active show': true}">
+                <div class="rounded-0">
+                    <div class="subtitle-line">
+                        <span class="bg-white"> {{'LABEL_CHAPAS_CADASTRADAS_POR_ESTADO' | i18n}} </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade card rounded-0 pl-4 pr-4 pb-4" [ngClass]="{ 'active show':true}" >
+
+                <div class="card border pl-5 pr-5 pb-5 pt-4" style="border-radius: 8px;">
+                    <div class="card-body bg-green pl-5 pr-5" style="border-radius: 8px;">
+                        <table class="table" [mfData]="chapas" #mf="mfDataTable" *ngIf="chapas">
+                            <thead>
+                                <tr class="green-font-bolder">
+                                    <th class="text-center tb-width-10"> {{'LABEL_ESTADO' |i18n}} </th>
+                                    <th class="text-center tb-width-10"><div  [innerHTML]="getLabelQuantidadeDeChapas()"></div></th>
+                                    <th class="text-center tb-width-10"><div  [innerHTML]="getLabelQuantidadeDeChapasComPendencia()"></div></th>
+                                    <th class="text-center tb-width-10"><div  [innerHTML]="getLabelQuantidadeDeChapasSemPendencia()"></div></th>
+                                    <th class="text-center tb-width-10">{{'LABEL_ACAO' |i18n}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let dadosChapas of mf.data;" [ngClass]="{ 'chapa-ies': isIES(dadosChapas) }"
+                                    class="td-cauf list-item list-item-card">
+                                    <td class="text-center tb-width-10 p-3">
+                                        <div class="text-center title-comissao green-font-bolder">
+                                            <img class="img-fluid rounded-circle img-bandeira"
+                                                [src]="getImagemBandeira(dadosChapas.idCauUf)" [alt]="dadosChapas.uf">
+                                             {{ dadosChapas.uf }}
+                                        </div>
+                                    </td>
+                                    <td class="text-center p-3 tb-width-10">{{ dadosChapas.quantidadeTotalChapas }}</td>
+                                    <td class="text-center p-3 tb-width-10">{{ dadosChapas.quantidadeChapasPendentes }}</td>
+                                    <td class="text-center p-3 tb-width-10">{{ dadosChapas.quantidadeChapasSemPendentes }}</td>
+                                    <td class="text-center p-3 tb-width-10">
+                                        <div class="btn-group" dropdown triggers="hover" (mouseleave)="dp.hide()"
+                                            #dp="bs-dropdown"
+                                            *ngIf="isMostraAcao(dadosChapas.idCauUf) && dadosChapas.quantidadeTotalChapas > 0">
+                                            <button dropdownToggle type="button" class="btn btn-link text-muted"
+                                                aria-controls="dropdown-basic"
+                                                >
+                                                <i class="align-middle colorAcao fas fa-ellipsis-v"
+                                                    aria-hidden="true"></i>
+                                            </button>
+                                            <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu" role="menu"
+                                                aria-labelledby="button-basic">
+                                                <li role="menuitem" class="pointer">
+                                                    <a  (click)="redirecionaUf(dadosChapas.idCauUf, dadosChapas)"
+                                                         class="dropdown-item">
+                                                        {{'LABEL_VISUALIZAR' | i18n}}
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="p-3">
+                            <span class="green-font-bolder"> {{'LABEL_QUANTIDADE_TOTAL_CHAPAS_CADASTRADAS' |i18n}}: </span>
+                            <b>{{ getTotalPedidos(chapas) }}</b>
+                        </div>
+                    </div>
+                    <div class="pt-3">
+                            <span>
+                             <download *ngIf="permissaoDownload" class="pl-3 btn" style="background: none; font-size: 1rem;" title="Exportar XML"
+                                        (click)="modalExportarDados(templateExportarDados, 'XML')">
+                                        <i class="fa fa-file-code-o" style="font-size: 1.5rem;" aria-hidden="true"></i>
+                                        <span style="color: black;" >{{ 'LABEL_EXPORTAR_CHAPA_XML' | i18n }}</span>
+                            </download>
+                            </span>
+                            <span>
+                            <download *ngIf="permissaoDownload"  class="pl-3 btn" style="background: none; font-size: 1rem;" title="Exportar CSV"
+                                        (click)="modalExportarDados(templateExportarDados, 'CSV')">
+                                        <i class="fa  fa-file-text-o" style="font-size: 1.5rem;" aria-hidden="true"></i>
+                                        <span style="color: black;" >{{ 'LABEL_EXPORTAR_CHAPA_CSV' | i18n }}</span>
+                            </download>
+                            </span>
+                            <span *ngIf="hasPermissaoAssessorCEN()">
+                            <download 
+                                *ngIf="permissaoDownload"  
+                                class="pl-3 btn" style="background: none; font-size: 1rem;" 
+                                title="Exportar TRE"
+                                (click)="modalExportarDadosTRE(templateExportarDadosTRE, 'CSV')">
+                                        <i class="fa  fa-file-text-o" style="font-size: 1.5rem;" aria-hidden="true"></i>
+                                        <span style="color: black;" >{{ 'LABEL_EXPORTAR_TRE' | i18n }}</span>
+                            </download>
+                            </span>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<ng-template #templateExportarDados>
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            <h6 class="modal-title pull-center colorGray">{{ tituloExportarDados }}</h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body p-3" style="height: 100%">
+        <form #formJustificativaExclusao="ngForm">
+            <div class="row m-0">
+                <div class="col-md-1"></div>
+                <div class="col-md-10 text-center">
+                    <div class="row p-3 bg-green mt-3">
+                        <div class="col-md-4 text-center d-flex justify-content-center">
+                            <div class="intemModalStatus">
+                                <input type="radio" name="status" id="inputRadioStatusPendente" [value]="2"
+                                    #input_radio_status_pendente="ngModel" [(ngModel)]="filtroExportar">
+                                <label for="inputRadioStatusPendente"
+                                    class="pl-2">{{ 'LABEL_EXPORTAR_CHAPA_DEFERIDA' | i18n }}</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center d-flex justify-content-center">
+                            <div class="intemModalStatus">
+                                <input type="radio" name="status" id="inputRadioStatusConcluido" [value]="3"
+                                    #input_radio_status_concluido="ngModel" [(ngModel)]="filtroExportar">
+                                <label for="inputRadioStatusConcluido"
+                                    class="pl-2">{{ 'LABEL_EXPORTAR_CHAPA_INDEFERIDA' | i18n }}</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center d-flex justify-content-center">
+                            <div class="intemModalStatus">
+                                <input type="radio" name="status" id="inputRadioStatusTodos" [value]="0"
+                                    #input_radio_status_todos="ngModel" [(ngModel)]="filtroExportar">
+                                <label for="inputRadioStatusTodos" class="pl-2">{{ 'LABEL_TODOS' | i18n }}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-center pt-3">
+                    <download class="center-no-arquivo pl-0" title="{{ tituloExportarDados }}" style="background: none; font-size: 1rem;" download="{{ nomeArquivo }}" (process)="exportarDados($event)">
+                            <button type="submit" target="_blank" class="btn btn-primary pl-3 pr-3">
+                                {{'LABEL_CONFIRMAR' |i18n}}
+                            </button>
+                    </download>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #templateExportarDadosTRE>
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            <h6 class="modal-title pull-center colorGray">{{ tituloExportarDados }}</h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body p-3" style="height: 100%">
+        <form #formJustificativaExclusao="ngForm">
+            <div class="row m-0">
+                <div class="col-md-1"></div>
+                <div class="col-md-10 text-center">
+                    <div class="col-md-12 text-center row p-3 bg-green mt-3">
+                        <select 
+                            class="form-control" 
+                            name="chapa"
+                            id="chapa"
+                            [(ngModel)]="chapaExportada">
+                            <option selected disabled [value]="undefined">SELECIONE</option>
+                            <option *ngFor="let chapa of chapas" [value]="chapa.idCauUf">{{ chapa.prefixoUf }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-1"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-center pt-3">
+                    <download 
+                        class="pl-0" 
+                        title="{{ tituloExportarDados }}" 
+                        style="background: none; font-size: 1rem;" 
+                        download="{{ nomeArquivo }}" 
+                        (process)="exportarDadosTre($event)"
+                        [ngClass]="chapaExportada ? '' : 'disabled'">
+                            <button type="submit" target="_blank" class="btn btn-primary pl-3 pr-3">
+                                {{'LABEL_CONFIRMAR' |i18n}}
+                            </button>
+                    </download>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>

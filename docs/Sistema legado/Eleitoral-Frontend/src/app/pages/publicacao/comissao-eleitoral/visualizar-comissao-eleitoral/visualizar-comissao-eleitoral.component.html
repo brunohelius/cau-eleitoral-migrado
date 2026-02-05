@@ -1,0 +1,229 @@
+<div class="header">
+    <h1 class="header-title">
+        <i class="fa fa-wpforms" style="margin-right: 10px; font-size: 30px" aria-hidden="true"></i>
+        {{ 'LABEL_PUBLICAR_COMISSAO_ELEITORAL' | i18n }}
+    </h1>
+</div>
+
+<div class="card rounded-0" *ngIf="publicacoes.length > 0">
+    <div class="card-header rounded-0">
+        <h5 class="card-title">
+            <a class="pointer" (click)="voltarLista()">
+                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+            </a>
+            {{ 'LABEL_PUBLICAR_QUANTIDADE_MEMBROS_COMISSAO_ELEITORAL' | i18n }} {{ 'LABEL_HIFEN' | i18n }}
+            {{ 'LABEL_ELEICAO' | i18n }}:
+            {{ documentoComissaoMembro.informacaoComissaoMembro.atividadeSecundaria.atividadePrincipal.calendario.eleicao.descricao }}
+        </h5>
+    </div>
+
+    <div class="card-body" fxLayout="column" fxLayoutGap="15px">
+
+        <h6 class="mt-3">{{ 'LABEL_ARQUIVO_PUBLICADO' | i18n }}</h6>
+        <table class="table table-sm table-striped mt-3" [mfData]="publicacoes" #mf="mfDataTable"
+            [mfRowsOnPage]="numeroRegistrosPaginacao">
+            <thead>
+                <tr>
+                    <th class="text-center tb-width-40 bg-calendario">
+                        {{ 'LABEL_ARQUIVO' | i18n }}
+                    </th>
+                    <th class="text-center tb-width-30 bg-calendario-lighten">
+                        {{ 'LABEL_DATAHORA_PUBLICACAO' | i18n }}
+                    </th>
+                    <th class="text-center tb-width-30 bg-calendario">
+                        {{ 'LABEL_USUARIO' | i18n }}
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr *ngFor="let publicacao of mf.data;">
+                    <td class="text-center tb-width-40">
+                        <download title="{{ publicacao.nomeArquivo }}" class="center-no-arquivo pointer"
+                            [download]="getNomeArquivoFormatado(publicacao.nomeArquivo)"
+                            (process)="downloadPdf($event, publicacao.id)">
+                            <i class="align-middle fa fa-file-pdf-o"></i>
+                            {{ publicacao.nomeArquivo }}
+                        </download>
+                    </td>
+                    <td class="text-center tb-width-30">
+                        <p class="m-2">
+                            {{ publicacao.dataPublicacao | date:'dd/MM/yyyy' : '+0' }} {{ 'LABEL_HIFEN' | i18n }}
+                            {{ publicacao.dataPublicacao | date:'HH:mm' }} {{ 'LABEL_SIGLA_HORAS' | i18n }}
+                        </p>
+                    </td>
+                    <td class="text-center tb-width-30">
+                        <p class="m-2">
+                            {{ publicacao.responsavel.nome }}
+                        </p>
+                    </td>
+                </tr>
+            </tbody>
+
+            <tfoot>
+                <tr>
+                    <td colspan="3" class="col-12" *ngIf="getTotalRegistrosPublicacoes() > 0">
+                        <paginacao [paginaAtual]="mf.activePage" [totalPorPagina]="numeroRegistrosPaginacao"
+                            [totalRegistros]="getTotalRegistrosPublicacoes()">
+                        </paginacao>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<div class="card rounded-0">
+    <div class="card-header rounded-0">
+        <h5 class="card-title">
+            <a class="pointer" *ngIf="publicacoes.length === 0" (click)="voltarLista()">
+                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+            </a>
+            {{ 'LABEL_DOCUMENTO_QUANTIDADE_MEMBROS_COMISSAO_ELEITORAL' | i18n }} {{ 'LABEL_HIFEN' | i18n }}
+            {{ 'LABEL_ELEICAO' | i18n }}:
+            {{ documentoComissaoMembro.informacaoComissaoMembro.atividadeSecundaria.atividadePrincipal.calendario.eleicao.descricao }}
+        </h5>
+    </div>
+
+    <div class="card-body" fxLayout="column" fxLayoutGap="15px">
+
+        <div class="mt-2 display-ck" *ngIf="documentoComissaoMembro.situacaoCabecalhoAtivo"
+            [innerHtml]="getHtmlConfiavel(documentoComissaoMembro.descricaoCabecalho)"></div>
+
+        <div class="mt-2 display-ck" *ngIf="documentoComissaoMembro.situacaoTextoInicial"
+            [innerHtml]="getHtmlConfiavel(documentoComissaoMembro.descricaoTextoInicial)"></div>
+
+        <div class="mt-2">        
+            <div class="row">
+                <div class="col-md-3">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr class="text-center">
+                                <th class="bg-calendario">{{ 'LABEL_UF' | i18n }}</th>
+                                <th class="bg-calendario-lighten">{{ 'LABEL_QUANTIDADE' | i18n }}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-center">
+                            <tr *ngFor="let cauUf of getUfsTabela1(numeroMembrosComissao);">
+                                <td>{{ cauUf.prefixo }}</td>
+                                <td>
+                                    <span *ngIf="cauUf.quantidade == undefined || cauUf.quantidade == 0"
+                                        class="text-danger">
+                                        {{ 'LABEL_NAO_APLICADO' | i18n }}
+                                    </span>
+                                    <span *ngIf="cauUf.quantidade > 0">
+                                        {{ cauUf.quantidade }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-md-3">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr class="text-center">
+                                <th class="bg-calendario">{{ 'LABEL_UF' | i18n }}</th>
+                                <th class="bg-calendario-lighten">{{ 'LABEL_QUANTIDADE' | i18n }}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-center">
+                            <tr *ngFor="let cauUf of getUfsTabela2(numeroMembrosComissao)">
+                                <td>{{ cauUf.prefixo }}</td>
+                                <td>
+                                    <span *ngIf="cauUf.quantidade == undefined || cauUf.quantidade == 0"
+                                        class="text-danger">
+                                        {{ 'LABEL_NAO_APLICADO' | i18n }}
+                                    </span>
+                                    <span *ngIf="cauUf.quantidade > 0">
+                                        {{ cauUf.quantidade }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-md-3">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr class="text-center">
+                                <th class="bg-calendario">{{ 'LABEL_UF' | i18n }}</th>
+                                <th class="bg-calendario-lighten">{{ 'LABEL_QUANTIDADE' | i18n }}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-center">
+                            <tr *ngFor="let cauUf of getUfsTabela3(numeroMembrosComissao)">
+                                <td>{{ cauUf.prefixo }}</td>
+                                <td>
+                                    <span *ngIf="cauUf.quantidade == undefined || cauUf.quantidade == 0"
+                                        class="text-danger">
+                                        {{ 'LABEL_NAO_APLICADO' | i18n }}
+                                    </span>
+                                    <span *ngIf="cauUf.quantidade > 0">
+                                        {{ cauUf.quantidade }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-md-3">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr class="text-center">
+                                <th class="bg-calendario">{{ 'LABEL_UF' | i18n }}</th>
+                                <th class="bg-calendario-lighten">{{ 'LABEL_QUANTIDADE' | i18n }}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-center">
+                            <tr *ngFor="let cauUf of getUfsTabela4(numeroMembrosComissao)">
+                                <td>{{ cauUf.prefixo }}</td>
+                                <td>
+                                    <span *ngIf="cauUf.quantidade == undefined || cauUf.quantidade == 0"
+                                        class="text-danger">
+                                        {{ 'LABEL_NAO_APLICADO' | i18n }}
+                                    </span>
+                                    <span *ngIf="cauUf.quantidade > 0">
+                                        {{ cauUf.quantidade }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3 display-ck" *ngIf="documentoComissaoMembro.situacaoTextoFinal"
+            [innerHtml]="getHtmlConfiavel(documentoComissaoMembro.descricaoTextoFinal)"></div>
+
+        <div class="mt-2 display-ck" *ngIf="documentoComissaoMembro.situacaoTextoRodape"
+            [innerHtml]="getHtmlConfiavel(documentoComissaoMembro.descricaoTextoRodape)"></div>
+
+        <div class="m-3">
+            <div class="row">
+
+                <download title="{{ 'LABEL_GERAR_PDF' | i18n }}" class="center-no-arquivo pointer"
+                    [download]="nomeArquivoPdf" (process)="gerarPDF($event, documentoComissaoMembro)">
+                    <i class="align-middle fa fa-file-pdf-o"></i>
+                    {{ 'LABEL_GERAR_PDF' | i18n }}
+                </download>
+
+                <download title="{{ 'LABEL_GERAR_DOC' | i18n }}" class="center-no-arquivo pointer"
+                    [download]="nomeArquivoDoc" (process)="gerarDocumento($event, documentoComissaoMembro)">
+                    <i class="align-middle fa fa-file-word-o"></i>
+                    {{ 'LABEL_GERAR_DOC' | i18n }}
+                </download>
+
+                <button type="button" class="btn btn-link colorCircle" (click)="publicar()">
+                    <i class="align-middle fa fa-external-link"></i>
+                    {{ 'LABEL_PUBLICAR' | i18n }}
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>

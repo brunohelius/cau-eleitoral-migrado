@@ -1,0 +1,90 @@
+<style>
+    div, span, table {
+        font-family: Arial Black, Gadget, sans-serif;
+        font-size: 14px;
+    }
+    table{
+        border-collapse: collapse; /* Remove cell spacing */
+    }
+    table th, table td{
+        padding: 10px; /* Apply cell padding */
+    }
+    .text-center {
+        text-align: center;
+    }
+    .border-bottom {
+        border-bottom: 1px solid #666666;
+    }
+    .border-card {
+        padding: 5px 0px 5px;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid #797979;
+        border-radius: 10px;
+        table-layout: fixed;
+    }
+    .text-danger{
+        color: #ff4f4c;
+    }
+
+    .table {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .container{
+        padding: 5px;
+    }
+
+    .w-50{
+        width: 50%;
+    }
+    .font-titulo{
+        color: #414141;
+    }
+    .font-green {
+        color: #197F83;
+    }
+    .font-bold{
+        font-weight: bold;
+    }
+    .ies{
+        background-color: #D9D9D9;
+    }
+    h2 {
+        font-size: 14px;
+        font-family: Arial;
+    }
+</style>
+
+<h2 class="text-center font-titulo">Informações das Chapas Cadastradas Por Estados</h2>
+<div class="container">
+    {% for uf in ufs %}
+    <table class="text-center table border-card {{uf.uf == 'IES' ? 'ies' : ' '}}">
+        <thead >
+        <tr class="font-bold">
+            <th class="border-bottom ">Estado</th>
+            <th class="border-bottom">Quantidade de Chapas</th>
+            <th class="border-bottom">Quantidade de Chapas com Pendência</th>
+            <th class="border-bottom">Quantidade de Chapas Concluídas</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td class="font-green font-bold">{{uf.uf}}</td>
+            <td> {{uf.quantidadeTotalChapas}}</td>
+            <td>
+               {{uf.quantidadeChapasPendentes}}
+            </td>
+            <td>{{uf.quantidadeChapasConcluidas}}</td>
+        </tr>
+        </tbody>
+    </table>
+    {% endfor %}
+    <span class="font-green font-bold">
+        Total Chapas Cadastradas:
+    </span>
+    <span class="font-green font-bold">
+        {{totalChapas}}
+    </span>
+</div>

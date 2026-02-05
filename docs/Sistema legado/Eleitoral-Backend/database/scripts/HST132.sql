@@ -1,0 +1,6 @@
+insert into eleitoral.TB_TP_CORPO_EMAIL (id_tp_corpo_email, ds_corpo_email)values (122, 'Envia e-mail para o usuário que cadastrou a denúncia');
+insert into eleitoral.TB_TP_CORPO_EMAIL (id_tp_corpo_email, ds_corpo_email)values (123, 'Envia e-mail para o assessor CEN');
+insert into eleitoral.TB_TP_CORPO_EMAIL (id_tp_corpo_email, ds_corpo_email)values (124, 'Envia e-mail aos coordenadores da CEN');
+insert into eleitoral.TB_TP_CORPO_EMAIL (id_tp_corpo_email, ds_corpo_email)values (125, 'Envia e-mail para o coordenador CE atual da denúncia, informando sobre o não cadastramento de defesa e consequente arquivamento da solicitação');
+insert into eleitoral.TB_TP_CORPO_EMAIL (id_tp_corpo_email, ds_corpo_email)values (126, 'Envia e-mail para o assessor CE da respectiva UF do denunciado ou da chapa. Envia e-mail para o assessor CEN de qualquer tipo ou UF de denúncia, informando sobre o não cadastramento de defesa e consequente arquivamento da solicitação');
+insert into eleitoral.TB_TP_CORPO_EMAIL (id_tp_corpo_email, ds_corpo_email)values (127, 'Envia e-mail para o denunciante, informando sobre o não cadastramento de defesa e consequente arquivamento da solicitação');

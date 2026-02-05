@@ -1,0 +1,149 @@
+<div class="row conteudo">
+    <form #form="ngForm" class="w-100" id="aba-defesa-impugnacao-form-id">
+        <div class="tab-pane fade pl-3 pr-3 pb-5 mt-3" id="tab-pane-julgamento" [ngClass]="{ 'active show': true}">
+            <div class="row">
+                <div class="col-md-2">
+                </div>
+                <div class="col-md-8 mt-2">
+                    <div class="subtitle-line">
+                        <span class="bg-white colorGreen">{{'TITLE_PEDIDO_DE_SUBSTITUICAO_IMPUGNACAO' | i18n}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="tab-pane fade card rounded-0 pl-4 pr-4 pb-2" [ngClass]="{ 'active show':true}">
+                <div class="card border pl-3 pr-3 pb-3 pt-3" style="border-radius: 8px mb-5"> 
+                    <card-panel
+                    [titulo]="'TITLE_SUBSTITUICAO'"
+                    class="mb-5"
+                    >
+      
+                        <div class="body-card">
+
+                            <div fxLayout="row" fxFlex="100%" fxFlex.gt-sm="30%"> 
+                                <div fxLayout="column" fxFlex >
+                                    <div fxLayout="row" fxLayoutAlign="space-around center" >
+                                        <h5 class="colorGreen"><b>{{'TITLE_INFORMACOES_DO_SUBSTITUIDO' | i18n}}</b></h5>
+                                    </div>
+                                    <div fxLayout="row" fxLayoutGap="10px" class="pt-1 pb-1 list-title-box">
+                                        <div fxFlex="65%" fxLayoutAlign="center center" class=" pl-2 text-center">
+                                            <span><b class="colorGreen">{{'LABEL_NOME' | i18n}}</b></span>
+                                        </div>
+                                        <div fxFlex="35%" fxLayoutAlign="center center" class="pl-2 text-center">
+                                            <span><b class="colorGreen">{{'LABEL_REGISTRO' | i18n}}</b></span>
+                                        </div>
+                                    </div>
+    
+                                    <div class="card text-center mt-2 mb-5" style="font-size: 0.8rem;">
+                                        <div fxFlexFill class="custom-grid-white">
+                                            <div class="list-item list-item-card mt-1">
+                                                <div fxLayout="row" fxLayoutGap="10px" class="list-item-box pt-1 pb-1">
+                                                    <div fxFlex="65%" fxLayoutAlign="center center" class="border-right pl-2 text-center">
+                                                        <span>{{impugnacao.informacoesCandidato.nome}}</span>
+                                                    </div>
+                                                    <div fxFlex="35%" fxLayoutAlign="center center" class="pl-2 text-center">
+                                                        <span>{{getRegistroComMask(impugnacao.informacoesCandidato.registro)}}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div fxLayout="row" fxFlex="100%" fxFlex.gt-sm="10%" class="space-ajust">
+                                <div fxLayout="column" fxFlex fxLayoutAlign="space-around center" class="simbol-separator">
+                                    <i style="font-size: 32px;" class="fa fa-exchange" aria-hidden="true"></i>
+                                </div>
+                            </div>
+
+
+                            <div fxLayout="row" fxFlex="100%" fxFlex.gt-sm="60%">
+                                <div fxLayout="column" fxFlex >
+                                    <div fxLayout="row" fxLayoutAlign="space-around center" >
+                                        <h5 class="colorGreen"><b>{{'TITLE_INFORMACOES_DO_SUBSTITUTO' | i18n}}</b></h5>
+                                    </div>
+                                    <div fxLayout="row" fxLayoutGap="10px" class="pt-1 pb-1 list-title-box">
+                                        <div fxFlex="45%" fxLayoutAlign="center center" class=" pl-2 text-center">
+                                            <span><b class="colorGreen">{{'LABEL_NOME' | i18n}}</b></span>
+                                        </div>
+                                        <div fxFlex="20%" fxLayoutAlign="center center" class="pl-2 text-center">
+                                            <span><b class="colorGreen">{{'LABEL_REGISTRO_IMPUGNACAO' | i18n}}</b></span>
+                                        </div>
+                                        <div fxFlex="15%" fxLayoutAlign="center center" class=" pl-2 text-center">
+                                            <span><b class="colorGreen" [innerHTML]="getLabelStatusValidacao()"></b></span>
+                                        </div>
+                                        <div fxFlex="25%" fxLayoutAlign="center center" class="pl-2 text-center">
+                                            <span><b class="colorGreen" [innerHTML]="getLabelStatusConfirmacao()"></b></span>
+                                        </div>
+                                    </div>
+    
+                                    <div class="card text-center mt-2 mb-5" style="font-size: 0.8rem;">
+                                        <div fxFlexFill class="custom-grid-white" style="min-height: 200px !important;">
+                                            <div class="list-item list-item-card mt-1">
+                                                <div fxLayout="row" fxLayoutGap="10px" class="list-item-box pt-1 pb-1">
+                                                    <div fxFlex="45%" fxLayoutAlign="center center" class="border-right pl-2 text-center">
+                                                        <span>{{dados.membroChapaSubstituto.profissional.nome}}</span>
+                                                    </div>
+                                                    <div fxFlex="20%" fxLayoutAlign="center center" class="border-right pl-2 text-center">
+                                                        <span>{{getRegistroComMask(dados.membroChapaSubstituto.profissional.registroNacional)}}</span>
+                                                    </div>
+                                                    <div fxFlex="15%" fxLayoutAlign="center center" class="border-right pl-2 text-center">
+                                                        <i *ngIf="statusValidacao(dados.membroChapaSubstituto)" aria-hidden="true"
+                                                        class="fa fa-check-circle text-success icone-size"></i>
+                    
+                                                        <i *ngIf="!statusValidacao(dados.membroChapaSubstituto)" aria-hidden="true"
+                                                        title="{{ 'MSG_SELECIONE_ICONE_PARA_DETALHAR_PENDENCIAS_PROFISSIONAL' | i18n }}"
+                                                        (click)="abrirModalPendeciasMembro(templatePendeciasMembro, dados.membroChapaSubstituto)"
+                                                        class="fa fa-exclamation-circle text-alert icone-size color-alert"></i>
+                                                    </div>
+                                                    <div fxFlex="25%" fxLayoutAlign="center center" class="pl-2 text-center">
+                                                        <div class="ribbon" [ngClass]="getStatus(dados.membroChapaSubstituto?.statusParticipacaoChapa.id)"
+                                                        >
+                                                            {{dados.membroChapaSubstituto?.statusParticipacaoChapa.descricao}}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </card-panel>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+
+<ng-template #templatePendeciasMembro>
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            <h6 class="modal-title pull-center">{{'TITLE_PENDECIAS_MEMBRO' |i18n}}</h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalPendeciasMembro.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        <div class="row">
+            <div class="col-md-12">
+                <p class="text-center pb-2" *ngFor="let pendencia of dados.membroChapaSubstituto.pendencias">
+                    {{ pendencia.tipoPendencia.descricao }}
+                </p>
+            </div>
+            <div class="col-md-12 text-center">
+                <button class="btn btn-primary" (click)="modalPendeciasMembro.hide()">{{'LABEL_FECHAR' |i18n}}</button>
+            </div>
+        </div>
+    </div>
+</ng-template>

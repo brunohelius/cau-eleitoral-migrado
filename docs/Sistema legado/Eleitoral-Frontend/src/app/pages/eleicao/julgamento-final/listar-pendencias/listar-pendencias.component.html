@@ -1,0 +1,19 @@
+<div class="row">
+  <div class="col-md-12">
+      <ul class="nav nav-tabs">
+          <li class="nav-item pointer">
+              <a  href="/" class="nav-link no-wrap-title-aba" [ngClass]="{ 'active': true}">{{'LABEL_VISAO_GERAL' | i18n}}
+              </a>
+          </li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane fade card rounded-0" [ngClass]="{ 'active show':true}">
+            <div class="col-md-12">
+                <i class="fa fa-desktop fa-2x m-2 pointer font-color-bg-primary" aria-hidden="true"></i>
+            </div>
+            <div class="box-separador bg-primary"></div>
+            <card-pendencias [dados]="dadosPendencias"></card-pendencias>
+        </div>
+      </div>
+  </div>
+</div>

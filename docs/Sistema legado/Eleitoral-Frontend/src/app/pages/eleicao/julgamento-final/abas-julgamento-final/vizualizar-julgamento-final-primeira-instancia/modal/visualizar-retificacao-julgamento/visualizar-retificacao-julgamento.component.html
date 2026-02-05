@@ -1,0 +1,104 @@
+<div class="modal-header border-header-green">
+  <div class="col-md-12 text-center">
+    <h6 class="modal-title pull-center grey-font-bolder" style="color: grey;">
+      {{'TITLE_JULGAMENTO_FINAL_CHAPA_PRIMEIRA_INSTANCIA_N' | i18n:[(sequencia+1) | number: '2.' ] }}
+    </h6>
+  </div>
+</div>
+<div class="modal-body" style="height: 100%">
+  <div class="tab-content">
+    <div class="tab-pane active show fade rounded-0">
+      <div class="tab-pane fade pl-3 pr-3 pb-1 mt-3" id="tab-pane-julgamento" [ngClass]="{ 'active show': true}">
+        <div class="row">
+          <div class="col-md-2">
+          </div>
+          <div class="col-md-8 mt-4">
+            <div class="subtitle-line">
+              <span class="bg-white">{{'TITLE_JULGAMENTO_FINAL_CHAPA_PRIMEIRA_INSTANCIA' | i18n }}</span>
+            </div>
+          </div>
+          <div class="col-md-2 mt-3 spinnerStatus">
+            <div *ngIf="isJulgamentoIndeferido()">
+              <div class="icons-title">
+                <i class="fa fa-spinner text-danger"></i>
+                <i class="fas fa-times text-danger"></i>
+              </div>
+
+              <div class="texto-titulo text-danger">{{ 'LABEL_INDEFERIDO' | i18n }}</div>
+            </div>
+            <div *ngIf="!isJulgamentoIndeferido()">
+              <div class="icons-title">
+                <i class="fa fa-spinner"></i>
+                <i class="fas fa-check"></i>
+              </div>
+              <div class="texto-titulo">{{ 'LABEL_DEFERIDO' | i18n }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Label da Chapa -->
+      <div class="row" style="margin-top: 2px; margin-left: 0px; margin-bottom: ‒14;">
+        <div class="col-2">
+          <span class="texto-titulo font-color-bg-primary">{{ 'LABEL_UF' | i18n }}: {{chapa.uf}}</span><br>
+          <span class="texto-titulo font-color-bg-primary">{{ 'LABEL_N_CHAPA' | i18n }}:
+            {{chapa.numeroChapa || "N/A"}}</span>
+          <span class="texto-titulo font-color-bg-primary"> {{ 'LABEL_JULGAMENTO' | i18n}}: {{ (sequencia+1) | number: '2.' }} </span>
+        </div>
+      </div>
+
+      <div>
+        <!-- Membros Indicados para Substituição -->
+        <div class="tab-pane fade rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}"
+          *ngIf="isJulgamentoIndeferido()">
+          <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px mb-5;margin-top: 10px;">
+            <card-panel [titulo]="'LABEL_MEMBRO_JULGAMENTO_FINAL'">
+              <card-julgamento-final [temExcluir]="false" [membrosSelecionados]="julgamentoFinal.indicacoes"
+                *ngIf="possuiIndicacao()">
+              </card-julgamento-final>
+              <div class="row" fxLayoutAlign="center center" *ngIf="!possuiIndicacao()">
+                <span class="texto-titulo pb-3 pt-3">{{ 'LABEL_SUBSTITUICAO_MEMBRO' | i18n}}</span>
+              </div>
+            </card-panel>
+          </div>
+        </div>
+
+        <!-- Separador horizontal verde -->
+        <div class="box-separador bg-primary font-white mt-5 mb-5" *ngIf="isJulgamentoIndeferido()"></div>
+
+        <!-- Parecer -->
+        <div class="tab-pane fade rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}">
+          <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px mb-5">
+            <card-panel [titulo]="'LABEL_DESCRICAO'">
+              <editor-de-texto name="paracerJulgamento" id="paracerJulgamento" [isHabilitado]="false"
+                [configuracao]="configuracaoCkeditor" [valor]="julgamentoFinal.descricao">
+              </editor-de-texto>
+            </card-panel>
+
+            <!-- Documento -->
+            <card-panel [titulo]="'LABEL_DOCUMENTO'" class="mt-3">
+              <div class="col-md-4 p-0">
+                <arquivo [hasDownload]="true" [arquivos]="julgamentoFinal.arquivos"
+                  (download)="downloadArquivo($event)">
+                </arquivo>
+              </div>
+            </card-panel>
+
+            <!-- justificativa Parecer-->
+            <card-panel [titulo]="'LABEL_JUSTIFICATIVA_RETIFICACAO'" *ngIf="isMostrarJustificativaRetificativa()">
+              <editor-de-texto name="justificativaRetificacao" id="justificativaRetificacao" [isHabilitado]="false"
+                [configuracao]="configuracaoCkeditor" [valor]="julgamentoFinal.retificacaoJustificativa">
+              </editor-de-texto>
+            </card-panel>
+          </div>
+        </div>
+
+        <div class="p-3">
+          <button (click)="fecharModal.emit()" class="btn btn-primary px-3 mr-3">
+            {{ 'LABEL_FECHAR' | i18n }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,398 @@
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-tabs">
+            <li class="nav-item pointer">
+                <a class="nav-link" [ngClass]="{ 'active': false}" [routerLink]="['/']">{{'LABEL_VISAO_GERAL' | i18n}}
+                </a>
+            </li>
+            <li class="nav-item pointer">
+                <a class="nav-link" [ngClass]="{ 'active':abas.abaPedidoSubstituicao }" (click)="mudarAba(1)">
+                    {{'LABEL_PEDIDO_SUBSTITUICAO' | i18n}}
+                </a>
+            </li>
+            <li class="nav-item pointer" *ngIf="isMostrarAbaJulgamento()">
+                <a class="nav-link" [ngClass]="{ 'active':abas.abaJulgamentoPrimeiraInstancia }" (click)="mudarAba(2)">
+                    {{'LABEL_JULGAMENTO_PRIMEIRA_INSTANCIA' | i18n}}
+                </a>
+            </li>
+            <li class="nav-item pointer" *ngIf="isMostrarAbaRecurso()">
+                <a  *ngIf="pedido.chapaEleicao.tipoCandidatura.descricao != 'IES'"
+                    class="nav-link"
+                    [ngClass]="{ 'active':abas.abaRecurso }"
+                    (click)="mudarAba(3)">
+                        {{'LABEL_RECURSO' | i18n}}
+                </a>
+                <a  *ngIf="pedido.chapaEleicao.tipoCandidatura.descricao == 'IES'"
+                    class="nav-link"
+                    [ngClass]="{ 'active':abas.abaRecurso }"
+                    (click)="mudarAba(3)">
+                        {{'LABEL_RECONSIDERACAO' | i18n}}
+                </a>
+            </li>
+            <li class="nav-item pointer" *ngIf="isMostrarAbaJulgamentoSegundaInstancia()">
+                <a class="nav-link" [ngClass]="{ 'active':abas.abaJulgamentoSegundaInstancia }" (click)="mudarAba(4)">
+                    {{'LABEL_JULGAMENTO_SEGUNDA_INSTANCIA' | i18n}}
+                </a>
+            </li>
+        </ul>
+
+        <!-- Abas de julgamentos -->
+        <div class="tab-content" *ngIf="abas.abaJulgamentoPrimeiraInstancia">
+            <acompanhar-julgamento
+                [dados]="pedido"
+                [atividadeSecundaria]="atividadeSecundaria"
+                [recurso]="dadosServicoRecurso"
+                [dadosJulgamento]="dadosServicoJulgamento"
+                (voltarEvent)="mudarAbaJulgamento($event)"
+                (salvarRecursoEvent)="salvarRecurso($event)"
+            >
+            </acompanhar-julgamento>
+        </div>
+
+        <!-- Abas de recurso -->
+        <div class="tab-content" *ngIf="abas.abaRecurso">
+            <acompanhar-recurso
+                [dados]="pedido"
+                [dadosRecurso]="dadosServicoRecurso"
+                [idAbaVoltar]="2"
+                (voltarAbaEvent)="mudarAbaEventFilho($event)"
+                [tipoCandidatura]="pedido.chapaEleicao.tipoCandidatura.descricao"
+            >
+            </acompanhar-recurso>
+        </div>
+
+        <!-- Aba de julgamento 2ª instancia -->
+        <div class="tab-content" *ngIf="abas.abaJulgamentoSegundaInstancia">
+            <acompanhar-julgamento-segunda-instancia
+                [pedidoSubstituicao]="pedido"
+                [julgamento]="julgamentoSegundaInstancia"
+                [configuracaoCkeditor]="configuracaoCkeditor"
+                [julgamentoSubstituicao]="dadosServicoJulgamentoSegundaInstancia"
+                (voltarAba)="mudarAbaJulgamento($event)"
+            >
+            </acompanhar-julgamento-segunda-instancia>
+        </div>
+
+        <!-- Aba Principal da solicitação de substituição -->
+        <div class="tab-content" *ngIf="abas.abaPedidoSubstituicao">
+
+            <div class="tab-pane fade card rounded-0" [ngClass]="{ 'active show':true}">
+                <div class="col-md-12">
+                    <a [routerLink]="['/']"> <i class="fa fa-desktop fa-2x m-2 pointer colorGray" aria-hidden="true"></i> </a>
+                </div>
+
+                <div class="box-separador bg-primary"></div>
+
+                <div class="tab-pane fade pl-3 pr-3 pb-5" id="tab-pane-principal" [ngClass]="{ 'active show': true}">
+                    <button type="button" class="btn btn-link p-0" (click)="voltar()">
+                        <h5 class="m-0"><i class="fa fa-reply text-primary" title="{{'LABEL_VOLTAR' | i18n}}"></i></h5>
+                    </button>
+                    <div class="rounded-0">
+                        <div class="subtitle-line">
+                            <span class="bg-white"> {{'TITLE_ACOMPANHAR_PEDIDO_SUBSTITUICAO_CANDIDATURA' | i18n}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                    <div class="tab-pane fade card rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}">
+                        <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px mb-5">
+                            <div class="card-body bg-green pl-3 pr-3" style="border-radius: 8px;">
+                                <div fxLayout="row" fxFlexFill>
+                                    <div fxFlex>
+                                        <div fxLayout="row">
+                                            <div fxFlex="8%" class="ml-2 text-center pb-1"
+                                            *ngIf="membroSubstituidoTitular.numeroOrdem != 0">
+                                                <strong
+                                                    class="label-subtitle">{{ 'LABEL_POSICAO' | i18n }}</strong>
+                                            </div>
+                                            <div fxFlex="15%" class="text-center"><strong
+                                                    class="label-subtitle">{{ 'LABEL_TIPO_PARTICIPACAO' | i18n }}</strong>
+                                            </div>
+                                            <div fxFlex class="text-center"><strong
+                                                    class="label-subtitle">{{ 'LABEL_NOME' | i18n }}</strong>
+                                            </div>
+                                            <div fxFlex class="text-center">
+                                                <strong class="label-subtitle">{{ 'LABEL_REGISTRO' | i18n }}</strong>
+                                            </div>
+                                            <div fxFlex="20%" class="text-center"><strong
+                                                    class="label-subtitle">{{ 'LABEL_STATUS_CONFIRMACAO' | i18n }}</strong>
+                                            </div>
+                                            <div fxFlex="13%" class="text-center"><strong
+                                                    class="label-subtitle">{{ 'LABEL_STATUS_VALIDACAO' | i18n }}</strong>
+                                            </div>
+                                            <div fxFlex="10%" class="text-center"><strong
+                                                class="label-subtitle">{{ 'LABEL_RESPONSAVEL' | i18n }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--Membros originais-->
+                                <div>
+                                    <div class="list-item list-item-card mt-1" style="height: 110px;">
+                                        <div fxLayout="row" class="list-item-box custom-grid pt-5">
+                                            <div fxFlex="8%" class="pl-3 text-center pb-1 border-right"
+                                                *ngIf="membroSubstituidoTitular.numeroOrdem != 0">
+                                                <div fxLayout="column" fxLayoutAlign="space-around center"
+                                                    >
+                                                    <div class="mb-3">{{membroSubstituidoTitular?.numeroOrdem}}</div>
+
+                                                    <div></div>
+                                                </div>
+                                            </div>
+                                            <div fxFlex="15%" class="border-right pl-3 text-center">
+                                                <div fxLayout="column" fxLayoutAlign="space-around center"
+                                                    >
+                                                    <div class="mb-3">
+                                                        {{membroSubstituidoTitular?.tipoParticipacaoChapa?.descricao}}
+                                                    </div>
+                                                    <div>
+                                                        {{membroSubstituidoSuplente?.tipoParticipacaoChapa?.descricao}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div fxFlex class="border-right pl-3 text-center">
+                                                <div fxLayout="column" fxLayoutAlign="space-around center">
+                                                    <div class="mb-3">{{membroSubstituidoTitular?.profissional?.nome}}</div>
+                                                    <div>{{membroSubstituidoSuplente?.profissional?.nome}}</div>
+                                                </div>
+                                            </div>
+                                            <div fxFlex class="border-right pl-3 text-center">
+                                                <div fxLayout="column" fxLayoutAlign="space-around center">
+                                                    <div class="mb-3">{{getRegistroComMask(membroSubstituidoTitular?.profissional.registroNacional)}}</div>
+                                                    <div>{{getRegistroComMask(membroSubstituidoSuplente?.profissional.registroNacional)}}</div>
+                                                </div>
+                                            </div>
+                                            <div fxFlex="20%" class="border-right pl-3 text-center">
+                                                <div fxLayout="column" fxLayoutAlign="space-around center">
+                                                    <div *ngIf="membroSubstituidoTitular" class="ribbon mb-3 "
+                                                    [ngClass]="{
+                                                        'ribbon-primary': getStatusConfirmado(membroSubstituidoTitular?.statusParticipacaoChapa?.id),
+                                                        'ribbon-warning': !getStatusConfirmado(membroSubstituidoTitular?.statusParticipacaoChapa?.id)
+                                                    }">
+                                                        {{membroSubstituidoTitular?.statusParticipacaoChapa?.descricao}}
+                                                    </div>
+                                                    <div *ngIf="membroSubstituidoSuplente" class="ribbon"
+                                                        [ngClass]="{
+                                                            'ribbon-primary': getStatusConfirmado(membroSubstituidoSuplente?.statusParticipacaoChapa?.id),
+                                                            'ribbon-warning': !getStatusConfirmado(membroSubstituidoSuplente?.statusParticipacaoChapa?.id)
+                                                        }">
+                                                        {{membroSubstituidoSuplente?.statusParticipacaoChapa?.descricao}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div fxFlex="13%" class="border-right pl-3 text-center">
+                                                <div fxLayout="column" fxLayoutAlign="space-around center">
+                                                    <i *ngIf="statusValidacao(membroSubstituidoTitular) && membroSubstituidoTitular" aria-hidden="true"
+                                                    class="fa fa-check-circle text-success icone-size mb-3"></i>
+
+                                                    <i *ngIf="!statusValidacao(membroSubstituidoTitular) && membroSubstituidoTitular" aria-hidden="true"
+                                                    title="{{ 'MSG_SELECIONE_ICONE_PARA_DETALHAR_PENDENCIAS_PROFISSIONAL' | i18n }}"
+                                                    (click)="abrirModalPendeciasMembro(templatePendeciasMembro, membroSubstituidoTitular)"
+                                                    class="fa fa-exclamation-circle text-alert icone-size color-alert mb-3"></i>
+
+                                                    <i *ngIf="statusValidacao(membroSubstituidoSuplente) && membroSubstituidoSuplente" aria-hidden="true"
+                                                    class="fa fa-check-circle text-success icone-size"></i>
+
+                                                    <i *ngIf="!statusValidacao(membroSubstituidoSuplente) && membroSubstituidoSuplente" aria-hidden="true"
+                                                    title="{{ 'MSG_SELECIONE_ICONE_PARA_DETALHAR_PENDENCIAS_PROFISSIONAL' | i18n }}"
+                                                    (click)="abrirModalPendeciasMembro(templatePendeciasMembro, membroSubstituidoSuplente)"
+                                                    class="fa fa-exclamation-circle text-alert icone-size color-alert"></i>
+                                                </div>
+                                            </div>
+                                            <div fxFlex="10%" class="pl-3 text-center">
+                                                <div fxLayout="column" fxLayoutAlign="space-around center">
+                                                    <input *ngIf="isResponsavel(membroSubstituidoTitular) ; else notResponsavelSubstituidoTitular"
+                                                        class="mb-3"
+                                                        type="checkbox"
+                                                        [checked]="isResponsavel(membroSubstituidoTitular)"
+                                                        disabled>
+                                                        <ng-template #notResponsavelSubstituidoTitular>
+                                                            <div class="mb-1">&nbsp;</div>
+                                                        </ng-template>
+                                                    <input *ngIf="isResponsavel(membroSubstituidoSuplente); else notResponsavelSubstituidoSuplente"
+                                                        class="mt-2"
+                                                        type="checkbox"
+                                                        [checked]="isResponsavel(membroSubstituidoSuplente)"
+                                                        disabled>
+                                                        <ng-template #notResponsavelSubstituidoSuplente>
+                                                            <div class="mt-2">&nbsp;</div>
+                                                        </ng-template>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div fxLayout="row" fxLayoutAlign="center center" class="mt-4 mb-4">
+                                    <b>{{'LABEL_SUBSTITUIR_POR' |i18n}}</b>
+                                </div>
+
+                                <!--Membros substitutos-->
+                                <div>
+                                    <div class="list-item list-item-card mt-1" style="height: 110px;">
+                                        <div fxLayout="row" class="list-item-box custom-grid pt-5">
+                                            <div fxFlex="8%" class="pl-3 text-center pb-1 border-right"
+                                                *ngIf="membroSubstitutoTitular.numeroOrdem != 0">
+                                                <div fxLayout="column" fxLayoutAlign="space-around center"
+                                                    >
+                                                    <div class="mb-3">{{membroSubstitutoTitular?.numeroOrdem}}</div>
+
+                                                    <div></div>
+                                                </div>
+                                            </div>
+                                            <div fxFlex="15%" class="border-right pl-3 text-center">
+                                                <div fxLayout="column" fxLayoutAlign="space-around center"
+                                                    >
+                                                    <div class="mb-3">
+                                                        {{membroSubstitutoTitular?.tipoParticipacaoChapa?.descricao}}
+                                                    </div>
+                                                    <div>
+                                                        {{membroSubstitutoSuplente?.tipoParticipacaoChapa?.descricao}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div fxFlex class="border-right pl-3 text-center">
+                                                <div fxLayout="column" fxLayoutAlign="space-around center">
+                                                    <div class="mb-3">{{membroSubstitutoTitular?.profissional?.nome}}</div>
+                                                    <div>{{membroSubstitutoSuplente?.profissional?.nome}}</div>
+                                                </div>
+                                            </div>
+                                            <div fxFlex class="border-right pl-3 text-center">
+                                                <div fxLayout="column" fxLayoutAlign="space-around center">
+                                                    <div class="mb-3">{{getRegistroComMask(membroSubstitutoTitular?.profissional.registroNacional)}}</div>
+                                                    <div>{{getRegistroComMask(membroSubstitutoSuplente?.profissional.registroNacional)}}</div>
+                                                </div>
+                                            </div>
+                                            <div fxFlex="20%" class="border-right pl-3 text-center">
+                                                <div fxLayout="column" fxLayoutAlign="space-around center">
+                                                    <div *ngIf="membroSubstitutoTitular" class="ribbon mb-3 "
+                                                    [ngClass]="{
+                                                        'ribbon-primary': getStatusConfirmado(membroSubstitutoTitular?.statusParticipacaoChapa?.id),
+                                                        'ribbon-warning': !getStatusConfirmado(membroSubstitutoTitular?.statusParticipacaoChapa?.id)
+                                                    }">
+                                                        {{membroSubstitutoTitular?.statusParticipacaoChapa?.descricao}}
+                                                    </div>
+                                                    <div *ngIf="membroSubstitutoSuplente" class="ribbon"
+                                                        [ngClass]="{
+                                                            'ribbon-primary': getStatusConfirmado(membroSubstitutoSuplente?.statusParticipacaoChapa?.id),
+                                                            'ribbon-warning': !getStatusConfirmado(membroSubstitutoSuplente?.statusParticipacaoChapa?.id)
+                                                        }">
+                                                        {{membroSubstitutoSuplente?.statusParticipacaoChapa?.descricao}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div fxFlex="13%" class="border-right pl-3 text-center">
+                                                <div fxLayout="column" fxLayoutAlign="space-around center">
+                                                    <i *ngIf="statusValidacao(membroSubstitutoTitular) && membroSubstitutoTitular" aria-hidden="true"
+                                                    class="fa fa-check-circle text-success icone-size mb-3"></i>
+
+                                                    <i *ngIf="!statusValidacao(membroSubstitutoTitular) && membroSubstitutoTitular" aria-hidden="true"
+                                                    title="{{ 'MSG_SELECIONE_ICONE_PARA_DETALHAR_PENDENCIAS_PROFISSIONAL' | i18n }}"
+                                                    (click)="abrirModalPendeciasMembro(templatePendeciasMembro, membroSubstitutoTitular)"
+                                                    class="fa fa-exclamation-circle icone-size color-alert mb-3"></i>
+
+                                                    <i *ngIf="statusValidacao(membroSubstitutoSuplente) && membroSubstitutoSuplente" aria-hidden="true"
+                                                    class="fa fa-check-circle text-success icone-size"></i>
+
+                                                    <i *ngIf="!statusValidacao(membroSubstitutoSuplente) && membroSubstitutoSuplente" aria-hidden="true"
+                                                    title="{{ 'MSG_SELECIONE_ICONE_PARA_DETALHAR_PENDENCIAS_PROFISSIONAL' | i18n }}"
+                                                    (click)="abrirModalPendeciasMembro(templatePendeciasMembro, membroSubstitutoSuplente)"
+                                                    class="fa fa-exclamation-circle icone-size color-alert"></i>
+                                                </div>
+                                            </div>
+                                            <div fxFlex="10%" class="pl-3 text-center">
+                                                <div fxLayout="column" fxLayoutAlign="space-around center">
+                                                    <input *ngIf="isResponsavel(membroSubstitutoTitular); else notMembroSubstitutoTitularTitular"
+                                                        class="mb-3"
+                                                        type="checkbox"
+                                                        [checked]="isResponsavel(membroSubstitutoTitular)"
+                                                        disabled>
+                                                        <ng-template #notMembroSubstitutoTitularTitular >
+                                                            <div class="mb-2">&nbsp;</div>
+                                                        </ng-template>
+                                                    <input *ngIf="isResponsavel(membroSubstituidoSuplente) ; else notMembroSubstituidoSuplente"
+                                                        class="mt-2"
+                                                        type="checkbox"
+                                                        [checked]="isResponsavel(membroSubstitutoSuplente)"
+                                                        disabled>
+                                                        <ng-template #notMembroSubstituidoSuplente >
+                                                            <div class="mb-2">&nbsp;</div>
+                                                        </ng-template>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Separador horizontal verde -->
+                    <div class="box-separador bg-primary font-white">
+                        <div fxLayout="row" fxLayoutAlign="center center" >
+                            {{'TITLE_JUSTIFICATIVA_PEDIDO_SUBSTITUICAO_DOCUMENTO' |i18n}}
+                        </div>
+                    </div>
+
+                    <!-- Justificativa -->
+                    <div class="tab-pane fade card rounded-0 pl-2 pr-2 pb-2 mt-2" [ngClass]="{ 'active show':true}">
+                        <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px mb-5">
+                            <b class="pr-3">{{'LABEL_JUSTIFICATIVA_PEDIDO_SUBSTITUICAO' |i18n}} </b>
+                            <div class="card-body bg-green pl-3 pr-3 mb-3 mt-3" style="border-radius: 8px;">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <ckeditor name="descricaoCurriculo" id="IdDescricaoCurriculo"
+                                            [(ngModel)]="pedido.justificativa"
+                                            [readOnly]="true" [config]="configuracaoCkeditor">
+                                        </ckeditor>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Documento -->
+                            <b>{{'LABEL_DOCUMENTO' |i18n}}</b>
+                            <div class="mt-3">
+                                <div class="card-body bg-green pl-3 pr-3" style="border-radius: 8px;">
+                                    <div class="col-md-4 pt-0">
+                                        {{ 'LABEL_ARQUIVO' | i18n }}
+                                        <hr>
+                                        <download *ngIf="pedido.nomeArquivo" title="{{ pedido.nomeArquivo }}" class="center-no-arquivo pointer p-0"
+                                            [download]="pedido.nomeArquivo" (process)="download($event, pedido)" style="background: none;">
+                                            {{ pedido.nomeArquivo }}
+                                            <i class="fa fa-download" aria-hidden="true"></i>
+                                        </download>
+                                        <span *ngIf="!pedido.nomeArquivo">{{ 'LABEL_NAO_APLICADO' | i18n }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+<ng-template #templatePendeciasMembro>
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            <h6 class="modal-title pull-center">{{'TITLE_PENDECIAS_MEMBRO' |i18n}}</h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalPendeciasMembro.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        <div class="row">
+            <div class="col-md-12">
+                <p class="h-100 text-center" *ngFor="let pendencia of membroChapaSelecionado.pendencias; let indice = index;">
+                    {{ pendencia.tipoPendencia.descricao }}
+                </p>
+            </div>
+            <div class="col-md-12 text-center">
+                <button class="btn btn-primary" (click)="modalPendeciasMembro.hide()">{{'LABEL_FECHAR' |i18n}}</button>
+            </div>
+        </div>
+    </div>
+</ng-template>

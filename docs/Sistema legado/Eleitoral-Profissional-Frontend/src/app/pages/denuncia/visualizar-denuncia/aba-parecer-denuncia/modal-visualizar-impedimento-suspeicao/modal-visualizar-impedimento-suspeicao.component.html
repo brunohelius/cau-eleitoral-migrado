@@ -1,0 +1,110 @@
+<div class="modal-header border-header-green">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 text-center">
+        <h6 class="modal-title pull-center">{{'LABEL_IMPEDIMENTO_SUSPEICAO'|i18n}}</h6>
+    </div>
+    <div class="col-md-2 align-items-right">
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
+<div class="modal-body">
+    <div *ngIf="isStatusEncaminhamentoConcluido() || isStatusEncaminhamentoPendente()">
+    <h6>
+        <strong>{{'LABEL_DATA_HORA_CADASTRO' | i18n}}: </strong>
+        <span> {{encaminhamentoDenuncia.data | date:'dd/MM/yyyy' : '+0' }} às
+            {{ encaminhamentoDenuncia.data | date:'HH:mm ' : '+0' }}</span> 
+    </h6>
+    <h6>
+        <strong>{{'LABEL_USUARIO' | i18n}}: </strong>
+        <span>{{ encaminhamentoDenuncia.membroComissao.profissionalEntity.nome}}</span> 
+    </h6>
+
+    <div class="alert bg-green border shadow">
+        <div class="p-2">
+            <strong>{{'LABEL_DESCRICAO_ENCAMINHAMENTO'|i18n}}</strong>
+            <div class="mt-2 word-wrap" [innerHTML]="encaminhamentoDenuncia.descricao"></div>
+        </div>
+    </div>
+
+    <div class="card-body bg-green font-12 border" style="border-radius: 8px;"
+        *ngIf="encaminhamentoDenuncia.arquivoEncaminhamento.length > 0">
+        <h6 class="mb-3">{{ 'LABEL_DOCUMENTO'|i18n}}</h6>
+        <span class="font-weight-bold arquivo">{{ 'TITLE_ARQUIVO'|i18n}}</span>
+        <div>
+            <table class="border-top">
+                <tbody>
+                    <tr
+                        *ngFor="let arquivoEncaminhamento of encaminhamentoDenuncia.arquivoEncaminhamento">
+                        <td>{{arquivoEncaminhamento.nome}}</td>
+                        <td>
+                            <download title="{{arquivoEncaminhamento.nome}}" class="text-primary pointer p-0"
+                                [download]="arquivoEncaminhamento.nome"
+                                (process)="downloadArquivoEncaminhamentoDenuncia($event, arquivoEncaminhamento.id)">
+                                <i class="align-middle fa fa-download"></i>
+                            </download>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+    <hr class="border-header-green" />
+
+    <div *ngIf="isStatusEncaminhamentoConcluido()">
+    <div class="col-md-12 text-center">
+        <h6 class="modal-title pull-center">{{'LABEL_DESIGNACAO_NOVO_RELATOR'|i18n}}</h6>
+    </div>
+
+    <h6>
+        <strong>{{'LABEL_DATA_HORA_CADASTRO' | i18n}}: </strong>
+        <span> {{encaminhamentoDenuncia.impedimentoSuspeicao.denunciaAdmitida.dataAdmissao | date:'dd/MM/yyyy' : '+0' }} às
+            {{ encaminhamentoDenuncia.impedimentoSuspeicao.denunciaAdmitida.dataAdmissao | date:'HH:mm ' : '+0' }}</span> 
+    </h6>
+    <h6>
+        <strong>{{'LABEL_USUARIO' | i18n}}: </strong>
+        <span>{{ encaminhamentoDenuncia.membroComissao.profissionalEntity.nome}}</span> 
+    </h6>
+    <h6>
+        <strong>{{'LABEL_NOVO_RELATOR' | i18n}}: </strong>
+        <span>{{ encaminhamentoDenuncia.impedimentoSuspeicao.denunciaAdmitida.membroComissao.profissionalEntity.nome}}</span> 
+    </h6>
+
+    <div class="alert bg-green border shadow">
+        <div class="p-2">
+            <strong>{{'LABEL_DESCRICAO_IMPEDIMENTO_SUSPEICAO'|i18n}}</strong>
+            <div class="mt-2 word-wrap" [innerHTML]="encaminhamentoDenuncia.impedimentoSuspeicao.denunciaAdmitida.descricaoDespacho"></div>
+        </div>
+    </div>
+
+    <div class="card-body bg-green font-12 border" style="border-radius: 8px;"
+        *ngIf="encaminhamentoDenuncia.impedimentoSuspeicao.denunciaAdmitida.arquivoDenunciaAdmitida.length > 0">
+        <h6 class="mb-3">{{ 'LABEL_DOCUMENTO'|i18n}}</h6>
+        <span class="font-weight-bold arquivo">{{ 'TITLE_ARQUIVO'|i18n}}</span>
+        <div>
+            <table class="border-top">
+                <tbody>
+                    <tr *ngFor="let arquivo of encaminhamentoDenuncia.impedimentoSuspeicao.denunciaAdmitida.arquivoDenunciaAdmitida">
+                        <td>{{arquivo.nome}}</td>
+                        <td>
+                            <download title="{{arquivo.nome}}" class="text-primary pointer p-0" [download]="arquivo.nome"
+                                (process)="downloadArquivoAdmitida($event, arquivo.id)">
+                                <i class="align-middle fa fa-download"></i>
+                            </download>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="modal-footer">
+    <button class="btn btn-primary mr-auto" type="button" (click)="modalRef.hide()">
+        Fechar
+    </button>
+</div>

@@ -1,0 +1,222 @@
+// Font Awesome
+$fa-font-path: "~font-awesome/fonts";
+
+/* You can add global styles to this file, and also import other style files */
+@import url(https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,600);
+
+//Core files
+@import "~bootstrap/scss/functions";
+@import "~@cau/layout/variables";
+
+$primary:      #104240;
+
+$theme-colors: ();
+
+$theme-colors: map-merge(
+  (
+    "primary":    $primary,
+    "secondary":  $secondary,
+    "success":    $success,
+    "info":       $info,
+    "warning":    $warning,
+    "danger":     $danger,
+    "light":      $light,
+    "dark":       $dark
+  ),
+  $theme-colors
+);
+
+// Plugins
+@import "~bootstrap/scss/bootstrap";
+@import "~ngx-toastr/toastr-bs4-alert";
+@import "~font-awesome/scss/font-awesome";
+@import "~ngx-ui-switch/ui-switch.component";
+@import "~ngx-bootstrap/datepicker/bs-datepicker";
+
+// CAU/BR
+@import "~@cau/message/message.scss";
+@import "~@cau/layout/layouts";
+
+html {
+    body {
+        i {
+            font-style: normal;
+        }
+
+        a.text-muted {
+            text-decoration: none;
+        }
+    }
+}
+
+// multiselect-dropdown
+.multiselect-dropdown .disabled > span {
+    background-color: #e9ecef !important;
+}
+
+.multiselect-dropdown .dropdown-btn {
+    border: 1px solid #ced4da !important;
+    padding: 3.5px 12px !important;
+}
+
+// Pointer
+.pointer {
+    cursor: pointer;
+}
+
+// Tabs
+main a.nav-link {
+    color: #FFFFFF !important;
+}
+
+main a.nav-link.active {
+    color: #495057 !important;
+}
+
+// Line
+.line {
+    border: 2px solid #eee;
+    width: 100%;
+}
+
+// Calendario
+.inputSubAtividade{
+    width: 96.2%;
+    float: left;
+}
+
+.inputSubAtividadeSemColapse{
+    width: 99%;
+    float: left;
+}
+
+.botao-adicionar-atividade {
+    height: 26px !important;
+    padding: 3px 9px 9px !important;
+    background-color: #016E73 !important;
+    border-color: #016E73 !important;
+    font-size: 12px !important;
+}
+
+.botao-adicionar-sub-atividade {
+    height: 26px !important;
+    padding: 3px 9px 9px !important;
+    background-color: #016E73 !important;
+    border-color: #016E73 !important;
+    font-size: 12px !important;
+}
+
+.botao-excluir-atividade {
+    cursor: pointer;
+    margin-left: 10px;
+    margin-top: 4px
+}
+
+.icon-atividade {
+    cursor: pointer;
+    margin-left: 10px;
+    margin-top: 4px
+}
+
+.icon-atividade-switch {
+    margin-top: 5px !important;
+}
+
+.progress {
+    height: 1.5rem;
+    border-radius: 0;
+}
+
+.box-separador {
+    min-height: 14px;
+    background-color: $primary;
+}
+
+.box-destaque {
+    padding: 15px;
+    border-radius: 10px;
+    background: #e0f2f1;
+}
+
+.titulo {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.subtitle-lines {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-weight: 700;
+}
+
+.subtitle-lines:before,
+.subtitle-lines:after {
+    content: '';
+    border-top: 1px solid #cccccc;
+    margin: 0 20px 0 0;
+    flex: 1 0 20px;
+}
+
+.subtitle-lines:after {
+    margin: 0 0 0 20px;
+}
+
+.bg-gray-dark {
+    background-color: #A8A9A9;
+}
+
+.bg-blue-dark {
+    background-color: #12516C;
+}
+
+.border-header-green{
+    border-bottom: 15px solid $primary;
+}
+
+.bg-primary{
+    background-color: $primary;
+}
+
+/**
+* Configuração do css do componente de 
+* acordion
+*/      
+.card.customClass .card-body{
+    padding: 0px;
+}
+
+.card.customClass,
+.panel.customClass,
+.card.customClass .card-header {
+ padding-left: 0px;
+ padding-right: 0px;
+ padding-bottom: 1px;
+ padding-top: 1px;
+}
+.panel.customClass .panel-body {
+  background-color: #ffffff;
+  color: #000;
+}
+.card-header.panel-enabled .btn.btn-link {
+    cursor: default;
+    text-decoration: none; 
+    padding: 0px;
+}
+
+.card.customClass .accordionPrimay {
+    background-color: #104240; 
+    color: white;
+}
+// fim configurações do accordion
+
+.modal {
+    overflow: auto !important;
+    overflow-y:auto !important;
+}
+
+.obfuscate-data {
+    display: inline-block;
+}

@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="CAU.Eleitoral.Api/CAU.Eleitoral.Api.csproj" />
+  <Project Path="CAU.Eleitoral.Application/CAU.Eleitoral.Application.csproj" />
+  <Project Path="CAU.Eleitoral.Domain/CAU.Eleitoral.Domain.csproj" />
+  <Project Path="CAU.Eleitoral.Infrastructure/CAU.Eleitoral.Infrastructure.csproj" />
+</Solution>

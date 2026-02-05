@@ -1,0 +1,237 @@
+<div class="col-md-12">
+  <a [routerLink]="['/']"> <i class="fa fa-desktop fa-2x m-2 pointer font-color-bg-primary" aria-hidden="true"></i> </a>
+</div>
+<div class="col-md-12">
+  <h5 class="card-title colorGray">
+    <a class="pointer" (click)="voltar()">
+      <i class="fa fa-arrow-left colorGray" aria-hidden="true"></i>
+    </a>
+  </h5>
+</div>
+
+<div class="box-separador bg-primary"></div>
+<div class="tab-content">
+
+  <div class="tab-pane active show fade rounded-0">
+
+    <titulo-substituicao [label]="'LABEL_JULGAMENTO_EDITADO'" [isMostraLabel]="isJulgamentoFinalRetificado()"
+      [isMostraIcone]="isAtual" [titleTab]="'TITLE_JULGAMENTO_FINAL_CHAPA_PRIMEIRA_INSTANCIA'"
+      [isIndeferido]="isJulgamentoIndeferido()">
+    </titulo-substituicao>
+
+    <!-- Label da Chapa -->
+    <div class="row" *ngIf="isAtual" style="margin-top: 2px; margin-left: 0px; margin-bottom: ‒14;">
+      <div class="col-2">
+        <span class="texto-titulo font-color-bg-primary d-bock">{{ 'LABEL_UF' | i18n }}: {{chapa.uf}}</span><br>
+        <span class="texto-titulo font-color-bg-primary d-bock">{{ 'LABEL_N_CHAPA' | i18n }}:
+          {{chapa.numeroChapa || "N/A"}}</span><br>
+        <span *ngIf="isJulgamentoFinalRetificado()" class="texto-titulo font-color-bg-primary d-bock">
+          {{ 'LABEL_JULGAMENTO' | i18n}}:
+          <span class="red-font"> {{ (julgamentoFinal.retificacoes.length  + 1) | number: '2.' }} </span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Sub ABAS -->
+    <sub-abas-content [isAbaVisivel]="isJulgamentoFinalRetificado()" [label_a]="'LABEL_ATUAL'"
+      [label_b]="'LABEL_RETIFICACAO'" (labelAtiva)="processaAbaRetificacao($event)">
+      <div primeira-aba>
+        <!-- Membros Indicados para Substituição -->
+        <div class="tab-pane fade rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}"
+          *ngIf="isJulgamentoIndeferido()">
+          <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px mb-5;margin-top: 10px;">
+            <card-panel [titulo]="'LABEL_MEMBRO_JULGAMENTO_FINAL'">
+              <card-julgamento-final [temExcluir]="false" [membrosSelecionados]="julgamentoFinal.indicacoes"
+                *ngIf="possuiIndicacao()">
+              </card-julgamento-final>
+              <div class="row" fxLayoutAlign="center center" *ngIf="!possuiIndicacao()">
+                <span class="texto-titulo pb-3 pt-3">{{ 'LABEL_SUBSTITUICAO_MEMBRO' | i18n}}</span>
+              </div>
+            </card-panel>
+          </div>
+        </div>
+
+        <!-- Separador horizontal verde -->
+        <div class="box-separador bg-primary font-white mt-5 mb-5" *ngIf="isJulgamentoIndeferido()"></div>
+
+        <!-- Parecer -->
+        <div class="tab-pane fade rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}">
+          <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px mb-5">
+            <card-panel [titulo]="'LABEL_DESCRICAO'">
+              <editor-de-texto name="paracerJulgamento" id="paracerJulgamento" [isHabilitado]="false"
+                [configuracao]="configuracaoCkeditor" [valor]="julgamentoFinal.descricao">
+              </editor-de-texto>
+            </card-panel>
+
+            <!-- Documento -->
+            <card-panel [titulo]="'LABEL_DOCUMENTO'" class="mt-3">
+              <div class="col-md-4 p-0">
+                <arquivo [hasDownload]="true" [arquivos]="julgamentoFinal.arquivos"
+                  (download)="downloadArquivo($event)">
+                </arquivo>
+              </div>
+            </card-panel>
+
+            <!-- justificativa Parecer-->
+            <card-panel [titulo]="'LABEL_JUSTIFICATIVA_RETIFICACAO'" *ngIf="isMostrarJustificativaRetificativa()">
+              <editor-de-texto name="justificativaRetificacao" id="justificativaRetificacao" [isHabilitado]="false"
+                [configuracao]="configuracaoCkeditor" [valor]="julgamentoFinal.retificacaoJustificativa">
+              </editor-de-texto>
+            </card-panel>
+
+            <!-- Botão de Alterar Julgamento. -->
+            <div class="row" *ngIf="isMostrarAlterarJulgamento()">
+              <div class="col-md-12">
+                <button class="btn btn-danger mr-3" type="button" (click)="confirmarAlteracaoJulgamento()">
+                  {{ 'LABEL_ALTERAR_JULGAMENTO' | i18n }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div segunda-aba>
+        <div class="tab-pane fade rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}">
+          <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px mb-5;margin-top: 10px;">
+            <card-panel [titulo]="'LABEL_RETIFICACAO_JULGAMENTO_FINAL'">
+              <!-- Histórico  -->
+              <div class="card rounded mb-3" *ngIf="isJulgamentoFinalRetificado()">
+                <div class="card-body bg-green">
+                  <div class="card bg-green">
+                    <!--
+                    <table *ngFor="let item of julgamentoFinal.retificacoes; let indice = index"
+                      class="table table-borderless table-sm mt-0 table-parecer bg-green">
+                      <thead>
+                        <tr>
+                          <td class="p-0" colspan="8">
+                            <div fxLayout="row" class="font-weight-bold font-header text-center px-4 destaqueHistorico">
+                              <div fxFlex>
+                                {{ 'LABEL_REGISTRO' | i18n }}
+                              </div>
+                              <div fxFlex>
+                                {{ 'LABEL_DATAHORA_CADASTRADO' | i18n }}
+                              </div>
+                              <div fxFlex>
+                                {{ 'LABEL_CADASTRADO_POR' | i18n }}
+                              </div>
+                              <div fxFlex>
+                                {{ 'LABEL_DESCRICAO_DOCUMENTO' | i18n }}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="p-0" colspan="8">
+                            <div class="card shadow border rounded-2 my-1">
+                              <div class="card-body p-8">
+                                <div fxLayout="row" class="text-center align-items-center">
+                                  <div class="px-2" fxFlex>
+                                    {{ (indice+1) | number: '2.' }}
+                                  </div>
+                                  <div class="px-2 border-left" fxFlex>
+                                    {{item.dataCadastro | date:'dd/MM/yyy ' : '+0' }} às
+                                    {{item.dataCadastro | date:'HH:mm ' : '+0' }}
+                                  </div>
+                                  <div class="px-2 border-left" fxFlex>
+                                    {{item.usuario.nome}}
+                                  </div>
+                                  <div class="px-2 border-left" fxFlex>
+                                    <a href="" [routerLink]="null" class="remove-link"
+                                      [ngClass]="{ 'isDisabled': !isRoleCenOuCeUf()}"
+                                      (click)="abrirModalvisualizarRetificacaoJulgamento(indice)">
+                                      {{ 'LABEL_VISUALIZAR' | i18n }}
+                                    </a>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>-->
+
+
+
+                    <div class="col-md-12 shadow" *ngFor="let item of julgamentoFinal.retificacoes; let indice = index">
+                      <div class="row">
+                        <div class="col-md-12 header p-0 m-0">
+                          <div fxLayout="row" class="font-weight-bold font-header text-center destaqueHistorico">
+                            <div fxFlex fxLayout="row" fxLayoutAlign="center center">
+                              {{ 'LABEL_REGISTRO' | i18n }}
+                            </div>
+                            <div fxFlex fxLayout="row" fxLayoutAlign="center center">
+                              {{ 'LABEL_DATAHORA_CADASTRADO' | i18n }}
+                            </div>
+                            <div fxFlex fxLayout="row" fxLayoutAlign="center center">
+                              {{ 'LABEL_CADASTRADO_POR' | i18n }}
+                            </div>
+                            <div fxFlex fxLayout="row" fxLayoutAlign="center center">
+                              {{ 'LABEL_DESCRICAO_DOCUMENTO' | i18n }}
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-12 content p-0 m-0">
+                          <div fxLayout="row" fxLayoutAlign="center center" style="min-height: 50px;">
+                            <div class="px-2" fxFlex fxLayout="row" fxLayoutAlign="center center">
+                              {{ (indice+1) | number: '2.' }}
+                            </div>
+                            <div class="px-2 border-left" fxFlex fxLayout="row" fxLayoutAlign="center center">
+                              {{item.dataCadastro | date:'dd/MM/yyy ' : '+0' }} às
+                              {{item.dataCadastro | date:'HH:mm ' : '+0' }}
+                            </div>
+                            <div class="px-2 border-left" fxFlex fxLayout="row" fxLayoutAlign="center center">
+                              {{item.usuario.nome}}
+                            </div>
+                            <div class="px-2 border-left" fxFlex fxLayout="row" fxLayoutAlign="center center">
+                              <a href="" [routerLink]="null" class="remove-link"
+                                [ngClass]="{ 'isDisabled': !isRoleCenOuCeUf()}"
+                                (click)="abrirModalvisualizarRetificacaoJulgamento(indice)">
+                                {{ 'LABEL_VISUALIZAR' | i18n }}
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+
+
+                  </div>
+                </div>
+              </div>
+            </card-panel>
+          </div>
+        </div>
+      </div>
+    </sub-abas-content>
+  </div>
+</div>
+
+<!-- Template de Formulário de alterar julgamento-->
+<ng-template #templateAlterarJulgamento>
+  <div class="col-md-12">
+    <form-alterar-julgamento [idChapaEleicao]="chapa.id" [idStatusJulgamento]="acaoAlterarJulgamento"
+      [isChapaIES]="isChapaIES()"
+      [opcaoAlteracaoJulgamento]="opcaoAlteracaoJulgamento" [membrosPorSituacao]="membrosPorSituacao"
+      [membrosSelecionados]="julgamentoFinal.indicacoes" [idJulgamentoFinalPai]="julgamentoFinal.id"
+      [julgamentoFinalPai]="julgamentoFinal" (fecharModal)="fecharformAlterarJulgamento()"
+      (redirecionarVisualizarJulgamento)="redirecionarVisualizarJulgamento()">
+    </form-alterar-julgamento>
+  </div>
+</ng-template>
+
+<ng-template #templateConfirmarAlterarJulgamento>
+  <confirmar-alterar-julgamento-modal (confirmar)="abrirFormAlterarJulgamento($event)"
+    (cancelar)="modalConfirmarAlterarJulgamento.hide()">
+  </confirmar-alterar-julgamento-modal>
+</ng-template>
+
+<ng-template #templateVisualizarRetificacaoJulgamento>
+  <visualizar-retificacao-julgamento [julgamentoFinal]="julgamentoFinalRetificacaoSelecionado" [chapa]="chapa"
+    [sequencia]="sequenciaJulgamentoFinalRetificacaoSelecionado"
+    (fecharModal)="fecharVisualizarRetificacaoJulgamento()">
+  </visualizar-retificacao-julgamento>
+</ng-template>

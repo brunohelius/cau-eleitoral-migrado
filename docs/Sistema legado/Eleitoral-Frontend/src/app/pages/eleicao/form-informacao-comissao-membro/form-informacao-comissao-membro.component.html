@@ -1,0 +1,79 @@
+<div class="header">
+    <h1 class="header-title">
+        <i class="fa fa-wpforms" style="margin-right: 10px; font-size: 30px" aria-hidden="true"></i>
+        {{ 'LABEL_COMISSAO_ELEITORAL' | i18n }}
+    </h1>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-tabs">
+
+            <li class="nav-item pointer">
+                <a class="nav-link" (click)="mudarAbaSelecionada(tabs, tabs.abaInformacoesIniciais.nome)"
+                    [ngClass]="{ 'active': tabs.abaInformacoesIniciais.ativa }">{{'LABEL_INFORMACOES_INICIAIS' | i18n}}
+                </a>
+            </li>
+
+            <li class="nav-item pointer">
+                <a class="nav-link" (click)="mudarAbaSelecionada(tabs, tabs.abaDocumento.nome)"
+                    [ngClass]="{ 'active': tabs.abaDocumento.ativa }">{{'LABEL_DOCUMENTO' | i18n}}
+                </a>
+            </li>
+
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade"
+                [ngClass]="{ 'active': tabs.abaInformacoesIniciais.ativa, 'show': tabs.abaInformacoesIniciais.ativa }"
+                *ngIf="tabs.abaInformacoesIniciais.ativa">
+                <div class="card rounded-0">
+                    <div class="card-header rounded-0">
+                        <h5 class="card-title">
+                            <a class="pointer" (click)="voltarLista('informacoesIniciais')">
+                                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                            </a>
+                            {{'LABEL_CADASTRO_INFORMACOES_QUANTIDADE_MEMBROS_COMISSAO_ANUAL' |i18n}}
+                        </h5>
+                    </div>
+
+                    <progressbar-informacao-comissao-membro [atividadeSecundaria]="atividadeSecundaria">
+                    </progressbar-informacao-comissao-membro>
+
+                    <div class="col-md-12">
+                        <aba-informacao-comissao-membro
+                            (recarregarAtividadeSecundaria)="recarregarAtividadeSecundaria()"
+                            [atividadeSecundaria]="atividadeSecundaria">
+                        </aba-informacao-comissao-membro>
+                    </div>
+
+                </div>
+            </div>
+            <div class="tab-pane fade"
+                [ngClass]="{ 'active': tabs.abaDocumento.ativa, 'show': tabs.abaDocumento.ativa }"
+                *ngIf="tabs.abaDocumento.ativa">
+                <div class="card rounded-0">
+
+                    <div class="card-header rounded-0">
+                        <h5 class="card-title">
+                            <a class="pointer" (click)="voltarLista('documentos')">
+                                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                            </a>
+                            {{ 'LABEL_DOCUMENTO_QUANTIDADE_MEMBROS_COMISSAO_ANUAL' | i18n }}
+                        </h5>
+                    </div>
+
+                    <progressbar-informacao-comissao-membro [atividadeSecundaria]="atividadeSecundaria">
+                    </progressbar-informacao-comissao-membro>
+
+                    <div class="col-md-12">
+                        <aba-documento-comissao-membro [atividadeSecundaria]="atividadeSecundaria"
+                            (recarregarAtividadeSecundaria)="recarregarAtividadeSecundaria()">
+                        </aba-documento-comissao-membro>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

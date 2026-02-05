@@ -1,0 +1,388 @@
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-abas">
+            <li class="nav-item pointer active">
+                <a href="#" class="nav-link">
+                    {{ 'LABEL_VISAO_GERAL' | i18n }}
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade active show">
+                <div class="col-md-12">
+                    <i class="fa fa-desktop fa-2x m-2 pointer" aria-hidden="true"></i>
+                    <span> {{ 'LABEL_VISUALIZAR_CONVITES_PARA_MEMBRO_CHAPA_ELEITORAL' | i18n }} </span>
+                </div>
+                <div class="box-separador"></div>
+                <div class="px-3 pt-3">
+                    <i class="fa fa-reply fa-2x  pointer" (click)="voltar()" aria-hidden="true"></i>
+                    <span class="subtitle-lines green-font-bolder">
+                        {{ 'LABEL_INFORMACOES' | i18n }}
+                    </span>
+                </div>
+                <div *ngIf="curriculo" class="p-3">
+                    <div class="row p-3">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-12">
+                                </div>
+                            </div>
+                            <div  class="row box-curriculo">
+                                <div class="col-md-12 box-separador mt-3"></div>
+                                <div class="col-md-12 pt-2">
+                                    <form #form="ngForm">
+                                        <div class="row p-3">
+                                            <div class="col-md-12 box-destaque">
+                                                <div class="row arquivo-curriculo">
+                                                    <div class="col-md-2 text-center">
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                {{ usuario.name }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                <div class="text-center" *ngIf="!croppedImage"
+                                                                    style="background-color: #E6E7E8;">
+                                                                    <i class="fas fa-user"
+                                                                        style="font-size: 100px; color: #B2B7BA;"></i>
+                                                                </div>
+                                                                <div class="text-center" *ngIf="croppedImage">
+                                                                    <img class="img-thumbnail" [src]="croppedImage" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-10 align-self-center">
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                <span class="green-font-bolder">
+                                                                    {{ 'LABEL_INCLUA_ALTERE_SUA_FOTO' | i18n }}
+                                                                    <i class="fa fa-exclamation-circle"
+                                                                        title=" {{ 'LABEL_HINT_AVISO_FOTO_CURRICULO' | i18n }}"
+                                                                        aria-hidden="true"></i>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row px-3">
+                                                            <upload title="{{'LABEL_PROCURAR' | i18n}}"
+                                                                [name]="curriculo.foto.nome"
+                                                                required="isUploadFotoObrigatorio"
+                                                                (process)="uploadFileFoto($event, templateCortarFoto)">
+                                                                <i class="fa fa-file-o text-success"
+                                                                    aria-hidden="true"></i>
+                                                                <span>{{'LABEL_PROCURAR' | i18n}}</span>
+                                                            </upload>
+                                                            <input type="hidden" name="hideFoto" #input_foto="ngModel"
+                                                                [required]="isUploadFotoObrigatorio" [(ngModel)]="curriculo.foto.nome ">
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        {{ 'LABEL_REGRAS_FOTO_MEMBRO_CHAPA' | i18n }}
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <validation-message [for]="input_foto"
+                                                                            [submitted]="submitted">
+                                                                        </validation-message>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="box-separador-linha m-3"></div>
+                                                <div class="row" *ngIf="isConviteTipoIES(convite)">
+                                                    <div class="col-md-12 pb-5">
+                                                        <div class="row">
+                                                            <div class="col-md-12 text-center">
+                                                                <span class="green-font-bolder texto-destaque">
+                                                                    {{ 'LABEL_DOCUMENTOS_COMPROBATORIOS' | i18n }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row" >
+                                                            <div class="col-md-6 p-3">
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div class="form-group"
+                                                                            *ngIf="!curriculo.comprovanteDocente.nome">
+                                                                            <label for="">
+                                                                                <span style="font-weight: bold;">
+                                                                                    {{ 'LABEL_SELECIONAR' | i18n }}</span>:
+                                                                                {{ 'LABEL_COMPROVANTE_VINCULO_DOCENTE_COM_IES' | i18n }}
+                                                                            </label>
+                                                                            <upload title="{{'LABEL_PROCURAR' | i18n}}"
+                                                                                [name]="curriculo.comprovanteDocente.nome"
+                                                                                required="curriculo.comprovanteDocente.nome"
+                                                                                (process)="uploadDocumentoComprobatorio($event, curriculo.comprovanteDocente)">
+                                                                                <i class="fa fa-file-o text-success"
+                                                                                    aria-hidden="true"></i>
+                                                                                <span>{{'LABEL_PROCURAR' | i18n}}</span>
+                                                                            </upload>
+                                                                        </div>
+                                                                        <input type="hidden"
+                                                                            name="hideComprovanteDocente"
+                                                                            #input_ComprovanteDocente="ngModel"
+                                                                            [required]="true"
+                                                                            [(ngModel)]="curriculo.comprovanteDocente.nome">
+                                                                        <div class="form-group"
+                                                                            *ngIf="curriculo.comprovanteDocente.nome">
+                                                                            <label for="">
+                                                                                <span style="font-weight: bold;">
+                                                                                    {{ 'LABEL_SELECIONAR' | i18n }}</span>:
+                                                                                {{ 'LABEL_COMPROVANTE_VINCULO_DOCENTE_COM_IES' | i18n }}
+                                                                            </label>
+                                                                            <div class="file-upload-wrapper input-group"
+                                                                                (click)="validarDocumentoComprobatorio(curriculo.comprovanteDocente)">
+                                                                                <input id="fileDocumentoComprobatorio"
+                                                                                    name="myfiles[]"
+                                                                                    class="custom-file-upload-hidden"
+                                                                                    style="position: absolute; left: -9999px;"
+                                                                                    tabindex="-1" type="file">
+                                                                                <div
+                                                                                    class="input-group-prepend pointer">
+                                                                                    <span class="input-group-text">
+                                                                                        <i
+                                                                                            class="fa fa-folder-open"></i>
+                                                                                        Selecionar Arquivo
+                                                                                    </span>
+                                                                                </div>
+                                                                                <input
+                                                                                    class="file-upload-input form-control nomeArquivo"
+                                                                                    placeholder="Nenhum arquivo selecionado"
+                                                                                    [value]="curriculo.comprovanteDocente.nome"
+                                                                                    [disabled]="true" type="text"
+                                                                                    type="text">
+                                                                            </div>
+                                                                        </div>
+                                                                        <validation-message
+                                                                            [for]="input_ComprovanteDocente"
+                                                                            [submitted]="submitted">
+                                                                        </validation-message>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-12 p-3">
+                                                                        <table class="table"
+                                                                            *ngIf="curriculo.comprovanteDocente.nome">
+                                                                            <thead class="font-italic">
+                                                                                <tr>
+                                                                                    <th>
+                                                                                        {{ 'TITLE_ARQUIVO' | i18n }}
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        {{ 'LABEL_ACAO' | i18n }}
+                                                                                    </th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        {{ curriculo.comprovanteDocente.nome }}
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <i class="fas fa-trash"
+                                                                                            (click)="removerDocumentoComprobatorio(curriculo.comprovanteDocente)"></i>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6 p-3">
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div class="form-group"
+                                                                            *ngIf="!curriculo.cartaIndicacao.nome">
+                                                                            <label>
+                                                                                <span style="font-weight: bold;">
+                                                                                    {{ 'LABEL_SELECIONAR' | i18n }}</span>:
+                                                                                {{ 'LABEL_CARTA_DE_INDICACAO_INSTITUICAO' | i18n }}
+                                                                            </label>
+                                                                            <upload title="{{'LABEL_PROCURAR' | i18n}}"
+                                                                                [name]="curriculo.cartaIndicacao.nome"
+                                                                                required="curriculo.cartaIndicacao.nome"
+                                                                                (process)="uploadDocumentoComprobatorio($event, curriculo.cartaIndicacao)">
+                                                                                <i class="fa fa-file-o text-success"
+                                                                                    aria-hidden="true"></i>
+                                                                                <span>{{'LABEL_PROCURAR' | i18n}}</span>
+                                                                            </upload>
+                                                                        </div>
+                                                                        <input type="hidden" name="hideCartaIndicacao"
+                                                                            #input_cartaIndicacao="ngModel"
+                                                                            [required]="true"
+                                                                            [(ngModel)]="curriculo.cartaIndicacao.nome">
+                                                                        <div class="form-group"
+                                                                            *ngIf="curriculo.cartaIndicacao.nome">
+                                                                            <label>
+                                                                                <span style="font-weight: bold;">
+                                                                                    {{ 'LABEL_SELECIONAR' | i18n }}
+                                                                                </span>:
+                                                                                {{ 'LABEL_CARTA_DE_INDICACAO_INSTITUICAO' | i18n }}
+                                                                            </label>
+                                                                            <div class="file-upload-wrapper input-group"
+                                                                                (click)="validarDocumentoComprobatorio(curriculo.cartaIndicacao)">
+                                                                                <input id="fileDocumentoComprobatorio2"
+                                                                                    name="myfiles[]"
+                                                                                    class="custom-file-upload-hidden"
+                                                                                    style="position: absolute; left: -9999px;"
+                                                                                    tabindex="-1" type="file">
+                                                                                <div
+                                                                                    class="input-group-prepend pointer">
+                                                                                    <span class="input-group-text">
+                                                                                        <i
+                                                                                            class="fa fa-folder-open"></i>
+                                                                                        Selecionar Arquivo
+                                                                                    </span>
+                                                                                </div>
+                                                                                <input
+                                                                                    class="file-upload-input form-control nomeArquivo"
+                                                                                    placeholder="Nenhum arquivo selecionado"
+                                                                                    [value]="curriculo.cartaIndicacao.nome"
+                                                                                    [disabled]="true" type="text"
+                                                                                    type="text">
+                                                                            </div>
+                                                                        </div>
+                                                                        <validation-message [for]="input_cartaIndicacao"
+                                                                            [submitted]="submitted">
+                                                                        </validation-message>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-12 p-3">
+                                                                        <table class="table"
+                                                                            *ngIf="curriculo.cartaIndicacao.nome">
+                                                                            <thead class="font-italic">
+                                                                                <tr>
+                                                                                    <th>
+                                                                                        {{ 'TITLE_ARQUIVO' | i18n }}
+                                                                                    </th>
+                                                                                    <th>
+                                                                                        {{ 'LABEL_ACAO' | i18n }}
+                                                                                    </th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        {{ curriculo.cartaIndicacao.nome }}
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <i class="fas fa-trash"
+                                                                                            (click)="removerDocumentoComprobatorio(curriculo.cartaIndicacao)"></i>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="box-separador-linha m-3" *ngIf="isConviteTipoIES(convite)">
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="row">
+                                                            <div class="col-md-12 text-center">
+                                                                <span class="green-font-bolder texto-destaque">
+                                                                    {{ 'SINTESE_CURRICULO' | i18n }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                <ckeditor name="descricaoCurriculo"
+                                                                    (ready)="onRedyCKDescricao($event)"
+                                                                    (change)="onChangeCKDescricao($event)"
+                                                                    [(ngModel)]="curriculo.descricao" [required]="true"
+                                                                    #descricaoCurriculo="ngModel"
+                                                                    id="IdDescricaoCurriculo"
+                                                                    [config]="configuracaoCkeditor">
+                                                                </ckeditor>
+                                                                <input type="hidden" maxlength="30000"
+                                                                    name="hideDescricaoCurriculo"
+                                                                    #input_descricaoCurriculo="ngModel"
+                                                                    [required]="true"
+                                                                    [(ngModel)]="curriculo.descricaoSimpleText">
+                                                                <span>{{ getContagemDescricaoCurriculo() }}</span>
+                                                                <validation-message [for]="input_descricaoCurriculo"
+                                                                    [submitted]="submitted">
+                                                                </validation-message>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="row pt-3">
+                                <div class="col-md-12">
+                                    <button (click)="abrirModalConfirmarCancelamento(templateConfirmarCancelamento)"
+                                        class="btn btn-danger px-3 mr-3">
+                                        {{ 'LABEL_CANCELAR' | i18n }}
+                                    </button>
+                                    <button (click)="salvar(form)" id="btn-curriculo-salvar" class="btn btn-primary px-3">
+                                        {{ 'LABEL_SALVAR' | i18n }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #templateCortarFoto>
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            <h6 class="modal-title pull-center">{{'LABEL_CORTA_FOTO' |i18n}}</h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="cancelarCortarFoto()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        <div class="p-3"  class="h-50">
+            <image-cropper  [imageFile]="imageFile" [maintainAspectRatio]="true" [aspectRatio]="3 / 4"
+                [resizeToWidth]="128" format="png" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded()"
+                (cropperReady)="cropperReady()" (loadImageFailed)="loadImageFailed()">
+            </image-cropper>
+        </div>
+        <div class="pt-3 w-100">
+            <button (click)="cancelarCortarFoto()" class="btn btn-danger px-4 mr-4">{{ 'LABEL_CANCELAR' | i18n }} </button>
+            <button (click)="confirmarCropp()" class="btn btn-success px-4 ">{{ 'LABEL_CONFIRMAR' | i18n }} </button>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #templateConfirmarCancelamento>
+    <div class="modal-body" style="height: 100%">
+        <div class="row p-3">
+            <div class="col-md-12 texto-destaque-cinza text-center">
+                <span> {{ 'MSG_DESEJA_REALMENTE_CANCELAR' | i18n }} </span> <br>
+                <span>{{ 'MSG_TODOS_DADOS_PREENCHIDOS_SERAO_EXCLUIDOS_PERMANENTEMENTE' | i18n }}</span>
+            </div>
+        </div>
+        <div class="row p-3">
+            <div class="col-md-12 text-center">
+                <button (click)="cancelar()" class="btn btn-success px-4 mr-4">{{ 'LABEL_SIM' | i18n }} </button>
+                <button (click)="modalRef.hide()" class="btn btn-danger px-4">{{ 'LABEL_NAO' | i18n }} </button>
+            </div>
+        </div>
+    </div>
+</ng-template>

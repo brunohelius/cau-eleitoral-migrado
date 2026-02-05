@@ -1,0 +1,391 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="tab-content">
+            <div class="tab-pane active show fade card rounded-0 p-3">
+                <div class="row p-2" *ngIf="!chapaEleicao">
+                    <div class="col-md-9">
+                        <div class="text-center title-comissao green-font mt-3 mb-1">
+                            <img class="img-fluid rounded-circle mb-2 img-bandeira" [src]="cauUf.imagemBandeira"
+                                [alt]="cauUf.prefixo">
+                            {{retornaPrefixoCauUf()}}
+                        </div>
+                    </div>
+                    <div class="col-md-12 align-items-right form-inline green-font-bolder">
+                        <div class="align-items-right form-inline font-weight-bold">
+                            <div>
+                                <span>{{ 'LABEL_MOSTRAR' | i18n }}: </span>
+                                <select class="form-control" [(ngModel)]="limitePaginacaoListagemChapas"
+                                    [name]="limitePaginacaoListagemChapas">
+                                    <option *ngFor="let item of limitesPaginacao" [ngValue]="item">
+                                        {{ item }}
+                                    </option>
+                                </select>
+                                <span> {{ 'LABEL_REGISTRO' | i18n}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row p-2">
+                    <div class="col-md-9">
+                        <div class="visualizarChapa" *ngIf="chapaEleicao">
+                            <div *ngIf="chapaEleicao">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="cartao p-1 my-1">
+                                            <span class="cartaoTitulo"> {{ 'LABEL_SITUACAO_CHAPA' | i18n}}: </span>
+                                            <span class="cartaoTexto">{{chapaEleicao?.statusChapaVigente?.descricao}}
+                                            </span>
+                                        </div>
+
+                                        <div class="cartao p-1 my-1">
+                                            <span class="cartaoTitulo"> {{ 'LABEL_N_CHAPA' | i18n}}: </span>
+                                            <span class="cartaoTexto"> {{ getNumeroChapa(chapaEleicao.numeroChapa) }}
+                                            </span>
+                                        </div>
+
+                                        <div class="cartao p-1 my-1">
+                                            <span class="cartaoTitulo"> {{ 'LABEL_UF' | i18n}}: </span>
+                                            <span class="cartaoTexto"> {{ chapaEleicao.cauUf.descricao }} </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row" *ngIf="!isListagemMembrosChapa">
+                                    <div class="col-md-12">
+                                        <div class="row">
+                                            <div class="col-md-12 py-3">
+                                                <span class="font-weight-bold">
+                                                    {{ 'LABEL_PLATAFORMA_ELEITORAL' | i18n}}
+                                                </span>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <p
+                                                    [innerHTML]="domSanitizer.bypassSecurityTrustHtml(chapaEleicao.descricaoPlataforma)">
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12 py-3">
+                                                <span class="font-weight-bold ">
+                                                    {{ 'LABEL_MEIOS_OFICIAIS_PROPAGANDAS' | i18n}}
+                                                </span>
+                                                <span
+                                                    *ngIf="!chapaEleicao.redesSociaisChapa || chapaEleicao.redesSociaisChapa.length == 0">
+                                                    {{ 'LABEL_NAO_APLICADO' | i18n}}
+                                                </span>
+                                            </div>
+                                            <div class="col-md-12"
+                                                *ngFor="let redeSocialGrupo of getRedesSociaisChapa();">
+                                                <div class="row">
+                                                    <div class="pb-3 col-md-2">
+                                                        <span class="font-weight-bold pr-3">
+                                                            {{ redeSocialGrupo[0].tipoRedeSocial.descricao }}:
+                                                        </span>
+                                                    </div>
+                                                    <div class="col-md-10">
+                                                        <span class="d-block"
+                                                            *ngFor="let redeSocial of redeSocialGrupo;">
+                                                            {{ redeSocial.descricao }} </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="d-flex justify-content-end">
+                                                    <button class="btn btn-primary" (click)="acessarMembrosChapa()">
+                                                        {{ 'LABEL_PROXIMO' | i18n}}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row" *ngIf="isListagemMembrosChapa">
+                                    <div class="col-md-12">
+                                        <div class="row" *ngIf="true">
+                                            <div class="col-md-12">
+                                                <div class="align-items-right form-inline font-weight-bold">
+                                                    <div>
+                                                        <span>{{ 'LABEL_MOSTRAR' | i18n }}: </span>
+                                                        <select class="form-control" [(ngModel)]="limitePaginacao"
+                                                            [name]="limitePaginacao">
+                                                            <option *ngFor="let item of limitesPaginacao"
+                                                                [ngValue]="item">
+                                                                {{ item }}
+                                                            </option>
+                                                        </select>
+                                                        <span> {{ 'LABEL_REGISTRO' | i18n}}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="border-bottom font-weight-bold">
+                                                            {{ 'LABEL_DADOS_PESSOAIS_MEMBROS_CHAPA_ELEITORAL' | i18n}}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12" app-mfData
+                                                        [mfData]="getMembrosChapa(chapaEleicao.membrosChapa)"
+                                                        #mf="mfDataTable" [mfRowsOnPage]="limitePaginacao">
+                                                        <div class="row pt-3 border-bottom"
+                                                            *ngFor="let membroChapa of mf.data; let indiceMembrosChapa = index">
+                                                            <div class="col-md-12">
+                                                                <div class="row pb-3">
+                                                                    <div class="col-md-2">
+                                                                        <div>
+                                                                            <img *ngIf="!membroChapa?.fotoMembroChapa"
+                                                                                class="img-fluid"
+                                                                                src="assets/img/avatars/m-user.png"
+                                                                                alt="">
+                                                                            <img *ngIf="membroChapa?.fotoMembroChapa"
+                                                                                [src]="membroChapa.fotoMembroChapa"
+                                                                                alt="" class="img-fluid">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-10">
+
+                                                                        <div class="cartao branco p-1 my-1">
+                                                                            <span class="cartaoTitulo">
+                                                                                {{ 'LABEL_NOME_COMPLETO' | i18n}}:
+                                                                            </span>
+                                                                            <span class="cartaoTexto">
+                                                                                {{ membroChapa.profissional.nome }}
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="cartao branco  p-1 my-1">
+                                                                            <span class="cartaoTitulo">
+                                                                                {{ 'LABEL_REGISTRO' | i18n}}:
+                                                                            </span>
+                                                                            <span class="cartaoTexto">
+                                                                                {{
+                                                                                membroChapa.profissional.registroNacional
+                                                                                }}
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="cartao branco p-1 my-1">
+                                                                            <span class="cartaoTitulo">
+                                                                                {{ 'LABEL_REPRESENTACAO' | i18n}}:
+                                                                            </span>
+                                                                            <span class="cartaoTexto">
+                                                                                {{
+                                                                                getRepresentacao(membroChapa.tipoMembroChapa.id)
+                                                                                }}
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="cartao branco  p-1 my-1">
+                                                                            <span class="cartaoTitulo">
+                                                                                {{ 'LABEL_TIPO_PARTICIPACAO' | i18n}}:
+                                                                            </span>
+                                                                            <span class="cartaoTexto">
+                                                                                {{
+                                                                                membroChapa.tipoParticipacaoChapa.descricao
+                                                                                }}
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="cartao branco  p-1 my-1"
+                                                                            *ngIf="membroChapa?.respostaDeclaracaoRepresentatividade && membroChapa?.respostaDeclaracaoRepresentatividade?.length > 0">
+                                                                            <span class="cartaoTitulo">
+                                                                                {{ 'LABEL_REPRESENTATIVIDADE' | i18n}}:
+                                                                            </span>
+                                                                            <span class="cartaoTexto">
+                                                                                {{ 'LABEL_SIM' | i18n }}
+                                                                                <download title=""
+                                                                                    class="center-no-arquivo"
+                                                                                    [download]=""
+                                                                                    (process)="downloadDocumentoRepresentatividade($event, membroChapa.id)">
+                                                                                    <i class="fa fa-file-pdf-o"
+                                                                                        aria-hidden="true"></i>
+                                                                                </download>
+                                                                            </span>
+                                                                        </div>
+                                                                        <div *ngIf="isMostrarPosicaoMembro(membroChapa)"
+                                                                            class="cartao branco  p-1 my-1">
+                                                                            <span class="cartaoTitulo">
+                                                                                {{ 'LABEL_POSICAO' | i18n}}:
+                                                                            </span>
+                                                                            <span class="cartaoTexto">
+                                                                                {{ membroChapa.numeroOrdem }}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row pt-3">
+                                                                    <div class="col-md-12">
+                                                                        <div class="pb-3">
+                                                                            <span class="font-weight-bold ">
+                                                                                {{ 'LABEL_CURRICULO' | i18n}}
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-md-12">
+                                                                                <p *ngIf="membroChapa.sinteseCurriculo"
+                                                                                    [innerHTML]="domSanitizer.bypassSecurityTrustHtml(membroChapa.sinteseCurriculo)">
+                                                                                </p>
+                                                                                <span
+                                                                                    *ngIf="!membroChapa.sinteseCurriculo">
+                                                                                    {{ 'LABEL_NAO_APLICADO' | i18n}}
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="mt-3">
+                                                    <app-mfBootstrapPaginator [mfTable]="mf" class="float-right">
+                                                    </app-mfBootstrapPaginator>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="listagemChapas" *ngIf="!chapaEleicao">
+                            <div class="rounded-0">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="alert bg-green">
+                                            <table class="table-chapas mt-4 w-100"
+                                                [mfData]="dadosExtratoChapa.chapasEleicao" #mf="mfDataTable"
+                                                *ngIf="dadosExtratoChapa.chapasEleicao"
+                                                [mfRowsOnPage]="limitePaginacaoListagemChapas">
+                                                <thead>
+                                                    <tr class="green-font-bolder">
+                                                        <th class="text-center tb-width-10">
+                                                            {{ 'LABEL_UF_CHAPA' | i18n }}</th>
+                                                        <th class="text-center tb-width-10">{{ 'LABEL_N_CHAPA' | i18n }}
+                                                        </th>
+                                                        <th class="text-center tb-width-10">
+                                                            {{ 'LABEL_RESPONSAVEL_PELA_CHAPA' | i18n }}
+                                                        </th>
+                                                        <th class="text-center tb-width-10">{{ 'LABEL_ACAO' | i18n }}
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr *ngFor="let chapa of mf.data;"
+                                                        class="td-cauf list-item list-item-card">
+                                                        <td class="text-center tb-width-10 p-3"> {{ chapa.cauUf.prefixo
+                                                            }}</td>
+                                                        <td class="text-center tb-width-10 p-3">
+                                                            <div>
+                                                                {{ getNumeroChapa(chapa.numeroChapa) }}
+                                                            </div>
+                                                        </td>
+                                                        <td class="text-center tb-width-10 p-3">
+                                                            <span class="d-block"
+                                                                *ngFor="let responsval of chapa.membrosResponsaveis">
+                                                                {{ responsval.profissional.nome }}
+                                                            </span>
+                                                        </td>
+                                                        <td class="text-center tb-width-10 p-3">
+                                                            <div class="btn-group" dropdown triggers="hover"
+                                                                (mouseleave)="dp.hide()" #dp="bs-dropdown">
+                                                                <button dropdownToggle type="button"
+                                                                    class="btn btn-link text-muted"
+                                                                    aria-controls="dropdown-basic">
+                                                                    <i class="align-middle colorAcao fas fa-ellipsis-v"
+                                                                        aria-hidden="true"></i>
+                                                                </button>
+                                                                <ul id="dropdown-basic" *dropdownMenu
+                                                                    class="dropdown-menu" role="menu"
+                                                                    aria-labelledby="button-basic">
+                                                                    <li role="menuitem">
+                                                                        <a href="#" class="dropdown-item"
+                                                                            (click)="acessarChapa(chapa)"
+                                                                            [routerLink]="null">{{'LABEL_VISUALIZAR_CHAPA'
+                                                                            |i18n}}
+                                                                        </a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="6" class="col-12"
+                                                            *ngIf="dadosExtratoChapa.chapasEleicao.length > 0">
+                                                            <paginacao [paginaAtual]="mf.activePage"
+                                                                [totalPorPagina]="limitePaginacao"
+                                                                [mostrarTotalDeRegistros]="false"
+                                                                [totalRegistros]="dadosExtratoChapa.chapasEleicao.length">
+                                                            </paginacao>
+                                                        </td>
+
+                                                        <td colspan="6" class="col-12"
+                                                            *ngIf="dadosExtratoChapa.chapasEleicao.length == 0">
+                                                            <div class="text-center py-5">
+                                                                {{ 'LABEL_NENHUM_REGISTRO_ENCONTRADO' | i18n }}
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="filtro">
+                            <div class="p-3">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="header-filtro">
+                                            <i class="fas fa-filter" aria-hidden="true"></i>
+                                            <span>{{'LABEL_FILTROS' |i18n}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <span>{{'LABEL_N_CHAPA' |i18n}}</span>
+                                        <div class="div-multiselect-dropdown">
+                                            <ng-multiselect-dropdown placeholder="{{'LABEL_SELECIONAR' |i18n}}"
+                                                [data]="getNumeroChapaDropdownData()"
+                                                [(ngModel)]="numeroChapaSelecionado" [settings]="dropdownSettings"
+                                                title="{{'LABEL_N_CHAPA' |i18n}}">
+                                            </ng-multiselect-dropdown>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <button type="button" class="btn btn-primary btn-calendario"
+                                            (click)="pesquisar()" title=" {{'LABEL_PESQUISAR' |i18n}}">
+                                            {{'LABEL_PESQUISAR' |i18n}}
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

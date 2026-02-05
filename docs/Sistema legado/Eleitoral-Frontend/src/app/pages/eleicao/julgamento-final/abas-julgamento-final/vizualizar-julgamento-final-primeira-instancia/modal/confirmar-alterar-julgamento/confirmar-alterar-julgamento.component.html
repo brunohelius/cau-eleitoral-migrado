@@ -1,0 +1,51 @@
+<div class="modal-header border-header-green">
+  <div class="col-md-12 text-center">
+    <h6 class="modal-title pull-center grey-font-bolder font-size-1rem">
+      {{ 'TITLE_ALTERAR_JULGAMENTO_FINAL' | i18n }}
+    </h6>
+  </div>
+</div>
+<div class="modal-body">
+  <div class="row p-3">
+    <div class="col-md-12 px-3">
+      <div class="box-destaque shadow w-100 py-4">
+        <div fxLayout="row">
+          <div fxFlex="10"></div>
+          <div fxFlex="80">
+            <span class="green-font-bolder font-size-1rem">
+              {{ 'LABEL_SELECIONE_OPCAO_DESEJADA_ALTERACAO_JULGAMENTO' | i18n}}
+            </span>
+            <form #form="ngForm">
+              <form-valid [submitted]="isSubmitted">
+                <div class="py-2">
+                  <div>
+                    <input type="radio" id="'opcao2'" name="multa" [value]="2" [(ngModel)]="opcaoAlteracaoJulgamento"
+                      [required]="true">
+                    <label class="align-middle ml-1 green-font"
+                      for="multaSim">{{ 'LABEL_OPCAO_ALTERAR_CONTEUDO_JULGAMENTO' | i18n }}</label>
+                  </div>
+                  <div>
+                    <input type="radio" id="'opcao1'" name="multa" [value]="1" [(ngModel)]="opcaoAlteracaoJulgamento"
+                      [required]="true">
+                    <label class="align-middle ml-1 green-font"
+                      for="multaSim">{{ 'LABEL_OPCAO_ALTERAR_DESICAO_JULGAMENTO' | i18n }}</label>
+                  </div>
+                </div>
+              </form-valid>
+            </form>
+          </div>
+          <div fxFlex="10"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-12 p-3">
+    <button (click)="cancelarModal()" class="btn btn-danger px-3 mr-3">
+      {{ 'LABEL_CANCELAR' | i18n }}
+    </button>
+    <button (click)="confirmarModal(form)" class="btn btn-primary px-3 mr-3">
+      {{ 'LABEL_CONFIRMAR' | i18n }}
+    </button>
+  </div>
+
+</div>

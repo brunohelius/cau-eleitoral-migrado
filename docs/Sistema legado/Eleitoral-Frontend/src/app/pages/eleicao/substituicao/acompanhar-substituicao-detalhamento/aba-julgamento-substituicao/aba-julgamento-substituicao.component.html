@@ -1,0 +1,101 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="tab-content pb-3">
+            
+            <div class="col-md-12">
+                <a class="pointer" (click)="inicio()">
+                    <i class="fa fa-desktop fa-2x m-2 pointer" aria-hidden="true"></i>
+                </a>
+            </div>
+
+            <div class="col-md-12 colorGray">
+                <h5 class="card-title ">
+                    <a class="pointer" (click)="voltar()">
+                        <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                    </a>
+                    <b>{{'TITLE_VISUALIZAR_PARECER_PEDIDO_SUBSTITUICAO' | i18n}}</b>
+                </h5>
+            </div>
+
+            <div class="box-separador bg-primary"></div>
+
+            <div class="row pb-5 mt-3">
+                <div class="col-md-8 offset-md-2">
+                    <div class="subtitle-line">
+                        <span class="bg-white">{{ 'TITLE_JULGAMENTO_SUBSTITUICAO_PRIMEIRA_INSTANCIA' | i18n }}</span>
+                    </div>
+                </div>
+                <div class="col-md-2 spinnerStatus">
+                    <div *ngIf="!isDeferido()">
+                        <div class="icons-title">
+                            <i class="fa fa-spinner text-danger"></i>
+                            <i class="fas fa-times text-danger"></i>
+                        </div>
+            
+                        <div class="texto-titulo text-danger">{{ 'LABEL_INDEFERIDO' | i18n }}</div>
+                    </div>
+                    <div *ngIf="isDeferido()">
+                        <div class="icons-title">
+                            <i class="fa fa-spinner"></i>
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="texto-titulo">{{ 'LABEL_DEFERIDO' | i18n }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <membros-chapa-substituicao
+                [membroSubstitutoTitular]="membroSubstitutoTitular"
+                [membroSubstituidoTitular]="membroSubstituidoTitular"
+                [membroSubstitutoSuplente]="membroSubstitutoSuplente"
+                [membroSubstituidoSuplente]="membroSubstituidoSuplente"
+            ></membros-chapa-substituicao>
+
+            <!-- Separador horizontal verde -->
+            <div class="box-separador bg-primary font-white">
+                <div fxLayout="row" fxLayoutAlign="center center">
+                    {{'TITLE_PARECER_PEDIDO_SUBSTITUICAO_DOCUMENTO' |i18n}}
+                </div>
+            </div>
+
+            <div class="row m-3 border" style="border-radius: 8px;">
+                <!-- Justificativa -->
+                <div class="col-md-12 mt-3">
+                    <card-panel [titulo]="'LABEL_DESCRICAO'">
+                        <ckeditor name="paracerJulgamento" id="paracerJulgamento" [(ngModel)]="parecer" [readOnly]="true"
+                            [config]="configuracaoCkeditor">
+                        </ckeditor>
+                    </card-panel>
+                </div>
+                
+                <!-- Documento -->
+                <div class="col-md-12">
+                    <card-panel [titulo]="'LABEL_DOCUMENTO'">
+                        <div class="col-md-6 p-0">
+                            {{ 'LABEL_ARQUIVO' | i18n }}
+                            <hr>
+                            <download *ngIf="julgamentoSubstituicao.nomeArquivo"
+                                title="{{ julgamentoSubstituicao.nomeArquivo }}" class="center-no-arquivo pointer p-0"
+                                [download]="julgamentoSubstituicao.nomeArquivo" (process)="download($event, julgamentoSubstituicao)"
+                                style="background: none;">
+                                {{ julgamentoSubstituicao.nomeArquivo }}
+                                <i class="fa fa-download" aria-hidden="true"></i>
+                            </download>
+                            <span *ngIf="!julgamentoSubstituicao.nomeArquivo">{{ 'LABEL_NAO_APLICADO' | i18n }}</span>
+                        </div>
+                    </card-panel>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <download title="julgamento_substituicao.pdf" class="center-no-arquivo pointer p-0"
+                    [download]="'julgamento_substituicao.pdf'" (process)="downloadPdfJulgamentoSubstituicao($event)"
+                    style="background: none;">
+                    <i class="fa fa-file-pdf-o" aria-hidden="true" style="font-size: 25px;"></i>
+                    {{'LABEL_GERAR_PDF' | i18n}}
+                </download>
+            </div>
+            
+        </div>
+    </div>
+</div>

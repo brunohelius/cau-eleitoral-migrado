@@ -1,0 +1,225 @@
+<div class="header">
+    <h1 class="header-title">
+        <i class="fa fa-wpforms" style="margin-right: 10px; font-size: 30px" aria-hidden="true"></i>
+        {{ 'LABEL_PARAMETRIZAR_CABECALHO_RODAPE_EMAIL' | i18n }}
+    </h1>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <!--Listagem de publicações.-->
+        <div class="tab-content">
+            <div class="tab-pane fade show active ">
+                <div class="card rounded-0">
+                    <div class="card-header rounded-0">
+                        <h5 class="card-title">
+                            <a class="pointer" (click)="voltar()">
+                                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                            </a>
+                            {{'LABEL_PARAMETRIZAR_CABECALHO_RODAPE_EMAIL' |i18n}}               
+                        </h5>
+                    </div>
+                    <div class="col-md-12 p-3">
+                        <form #form="ngForm">
+                            <div class="row p-3">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label for="input_titulo">{{ 'LABEL_TITULO' | i18n }}</label>
+                                        <input type="text" [(ngModel)]="cabecalho.titulo" #input_titulo="ngModel"
+                                            class="form-control" name="titulo" id="input_titulo"
+                                            title="{{ 'LABEL_TITULO' | i18n }}"
+                                            [disabled]="acaoSistema.isAcaoVisualizar()" required>
+                                        <validation-message [for]="input_titulo" [submitted]="submitted">
+                                        </validation-message>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <div class="form-group">
+                                            <label>{{'LABEL_UF' |i18n}}</label>
+                                            <ng-multiselect-dropdown placeholder="{{'LABEL_SELECIONAR' |i18n}}"
+                                                [name]="'uf'" #uf="ngModel" [disabled]="acaoSistema.isAcaoVisualizar()"
+                                                (onDeSelect)="onRemoveUf($event)"
+                                                (onSelectAll)="onSelectAllUfs()"
+                                                (onDeSelectAll)="onRemoveAllUfs()"
+                                                [data]="ufs" [(ngModel)]="ufsSelecionadas" [settings]="dropdownSettingsUF"
+                                                title="{{'LABEL_UF' |i18n}}" required>
+                                            </ng-multiselect-dropdown>
+                                            <validation-message [for]="uf" [submitted]="submitted">
+                                            </validation-message>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row p-3">
+                                <div class="row col-md-12 border-bottom">
+                                    <div class="col-md-10">
+                                        {{ 'LABEL_PARAMETRIZAR_CABECALHO_EMAIL' | i18n }}
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-center justify-content">
+                                        <label>{{ 'LABEL_ATIVAR' | i18n }}</label>
+                                        <ui-switch class="pl-2" [(ngModel)]="cabecalho.isCabecalhoAtivo"
+                                            [disabled]="isCabecalhoAtivoDisabled()"
+                                            (click)="verificarCorpoEmailVinculado('toggleParametrizarIsCabecalhoAtivo', cabecalho.isCabecalhoAtivo)"
+                                            title="{{ 'LABEL_ATIVAR' | i18n }}"
+                                            name="toggleParametrizarIsCabecalhoAtivo">
+                                        </ui-switch>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 p-3">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{'LABEL_INSERIR_FIGURA'|i18n}}</label>
+                                            <upload title="{{'LABEL_PROCURAR' | i18n}}"
+                                                [name]="cabecalho.nomeImagemCabecalho"
+                                                [disabled]="acaoSistema.isAcaoVisualizar() || !cabecalho.isCabecalhoAtivo" [required]="true" #uploadCabecalho="upload"
+                                                (process)="uploadImagemCabecalho($event)" name="uploadImgCabecalho">
+                                                <i class="fa fa-file-o text-success" aria-hidden="true"></i>
+                                                <span>{{'LABEL_PROCURAR' | i18n}}</span>
+                                            </upload>                                       
+                                            <validation-message [for]="uploadCabecalho.inputUpload" [submitted]="submitted">
+                                            </validation-message>
+                                        </div>                                
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="col-md-12 my-3">
+                                        <ckeditor name="descricaoParametrizacaoCabecalho"
+                                            [(ngModel)]="cabecalho.textoCabecalho"
+                                            #descricaoParametrizacaoCabecalho="ngModel"
+                                            id="descricaoParametrizacaoCabecalho"
+                                            [config]="configuracaoCkeditorTextoCabecalho"
+                                            [readOnly]="!cabecalho.isCabecalhoAtivo || acaoSistema.isAcaoVisualizar()"
+                                            [required]="false">
+                                        </ckeditor>
+
+                                        <validation-message [for]="descricaoParametrizacaoCabecalho"
+                                            [submitted]="submitted">
+                                        </validation-message>
+
+                                        <button type="button"
+                                            class="btn btn-sm btn-primary float-right mt-2"
+                                            [disabled]="!cabecalho.isCabecalhoAtivo || acaoSistema.isAcaoVisualizar()"
+                                            (click)="limparCampo('descricaoParametrizacaoCabecalho')">
+                                            {{ 'LABEL_LIMPAR' | i18n }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row p-3">
+                                <div class="row col-md-12 border-bottom">
+                                    <div class="col-md-10">
+                                        {{ 'LABEL_PARAMETRIZAR_RODAPE_EMAIL' | i18n }}
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-center justify-content">
+                                        <label>{{ 'LABEL_ATIVAR' | i18n }}</label>
+                                        <ui-switch class="pl-2" [(ngModel)]="cabecalho.isRodapeAtivo"
+                                            [disabled]="isRodapeoAtivoDisabled()"
+                                            (click)="verificarCorpoEmailVinculado('toggleParametrizarIsRodapeAtivo', cabecalho.isRodapeAtivo)"
+                                            title="{{ 'LABEL_ATIVAR' | i18n }}" name="toggleParametrizarIsRodapeAtivo">
+                                        </ui-switch>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 p-3">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{'LABEL_INSERIR_FIGURA'|i18n}}</label>
+                                            <upload title="{{'LABEL_PROCURAR' | i18n}}"
+                                                [name]="cabecalho.nomeImagemRodape"
+                                                [disabled]="acaoSistema.isAcaoVisualizar() || !cabecalho.isRodapeAtivo" [required]="true" #uploadRodape="upload"
+                                                (process)="uploadImagemRodape($event)" name="uploadImgRodape">
+                                                <i class="fa fa-file-o text-success" aria-hidden="true"></i>
+                                                <span>{{'LABEL_PROCURAR' | i18n}}</span>
+                                            </upload>
+                                            <validation-message [for]="uploadRodape.inputUpload" [submitted]="submitted">
+                                            </validation-message>
+                                        </div>                                        
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="col-md-12 my-3">
+                                        <ckeditor name="descricaoParametrizacaoRodape"
+                                            [(ngModel)]="cabecalho.textoRodape" #descricaoParametrizacaoRodape="ngModel"
+                                            [readOnly]="!cabecalho.isRodapeAtivo || acaoSistema.isAcaoVisualizar()"
+                                            id="descricaoParametrizacaoRodape"
+                                            [config]="configuracaoCkeditorTextoRodape"
+                                            [required]="false">
+                                        </ckeditor>
+
+                                        <validation-message [for]="descricaoParametrizacaoRodape"
+                                            [submitted]="submitted">
+                                        </validation-message>
+
+                                        <button type="button"
+                                            class="btn btn-sm btn-primary float-right mt-2"
+                                            [disabled]="!cabecalho.isRodapeAtivo || acaoSistema.isAcaoVisualizar()"
+                                            (click)="limparCampo('descricaoParametrizacaoRodape')">
+                                            {{ 'LABEL_LIMPAR' | i18n }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row p-3">
+                                <button type="button" class="btn btn-sm btn-primary float-left mt-2"
+                                    (click)="visualizarCabecalhoEmail(templateVisualizarCabecalhoEmail, form)">
+                                    {{ 'LABEL_VISUALIZAR' | i18n }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #templateVisualizarCabecalhoEmail>
+    <div class="card m-0">
+        <div class="card-header">
+            <a class="pointer" (click)="fecharModalVisualizarCabecalhoEmail()">
+                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+            </a>
+            {{ 'LABEL_VISUALIZAR_CABECALHO_RODAPE_EMAIL' | i18n }}
+        </div>
+        <div class="card-body">
+            <div class="row col-md-12">
+                <div class="row" *ngIf="cabecalho.isCabecalhoAtivo">
+                    <div class="col-md-12" *ngIf="cabecalho.imagemCabecalho">
+                        <p><img [src]="imgURLCabecalhoPreview" class="img-fluid" alt=""></p>
+                    </div>
+
+                    <div class="col-md-12" *ngIf="cabecalho.textoCabecalho">
+                        <p [innerHTML]="getHtmlConfiavel(cabecalho.textoCabecalho)"></p>
+                    </div>
+                </div>
+
+                <div class="row col-md-12">
+                    <div class="row col-md-12">
+                        <p>{{ 'Corpo E-mail' }}</p>
+                    </div>
+                </div>
+
+                <div class="row col-md-12" *ngIf="cabecalho.isRodapeAtivo">
+                    <div class="row col-md-12" *ngIf="cabecalho.textoRodape">
+                        <p [innerHTML]="getHtmlConfiavel(cabecalho.textoRodape)"> </p>
+                    </div>
+
+                    <div class="row col-md-12" *ngIf="cabecalho.imagemRodape">
+                        <p><img [src]="imgURLRodapePreview" class="img-fluid" alt=""></p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="card-footer bg-transparent">
+            <button type="button" (click)="salvar()" [disabled]="acaoSistema.isAcaoVisualizar()"
+                class="btn btn-sm btn-primary">
+                {{ 'LABEL_CONCLUIR' | i18n }}
+            </button>
+        </div>
+    </div>
+</ng-template>

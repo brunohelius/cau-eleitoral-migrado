@@ -1,0 +1,46 @@
+@import "~bootstrap/scss/functions";
+@import "~@cau/layout/variables";
+
+.custom-grid-white {
+  flex: 1 1 0%;
+  flex-direction: row;
+  box-sizing: border-box;
+  border-color: #80808066;
+  padding: 10px;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  border-width: 1px;
+  border-style: solid;
+}
+.custom-grid-dark {
+  flex: 1 1 0%;
+  flex-direction: row;
+  box-sizing: border-box;
+  border-color: #80808066;
+  padding: 10px;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  border-width: 1px;
+  border-style: solid;
+  color: white;
+  font-weight: bold;
+}
+.icone-19 {
+    font-size: 19px;
+}
+.icone-32 {
+  font-size: 32px;
+}
+.font-card {
+  font-size: 0.8rem;
+}
+.body-height {
+  height: 100%;
+}
+.modal-title-color {
+  color: grey;
+}
+.color-alert {
+    color: $warning !important;
+}
+.btn-verde-cau {
+  background-color: #016C71;
+}

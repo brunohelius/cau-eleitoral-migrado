@@ -1,0 +1,43 @@
+
+<card-panel [titulo]="'LABEL_RETIFICACAO_JULGAMENTO_FINAL'" class="mt-3">
+    <div class="p-5">
+        <div *ngIf="dados != null && dados != undefined">
+            <div class="col-md-12 shadow" *ngFor=" let retificacao of dados; let indice = index">
+                <div class="row" >
+                    <div class="col-md-12 header p-0 m-0">
+                        <div fxLayout="row" fxLayoutAlign="space-around center">
+                            <div  fxFlex="25%" fxLayout="row" fxLayoutAlign="center center"><b>{{'LABEL_REGISTRO' | i18n}}</b></div>
+                            <div  fxFlex="25%" fxLayout="row" fxLayoutAlign="center center"><b>{{'LABEL_DATA_BARA_HORA_CADASTRO' | i18n}}</b></div>
+                            <div  fxFlex="25%" fxLayout="row" fxLayoutAlign="center center"><b>{{'LABEL_CADASTRADO_POR' | i18n}}</b></div>
+                            <div  fxFlex="25%" fxLayout="row" fxLayoutAlign="center center"><b>{{'LABEL_DESCRICAO_DOCUMENTO' | i18n}}</b></div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 content p-0 m-0">
+                        <div fxLayout="row" fxLayoutAlign="space-around center"  style="min-height: 50px;" >
+                            <div  fxFlex="25%" style="height:100%;" fxLayout="row" fxLayoutAlign="center center">
+                                <b>{{retificacao?.sequencia}}</b>
+                            </div>
+                            <div  fxFlex="25%" style="height:100%;" fxLayout="row" fxLayoutAlign="center center">
+                                <b *ngIf="!isRecurso">{{retificacao?.dataCadastro | date:'dd/MM/yyyy' : '+0' }}
+                                    às {{ retificacao?.dataCadastro | date:'HH:mm' : '+0' }}
+                                </b>
+                                <b *ngIf="isRecurso">{{retificacao?.dataCadastro | date:'dd/MM/yyyy' : '+0' }}
+                                    às {{ retificacao?.dataCadastro | date:'HH:mm' : '+0' }}
+                                </b>
+                            </div>
+                            <div  fxFlex="25%" style="height:100%;" fxLayout="row" fxLayoutAlign="center center">
+                                <b>{{retificacao?.profissional?.nome}}</b>
+                            </div>
+                            <div  fxFlex="25%" style="height:100%;" fxLayout="row" fxLayoutAlign="center center">
+                                <b (click)="acionaVisualizar(retificacao)" class="link">{{'LABEL_VISUALIZAR' | i18n}}</b>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="dados == null || dados == undefined" fxLayout="row" fxLayoutAlign="center center" >
+           <strong class="colorGreen"> {{'MSG_CARREGANDO_DADOS' | i18n}}</strong>
+        </div>
+    </div>
+</card-panel>

@@ -1,0 +1,10 @@
+<editor-de-texto #editor="ngModel"
+    [(ngModel)]="valor" 
+    [disabled]="disabled"
+    [required]="required"
+    (blur)="onTouchedFn()"
+    (ngModelChange)="onChange()"
+    [tamanhoMaximo]="tamanhoMaximo" 
+    [configuracao]="configuracaoCkeditor" 
+    [isMostrarTamanhoTextoRestantes]="true" >
+</editor-de-texto>

@@ -1,0 +1,95 @@
+<button class="btn btn-primary btn-sm ml-2" title="{{'TITLE_VISUALIZAR' | i18n}}" type="button" (click)="abrirModal(templateVisualizar)">
+    <i class="far fa-list-alt icon-action"></i>
+</button>
+<ng-template #templateVisualizar>
+    <div class="modal-header border-header-green">
+        <div class="col-md-12 text-center">
+            <h6 class="modal-title pull-center" style="color: grey;">
+                {{'TITLE_VISUALIZAR_ALEGACAO' | i18n}}
+            </h6>
+        </div>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        <div class="mb-5">
+            <card-panel [titulo]="'LABEL_RESPONSAVEL_PELO_CADASTRO'" class="mt-3">
+                <div class="p-4">
+                    <div fxLayout="row" fxFlexFill>
+                        <div fxFlex>
+                            <div fxLayout="row">
+                                <div fxFlex class="text-center">
+                                    <strong class="label-subtitle">{{ 'LABEL_NOME_COMPLETO' | i18n }}</strong>
+                                </div>
+                                <div fxFlex class="text-center">
+                                    <strong class="label-subtitle">{{ 'LABEL_REGISTRO' | i18n }}</strong>
+                                </div>
+                                <div fxFlex class="text-center">
+                                    <strong class="label-subtitle">{{ 'LABEL_EMAIL' | i18n }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-item mt-3">
+                        <div fxLayout="row" class="list-item-box custom-grid mt-2">
+                            <div fxFlex fxLayoutAlign="center center" class="text-center border-grid-tb h-100  bg-white">
+                                <div fxLayout="column" fxLayoutAlign="space-around center" class="w-100 border-right">
+                                    <div>
+                                        {{alegacao.profissional.nome}}
+                                    </div>
+                                </div>
+                            </div>
+                            <div fxFlex fxLayoutAlign="center center" class="text-center h-100 border-grid-tb bg-white">
+                                <div fxLayout="column" fxLayoutAlign="space-around center" class="w-100 border-right">
+                                    <div>
+                                        {{getRegistroComMask(alegacao.profissional.registroNacional)}}
+                                    </div>
+                                </div>
+                            </div>
+                            <div fxFlex fxLayoutAlign="center center" class="text-center border-grid-tb h-100  bg-white">
+                                <div fxLayout="column" fxLayoutAlign="space-around center" class="w-100">
+                                    <div>
+                                        {{alegacao.profissional.pessoa.email}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </card-panel>
+        </div>
+
+        <div class="mb-5">
+            <card-panel [titulo]="'LABEL_NARRACAO_FATOS'" class="mt-3">
+                <editor-de-texto
+                    [valor]="alegacao.narracao"
+                    [configuracao]="configuracaoCkeditor">
+                </editor-de-texto>
+            </card-panel>
+        </div>
+
+        <card-panel [titulo]="'LABEL_DOCUMENTO'" class="mt-3">
+            <arquivo
+                [hasDownload]="true"
+                [arquivos]="arquivos"
+                (download)="downloadArquivo($event)">
+            </arquivo>
+            <div class="col-md-4 col-xs-12" *ngIf="alegacao.nomeArquivo == '' || alegacao.nomeArquivo == undefined">
+                <table class="table table-sm">
+                    <tbody>
+                        <td class="text-left pr-3 mt-3">
+                            <span>{{ 'LABEL_NAO_APLICADO' | i18n }}</span>
+                        </td>
+                    </tbody>
+                </table>
+            </div>
+        </card-panel>
+
+        <div class="col-md-12 p-3">
+            <button
+            class="btn btn-primary px-3 mr-3"
+                (click)="modalVisualizar.hide()">
+                {{ 'LABEL_FECHAR' | i18n }}
+            </button>
+        </div>
+
+    </div>
+</ng-template>

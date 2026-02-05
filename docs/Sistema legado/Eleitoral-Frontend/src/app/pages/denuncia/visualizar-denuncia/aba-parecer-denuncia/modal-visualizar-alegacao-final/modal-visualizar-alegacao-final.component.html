@@ -1,0 +1,115 @@
+<div class="modal-header border-header-green">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 text-center">
+        <h6 class="modal-title pull-center">{{'LABEL_VISUALIZAR_ALEGACAO_FINAL'|i18n}}</h6>
+    </div>
+    <div class="col-md-2 align-items-right">
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
+<div class="modal-body">
+    <div>
+        <div class="mb-3 text-center">
+            <strong>{{'LABEL_SOLICITACAO_ALEGACAO_FINAL'|i18n}}</strong>
+        </div>
+
+    <h6>
+        <strong>{{'LABEL_RELATOR' | i18n}}: </strong>
+        <span>{{ alegacaoFinal.encaminhamentoDenuncia.membroComissao.profissionalEntity.nome}}</span>
+    </h6>
+
+    <div class="alert bg-green border shadow">
+        <div class="p-2">
+            <strong>{{'LABEL_DESCRICAO_ENCAMINHAMENTO'|i18n}}</strong>
+            <div class="mt-2 word-wrap" [innerHTML]="alegacaoFinal.encaminhamentoDenuncia.descricao"></div>
+        </div>
+    </div>
+
+    <div class="card-body bg-green font-12 border" style="border-radius: 8px;"
+        *ngIf="alegacaoFinal.encaminhamentoDenuncia.arquivoEncaminhamento.length > 0">
+        <h6 class="mb-3"><strong>{{'LABEL_DOCUMENTO'|i18n}}</strong></h6>
+        <span class="font-weight-bold arquivo">{{ 'TITLE_ARQUIVO'|i18n}}</span>
+        <div>
+            <table class="border-top">
+                <tbody>
+                    <tr
+                        *ngFor="let arquivoEncaminhamento of alegacaoFinal.encaminhamentoDenuncia.arquivoEncaminhamento">
+                        <td>{{arquivoEncaminhamento.nome}}</td>
+                        <td>
+                            <download title="{{arquivoEncaminhamento.nome}}" class="text-primary pointer p-0"
+                                [download]="arquivoEncaminhamento.nome"
+                                (process)="downloadArquivoEncaminhamentoDenuncia($event, arquivoEncaminhamento.id)">
+                                <i class="align-middle fa fa-download"></i>
+                            </download>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+        <div *ngIf="isStatusEncaminhamentoConcluido()">
+            <hr class="border-header-green" />
+
+            <div class="mb-3 text-center">
+                <strong>{{'LABEL_RESPOSTA'|i18n}}</strong>
+            </div>
+
+            <h6>
+                <strong>{{'LABEL_DATA_HORA_CADASTRO' | i18n}}: </strong>
+                <span> {{alegacaoFinal.dataHora | date:'dd/MM/yyyy' : '+0' }} às
+                    {{ alegacaoFinal.dataHora | date:'HH:mm ' : '+0' }}</span>
+            </h6>
+
+
+            <div class="alert bg-green border shadow">
+                <div class="p-2">
+                    <strong>{{'LABEL_ALEGACOES_FINAIS'|i18n}}</strong>
+                    <div class="mt-2 word-wrap" [innerHTML]="alegacaoFinal.descricaoAlegacaoFinal"></div>
+                </div>
+            </div>
+
+            <div class="card-body bg-green font-12 border" style="border-radius: 8px;"
+                *ngIf="alegacaoFinal.arquivosAlegacaoFinal.length > 0">
+                <h6 class="mb-3"><strong>{{ 'LABEL_DOCUMENTO'|i18n}}</strong></h6>
+                <span class="font-weight-bold arquivo">{{ 'TITLE_ARQUIVO'|i18n}}</span>
+                <div>
+                    <table class="border-top">
+                        <tbody>
+                            <tr *ngFor="let arquivo of alegacaoFinal.arquivosAlegacaoFinal">
+                                <td>{{arquivo.nome}}</td>
+                                <td>
+                                    <download title="{{arquivo.nome}}" class="text-primary pointer p-0"
+                                        [download]="arquivo.nome" (process)="downloadAlegacaoFinal($event, arquivo.id)">
+                                        <i class="align-middle fa fa-download"></i>
+                                    </download>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="isStatusEncaminhamentoTranscorrido()">
+            <hr class="border-header-green" />
+
+            <div class="alert bg-green border shadow">
+                <div class="p-2">
+                    <div class="mt-2 word-wrap text-center"> <strong>{{'MSG_NAO_HOUVE_CADASTRO_ALEGACAO' | i18n}}</strong></div>
+                </div>
+            </div>
+        </div>
+
+</div>
+
+<div class="modal-footer">
+    <button class="btn btn-primary mr-auto" type="button" (click)="modalRef.hide()">
+        Fechar
+    </button>
+</div>

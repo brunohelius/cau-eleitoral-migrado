@@ -1,0 +1,71 @@
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-tabs">
+            <li class="nav-item pointer">
+                <a class="nav-link" (click)="onSelect(tab.tabPeriodo, 'periodo')"
+                    [ngClass]="{'active': tab.tabPeriodo.active}">{{'LABEL_PERIODO' | i18n}}
+                </a>
+            </li>
+            <li class="nav-item pointer">
+                <a class="nav-link" (click)="onSelect(tab.tabPrazo, 'prazo')"
+                    [ngClass]="{'active': tab.tabPrazo.active}">{{'LABEL_PRAZO' | i18n}}
+                </a>
+            </li>
+            <li class="nav-item pointer">
+                <a class="nav-link" (click)="onSelect(tab.tabHistorico, 'historico')"
+                    [ngClass]="{'active': tab.tabHistorico.active}">{{'LABEL_HISTORICO' | i18n}}
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade" [ngClass]="{'active': tab.tabPeriodo.active, 'show': tab.tabPeriodo.active}"
+                *ngIf="tab.tabPeriodo.active">
+                <div class="card rounded-0 pl-3 p-2">
+                    <a class="pointer" (click)="voltarLista()">
+                        <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                        <span>{{'LABEL_CADASTRO' |i18n}}</span>
+                    </a>
+                </div>
+                <div class="card rounded-0 mt-1">
+                    <form-cadastro-periodo-calendario (periodoSalvo)="recarregarCalendario($event)"
+                        (next)="avancarPrazo()" [inputCalendario]="calendario" [calendarioClone]="calendarioClone"
+                        [acaoSistema]="acaoSistema" [isAbaPrazo]="false">
+                    </form-cadastro-periodo-calendario>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" [ngClass]="{'active': tab.tabPrazo.active, 'show': tab.tabPrazo.active}"
+                *ngIf="tab.tabPrazo.active">
+                <div class="card rounded-0 pl-3 p-2">
+                    <a class="pointer" (click)="voltarLista()">
+                        <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                        <span>{{'LABEL_CADASTRO' |i18n}}</span>
+                    </a>
+                </div>
+                <div class="card rounded-0 mt-1">
+                    <form-cadastro-periodo-calendario (periodoSalvo)="recarregarCalendario($event)"
+                        [inputCalendario]="calendario" [calendarioClone]="calendarioClone" [acaoSistema]="acaoSistema"
+                        [isAbaPrazo]="true" (updateClone)="setCalendarioClone($event)">
+                    </form-cadastro-periodo-calendario>
+
+                    <form-atividades-arvore-prazo-calendario [calendario]="calendario"
+                        (periodoSalvo)="recarregarCalendario($event)" (updateClone)="setCalendarioClone($event)">
+                    </form-atividades-arvore-prazo-calendario>
+                </div>
+            </div>
+            <div class="tab-pane fade" [ngClass]="{'active': tab.tabHistorico.active, 'show': tab.tabHistorico.active}"
+                *ngIf="tab.tabHistorico.active">
+                <div class="card rounded-0 pl-3 p-2">
+                    <a class="pointer" (click)="voltarLista()">
+                        <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                        <span>{{'LABEL_HISTORICO' |i18n}}</span>
+                    </a>
+                </div>
+                <div class="card rounded-0 mt-1">
+                    <list-historico-calendario [calendario]="calendario"></list-historico-calendario>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

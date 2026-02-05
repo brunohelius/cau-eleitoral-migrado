@@ -1,0 +1,458 @@
+<div class="row">
+    <div class="col-md-12">
+
+        <ul class="nav nav-tabs">
+            <li class="nav-item pointer">
+                <a class="nav-link" [ngClass]="{ 'active': true }">{{'LABEL_VISAO_GERAL' |i18n}}
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade active show">
+                <div class="card rounded-0">
+
+                    <div class="card-header rounded-0 pt-0 pb-1">
+                        <div class="d-flex flex-row align-items-center">
+                            <div class="pt-1 pb-1">
+                                <i class="fa fa-television pl-3 pr-4" aria-hidden="true" style="font-size: 30px"></i>
+                            </div>
+                            <div class="pl-2">
+                                <h6 class="m-0 pl-2 border-left">
+                                    <i class="fa fa-file-text-o icone-bar pr-1" aria-hidden="true"></i>
+                                    {{'CADASTRO_MEMBROS_COMISSAO_ELEITORAL' |i18n}}
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body" fxLayout="column" fxLayoutGap="15px">
+                        <div class="row mt-3">
+                            <div class="col-3">
+                                <label class="mr-auto">{{ 'LABEL_ANO_ELEICAO' | i18n }}</label>
+                                <select class="form-control" (change)="getMembrosComissao()" [disabled]="eleicoes.length < 2" [(ngModel)]="eleicao.anoEleicao"
+                                    name="eleicao">
+                                    <option *ngFor=" let eleicao of eleicoes" value="{{eleicao.ano}}">
+                                        {{eleicao.ano}}
+                                    </option>
+                                </select>
+                            </div>
+
+
+                            <div class="col-3">
+                                <label class="mr-auto">{{ 'LABEL_ELEICAO' | i18n }}</label>
+                                <select class="form-control" (change)="getMembrosComissao()" [disabled]="eleicoes.length < 2" [(ngModel)]="eleicao.eleicao.id"
+                                    name="descricao">
+                                    <option *ngFor=" let eleicao of eleicoes" value="{{eleicao.id}}">
+                                        {{eleicao.descricao}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-3">
+                                <label class="mr-auto">{{ 'LABEL_UF' | i18n }}</label>
+                                <select class="form-control" [(ngModel)]="eleicao.cauUf" (change)="getMembrosComissao()"
+                                    name="cauUf">
+                                    <option value="">{{ 'LABEL_TODAS' | i18n }}</option>
+                                    <option *ngFor="let cauUF of cauUfs" value="{{cauUF.id}}">{{cauUF.prefixo}}</option>
+                                </select>
+                            </div>
+                            <div class="col-3" *ngIf="eleicao.cauUf">
+                                <label>{{ 'LABEL_NUMERO_MEMBROS' | i18n }}</label>
+                                <input type="text" readonly class="form-control" [(ngModel)]="numeroMembroComimssao" />
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="bg-primary text-white my-3 py-1">
+
+                    </div>
+                    <table class="table table-borderless" [mfData]="membrosComissoes" #mf="mfDataTable"
+                        [mfRowsOnPage]="3" *ngIf="eleicoes">
+                        <tbody>
+                            <tr *ngFor="let comissao of mf.data">
+                                <td>
+                                    <div class="card-body" fxLayout="column" fxLayoutGap="15px">
+                                        <div class="p-3 border">
+                                            <span class="pl-3 ">
+                                                <strong>{{ 'LABEL_VISUALIZAR_MEMBROS_COMISSOES' | i18n }}
+                                                    ({{comissao.cauUf.prefixo}})</strong>
+                                            </span>
+
+                                            <div class="alert bg-green border">
+                                                <h6 class="subtitle-line">{{ 'LABEL_COORDENADORES' | i18n }}</h6>
+                                                <div fxLayout="row" fxLayoutGap="10px" fxFlexFill>
+                                                    <div fxFlex>
+                                                        <div fxLayout="row">
+                                                            <div fxFlex class="ml-3 text-center">
+                                                                <strong
+                                                                    class="label-subtitle">{{ 'LABEL_NOME' | i18n }}</strong>
+                                                            </div>
+                                                            <div fxFlex class="ml-3 text-center">
+                                                                <strong
+                                                                    class="label-subtitle">{{ 'LABEL_CPF' | i18n }}</strong>
+                                                            </div>
+                                                            <div fxFlex class="ml-4 text-center">
+                                                                <strong
+                                                                    class="label-subtitle">{{ 'LABEL_TIPO_PARTICIPACAO' | i18n }}</strong>
+                                                            </div>
+
+                                                            <div fxFlex class="text-center"><strong
+                                                                    class="label-subtitle">{{ 'LABEL_STATUS' | i18n }}</strong>
+                                                            </div>
+                                                        </div>
+
+                                                        <div *ngFor="let coordenador of comissao.coordenadores">
+                                                            <div class="list-item list-item-card mt-1"
+                                                                (click)="detalhesMembro(coordenador, templateDetalhesProfisional)">
+                                                                <div fxLayout="row" fxLayoutGap="15px"
+                                                                    class="list-item-box">
+                                                                    <div fxFlex="24%"
+                                                                        class="border-left pl-3 text-center">
+                                                                        <span>{{coordenador.profissionalEntity.nome}}</span>
+                                                                    </div>
+                                                                    <div fxFlex class="border-left pl-3 text-center">
+                                                                        <span>{{coordenador.profissionalEntity.cpf | mask:'000.000.000-00'}}</span>
+                                                                    </div>
+                                                                    <div fxFlex class="border-left pl-3 text-center">
+                                                                        <span>{{coordenador.tipoParticipacao.descricao}}</span>
+                                                                    </div>
+                                                                    <div fxFlex
+                                                                        class="border-left pl-3 pr-3 text-center">
+                                                                        <div class="progress"
+                                                                            *ngIf="coordenador.situacaoVigente.id === constants.SITUACAO_MEMBRO_PENDENTE">
+                                                                            <div class="progress-bar bg-warning"
+                                                                                role="progressbar" style="width: 100%;"
+                                                                                aria-valuenow="25" aria-valuemin="0"
+                                                                                aria-valuemax="100">
+                                                                                {{coordenador.situacaoVigente.descricao}}
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="progress"
+                                                                            *ngIf="coordenador.situacaoVigente.id === constants.SITUACAO_MEMBRO_CONFIRMADO">
+                                                                            <div class="progress-bar bg-primary"
+                                                                                role="progressbar" style="width: 100%;"
+                                                                                aria-valuenow="25" aria-valuemin="0"
+                                                                                aria-valuemax="100">
+                                                                                {{coordenador.situacaoVigente.descricao}}
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="progress"
+                                                                            *ngIf="coordenador.situacaoVigente.id === constants.SITUACAO_MEMBRO_REJEITADO">
+                                                                            <div class="progress-bar bg-danger"
+                                                                                role="progressbar" style="width: 100%;"
+                                                                                aria-valuenow="25" aria-valuemin="0"
+                                                                                aria-valuemax="100">
+                                                                                {{coordenador.situacaoVigente.descricao}}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <h6 class="subtitle-line mt-3">{{ 'LABEL_MEMBROS' | i18n }}</h6>
+                                                        <div fxLayout="row">
+                                                            <div fxFlex class="ml-3 text-center">
+                                                                <strong
+                                                                    class="label-subtitle">{{ 'LABEL_NOME' | i18n }}</strong>
+                                                            </div>
+                                                            <div fxFlex class="ml-3 text-center">
+                                                                <strong
+                                                                    class="label-subtitle">{{ 'LABEL_CPF' | i18n }}</strong>
+                                                            </div>
+                                                            <div fxFlex class="ml-4 text-center">
+                                                                <strong
+                                                                    class="label-subtitle">{{ 'LABEL_TIPO_PARTICIPACAO' | i18n }}</strong>
+                                                            </div>
+
+                                                            <div fxFlex class="text-center"><strong
+                                                                    class="label-subtitle">{{ 'LABEL_STATUS' | i18n }}</strong>
+                                                            </div>
+                                                        </div>
+                                                        <div *ngFor="let membro of comissao.membros">
+                                                            <div class="list-item list-item-card mt-1"
+                                                                (click)="detalhesMembro(membro, templateDetalhesProfisional)">
+                                                                <div fxLayout="row" fxLayoutGap="15px"
+                                                                    class="list-item-box">
+                                                                    <div fxFlex="24%"
+                                                                        class="border-left pl-3 text-center">
+                                                                        <span>{{membro.profissionalEntity.nome}}</span>
+                                                                    </div>
+                                                                    <div fxFlex class="border-left pl-3 text-center">
+                                                                        <span>{{membro.profissionalEntity.cpf | mask:'000.000.000-00'}}</span>
+                                                                    </div>
+                                                                    <div fxFlex class="border-left pl-3 text-center">
+                                                                        <span>{{membro.tipoParticipacao.descricao}}</span>
+                                                                    </div>
+                                                                    <div fxFlex
+                                                                        class="border-left pl-3 pr-3 text-center">
+                                                                        <div class="progress"
+                                                                            *ngIf="membro.situacaoVigente.id === constants.SITUACAO_MEMBRO_PENDENTE">
+                                                                            <div class="progress-bar bg-warning"
+                                                                                role="progressbar" style="width: 100%;"
+                                                                                aria-valuenow="25" aria-valuemin="0"
+                                                                                aria-valuemax="100">
+                                                                                {{membro.situacaoVigente.descricao}}
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="progress"
+                                                                            *ngIf="membro.situacaoVigente.id === constants.SITUACAO_MEMBRO_CONFIRMADO">
+                                                                            <div class="progress-bar bg-primary"
+                                                                                role="progressbar" style="width: 100%;"
+                                                                                aria-valuenow="25" aria-valuemin="0"
+                                                                                aria-valuemax="100">
+                                                                                {{membro.situacaoVigente.descricao}}
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="progress"
+                                                                            *ngIf="membro.situacaoVigente.id === constants.SITUACAO_MEMBRO_REJEITADO">
+                                                                            <div class="progress-bar bg-danger"
+                                                                                role="progressbar" style="width: 100%;"
+                                                                                aria-valuenow="25" aria-valuemin="0"
+                                                                                aria-valuemax="100">
+                                                                                {{membro.situacaoVigente.descricao}}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <h6 class="subtitle-line mt-3">{{ 'LABEL_SUBSTITUTO' | i18n }}</h6>
+                                                        <div fxLayout="row">
+                                                            <div fxFlex class="ml-3 text-center">
+                                                                <strong
+                                                                    class="label-subtitle">{{ 'LABEL_NOME' | i18n }}</strong>
+                                                            </div>
+                                                            <div fxFlex class="ml-3 text-center">
+                                                                <strong
+                                                                    class="label-subtitle">{{ 'LABEL_CPF' | i18n }}</strong>
+                                                            </div>
+                                                            <div fxFlex class="ml-4 text-center">
+                                                                <strong
+                                                                    class="label-subtitle">{{ 'LABEL_TIPO_PARTICIPACAO' | i18n }}</strong>
+                                                            </div>
+
+                                                            <div fxFlex class="text-center"><strong
+                                                                    class="label-subtitle">{{ 'LABEL_STATUS' | i18n }}</strong>
+                                                            </div>
+                                                        </div>
+                                                        <div *ngFor="let coordenador of comissao.coordenadores">
+                                                            <div class="list-item list-item-card mt-1"
+                                                                *ngIf="coordenador.membroSubstituto.profissionalEntity.cpf !== undefined">
+                                                                <div fxLayout="row" fxLayoutGap="15px"
+                                                                    class="list-item-box"
+                                                                    (click)="detalhesMembro(coordenador.membroSubstituto, templateDetalhesProfisional)">
+                                                                    <div fxFlex="24%"
+                                                                        class="border-left pl-3 text-center">
+                                                                        <span>{{coordenador.membroSubstituto.profissionalEntity.nome}}</span>
+                                                                    </div>
+                                                                    <div fxFlex class="border-left pl-3 text-center">
+                                                                        <span>{{coordenador.membroSubstituto.profissionalEntity.cpf | mask:'000.000.000-00'}}</span>
+                                                                    </div>
+                                                                    <div fxFlex class="border-left pl-3 text-center">
+                                                                        <span>{{coordenador.membroSubstituto.tipoParticipacao.descricao}}</span>
+                                                                    </div>
+                                                                    <div fxFlex
+                                                                        class="border-left pl-3 pr-3 text-center">
+                                                                        <div class="progress"
+                                                                            *ngIf="coordenador.membroSubstituto.situacaoVigente.id === constants.SITUACAO_MEMBRO_PENDENTE">
+                                                                            <div class="progress-bar bg-warning"
+                                                                                role="progressbar" style="width: 100%;"
+                                                                                aria-valuenow="25" aria-valuemin="0"
+                                                                                aria-valuemax="100">
+                                                                                {{coordenador.membroSubstituto.situacaoVigente.descricao}}
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="progress"
+                                                                            *ngIf="coordenador.membroSubstituto.situacaoVigente.id === constants.SITUACAO_MEMBRO_CONFIRMADO">
+                                                                            <div class="progress-bar bg-primary"
+                                                                                role="progressbar" style="width: 100%;"
+                                                                                aria-valuenow="25" aria-valuemin="0"
+                                                                                aria-valuemax="100">
+                                                                                {{coordenador.membroSubstituto.situacaoVigente.descricao}}
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="progress"
+                                                                            *ngIf="coordenador.membroSubstituto.situacaoVigente.id === constants.SITUACAO_MEMBRO_REJEITADO">
+                                                                            <div class="progress-bar bg-danger"
+                                                                                role="progressbar" style="width: 100%;"
+                                                                                aria-valuenow="25" aria-valuemin="0"
+                                                                                aria-valuemax="100">
+                                                                                {{coordenador.membroSubstituto.situacaoVigente.descricao}}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div *ngFor="let membro of comissao.membros">
+                                                            <div class="list-item list-item-card mt-1"
+                                                                *ngIf="membro.membroSubstituto.profissionalEntity.cpf !== undefined"
+                                                                (click)="detalhesMembro(membro.membroSubstituto, templateDetalhesProfisional)">
+                                                                <div fxLayout="row" fxLayoutGap="15px"
+                                                                    class="list-item-box">
+                                                                    <div fxFlex="24%"
+                                                                        class="border-left pl-3 text-center">
+                                                                        <span>{{membro.membroSubstituto.profissionalEntity.nome}}</span>
+                                                                    </div>
+                                                                    <div fxFlex class="border-left pl-3 text-center">
+                                                                        <span>{{membro.membroSubstituto.profissionalEntity.cpf | mask:'000.000.000-00'}}</span>
+                                                                    </div>
+                                                                    <div fxFlex class="border-left pl-3 text-center">
+                                                                        <span>{{membro.membroSubstituto.tipoParticipacao.descricao}}</span>
+                                                                    </div>
+                                                                    <div fxFlex
+                                                                        class="border-left pl-3 pr-3 text-center">
+                                                                        <div class="progress"
+                                                                            *ngIf="membro.membroSubstituto.situacaoVigente.id === constants.SITUACAO_MEMBRO_PENDENTE">
+                                                                            <div class="progress-bar bg-warning"
+                                                                                role="progressbar" style="width: 100%;"
+                                                                                aria-valuenow="25" aria-valuemin="0"
+                                                                                aria-valuemax="100">
+                                                                                {{membro.membroSubstituto.situacaoVigente.descricao}}
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="progress"
+                                                                            *ngIf="membro.membroSubstituto.situacaoVigente.id === constants.SITUACAO_MEMBRO_CONFIRMADO">
+                                                                            <div class="progress-bar bg-primary"
+                                                                                role="progressbar" style="width: 100%;"
+                                                                                aria-valuenow="25" aria-valuemin="0"
+                                                                                aria-valuemax="100">
+                                                                                {{membro.membroSubstituto.situacaoVigente.descricao}}
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="progress"
+                                                                            *ngIf="membro.membroSubstituto.situacaoVigente.id === constants.SITUACAO_MEMBRO_REJEITADO">
+                                                                            <div class="progress-bar bg-danger"
+                                                                                role="progressbar" style="width: 100%;"
+                                                                                aria-valuenow="25" aria-valuemin="0"
+                                                                                aria-valuemax="100">
+                                                                                {{membro.membroSubstituto.situacaoVigente.descricao}}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td>
+                                    <div *ngIf="membrosComissoes.length > 0" fxFlex fxLayoutAlign="end center">
+                                        <mfBootstrapPaginator></mfBootstrapPaginator>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<ng-template #templateDetalhesProfisional>
+    <div class="modal-header title-justificativa bg-primary">
+        <h5 class="modal-title text-white">{{'LABEL_DETALHES' |i18n}}</h5>
+        <button type="button" class="close pull-right text-white" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        <table class="table table-borderless table-sm">
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="pl-3 title-comissao">
+                            <img class="img-fluid rounded-circle mb-2" src="{{userDetails.profissional.avatar}}"
+                                alt="{{userDetails.profissional.nome}}" />
+                        </div>
+                    </td>
+                    <td class="text-primary pl-1 align-middle"><strong class="font-17">{{'LABEL_INFORMACOES_PESSOAIS' | i18n }}</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-primary pl-3"><strong class="text-primary pl-3">{{'LABEL_NOME' |i18n}}: </strong>
+                    </td>
+                    <td>{{userDetails.profissional.nome}}</td>
+                </tr>
+                <tr>
+                    <td class="text-primary pl-3"><strong class="text-primary pl-3">{{'LABEL_CPF' |i18n}}: </strong>
+                    </td>
+                    <td>{{userDetails.profissional.cpf | mask:'000.000.000-00'}}</td>
+                </tr>
+                <tr>
+                    <td class="text-primary pl-3"><strong class="text-primary pl-3">{{'LABEl_EMAIL_MIN' |i18n}}:
+                        </strong></td>
+                    <td>{{userDetails.profissional.email}}</td>
+                </tr>
+                <tr>
+                    <td class="text-primary pl-3"><strong class="text-primary pl-3">{{'LABEL_CARGO' |i18n}}: </strong>
+                    </td>
+                    <td>{{userDetails.tipoParticipacao.descricao}}</td>
+                </tr>
+                <tr>
+                    <td class="text-primary pl-3"><strong class="text-primary pl-3">{{'LABEL_SITUACAO' |i18n}}:
+                        </strong></td>
+                    <td>
+                        <i class="fa fa-exclamation-circle fa-2x text-warning"
+                            *ngIf="this.userDetails.pendencias.length > 0" (click)="userDetails.showPendencias = !userDetails.showPendencias"></i>
+                        <i class="fa fa-check-circle fa-2x text-success"
+                            *ngIf="this.userDetails.pendencias.length === 0" (click)="userDetails.showPendencias = !userDetails.showPendencias"></i>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-primary pl-3"><strong class="text-primary pl-3">{{'LABEL_STATUS' |i18n}}: </strong>
+                    </td>
+                    <td>
+                        <div class="progress w-50 m"
+                            *ngIf="userDetails.situacaoVigente.id === constants.SITUACAO_MEMBRO_PENDENTE">
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: 100%;"
+                                aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                {{userDetails.situacaoVigente.descricao}}
+                            </div>
+                        </div>
+                        <div class="progress w-50"
+                            *ngIf="userDetails.situacaoVigente.id === constants.SITUACAO_MEMBRO_CONFIRMADO">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 100%;"
+                                aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                {{userDetails.situacaoVigente.descricao}}
+                            </div>
+                        </div>
+                        <div class="progress w-50"
+                            *ngIf="userDetails.situacaoVigente.id === constants.SITUACAO_MEMBRO_REJEITADO">
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: 100%;"
+                                aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                {{userDetails.situacaoVigente.descricao}}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="card shadow border p-3 text-center" *ngIf="userDetails.pendencias.length === 0 && userDetails.showPendencias">
+            <strong>{{ 'LABEL_APTO_CONSELHO' |i18n}}</strong>
+        </div>
+
+        <div class="card shadow border p-3" *ngIf="userDetails.pendencias.length > 0 && userDetails.showPendencias">
+            <strong>{{ 'LABEL_EXISTE_PENDENCIAS' |i18n}}:</strong>
+
+            <ul class="mt-3">
+                <li *ngFor="let pendencia of userDetails.pendencias">{{ pendencia |i18n}}</li>
+            </ul>
+        </div>
+    </div>
+</ng-template>

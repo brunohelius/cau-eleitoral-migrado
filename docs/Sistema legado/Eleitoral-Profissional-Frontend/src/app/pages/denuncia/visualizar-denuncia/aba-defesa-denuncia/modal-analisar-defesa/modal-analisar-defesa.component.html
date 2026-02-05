@@ -1,0 +1,157 @@
+<div class="modal-header border-header-green">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 text-center">
+        <h6 class="modal-title pull-center">{{'LABEL_ANALISAR_DENUNCIA' |i18n}}</h6>
+    </div>
+    <div class="col-md-2 align-items-right">
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
+<div class="modal-body">
+    <form #formAnalisarDefesa="ngForm">
+        <div class="p-2">
+            <div fxLayout="row" fxLayout.sm="column" fxLayoutGap="15px">
+                <div fxFlex="35">
+                    <form-valid [submitted]="submitted">
+                        <strong>{{'LABEL_ENCAMINHAMENTO' | i18n}}</strong>
+                        <select class="form-control mr-1" name="tipoEncaminhamento" #input_tipo_encaminhamento="ngModel"
+                            [(ngModel)]="encaminhamento.tipoEncaminhamento" required>
+                            <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                            <option *ngFor="let tipoEncaminhamento of tiposEncaminhamento" [ngValue]="tipoEncaminhamento">
+                                {{tipoEncaminhamento.descricao}}
+                            </option>
+                        </select>
+                    </form-valid>
+                </div>
+                <div *ngIf="isTipoEncaminhamentoProducaoProvas()" fxFlex>
+                    <div class="px-4" fxFlex>
+                        <form-valid [submitted]="submitted">
+                            <strong>{{'LABEL_ENVIAR_PARA' | i18n}}</strong>
+
+                            <div class="py-2" fxLayout="row" fxLayoutGap="10px">
+                                <div fxFlex>
+                                    <input type="checkbox" id="enviarDenunciante" name="denunciante" #input_destinatario_denunciante="ngModel"
+                                        [(ngModel)]="encaminhamento.producaoProvas.destinatarios.denunciante" [required]="hasDestinatarioProducaoProvas()">
+                                    <label class="align-middle ml-1" for="enviarDenunciante">{{ 'LABEL_DENUNCIANTE' | i18n }}</label>
+                                </div>
+                                <div fxFlex>
+                                    <input type="checkbox" id="enviarDenunciado" name="denunciado" #input_destinatario_denunciado="ngModel"
+                                        [(ngModel)]="encaminhamento.producaoProvas.destinatarios.denunciado" [disabled]="isDenunciaTipoOutros" [required]="hasDestinatarioProducaoProvas()">
+                                    <label class="align-middle ml-1" for="enviarDenunciado">{{ 'LABEL_DENUNCIADO' | i18n }}</label>
+                                </div>
+                            </div>
+                        </form-valid>
+                    </div>
+                    <div fxFlex>
+                        <form-valid [submitted]="submitted">
+                            <strong>{{'LABEL_PRAZO_DIAS' | i18n}}</strong>
+                            <div class="py-1" fxLayout="row" fxLayoutGap="10px">
+                                <div fxFlex>
+                                    <input type="number" id="prazoDias" name="prazoDias" min="1" [inputMask]="'999999'" #input_prazo_dias="ngModel"
+                                        (keyup)="onReadyPrazo($event)" [value]="prazoPadrao" [(ngModel)]="encaminhamento.producaoProvas.prazoDias"
+                                        required/>
+                                </div>
+                            </div>
+                        </form-valid>
+                    </div>
+                </div>
+                <div *ngIf="isTipoEncaminhamentoAudienciaInstrucao()" fxFlex>
+                    <div class="px-4" fxFlex>
+                        <form-valid [submitted]="submitted">
+                            <strong>{{'LABEL_SELECIONAR_DATA' | i18n}}</strong>
+
+                            <div class="py-1" fxLayout="row" fxLayoutGap="10px">
+                                <div fxFlex>
+                                    <calendar id="dataAudiencia" [(ngModel)]="encaminhamento.audienciaInstrucao.data"
+                                        name="dataAudiencia" #input_data="ngModel" required>
+                                    </calendar>
+                                </div>
+                            </div>
+                        </form-valid>
+                    </div>
+                    <div fxFlex>
+                        <form-valid [submitted]="submitted">
+                            <strong>{{'LABEL_SELECIONAR_HORARIO' | i18n}}</strong>
+
+                            <div class="py-1" fxLayout="row" fxLayoutGap="10px">
+                                <div class="input-group" fxFlex>
+                                    <input type="time" class="form-control" id="horaAudiencia" name="horaAudiencia" 
+                                        [(ngModel)]="encaminhamento.audienciaInstrucao.horario"
+                                        #input_hora_audiencia="ngModel" required/>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text"><i class="fa fa-clock-o p-0"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </form-valid>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-2">
+            <strong>{{'LABEL_DESCRICAO_ENCAMINHAMENTO' | i18n}}</strong>
+            <form-valid [submitted]="submitted">
+                <div class="alert bg-green border shadow">
+                    <ckeditor id="dsEncaminhamentoDefesa" required name="dsEncaminhamentoDefesa"
+                        [config]="configuracaoCkeditor" (ready)="onReadyCKDefesa($event)"
+                        (change)="onChangeCKDescricao($event)" [(ngModel)]="encaminhamento.descricao"></ckeditor>
+                    <input type="hidden" maxlength="2000" name="hideEncaminhamentoDefesa"
+                        #input_encaminhamento="ngModel" [(ngModel)]="encaminhamento.encaminhamentoDefesaSimpleText" required>
+                    <span>{{ getContagemEncaminhamentoDefesa() }}</span>
+                </div>
+            </form-valid>
+        </div>
+
+        <div class="p-2">
+            <strong>{{'LABEL_DOCUMENTOS' | i18n}}</strong>
+            <div class="alert bg-green border shadow">
+                <div fxLayout="row">
+                    <div fxFlex>
+                        <label for="documento"><span>{{ 'LABEL_ARQUIVO' | i18n }}</span></label>
+                        <upload id="documento" title="{{'LABEL_SELECIONAR_ARQUIVO' | i18n}}" [name]="nomeArquivoDefesa"
+                            [disabled]="isQuantidadeUploadMaxima()" (process)="uploadDocumento($event)">
+                            <i class="fa fa-file-o text-success" aria-hidden="true"></i>
+                            <span>{{'LABEL_SELECIONAR_ARQUIVO' | i18n}}</span>
+                        </upload>
+                    </div>
+                    <div fxFlex>
+                        <i aria-hidden="true" class="fa fa-info-circle fa-2x pointer center-info-doc"
+                            [title]="getHintInformativoDocumento()"></i>
+                    </div>
+                </div>
+                <div class="lista-arquivos mt-2" fxLayout="row">
+                    <table class="table table-sm" *ngIf="encaminhamento.arquivos?.length > 0">
+                        <tbody>
+                            <tr *ngFor="let arquivo of encaminhamento.arquivos let indiceArquivo = index">
+                                <td class="text-center bnt-upload-excluir">
+                                    <div>
+                                        {{ arquivo.nome }}
+                                    </div>
+                                </td>
+                                <td class="table-action text-center">
+                                    <button type="button" class="btn" (click)="excluiUpload(indiceArquivo)">
+                                        <i class="align-middle fas fa-fw fa-times"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="modal-footer aling-left">
+    <div class="row p-2 py-3">
+        <div class="col-md-12 p-0 align-items-left">
+            <button class="btn btn-danger mr-4" type="button"
+                (click)="modalRef.hide()">{{'LABEL_CANCELAR' | i18n}}</button>
+            <button class="btn btn-primary mr-4" type="button"
+                (click)="concluir(formAnalisarDefesa)">{{'LABEL_CONCLUIR' | i18n}}</button>
+        </div>
+    </div>
+</div>

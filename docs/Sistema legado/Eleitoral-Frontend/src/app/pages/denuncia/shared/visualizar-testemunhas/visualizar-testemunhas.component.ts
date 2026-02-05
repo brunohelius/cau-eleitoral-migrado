@@ -1,0 +1,57 @@
+import { Component, OnInit, Input } from '@angular/core';
+
+import { MessageService } from '@cau/message';
+import { ConfigCardListInterface } from 'src/app/shared/component/card-list/config-card-list-interface';
+import { MaskPipe } from '@cau/component';
+
+@Component({
+  selector: 'visualizar-testemunhas',
+  templateUrl: './visualizar-testemunhas.component.html',
+  styleUrls: ['./visualizar-testemunhas.component.scss']
+})
+export class VisualizarTestemunhasComponent implements OnInit {
+
+  @Input('testemunhas') testemunhas: any;
+  public infoTestemunhas: ConfigCardListInterface;
+
+  constructor(
+    private messageService: MessageService,
+    private maskPipe: MaskPipe
+  ) { }
+
+  ngOnInit() {
+    this.initData();
+  }
+
+
+  /**
+   * Carrega os dados da página.
+   */
+  private initData = () => {
+    this.testemunhas.map((testemunha) => {
+      testemunha.telefone = this.maskPipe.transform(testemunha.telefone, '(00) 90000-0000');
+      return testemunha;
+    });
+
+    this.carregarInformacoesTestemunhas();
+  }
+
+  /**
+   * Carrega as informações de testemunhas.
+   */
+  private carregarInformacoesTestemunhas = () => {
+    this.infoTestemunhas = {
+      header: [{
+        'field': 'nome',
+        'header': this.messageService.getDescription('LABEL_NOME_COMPLETO')
+      }, {
+        'field': 'telefone',
+        'header': this.messageService.getDescription('LABEL_TELEFONE')
+      }, {
+        'field': 'email',
+        'header': this.messageService.getDescription('LABEL_EMAIL')
+      }],
+      data: this.testemunhas
+    };
+  }
+}

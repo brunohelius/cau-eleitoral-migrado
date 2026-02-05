@@ -1,0 +1,181 @@
+<style>
+    *, div, p, span{
+        font-size: 12px;
+        font-family: Arial;
+    }
+    .titulo {
+        font-weight: bolder;
+    }
+    .text-center {
+        text-align: center;
+    }
+    .pl-30 {
+        padding-left: 30px;
+    }
+    .pb-10 {
+        padding-bottom: 10px;
+    }
+    .fotoMembroChapa {
+        height: 133px;
+    }
+    .fontBold {
+        font-weight: bold
+    }
+    h2 {
+        font-size: 12px;
+        font-family: Arial;
+    }
+</style>
+<h2 class="text-center"> DIVULGAÇÃO DE CHAPAS NO PROCESSO ELEITORAL DO CAU</h2>
+
+{% for chapa in dadosExtrato.chapasEleicao %}
+{% set membroFederal = chapa.membrosChapa[0] %}
+{% set membroEstadual =  chapa.membrosChapa[1:] %}
+<div class="container">
+    <p class="titulo">
+        <span class="fontBold">CHAPA {{ chapa.numeroChapa is not empty ? "%02X"|format(chapa.numeroChapa) : 'A definir'  }} - {{ chapa.cauUf.descricao }} </span>
+    </p>
+    <p class="titulo pb-1"> <span class="fontBold">Candidatos:</span></p>
+    <div class="pl-30">
+        <div class="pb-10">
+            {% set titular = membroFederal[1] %}
+            {% set suplente = membroFederal[2] %}
+            <span class="titulo"> <span class="fontBold">Candidatos a conselheiros federais e respectivos suplentes de conselheiros</span></span>
+            <p>
+                {% if titular is not empty %}
+                <span> <span class="fontBold"> NOME (Titular): </span>{{ titular.profissional.nome }}</span>
+                {% endif %}
+                {% if titular is not empty and suplente is not empty %}
+                <span>e</span>
+                {% endif %}
+                {% if suplente is not empty %}
+                <span> <span class="fontBold"> NOME (Suplente): </span> {{ suplente.profissional.nome }} </span>
+                {% endif %}
+            </p>
+        </div>
+        {% if membroEstadual is not empty %}
+        <div class="pb-10">
+            <span class="titulo"><span class="fontBold"> Candidatos a conselheiros estaduais e respectivos suplentes de conselheiros</span></span>
+            {% for membro in membroEstadual %}
+            {% set titular = membro[1] %}
+            {% set suplente = membro[2] %}
+            <p>
+                {% if titular is not empty %}
+                <span> <span class="fontBold"> NOME (Titular): </span> {{ titular.profissional.nome }} </span>
+                {% endif %}
+                {% if titular is not empty and suplente is not empty %}
+                <span>e</span>
+                {% endif %}
+                {% if suplente is not empty %}
+                <span>  <span class="fontBold"> NOME (Suplente): </span> {{ suplente.profissional.nome }} </span>
+                {% endif %}
+            </p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <p class="pb-10">
+            Obs: Veja a síntese de currículo de cada condidato após o plano de trabalho.
+        </p>
+    </div>
+
+    {% if  chapa.redesSociaisChapa is not empty %}
+    <div class="pb-10">
+        <span class="titulo pb-10"> <span class="fontBold">Meios Oficiais de divugação:</span> </span>
+        <div class="pl-30">
+            <p>
+                <span>Lista de meios  oficiais de propaganda da chapa </span><br>
+                {% for redeSocial in chapa.redesSociaisChapa %}
+                {% if  redeSocial.isAtivo == true %}
+                <span> ({{ redeSocial.descricao }})</span> <br>
+                {% endif %}
+                {% endfor %}
+            </p>
+        </div>
+    </div>
+    {% else %}
+    <div class="pb-10">
+        <span class="titulo pb-10"> <span class="fontBold">Meios Oficiais de divugação: N/A</span> </span>
+    </div>
+    {% endif %}
+
+    <div class="pb-10">
+        <span class="titulo pb-10"> <span class="fontBold">Plano de Trabalho</span></span>
+        <div class="pl-30">
+            <p> {{ chapa.descricaoPlataforma | raw }}</p>
+        </div>
+    </div>
+
+
+    {% if titular is not empty or suplente is not empty %}
+    {% for i in 0..dadosExtrato.proporcaoConselheiros %}
+    {% set membro = chapa.membrosChapa[i] %}
+    {% set titular = membro[1] %}
+    {% set suplente = membro[2] %}
+    <div>
+        <span class="titulo" >
+            {% if i == 0 %}
+            <span class="fontBold">Candidatos a conselheiros titular federais e respectivos suplentes de conselheiros</span>
+            {% else %}
+            <span class="fontBold">Candidatos a conselheiros titular Estaduais e respectivos suplentes de conselheiros</span>
+            {% endif %}
+        </span>
+        {% if titular is not empty %}
+        <div class="pl-30">
+            <p>
+                <p>
+                    <span> <span class="fontBold"> {{ i }} -  NOME (Titular): </span> {{ titular.profissional.nome }}: </span>
+                </p>
+                <p>
+                    {% if titular.fotoMembroChapa is not empty %}
+                    <img class="fotoMembroChapa" src="{{ titular.fotoMembroChapa }}">
+                    {% else %}
+                    <img class="fotoMembroChapa" src="{{ imageUsuario }}">
+                    {% endif %}
+                </p>
+                <p>
+                    {{ titular.sinteseCurriculo | raw }}
+                </p>
+            </p>
+        </div>
+        {% else %}
+        <div class="pl-30">
+            <p>
+                <p>
+                    <span> <span class="fontBold"> {{ i }} -  N/A:  (Titular) </span></span>
+                </p>
+            </p>
+        </div>
+        {% endif %}
+
+        {% if suplente is not empty %}
+        <div class="pl-30">
+            <p>
+                <p>
+                    <span> <span class="fontBold"> {{ i }} - NOME (Suplente): </span>  {{ suplente.profissional.nome }}: </span>
+                </p>
+                <p>
+                    {% if suplente.fotoMembroChapa is not empty %}
+                    <img class="fotoMembroChapa" src="{{ suplente.fotoMembroChapa }}">
+                    {% else %}
+                    <img class="fotoMembroChapa" src="{{ imageUsuario }}">
+                    {% endif %}
+                </p>
+                <p>
+                    {{ suplente.sinteseCurriculo | raw }}
+                </p>
+            </p>
+        </div>
+        {% else %}
+        <div class="pl-30">
+            <p>
+                <p>
+                    <span> <span class="fontBold"> {{ i }} -  N/A:</span>  (Suplente)</span>
+                </p>
+            </p>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% endif %}
+</div>
+{% endfor %}

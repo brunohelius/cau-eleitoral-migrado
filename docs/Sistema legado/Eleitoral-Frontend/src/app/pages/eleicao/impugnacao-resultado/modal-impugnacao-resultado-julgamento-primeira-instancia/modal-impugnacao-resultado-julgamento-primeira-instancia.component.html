@@ -1,0 +1,89 @@
+<div class="modal-header border-header-green">
+  <div class="col-md-2"></div>
+  <div class="col-md-8 text-center">
+    <h6 class="modal-title pull-center">
+      {{'LABEL_JULGAMENTO_PRIMEIRA_INSTANCIA' |i18n}}
+    </h6>
+  </div>
+  <div class="col-md-2"></div>
+</div>
+<div class="modal-body">
+  <form #form="ngForm">
+    <!-- Bandeira do Julgamento -->
+    <div *ngIf="cauUf" class="d-flex justify-content-center">
+      <img class="img-fluid rounded-circle img-bandeira size-45-45" [src]="cauUf?.imagemBandeira"
+        style="margin-right: 5px;">
+      {{ cauUf?.descricao }}
+    </div>
+
+    <!-- Número de Pedido de Impugnação -->
+    <div class="pt-3">
+      <strong>
+        {{ 'LABEL_N_DO_PEDIDO_IMPUGNACAO' | i18n }} :
+      </strong>
+      <span> {{ getNumeroFormatado(impugnacaoResultado.numero, 4) }} </span>
+    </div>
+
+    <!-- Seleção de status do Julgamento -->
+    <div class="pt-3">
+      <card-panel [titulo]="'LABEL_JULGAMENTO'" class="mt-3">
+        <div class="row">
+          <div class="col-md-12 p-3">
+            <select
+            [(ngModel)]="julgamento.status"
+            name="status"
+            #select_status="ngModel"
+            required="true"
+            class="form-control mr-1 max-width-300"
+            >
+              <option [ngValue]="null" selected>{{ 'LABEL_SELECIONE' | i18n }}</option>
+              <option [ngValue]="1">{{ 'LABEL_PROCEDENTE' | i18n }}</option>
+              <option [ngValue]="2">{{ 'LABEL_IMPROCEDENTE' | i18n }}</option>
+            </select>
+            <div class="pt-3">
+              <validation-message [for]="select_status" [submitted]="submitted">
+              </validation-message>
+            </div>
+          </div>
+        </div>
+      </card-panel>
+    </div>
+
+    <!-- Descrição do Julgamento -->
+    <div class="pt-3">
+      <card-panel [titulo]="'TITLE_DESCRICAO_JULGAMENTO'" class="mt-3">
+        <editor-de-texto [isRequerido]="true" [isHabilitado]="true" [tamanhoMaximo]="2000"
+          [valor]="julgamento.descricao" [isMostrarTamanhoTextoRestantes]="true" [isSubmetido]="submitted"
+          [configuracao]="getConfiguracaoCkeditor()" (valorChange)="setDescricaoJulgamento($event)">
+        </editor-de-texto>
+      </card-panel>
+    </div>
+
+    <!-- Documentos do Julgamento -->
+    <div class="pt-3">
+      <card-panel [titulo]="'LABEL_DOCUMENTO'">
+        <div class="row">
+          <div class="col-md-12 p-0">
+            <arquivo [arquivos]="julgamento.arquivos" [maxArquivos]="1" [hasUpload]="true" [hasDownload]="true"
+              [msgHint]="getHintMensagem()" [maxArquivos]="1" [tipoValidacao]="tipoValidacaoArquivo" [hasExclusao]="true" [hasCadastro]="true" [msgMaxArquivos]="'MSG_PERMISSAO_UPLOAD_1'"
+              (download)="downloadArquivoJulgamento($event)" (excluirArquivo)="excluirArquivo()">
+            </arquivo>
+          </div>
+        </div>
+        <div class="text-danger" *ngIf="submitted && !hasArquivos()">{{ 'required' | i18n }}</div>
+      </card-panel>
+    </div>
+
+    <!--Botões de salvar e cancelar. -->
+    <div class="pt-3">
+      <button (click)="cancelar()" class="btn btn-danger mr-4" type="button">
+        {{'LABEL_CANCELAR' | i18n}}
+      </button>
+      <button (click)="salvar(form)" class="btn btn-primary" type="button">
+        {{'LABEL_CADASTRAR' | i18n}}
+      </button>
+    </div>
+
+  </form>
+</div>
+

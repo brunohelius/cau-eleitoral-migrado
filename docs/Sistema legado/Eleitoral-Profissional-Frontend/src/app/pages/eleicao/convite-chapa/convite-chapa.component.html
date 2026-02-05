@@ -1,0 +1,15 @@
+<div *ngIf="tabs.listar.ativo">
+    <app-list-convite-chapa [convites]="convites" [usuario]="usuario" (aceitar)="aceitarConvite($event)"></app-list-convite-chapa>
+</div>
+
+<div *ngIf="tabs.curriculo.ativo">
+    <app-form-curriculo-membro-chapa [convite]="conviteSelecionado" (salvarEvent)="salvarCurriculo($event)" (voltarEvent)="voltarListagemConvites()" ></app-form-curriculo-membro-chapa>
+</div>
+
+<div *ngIf="tabs.declaracao.ativo">
+    <app-form-declaracao-convite-chapa [convite]="conviteSelecionado" [curriculo]="curriculo" [usuario]="usuario" (confirmarEvent)="confirmarDeclaracaoParticipacaoEleicao($event)" (voltarEvent)="voltarCurriculoMembro()" (cancelarEvent)="cancelarCurriculoMembro()"></app-form-declaracao-convite-chapa>
+</div>
+
+<div *ngIf="tabs.representatividade.ativo">
+    <app-form-declaracao-representatividade [convite]="conviteSelecionado" [curriculo]="curriculo" [usuario]="usuario" [declaracoes]="declaracoes" (confirmarEvent)="confirmarDeclaracaoParticipacaoEleicao($event)" (voltarEvent)="voltarCurriculoMembro()" (cancelarEvent)="cancelarCurriculoMembro()"></app-form-declaracao-representatividade>
+</div>

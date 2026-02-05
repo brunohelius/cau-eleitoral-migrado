@@ -1,0 +1,112 @@
+<style>
+    *, div, p, span, h2{
+        font-size: 12px;
+        font-family: Arial;
+    }
+    .pl-30 {
+        padding-left: 30px;
+    }
+    .pb-10 {
+        padding-bottom: 10px;
+    }
+    .pb-40{
+        padding-bottom: 40px;
+    }
+    .pt-40{
+        padding-top: 40px;
+    }
+    .fontBold {
+        font-weight: bold
+    }
+    .text-center {
+        text-align: center;
+    }
+
+    .rodape{
+        width: 679px;
+        height: 67px;
+        background-color: #F3F3F5;
+        border-top: 5px solid #006C6F;
+    }
+    .texto-rodape{
+        padding-left: 56px;
+        padding-top: 17px;
+        color: #5C5C5C;
+    }
+</style>
+
+{% set chapa = dadosExtrato.chapaEleicao %}
+<h2 class="text-center pb-40 pt-40"> Divulgação de  Pedidos de Substituição de Candidatura  </h2>
+
+<div class="pb-40">
+    <div >
+        <span class="fontBold"> CHAPA {{ chapa.numeroChapa is not empty ? "%02X"|format(chapa.numeroChapa) : 'A definir'  }} - {{ chapa.tipoCandidatura.id == idTipoCandidaturaIES ? 'CE/' ~ chapa.cauUf.prefixo : 'IES/' ~ chapa.cauUf.prefixo }} </span>
+    </div>
+    <div>
+        <span class="fontBold"> Situação da Chapa:</span>
+        {% if chapa.statusChapaVigente.id == idChapaConcluida %}
+        <span > Concluída </span>
+        {% endif %}
+        {% if chapa.statusChapaVigente.id == idChapaPendente %}
+        <span > Pendente </span>
+        {% endif %}
+    </div>
+    <div>
+        <span class="fontBold"> Cadastrado Por: </span>
+        <span> {{ dadosExtrato.nomeProfissionalInclusao }}</span>
+    </div>
+</div>
+
+<div>
+    {% set membroSubstituidoTitular = dadosExtrato.membroSubstituidoTitular %}
+    {% set membroSubstituidoSuplente = dadosExtrato.membroSubstituidoSuplente %}
+    {% set membroSubstitutoTitular = dadosExtrato.membroSubstitutoTitular %}
+    {% set membroSubstitutoSuplente = dadosExtrato.membroSubstitutoSuplente %}
+    <span class="fontBold pb-10"> Candidatos </span>
+    <div>
+        <span class="fontBold"> Substituído: </span>
+        <div class="pl-30">
+            {% if membroSubstituidoTitular is not empty %}
+            <span> {{ membroSubstituidoTitular.profissional.nome }}</span>
+            <span> :(Titular) </span>
+            {% endif %}
+            {% if membroSubstituidoTitular is not empty and membroSubstituidoSuplente is not empty %}
+            <span>e</span>
+            {% endif %}
+            {% if membroSubstituidoSuplente is not empty %}
+            <span> {{ membroSubstituidoSuplente.profissional.nome }} </span>
+            <span> :(Suplente) </span>
+            {% endif %}
+        </div>
+    </div>
+    <div>
+        <span class="fontBold"> Substituto </span>
+        <div class="pl-30">
+            {% if membroSubstitutoTitular is not empty %}
+            <span> {{ membroSubstitutoTitular.profissional.nome }}</span>
+            <span> :(Titular) </span>
+            {% endif %}
+            {% if membroSubstitutoTitular is not empty and membroSubstitutoSuplente is not empty %}
+            <span>e</span>
+            {% endif %}
+            {% if membroSubstitutoSuplente is not empty %}
+            <span> {{ membroSubstitutoSuplente.profissional.nome }} </span>
+            <span> :(Suplente) </span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="pb-40">
+    <span class="fontBold"> Justificativa: </span>
+    <div class="pl-30">
+        {{ dadosExtrato.justificativa | raw }}
+    </div>
+</div>
+
+<div>
+    <span class="fontBold"> Documento Anexado: </span>
+    <div class="pl-30">
+        <span> {{ dadosExtrato.nomeArquivo }}</span>
+    </div>
+</div>

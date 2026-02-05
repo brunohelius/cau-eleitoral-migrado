@@ -1,0 +1,162 @@
+<div class="row conteudo">
+    <form #form="ngForm" class="w-100" id="aba-defesa-impugnacao-form-id">
+        <div class="tab-pane fade pl-3 pr-3 pb-5 mt-3" id="tab-pane-julgamento" [ngClass]="{ 'active show': true}">
+            <div class="row">
+                <div class="col-md-2">
+                </div>
+                <div class="col-md-8 mt-2">
+                    <div class="subtitle-line">
+                        <span class="bg-white">{{'TITLE_JULGAMENTO_PEDIDO_IMPUGNACAO_PRIMEIRA_INSTANCIA' | i18n}}</span>
+                    </div>
+                </div>
+                <div class="col-md-2 spinnerStatus">
+                    <div *ngIf="julgamento.statusJulgamentoImpugnacao.id == 2" class="icon-status-position">
+                        <div class="icons-title">
+                            <i class="fa fa-spinner  text-danger icon-status" aria-hidden="true"></i>
+                        </div>
+                        
+                        <div class="texto-titulo text-danger">{{ julgamento.statusJulgamentoImpugnacao.descricao }}</div>
+                    </div>
+                    <div *ngIf="julgamento.statusJulgamentoImpugnacao.id == 1" class="icon-status-position"> 
+                        <div class="icons-title">
+                            <i class="fa fa-spinner icon-status" aria-hidden="true"></i>
+                        </div>
+                        <div class="texto-titulo">{{ julgamento.statusJulgamentoImpugnacao.descricao }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="tab-pane fade card rounded-0 pl-4 pr-4 pb-2" [ngClass]="{ 'active show':true}">
+                <div class="card border pl-3 pr-3 pb-3 pt-3" style="border-radius: 8px mb-5"> 
+                    <informacao-card [dados]="impugnacao"></informacao-card>
+
+                    <card-panel [titulo]="'LABEL_DESCRICAO'" class="mt-3">
+                        <editor-de-texto
+                            [isHabilitado]="false"
+                            [valor]="julgamento.descricao"
+                            [isMostrarTamanhoTextoRestantes]="false">
+                        </editor-de-texto>
+                    </card-panel>
+
+                    <card-panel [titulo]="'LABEL_DOCUMENTO'" class="mt-3">
+                        <arquivo 
+                            [hasDownload]="true" 
+                            [isHabilitado]="false" 
+                            [arquivos]="arquivos" 
+                            (download)="downloadArquivoDefesaImpugnacao($event)">
+                        </arquivo>
+                    </card-panel>
+                </div>
+            </div>
+            <div class="row mx-0">
+                <div class="col-md-12 p-3">
+                    <button *ngIf="validaSolicitarRecurso()"
+                    (click)="abrirModalRecurso(templateRecurso, 1)"
+                    class="btn btn-primary px-3 mr-3">
+                        {{ 'LABEL_SOLICITAR_RECURSO' | i18n }}
+                    </button>  
+                    <button *ngIf="validaSolicitarReconsideracao()" 
+                    (click)="abrirModalRecurso(templateRecurso, 2)"
+                    class="btn btn-primary px-3 mr-3">
+                        {{ 'LABEL_SOLICITAR_RECONSIDERACAO' | i18n }}
+                    </button>
+                    <button *ngIf="validaSolicitarSubstiuicao()" 
+                        class="btn btn-second px-3"
+                        (click)="solicitarSubstituicao()"    
+                    >
+                        {{ 'LABEL_SOLICITAR_SUBSITUICAO' | i18n }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!--- Recurso/Reconsideração --->
+<ng-template #templateRecurso>
+    <div class="modal-header border-header-green">
+        <div class="col-md-12 text-center">
+            <h6 class="modal-title pull-center" style="color: grey;">
+                {{titleModal | i18n}}
+            </h6>
+        </div>
+    </div>
+    <div class="modal-body" style="height: 100%">
+
+        <card-panel [titulo]="titleDescricao" class="mt-3">
+            <editor-de-texto
+                [isRequerido]="true"
+                [isHabilitado]="true"
+                [tamanhoMaximo]="1000"
+                [isSubmetido]="submitted"
+                [valor]="recurso.descricao"
+                [isMostrarTamanhoTextoRestantes]="true"
+                (valorChange)="adicionarDescricao($event)">
+            </editor-de-texto>
+        </card-panel>
+
+        <card-panel [titulo]="'LABEL_DOCUMENTO'" class="mt-3">
+            <arquivo 
+                [maxArquivos]="1" 
+                [hasUpload]="true"
+                [hasDownload]="true" 
+                [hasExclusao]="true"
+                [isHabilitado]="true" 
+                (salvarEvent)="salvarArquivos($event)" 
+                (excluirArquivo)="excluirArquivo($event)"
+                [msgMaxArquivos]="'MSG_QTD_MAXIMA_UPLOAD_1'"
+                (download)="downloadArquivoRecurso($event)">
+            </arquivo>
+        </card-panel>
+
+        <div class="col-md-12 p-3">
+
+            <button (click)="cancelarRecurso()"
+                class="btn btn-danger px-3 mr-3">
+                {{ 'LABEL_CANCELAR' | i18n }}
+            </button>  
+
+            <button 
+            class="btn btn-primary px-3 mr-3"
+                (click)="salvarRecursoReconsideracao()">
+                {{ 'LABEL_CADASTRAR' | i18n }}
+            </button>
+
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #templateConfirmacao>
+    <div class="modal-header border-header-green">
+        <div class="col-md-12 text-center">
+            <h6 class="modal-title pull-center grey-font-bolder">
+                {{titleModal |i18n}}
+            </h6>
+        </div>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        <div class="row p-3">
+            <div class="col-md-12 box-destaque texto-preto-destaque text-center green-font-bolder"
+                [innerHTML]="msgConfirmacao">
+            </div>
+        </div>
+        <div class="row p-3">
+            <div class="col-md-12 text-center">
+                <button (click)="redirecionarAbaRecurso()" class="btn btn-primary px-4">{{ 'LABEL_OK' | i18n }} </button>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #templateSubstituicao>
+    <div class="col-md-12">
+        <solicitar-substituicao-impugnacao
+            [impugnacao]="impugnacao"
+            (fecharModal)="fecharModalSubstituicao()"
+            (redirecionarVisualizarSubstituicao)="redirecionarVisualizarSubstituicao($event)"
+        >
+        </solicitar-substituicao-impugnacao>
+    </div>
+</ng-template>

@@ -1,0 +1,63 @@
+<div class="modal-header border-header-green">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 text-center">
+        <h6 class="modal-title pull-center">{{'LABEL_SELECIONE_ABAS_DESEJA_GERAR_DOCUMENTO' |i18n}}</h6>
+    </div>
+    <div class="col-md-2 align-items-right">
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
+<div class="modal-body">
+    <form #formGerarDocumento="ngForm">
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="align-all-abas px-3 mx-4" fxLayout="row">
+                    <div class="text-center pl-1" fxFlex="10">
+                        <input type="checkbox" id="todasAbas" class="form-check-input"
+                            [(ngModel)]="todasAbas"
+                            (change)="checarTodos()"
+                            name="todasAbas">
+                    </div>
+                    <div fxFlex="85">
+                        <label class="pt-01" for="todasAbas">
+                            <strong>{{ 'LABEL_TODAS_ABAS_DENUNCIA' | i18n}} </strong>
+                            {{denuncia.numero_denuncia}}
+                        </label>
+                    </div>
+                </div>
+
+                <div class="lista-abas border overflow-auto">
+                    <div class="border shadow p-3 my-2 mx-4" fxLayout="row" *ngFor="let aba of abas; let indexAba = index;">
+                        <div class="text-center" fxFlex="10">
+                            <input type="checkbox" id="{{'aba_'+ indexAba}}" class="form-check-input checkbox-list-item"
+                                [(ngModel)]="aba.ativo"
+                                (change)="checarItem()"
+                                name="aba" required>
+                        </div>
+                        <div fxFlex="85">
+                            <label class="pt-01 mb-0" for="{{'aba_'+ indexAba}}">{{aba.nome}}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="modal-footer aling-left">
+    <div class="row py-3">
+        <div class="col-md-12 p-0 align-items-left">
+            <button class="btn btn-danger mr-4" type="button"
+                (click)="modalRef.hide()">{{'LABEL_CANCELAR' | i18n}}</button>
+            <download *ngIf="verificaAbasSelecionadas().hasAbaSelecionada" title="{{'LABEL_GERAR_DOCUMENTO' |i18n }}" class="btn btn-primary"
+                download="{{'LABEL_DOCUMENTO_DENUNCIA' |i18n: [denuncia.numero_denuncia]}}"
+                (process)="gerar($event)">
+                <span style="color:white">{{ 'LABEL_GERAR_DOCUMENTO' | i18n }}</span>
+            </download>    
+            <button class="btn btn-primary" type="button" disabled
+                *ngIf="!verificaAbasSelecionadas().hasAbaSelecionada">{{'LABEL_GERAR_DOCUMENTO' | i18n}}</button>
+        </div>
+    </div>
+</div>

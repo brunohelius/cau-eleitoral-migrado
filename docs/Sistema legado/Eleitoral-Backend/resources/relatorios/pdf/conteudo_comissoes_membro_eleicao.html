@@ -1,0 +1,16 @@
+{% extends "layout.html" %} {% block body %}
+    <h3 class="text-center">RELAÇÃO DE MEMBROS E ASSESSORES DAS CE/UF</h3>
+    {% for comissao in comissoes %}
+        <h4>{{ loop.index }}. COMISSÃO ELEITORAL {% if comissao.cauUf.id == caubr %} NACIONAL {% endif %} - {{ comissao.cauUf.descricao }}</h4>
+        <div>
+            Membros:
+            <ul class="margin-0 padding-0">
+                {% for membro in comissao.membros %}
+                    <li>{{ membro.profissional.nome }} (Membro Titular e {{ membro.tipoParticipacao.descricao }})
+                     - {{ membro.membroSubstituto.profissional.nome }} (Membro {{ membro.membroSubstituto.tipoParticipacao.descricao }})
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endfor %}
+{% endblock %}

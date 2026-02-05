@@ -1,0 +1,74 @@
+<div>
+    <button class="btn btn-primary px-3 mr-3" (click)="abrirModalRecurso(templateRecurso)">
+        {{ 'LABEL_SOLICITAR_RECURSO_RECONSIDERACAO' | i18n:recursoReconsideracao}}
+    </button>
+</div>
+
+<!-- Recurso do Julgamento -->
+<ng-template #templateRecurso>
+    <div class="modal-header border-header-green">
+        <div class="col-md-12 text-center">
+            <h6 class="modal-title pull-center" style="color: grey;">
+                {{'LABEL_SOLICITAR_RECURSO_RECONSIDERACAO_SUBSTITUICAO' | i18n:recursoReconsideracao}}
+            </h6>
+        </div>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        <div class="mb-5">
+            <card-panel [titulo]="'LABEL_SUBSTITUICAO'" class="mt-3">
+                <card-visualizar-subsituicao
+                [substituicao]="substituicao">
+                </card-visualizar-subsituicao>
+            </card-panel>
+        </div>
+
+        <div class="mb-5">
+            <card-panel [titulo]="labelModalconfirmacao()" class="mt-3">
+                <editor-de-texto
+                    [isRequerido]="true"
+                    [isHabilitado]="true"
+                    [tamanhoMaximo]="2000"
+                    [isSubmetido]="submitted"
+                    [valor]="recurso.descricao"
+                    [isMostrarTamanhoTextoRestantes]="true"
+                    (valorChange)="adicionarDescricao($event)">
+                </editor-de-texto>
+            </card-panel>
+        </div>
+
+        <card-panel [titulo]="'LABEL_DOCUMENTO'" class="mt-3">
+            <arquivo 
+                [maxArquivos]="1" 
+                [hasUpload]="true"
+                [hasDownload]="true" 
+                [hasExclusao]="true"
+                [isHabilitado]="true" 
+                (salvarEvent)="salvarArquivos($event)" 
+                [msgMaxArquivos]="'MSG_QTD_MAXIMA_UPLOAD_1'"
+                (download)="downloadModalRecurso($event)">
+            </arquivo>
+        </card-panel>
+
+        <div class="col-md-12 p-3">
+            <button (click)="fecharRecurso()"
+                class="btn btn-danger px-3 mr-3">
+                {{ 'LABEL_CANCELAR' | i18n }}
+            </button>  
+            <button 
+            class="btn btn-primary px-3 mr-3"
+                (click)="salvarRecurso()">
+                {{ 'LABEL_CADASTRAR' | i18n }}
+            </button>
+        </div>
+
+    </div>
+</ng-template>
+
+<ng-template #templateConfirmacao>
+    <modal-confirm
+        [isModalConfirmOk]="true"
+        [titulo]="titleModalConfirmacao()"
+        [descricao]="msgConfirmacao()"
+        (confirmar)="redirecionarVisualizarRecurso($event)">
+    </modal-confirm>
+</ng-template>

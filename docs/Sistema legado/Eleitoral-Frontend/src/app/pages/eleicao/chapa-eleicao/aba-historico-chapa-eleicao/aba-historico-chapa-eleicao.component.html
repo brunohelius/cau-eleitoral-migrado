@@ -1,0 +1,88 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="tab-content">
+            <div class="tab-pane active show fade card rounded-0">   
+                <div class="col-md-12">
+                    <a class="pointer" (click)="inicio()">
+                        <i class="fa fa-desktop fa-2x m-2 pointer coloPrimary" aria-hidden="true"></i>
+                    </a>
+                </div>
+
+                <div class="col-md-12 colorGray">
+                    <h5 class="card-title ">
+                        <a class="pointer" (click)="voltar()">
+                            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                        </a>
+                        {{'LABEL_HISTORICO' |i18n}}
+                    </h5>
+                </div>
+
+                <div class="box-separador"></div>
+
+                <div class="row p-3">
+                    <div class="col-md-6 align-items-right form-inline green-font-bolder">
+                        <div>
+                            <span>{{ 'LABEL_MOSTRAR' | i18n }}: </span>
+                            <select class="form-control" [(ngModel)]="limitePaginacao" [name]="limitePaginacao">
+                                <option *ngFor="let item of limitesPaginacao" [ngValue]="item">
+                                    {{ item }}
+                                </option>
+                            </select>
+                            <span> {{ 'LABEL_REGISTRO' | i18n}}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 align-items-left">
+                        <div class="div-right mt-3">
+                            <input type="text" class="form-control largura-campo" [(ngModel)]="search"
+                                placeholder="{{'LABEL_BUSCAR' |i18n}}" (ngModelChange)="filter($event)" maxlength="50">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 p-3">
+                        <table class="table" [mfData]="historico" #mf="mfDataTable" [mfRowsOnPage]="limitePaginacao" *ngIf="historico">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">{{ 'LABEL_RESPONSAVEL' | i18n }}</th>
+                                    <th class="text-center">{{ 'LABEL_DATA_HORA' | i18n }}</th>
+                                    <th class="text-center">{{ 'LABEL_ORIGEM' | i18n }}</th>
+                                    <th class="text-center">{{ 'LABEL_UF' | i18n }}</th>
+                                    <th class="text-center">{{ 'LABEL_N_CHAPA' | i18n }}</th>
+                                    <th class="text-center">{{ 'LABEL_ACAO' | i18n }}</th>
+                                    <th class="text-center">{{ 'LABEL_JUSTIFICATIVA' | i18n }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of mf.data;">
+                                    <td class="text-center"> {{ item.nomeUsuario }} </td>
+                                    <td class="text-center"> {{ item.data | date:'dd/MM/yyyy HH:mm:ss' : '+0'}} </td>
+                                    <td class="text-center"> {{ item.descricaoOrigem }} </td>
+                                    <td class="text-center"> {{ item.chapaEleicao.uf }} </td>
+                                    <td class="text-center"> {{ getNumeroChapa(item) }}</td>
+                                    <td class="text-center"> {{ item.descricaoAcao }} </td>
+                                    <td class="text-center"> {{ this.getDescricaoJustificativa(item) }} </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="7" class="col-12" *ngIf="historico.length > 0">
+                                        <paginacao [paginaAtual]="mf.activePage"
+                                            [totalPorPagina]="limitePaginacao"
+                                            [totalRegistros]="historico.length"></paginacao>
+                                    </td>
+                                    <td colspan="7" class="col-12" *ngIf="historico.length == 0">
+                                        <div class="text-center">
+                                            {{'LABEL_NENHUM_REGISTRO_ENCONTRADO' |i18n}}
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

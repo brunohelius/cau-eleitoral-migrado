@@ -1,0 +1,923 @@
+<!-- Início da parte de conselheiro UF/BR -->
+<div *ngIf="isConselheiroUfBR()">
+
+    <div class="cor-corpo py-3" style="background-color: white;">
+        <div class="row">
+            <div class="col-md-2">
+
+            </div>
+            <div class="col-md-8">
+                <div class="subtitle-lines">
+                    <span>{{ 'LABEL_VISUALIZAR_MEMBROS_CHAPA' | i18n }}</span>
+                </div>
+            </div>
+            <div class="col-md-2 spinnerStatusChapa">
+                <span *ngIf="showMSGCriteriosRepresentatividade" class="text-center text-white bg-danger mt-1">
+                    {{ 'MSG_CHAPA_NAO_ATENDEU_MINIMO_CRITERIOS_REPRESENTATIVIDADE' | i18n }}
+                </span>
+                <span *ngIf="showMSGCotistasRepresentatividade" class="text-center text-white bg-danger mt-1">
+                    {{ 'MSG_CHAPA_NAO_ATENDEU_MINIMO_COTISTAS_REPRESENTATIVIDADE' | i18n }}
+                </span>
+                <span *ngIf="!isChapaConcluida">
+                    <i class="fas fa-spinner text-warning"></i>
+                    <span class="texto-titulo text-warning">{{ 'LABEL_COM_PENDENCIA' | i18n }}</span>
+                </span>
+                <span *ngIf="isChapaConcluida">
+                    <i class="fa fa-spinner"></i>
+                    <span class="texto-titulo">{{ 'LABEL_CONCLUIDA' | i18n }}</span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <div class="row m-2">
+
+            <div class="col-md-12 col-xs-12 texto-titulo my-3">{{ 'LABEL_CONSELHEIRO_FEDERAL' | i18n }}</div>
+
+            <ng-template [ngTemplateOutlet]="templateListaMembros"
+                [ngTemplateOutletContext]="{ tipoLista: 1, membros : getConselheirosFederais(membrosChapas) }">
+            </ng-template>
+
+        </div>
+    </div>
+
+    <div class="box-separador"></div>
+
+    <div class="card text-center">
+        <div class="row m-2">
+
+            <div class="col-md-12 texto-titulo mt-3">{{ 'LABEL_CONSELHEIROS_ESTADUAIS' | i18n }}</div>
+
+            <ng-template [ngTemplateOutlet]="templateListaMembros"
+                [ngTemplateOutletContext]="{ tipoLista: 2, membros : getConselheirosEstaduais(membrosChapas) }">
+            </ng-template>
+        </div>
+
+        <div class="text-right mb-3 mr-3">
+            <button (click)="cadastrarStatusEleito()" class="btn btn-primary mr-1" type="button" [disabled]="!permitirSalvar">
+                {{'LABEL_SALVAR' | i18n}}
+            </button>
+        
+            <button (click)="cancelarStatusEleito()" class="btn btn-danger" type="button" [disabled]="!permitirSalvar">
+                {{'LABEL_CANCELAR' | i18n}}
+            </button>
+        </div>
+    </div>
+</div>
+<!-- Fim da parte de conselheiro UF/BR -->
+
+<!-- Início da parte de conselheiro IES -->
+<div *ngIf="isConselheiroIES()">
+
+    <div class="cor-corpo py-3" style="background-color: white;">
+        <div class="row">
+            <div class="col-md-2">
+
+            </div>
+            <div class="col-md-8">
+                <div class="align-middle">
+                    <div class="subtitle-lines align-middle">
+                        <span>{{ 'LABEL_VISUALIZAR_MEMBROS_CHAPA' | i18n }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 spinnerStatusChapa">
+                <span *ngIf="!isChapaConcluida">
+                    <i class="fas fa-spinner text-warning"></i>
+                    <span class="texto-titulo text-warning">{{ 'LABEL_COM_PENDENCIA' | i18n }}</span>
+                </span>
+                <span *ngIf="isChapaConcluida">
+                    <i class="fa fa-spinner"></i>
+                    <span class="texto-titulo">{{ 'LABEL_CONCLUIDA' | i18n }}</span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card text-center">
+        <div class="row m-2">
+
+            <div class="col-md-12 col-xs-12 texto-titulo my-3">{{ 'LABEL_REPRESENTANTE_IES' | i18n }}</div>
+
+            <ng-template [ngTemplateOutlet]="templateListaMembros"
+                [ngTemplateOutletContext]="{ tipoLista: 1, membros : getRepresentantesIES(membrosChapas) }">
+            </ng-template>
+
+            <div class="text-right mb-3 mr-3">
+                <button (click)="cadastrarStatusEleito()" class="btn btn-primary mr-1" type="button" [disabled]="!permitirSalvar">
+                    {{'LABEL_SALVAR' | i18n}}
+                </button>
+            
+                <button (click)="cancelarStatusEleito()" class="btn btn-danger" type="button" [disabled]="!permitirSalvar">
+                    {{'LABEL_CANCELAR' | i18n}}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fim da parte de conselheiro IES -->
+
+<ng-template #perfilProfissional>
+    <div class="card">
+
+        <div class="card-body">
+
+            <div class="text-center" *ngIf="membroChapaSelecionado.curriculo.fotoMembroChapa">
+                <img [src]="membroChapaSelecionado.curriculo.fotoMembroChapa" class="img-fluid rounded-circle"
+                    style="min-width: 128px; min-height: 128px; max-width: 128px; max-height: 128px;">
+                <h4 class="my-4">{{ 'TITLE_INFORMACOES_PESSOAIS' | i18n }}</h4>
+            </div>
+
+            <div class="text-center" *ngIf="!membroChapaSelecionado.curriculo.fotoMembroChapa">
+                <i class="fas fa-user-circle" style="font-size: 100px; color: #B2B7BA; display: block;"></i>
+                <h4 class="my-4">{{ 'TITLE_INFORMACOES_PESSOAIS' | i18n }}</h4>
+            </div>
+
+            <div class="row my-2">
+                <div class="col-md-4 col-xs-4 font-weight-bold">{{ 'LABEL_NOME' | i18n }}:</div>
+                <div class="col-md-8 col-xs-8">{{ membroChapaSelecionado.profissional.nome }} </div>
+            </div>
+
+            <div class="row my-2">
+                <div class="col-md-4 col-xs-4 font-weight-bold">{{ 'LABEL_CPF' | i18n }}:</div>
+                <div class="col-md-8 col-xs-8">{{ membroChapaSelecionado.profissional.cpf | mask:'000.000.000-00' }}
+                </div>
+            </div>
+
+            <div class="row my-2">
+                <div class="col-md-4 col-xs-4 font-weight-bold">{{ 'LABEL_EMAIL' | i18n }}:</div>
+                <div class="col-md-8">{{ membroChapaSelecionado.profissional.pessoa.email }}</div>
+            </div>
+
+            <div class="row my-2">
+                <div class="col-md-4 col-xs-4 font-weight-bold">{{ 'LABEL_REGISTRO' | i18n }}:</div>
+                <div class="col-md-8">{{ membroChapaSelecionado.profissional.registroNacional}}</div>
+            </div>
+
+            <div class="row my-2">
+                <div class="col-md-4 col-xs-4 font-weight-bold">{{ 'LABEL_TIPO_PARTICIPACAO' | i18n }}:</div>
+                <div class="col-md-8">
+                    <span *ngIf="true">{{ membroChapaSelecionado.tipoParticipacaoChapa.descricao }}</span>
+                </div>
+            </div>
+
+            <div class="row my-2">
+                <div class="col-md-4 col-xs-4 font-weight-bold">{{ 'LABEL_VALIDACAO' | i18n }}:</div>
+                <div class="col-md-8">
+                    <i class="fa fa-exclamation-circle fa-2x text-warning"
+                        title="{{ 'MSG_SELECIONE_ICONE_PARA_DETALHAR_PENDENCIAS_PROFISSIONAL' | i18n }}"
+                        *ngIf="isStatusValidacaoMembroChapaPendente(membroChapaSelecionado.statusValidacaoMembroChapa.id)"></i>
+                    <i class="fa fa-check-circle fa-2x text-success"
+                        *ngIf="isStatusValidacaoMembroChapaValido(membroChapaSelecionado.statusValidacaoMembroChapa.id)"></i>
+                </div>
+            </div>
+
+            <div class="row my-2">
+                <div class="col-md-4 col-xs-4 font-weight-bold">{{ 'LABEL_STATUS' | i18n }}:</div>
+                <div class="col-md-8">
+                    <span class="ribbon ribbon-primary"
+                        *ngIf="isStatusParticipacaoChapaConfirmado(membroChapaSelecionado.statusParticipacaoChapa.id )">
+                        {{ 'LABEL_STATUS_CONFIRMADO' | i18n }}
+                    </span>
+                    <span class="ribbon ribbon-warning"
+                        *ngIf="isStatusParticipacaoChapaPendente(membroChapaSelecionado.statusParticipacaoChapa.id )">
+                        {{ 'LABEL_STATUS_A_CONFIRMAR' | i18n }}
+                    </span>
+                    <span class="ribbon ribbon-danger"
+                        *ngIf="isStatusParticipacaoChapaRejeitado(membroChapaSelecionado.statusParticipacaoChapa.id )">
+                        {{ 'LABEL_STATUS_REJEITADO' | i18n }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="row my-2">
+                <div class="col-md-4 col-xs-4 font-weight-bold">{{ 'LABEL_RESPONSAVEL' | i18n }}</div>
+                <div class="col-md-8" *ngIf="membroChapaSelecionado.situacaoResponsavel">{{ 'LABEL_SIM' | i18n }}</div>
+                <div class="col-md-8" *ngIf="!membroChapaSelecionado.situacaoResponsavel">{{ 'LABEL_NAO' | i18n }}</div>
+            </div>
+
+            <div class="row my-2" *ngIf="membroChapaSelecionado.curriculo.sinteseCurriculo">
+                <div class="col-md-4 col-xs-4 font-weight-bold">{{ 'LABEL_CURRICULO' | i18n }}:</div>
+                <div class="col-md-8">
+                    <span class="btn-link pointer" (click)="exibirModalSinteseCurriculo(templateSinteseCurriculo)">{{
+                        'LABEL_VISUALIZAR' | i18n }}</span>
+                </div>
+            </div>
+
+            <div *ngIf="hasDocumentosComprobatoriosSinteseCurriculo()">
+                <div class="subtitle-lines my-4">{{ 'TITLE_ARQUIVOS' | i18n }}</div>
+
+                <div class="row my-2" *ngIf="getCartaIndicacao() as cartaIndicacao;">
+                    <div class="col-md-4 col-xs-4 font-weight-bold">{{ 'LABEL_CARTA_INDICACAO' | i18n }}:</div>
+                    <div class="col-md-8">
+                        <download title=" {{cartaIndicacao.nomeArquivo}}" class="center-no-arquivo"
+                            [download]="cartaIndicacao.nomeArquivo"
+                            (process)="downloadDocumentoComprobatorio($event, cartaIndicacao.id)">
+                            <i class="fa fa-download" aria-hidden="true"></i>
+                        </download>
+                    </div>
+                </div>
+
+                <div class="row my-2" *ngIf="getDeclaracaoVinculo() as declaracaoVinculo;">
+                    <div class="col-md-4 col-xs-4 font-weight-bold">{{ 'LABEL_DECLARACAO_VINCULO_DOCENTE' | i18n }}:
+                    </div>
+                    <div class="col-md-8">
+                        <download title=" {{declaracaoVinculo.nomeArquivo}}" class="center-no-arquivo"
+                            [download]="declaracaoVinculo.nomeArquivo"
+                            (process)="downloadDocumentoComprobatorio($event, declaracaoVinculo.id)">
+                            <i class="fa fa-download" aria-hidden="true"></i>
+                        </download>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer bg-transparent">
+            <div class="col-md-4 offset-md-4">
+                <button type="button" class="btn btn-sm btn-primary btn-block btn-calendario"
+                    (click)="fecharModalPerfilProfissional()">
+                    {{ 'LABEL_FECHAR' | i18n }}
+                </button>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #templateSinteseCurriculo>
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            <h6 class="modal-title pull-center">{{'LABEL_SINTESE_CURRICULO' |i18n}}</h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close"
+                (click)="modalSinteseCurriculoProfissional.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        <div class="row p-3">
+            <div class="col-md-12">
+                <p class="h-100" style="border: 1px solid #A4A4A4;"
+                    [innerHTML]="domSanitizer.bypassSecurityTrustHtml(membroChapaSelecionado.curriculo.sinteseCurriculo)">
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-center pt-3">
+                <button class="btn btn-primary" (click)="modalSinteseCurriculoProfissional.hide()">{{'LABEL_FECHAR'
+                    |i18n}}</button>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #templatePendeciasMembro>
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            <h6 class="modal-title pull-center">{{'TITLE_PENDECIAS_MEMBRO' |i18n}}</h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalPendeciasMembro.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        <div class="row p-3">
+            <div class="col-md-12 h-100">
+                <p class="text-center" *ngFor="let pendencia of membroChapaSelecionado.pendencias; let indice = index;">
+                    <span style="word-break: normal;" [innerHtml]="pendencia.tipoPendencia.descricao"></span>
+                </p>
+                <p class="text-center"
+                    *ngIf="!membroChapaSelecionado.pendencias || membroChapaSelecionado.pendencias.length == 0">
+                    {{'LABEL_PENDENCIA_ENCONTRADA_NO_TRANSCORRER_PROCESSO' |i18n}}
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-center pt-3">
+                <button class="btn btn-primary" (click)="modalPendeciasMembro.hide()">{{'LABEL_FECHAR' |i18n}}</button>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #templateListaMembros let-tipo="tipoLista" let-listaMembros="membros">
+    <div class="col-md-12 col-xs-12 mt-2 mb-4" *ngIf="listaMembros">
+        <div class="box-destaque texto-destaque shadow" app-mfData [mfData]="listaMembros" #mf="mfDataTable"
+            [mfRowsOnPage]="limitePaginacao">
+
+            <div class="row mb-3" *ngIf="isConselheirosEstaduais(tipo) && listaMembros.length > limitesPaginacao[0] ">
+                <div class="col-md-3 align-items-right texto-titulo">
+                    <div class="form-inline">
+                        <span class="mr-1">{{ 'LABEL_MOSTRAR' | i18n }}: </span>
+                        <select class="form-control mr-1" [(ngModel)]="limitePaginacao" [name]="limitePaginacao">
+                            <option *ngFor="let item of limitesPaginacao" [ngValue]="item">
+                                {{ item }}
+                            </option>
+                        </select>
+                        <span> {{ 'LABEL_REGISTROS' | i18n}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row texto-titulo">
+                <div class="col-md-1 col-xs-1" *ngIf="isConselheirosEstaduais(tipo)">
+                    {{ 'LABEL_NUM' | i18n }}</div>
+                <div class="col-md-1 col-xs-1" *ngIf="this.chapaEleicao.statusChapaVigente.id == 2">
+                    {{ 'LABEL_ELEITO' | i18n }}</div>
+                <div
+                    [ngClass]="{'texto-titulo col-md-2 col-xs-2': isConselheirosEstaduais(tipo), 'texto-titulo col-md-3 col-xs-3':!isConselheirosEstaduais(tipo) }">
+                    {{ 'LABEL_TIPO_PARTICIPACAO_REPRESENTATIVIDADE' | i18n }}</div>
+                <div
+                    [ngClass]="{'texto-titulo col-md-2 col-xs-2': isAssessorCENOuAssessorCECauUfAtual(), 'texto-titulo col-md-3 col-xs-3':!isAssessorCENOuAssessorCECauUfAtual() }">
+                    {{ 'LABEL_NOME' | i18n }}</div>
+                <div class="col-md-2 col-xs-2">{{ 'LABEL_STATUS_CONFIRMACAO' | i18n }}</div>
+                <div class="col-md-1 col-xs-1">{{ 'LABEL_STATUS_VALIDACAO' | i18n }}</div>
+                <div class="col-md-1 col-xs-1" style="word-break: break-all;">{{ 'LABEL_RESPONSAVEL' | i18n }}</div>
+                <div class="col-md-1 col-xs-1">{{ 'LABEL_DOCUMENTOS' | i18n }}</div>
+                <div class="col-md-1 col-xs-1" *ngIf="isAssessorCENOuAssessorCECauUfAtual()">{{ 'LABEL_ACOES' | i18n }}
+                </div>
+            </div>
+
+            <div class="box-profissional my-2" *ngFor="let element of mf.data; let indexTabela = index">
+                <div class="row mb-2" *ngIf="!isAlterarMembroChapa(element.titular);">
+                    <div class="col-md-1" *ngIf="isConselheirosEstaduais(tipo)">
+                        {{ element.titular.numeroOrdem }}
+                    </div>
+                    <div class="col-md-1" *ngIf="this.chapaEleicao.statusChapaVigente.id == 2">
+                        <input type="checkbox" id="{{element.titular.id}}" name="{{element.titular.id}}"
+                            (click)="ativarSalvarStatusEleito()"
+                            [(ngModel)]="element.titular.statusEleito"
+                            [disabled]="!permitirEditarEleito">
+                    </div>
+                    <div
+                        [ngClass]="{'col-md-2': isConselheirosEstaduais(tipo), 'col-md-3':!isConselheirosEstaduais(tipo) }">
+                        {{ element.titular.tipoParticipacaoChapa.descricao }}<span
+                            *ngIf="element.titular?.respostaDeclaracaoRepresentatividade && element.titular?.respostaDeclaracaoRepresentatividade?.length > 0">/{{
+                            'LABEL_REPRESENTATIVIDADE' | i18n }}</span>
+                    </div>
+                    <div
+                        [ngClass]="{'col-md-2': isAssessorCENOuAssessorCECauUfAtual(), 'col-md-3':!isAssessorCENOuAssessorCECauUfAtual() }">
+                        <span (click)="exibirModalPerfilProfissional( perfilProfissional, element.titular)"
+                            class="text-link" style="word-break: normal;">
+                            {{ element.titular.profissional.nome }}
+                        </span>
+                    </div>
+                    <div class="col-md-2">
+                        <p class="ribbon ribbon-primary"
+                            *ngIf="isStatusParticipacaoChapaConfirmado(element.titular.statusParticipacaoChapa.id )">
+                            {{ 'LABEL_STATUS_CONFIRMADO' | i18n }}</p>
+                        <p class="ribbon ribbon-warning"
+                            *ngIf="isStatusParticipacaoChapaPendente(element.titular.statusParticipacaoChapa.id )">
+                            {{ 'LABEL_STATUS_A_CONFIRMAR' | i18n }}</p>
+                        <p class="ribbon ribbon-danger"
+                            *ngIf="isStatusParticipacaoChapaRejeitado(element.titular.statusParticipacaoChapa.id )">
+                            {{ 'LABEL_STATUS_REJEITADO' | i18n }}</p>
+                    </div>
+                    <div class="col-md-1">
+                        <i class="fa fa-exclamation-circle fa-2x text-warning"
+                            (click)="exibirModalPendeciasMembro(templatePendeciasMembro, element.titular)"
+                            title="{{ 'MSG_SELECIONE_ICONE_PARA_DETALHAR_PENDENCIAS_PROFISSIONAL' | i18n }}"
+                            *ngIf="isStatusValidacaoMembroChapaPendente(element.titular.statusValidacaoMembroChapa.id)"></i>
+                        <i class="fa fa-check-circle fa-2x text-success"
+                            *ngIf="isStatusValidacaoMembroChapaValido(element.titular.statusValidacaoMembroChapa.id)"></i>
+                    </div>
+                    <div class="col-md-1">
+                        <input type="checkbox" [(ngModel)]="element.titular.situacaoResponsavel"
+                            [disabled]="isDisabled()" *ngIf="!isResponsavelCriador(element.titular)"
+                            (click)="justificarAlteracaoSituacaoResponsavel($event, element.titular)" name="" id=""
+                            class="mt-2">
+                        <i class="fa fa-check-square fa-2x text-success" [ngClass]="{'isDisabled' : isDisabled() }"
+                            (click)="justificarAlteracaoSituacaoResponsavel($event, element.titular)"
+                            *ngIf="isResponsavelCriador(element.titular)">
+                        </i>
+                    </div>
+                    <div class="col-md-1">
+                        <download title="" class="center-no-arquivo" [download]=""
+                            *ngIf="element.titular?.respostaDeclaracaoRepresentatividade && element.titular?.respostaDeclaracaoRepresentatividade?.length > 0"
+                            (process)="downloadDocumentoRepresentatividade($event, element.titular.id)">
+                            <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                        </download>
+                    </div>
+                    <div class="col-md-1" *ngIf="isAssessorCENOuAssessorCECauUfAtual()">
+                        <div class="btn-group" dropdown placement="bottom right" triggers="hover"
+                            (mouseleave)="dp.hide()" #dp="bs-dropdown">
+                            <button dropdownToggle type="button" class="btn btn-link text-muted"
+                                aria-controls="dropdown-basic">
+                                <i class="align-middle colorAcao fas fa-ellipsis-v" aria-hidden="true"></i>
+                            </button>
+                            <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu"
+                                aria-labelledby="button-basic">
+
+                                <li role="menuitem" *ngIf="isUsuarioCEN">
+                                    <a [ngClass]="{'isDisabled' : isDisabled() }" [routerLink]="null"
+                                        (click)="alterarMembroChapa(element.titular)" class="dropdown-item"
+                                        title="{{'LABEL_ALTERAR_MEMBRO' |i18n}}">
+                                        {{ 'LABEL_ALTERAR_MEMBRO' | i18n }}
+                                    </a>
+                                </li>
+
+                                <li role="menuitem" *ngIf="isUsuarioCEN">
+                                    <a [ngClass]="{'isDisabled' : isDisabled()}" class="dropdown-item"
+                                        [routerLink]="null"
+                                        (click)="alterarStatusConfirmacaoMembroChapa(element.titular)"
+                                        title="{{'LABEL_ALTERAR_STATUS_CONFIRMACAO' |i18n}}">
+                                        {{ 'LABEL_ALTERAR_STATUS_CONFIRMACAO' | i18n }}
+                                    </a>
+                                </li>
+
+                                <li role="menuitem" *ngIf="isUsuarioCEN">
+                                    <a [ngClass]="{'isDisabled' : isDisabled()}" class="dropdown-item"
+                                        [routerLink]="null" (click)="alterarStatusValidacaoMembroChapa(element.titular)"
+                                        title="{{'LABEL_ALTERAR_STATUS_VALIDACAO' |i18n}}">
+                                        {{ 'LABEL_ALTERAR_STATUS_VALIDACAO' | i18n }}
+                                    </a>
+                                </li>
+
+                                <li role="menuitem">
+                                    <a [ngClass]="{'isDisabled' : !isPermitidoReenviarEmailPendencia(element.titular.statusValidacaoMembroChapa.id)}"
+                                        [routerLink]="null" [routerLink]="null"
+                                        (click)="enviarEmailPendencia(element.titular)" class="dropdown-item"
+                                        title="{{'LABEL_ENVIAR_EMAIL_PENDENCIA' |i18n}}">
+                                        {{ 'LABEL_ENVIAR_EMAIL_PENDENCIA' | i18n }}
+                                    </a>
+                                </li>
+
+                                <li role="menuitem" *ngIf="isUsuarioCEN">
+                                    <a [ngClass]="{'isDisabled' : isDisabled()}" class="dropdown-item"
+                                        [routerLink]="null" (click)="confirmarExcluirMembroChapa(element.titular)"
+                                        title="{{'LABEL_EXCLUIR_MEMBRO' |i18n}}">
+                                        {{ 'LABEL_EXCLUIR_MEMBRO' | i18n }}
+                                    </a>
+                                </li>
+
+                                <li role="menuitem">
+                                    <a [ngClass]="{'isDisabled' : !isPermitidoReenviarConvite(element.titular.statusParticipacaoChapa.id )}"
+                                        class="dropdown-item" [routerLink]="null"
+                                        (click)="renviarConvite(element.titular)"
+                                        title="{{'LABEL_REENVIAR_CONVITE' |i18n}}">
+                                        {{ 'LABEL_REENVIAR_CONVITE' | i18n }}
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-2" *ngIf="isAlterarMembroChapa(element.titular);">
+                    <div class="col-md-3">
+                        <div class="form-group row mb-0" *ngIf="true">
+                            <div class="col-md-12">
+                                <app-autocomplete [(inputModel)]="element.titular_txtPesquisa"
+                                    [placeholder]="getPlaceholderAutoCompleteProfissional(element.titular)"
+                                    [membroChapaAtual]="element.titular" [disabled]="isDisabled() || !isUsuarioCEN"
+                                    (nenhumRegistroEncontrado)="nenhumRegistroEncontrado()"
+                                    (onSelectProfissional)="adicionarMembroChapa($event)">
+                                </app-autocomplete>
+                            </div>
+                            <div class="w-100"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-2" *ngIf="!isAlterarMembroChapa(element.suplente);">
+                    <div class="col-md-1" *ngIf="isConselheirosEstaduais(tipo)">
+
+                    </div>
+                    <div class="col-md-1" *ngIf="this.chapaEleicao.statusChapaVigente.id == 2">
+                        <input type="checkbox" id="{{element.suplente.id}}" name="{{element.suplente.id}}"
+                            [(ngModel)]="element.suplente.statusEleito"
+                            (click)="ativarSalvarStatusEleito()"
+                            [disabled]="!permitirEditarEleito">
+                    </div>
+                    <div
+                        [ngClass]="{'col-md-2': isConselheirosEstaduais(tipo), 'col-md-3':!isConselheirosEstaduais(tipo) }">
+                        {{ element.suplente.tipoParticipacaoChapa.descricao }}
+                    </div>
+                    <div
+                        [ngClass]="{'col-md-2': isAssessorCENOuAssessorCECauUfAtual(), 'col-md-3':!isAssessorCENOuAssessorCECauUfAtual() }">
+                        <span (click)="exibirModalPerfilProfissional(perfilProfissional, element.suplente)"
+                            class="text-link" style="word-break: normal;">
+                            {{ element.suplente.profissional.nome }}
+                        </span>
+                    </div>
+                    <div class="col-md-2">
+                        <p class="ribbon ribbon-primary"
+                            *ngIf="isStatusParticipacaoChapaConfirmado(element.suplente.statusParticipacaoChapa.id)">
+                            {{ 'LABEL_STATUS_CONFIRMADO' | i18n }}</p>
+                        <p class="ribbon ribbon-warning"
+                            *ngIf="isStatusParticipacaoChapaPendente(element.suplente.statusParticipacaoChapa.id)">
+                            {{ 'LABEL_STATUS_A_CONFIRMAR' | i18n }}
+                        </p>
+                        <p class="ribbon ribbon-danger"
+                            *ngIf="isStatusParticipacaoChapaRejeitado(element.suplente.statusParticipacaoChapa.id)">
+                            {{ 'LABEL_STATUS_REJEITADO' | i18n }}</p>
+                    </div>
+                    <div class="col-md-1">
+                        <i class="fa fa-exclamation-circle fa-2x text-warning"
+                            (click)="exibirModalPendeciasMembro(templatePendeciasMembro, element.suplente)"
+                            title="{{ 'MSG_SELECIONE_ICONE_PARA_DETALHAR_PENDENCIAS_PROFISSIONAL' | i18n }}"
+                            *ngIf="isStatusValidacaoMembroChapaPendente(element.suplente.statusValidacaoMembroChapa.id)"></i>
+                        <i class="fa fa-check-circle fa-2x text-success"
+                            *ngIf="isStatusValidacaoMembroChapaValido(element.suplente.statusValidacaoMembroChapa.id)"></i>
+                    </div>
+                    <div class="col-md-1">
+                        <input type="checkbox" [(ngModel)]="element.suplente.situacaoResponsavel"
+                            [disabled]="isDisabled()" *ngIf="!isResponsavelCriador(element.suplente)"
+                            (click)="justificarAlteracaoSituacaoResponsavel($event, element.suplente)" name="" id=""
+                            class="mt-2">
+                        <i class="fa fa-check-square fa-2x text-success"
+                            (click)="justificarAlteracaoSituacaoResponsavel($event, element.suplente)"
+                            *ngIf="isResponsavelCriador(element.suplente)">
+                        </i>
+                    </div>
+                    <div class="col-md-1">
+                    </div>
+                    <div class="col-md-1" *ngIf="isAssessorCENOuAssessorCECauUfAtual()">
+                        <div class="btn-group" dropdown placement="bottom right" triggers="hover"
+                            (mouseleave)="dp.hide()" #dp="bs-dropdown">
+                            <button dropdownToggle type="button" class="btn btn-link text-muted"
+                                aria-controls="dropdown-basic">
+                                <i class="align-middle colorAcao fas fa-ellipsis-v" aria-hidden="true"></i>
+                            </button>
+                            <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu"
+                                aria-labelledby="button-basic">
+
+                                <li role="menuitem" *ngIf="isUsuarioCEN">
+                                    <a [ngClass]="{'isDisabled' : isDisabled() }" [routerLink]="null"
+                                        (click)="alterarMembroChapa(element.suplente)" class="dropdown-item"
+                                        title="{{'LABEL_ALTERAR_MEMBRO' |i18n}}">
+                                        {{ 'LABEL_ALTERAR_MEMBRO' | i18n }}
+                                    </a>
+                                </li>
+
+                                <li role="menuitem" *ngIf="isUsuarioCEN">
+                                    <a [ngClass]="{'isDisabled' : isDisabled()}" class="dropdown-item"
+                                        [routerLink]="null"
+                                        (click)="alterarStatusConfirmacaoMembroChapa(element.suplente)"
+                                        title="{{'LABEL_ALTERAR_STATUS_CONFIRMACAO' |i18n}}">
+                                        {{ 'LABEL_ALTERAR_STATUS_CONFIRMACAO' | i18n }}
+                                    </a>
+                                </li>
+
+                                <li role="menuitem" *ngIf="isUsuarioCEN">
+                                    <a [ngClass]="{'isDisabled' : isDisabled()}" class="dropdown-item"
+                                        [routerLink]="null"
+                                        (click)="alterarStatusValidacaoMembroChapa(element.suplente)"
+                                        title="{{'LABEL_ALTERAR_STATUS_VALIDACAO' |i18n}}">
+                                        {{ 'LABEL_ALTERAR_STATUS_VALIDACAO' | i18n }}
+                                    </a>
+                                </li>
+
+                                <li role="menuitem">
+                                    <a [ngClass]="{'isDisabled' : !isPermitidoReenviarEmailPendencia(element.suplente.statusValidacaoMembroChapa.id)}"
+                                        [routerLink]="null" (click)="enviarEmailPendencia(element.suplente)"
+                                        class="dropdown-item" title="{{'LABEL_ENVIAR_EMAIL_PENDENCIA' |i18n}}">
+                                        {{ 'LABEL_ENVIAR_EMAIL_PENDENCIA' | i18n }}
+                                    </a>
+                                </li>
+
+                                <li role="menuitem" *ngIf="isUsuarioCEN">
+                                    <a [ngClass]="{'isDisabled' : isDisabled()}" class="dropdown-item"
+                                        [routerLink]="null" (click)="confirmarExcluirMembroChapa(element.suplente)"
+                                        title="{{'LABEL_EXCLUIR_MEMBRO' |i18n}}">
+                                        {{ 'LABEL_EXCLUIR_MEMBRO' | i18n }}
+                                    </a>
+                                </li>
+
+                                <li role="menuitem">
+                                    <a [ngClass]="{'isDisabled' : !isPermitidoReenviarConvite(element.suplente.statusParticipacaoChapa.id )}"
+                                        class="dropdown-item" [routerLink]="null"
+                                        (click)="renviarConvite(element.suplente)"
+                                        title="{{'LABEL_REENVIAR_CONVITE' |i18n}}">
+                                        {{ 'LABEL_REENVIAR_CONVITE' | i18n }}
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-2" *ngIf="isAlterarMembroChapa(element.suplente);">
+                    <div class="col-md-3">
+                        <div class="form-group row mb-0" *ngIf="true">
+                            <div class="col-md-12">
+                                <app-autocomplete [(inputModel)]="element.suplente_txtPesquisa"
+                                    [placeholder]="getPlaceholderAutoCompleteProfissional(element.suplente)"
+                                    [disabled]="isDisabled() || !isUsuarioCEN" [membroChapaAtual]="element.suplente"
+                                    (nenhumRegistroEncontrado)="nenhumRegistroEncontrado()"
+                                    (onSelectProfissional)="adicionarMembroChapa($event)">
+                                </app-autocomplete>
+                            </div>
+                            <div class="w-100"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-3 col-md-12">
+            <app-mfBootstrapPaginator [mfTable]="mf" class="float-right"></app-mfBootstrapPaginator>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #templateJustificativaAlterarMembro>
+    <div class="modal-header">
+        <h6 class="modal-title pull-left">{{'LABEL_DESCRICAO_JUSTIFICATIVA_ALTERAR_MEMBRO_CHAPA' |i18n}}</h6>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalJustificativaRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        <form #formJustificativaAlterarMembro="ngForm">
+            <div class="mt-2 body-justify">
+                <div class="titulo-justificativa">
+                    <span class="align-bottom">
+                        <span class="float-left pr-1">
+                            <i class="fa fa-bell p-1" aria-hidden="true"></i>
+                        </span>
+                        {{'LABEL_JUSTIFICATIVA_ALTERAR_MEMBRO_CHAPA' |i18n}}
+                    </span>
+                </div>
+                <div class="mt-3">
+                    <div class="mt-2">
+                        <textarea name="justificativaAlterarMembro" class="form-control" rows="3"
+                            #input_justificativa_alterar_membro="ngModel" [(ngModel)]="alteracaoMembro.justificativa"
+                            required></textarea>
+                        <validation-message [for]="input_justificativa_alterar_membro"
+                            [submitted]="formJustificativaAlterarMembro.submitted">
+                        </validation-message>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3 mr-3"
+                (click)="salvarJustificativaAlterarMembro(formJustificativaAlterarMembro)">
+                {{'LABEL_SALVAR' |i18n}}
+            </button>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #templateJustificativaAlterarStatusConfirmacaoMembroChapa>
+    <div class="modal-header">
+        <h6 class="modal-title pull-left">
+            {{'LABEL_DESCRICAO_JUSTIFICATIVA_ALTERAR_STATUS_CONFIRMACAO_MEMBRO_CHAPA' |i18n}}</h6>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalJustificativaRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        <form #formJustificativaAlterarStatusConfirmacaoMembroChapa="ngForm">
+            <div class="mt-2 body-justify">
+                <div class="titulo-justificativa">
+                    <span class="align-bottom">
+                        <span class="float-left pr-1">
+                            <i class="fa fa-bell p-1" aria-hidden="true"></i>
+                        </span>
+                        {{'LABEL_JUSTIFICATIVA_ALTERAR_STATUS_CONFIRMACAO_MEMBRO_CHAPA' |i18n}}
+                    </span>
+                </div>
+                <div class="mt-3">
+                    <div class="mt-2">
+                        <textarea name="JustificativaAlterarStatusConfirmacaoMembroChapa" class="form-control" rows="3"
+                            #input_justificativa_alterar_status_confirmacao_membro="ngModel"
+                            [(ngModel)]="alterarStatusConfirmacao.justificativa" required></textarea>
+                        <validation-message [for]="input_justificativa_alterar_status_confirmacao_membro"
+                            [submitted]="formJustificativaAlterarStatusConfirmacaoMembroChapa.submitted">
+                        </validation-message>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3 mr-3"
+                (click)="salvarJustificativaAlterarStatusConfirmacaoMembroChapa(formJustificativaAlterarStatusConfirmacaoMembroChapa)">
+                {{'LABEL_SALVAR' |i18n}}
+            </button>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #templateJustificativaAlterarStatusValidacaoMembroChapa>
+    <div class="modal-header">
+        <h6 class="modal-title pull-left">
+            {{'LABEL_DESCRICAO_JUSTIFICATIVA_ALTERAR_STATUS_VALIDACAO_MEMBRO_CHAPA' |i18n}}</h6>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalJustificativaRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        <form #formJustificativaAlterarStatusValidacaoMembroChapa="ngForm">
+            <div class="mt-2 body-justify">
+                <div class="titulo-justificativa">
+                    <span class="align-bottom">
+                        <span class="float-left pr-1">
+                            <i class="fa fa-bell p-1" aria-hidden="true"></i>
+                        </span>
+                        {{'LABEL_JUSTIFICATIVA_ALTERAR_STATUS_VALIDACAO_MEMBRO_CHAPA' |i18n}}
+                    </span>
+                </div>
+                <div class="mt-3">
+                    <div class="mt-2">
+                        <textarea name="JustificativaAlterarStatusValidacaoMembroChapa" class="form-control" rows="3"
+                            #input_justificativa_alterar_status_validacao_membro="ngModel"
+                            [(ngModel)]="alterarStatusValidacao.justificativa" required></textarea>
+                        <validation-message [for]="input_justificativa_alterar_status_validacao_membro"
+                            [submitted]="formJustificativaAlterarStatusValidacaoMembroChapa.submitted">
+                        </validation-message>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3 mr-3"
+                (click)="salvarJustificativaAlterarStatusValidacaoMembroChapa(formJustificativaAlterarStatusValidacaoMembroChapa)">
+                {{'LABEL_SALVAR' |i18n}}
+            </button>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #templateJustificativaExcluirMembroChapa>
+    <div class="modal-header">
+        <h6 class="modal-title pull-left">{{'LABEL_DESCRICAO_JUSTIFICATIVA_EXCLUIR_MEMBRO_CHAPA' |i18n}}</h6>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalJustificativaRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        <form #formJustificativaExcluirMembroChapa="ngForm">
+            <div class="mt-2 body-justify">
+                <div class="titulo-justificativa">
+                    <span class="align-bottom">
+                        <span class="float-left pr-1">
+                            <i class="fa fa-bell p-1" aria-hidden="true"></i>
+                        </span>
+                        {{'LABEL_JUSTIFICATIVA_ALTERAR_EXCLUIR_MEMBRO_CHAPA' |i18n}}
+                    </span>
+                </div>
+                <div class="mt-3">
+                    <div class="mt-2">
+                        <textarea name="JustificativaExcluirMembroChapa" class="form-control" rows="3"
+                            #input_justificativa_excluir_membro="ngModel"
+                            [(ngModel)]="exclusaoMembroChapa.justificativa" required></textarea>
+                        <validation-message [for]="input_justificativa_excluir_membro"
+                            [submitted]="formJustificativaExcluirMembroChapa.submitted">
+                        </validation-message>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3 mr-3" (click)="excluirMembroChapa()">
+                {{'LABEL_SALVAR' |i18n}}
+            </button>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #templateJustificativaAlterarResponsavelMembroChapa>
+    <div class="modal-header">
+        <h6 class="modal-title pull-left">{{'LABEL_DESCRICAO_JUSTIFICATIVA_ALTERAR_RESPONSAVEL_MEMBRO_CHAPA' |i18n}}
+        </h6>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalJustificativaRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        <form #formJustificativaAlterarResponsavelMembroChapa="ngForm">
+            <div class="mt-2 body-justify">
+                <div class="titulo-justificativa">
+                    <span class="align-bottom">
+                        <span class="float-left pr-1">
+                            <i class="fa fa-bell p-1" aria-hidden="true"></i>
+                        </span>
+                        {{'LABEL_JUSTIFICATIVA_ALTERAR_ALTERAR_RESPONSAVEL_MEMBRO_CHAPA' |i18n}}
+                    </span>
+                </div>
+                <div class="mt-3">
+                    <div class="mt-2">
+                        <textarea name="JustificativAlterarResponsavelMembroChapa" class="form-control" rows="3"
+                            #input_justificativa_alterar_responsavel_membro="ngModel"
+                            [(ngModel)]="statusAlterarMembro.justificativa" required></textarea>
+                        <validation-message [for]="input_justificativa_alterar_responsavel_membro"
+                            [submitted]="formJustificativaAlterarResponsavelMembroChapa.submitted">
+                        </validation-message>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3 mr-3"
+                (click)="alterarSituacaoResponsavel(formJustificativaAlterarResponsavelMembroChapa)">
+                {{'LABEL_SALVAR' |i18n}}
+            </button>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #templateAlterarStatusConfirmacao>
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            <h6 class="modal-title pull-center">{{'LABEL_ALTERAR_STATUS_CONFIRMACAO_MEMBRO_CHAPA' |i18n}}</h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalJustificativaRef.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        <form #formAlterarStatusConfirmacao="ngForm">
+            <div class="row">
+                <div class="col-md-1"></div>
+                <div class="col-md-10 text-center">
+                    <div class="row p-3 h-100 bg-green" style="border-radius: 10px;">
+                        <div class="col-md-4 text-center">
+                            <input type="radio" name="status" [value]="statusConfirmacaoMembroChapa.confirmado.id"
+                                #input_radio_status_pendente="ngModel"
+                                [(ngModel)]="alterarStatusConfirmacao.idStatusConvite">
+                            <label [for]="input_radio_status_pendente">{{ statusConfirmacaoMembroChapa.confirmado.label
+                                }}</label>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <input type="radio" name="status" [value]="statusConfirmacaoMembroChapa.pendente.id"
+                                #input_radio_status_concluido="ngModel"
+                                [(ngModel)]="alterarStatusConfirmacao.idStatusConvite">
+                            <label [for]="input_radio_status_concluido">{{ statusConfirmacaoMembroChapa.pendente.label
+                                }}</label>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <input type="radio" name="status" [value]="statusConfirmacaoMembroChapa.rejeitado.id"
+                                #input_radio_status_concluido="ngModel"
+                                [(ngModel)]="alterarStatusConfirmacao.idStatusConvite">
+                            <label [for]="input_radio_status_concluido">{{ statusConfirmacaoMembroChapa.rejeitado.label
+                                }}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-center pt-3">
+                    <button type="submit" class="btn btn-primary pl-3 pr-3"
+                        (click)="confirmarAlterarStatusConfirmacaoMembroChapa()">
+                        {{'LABEL_CONFIRMAR' |i18n}}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #templateAlterarStatusValidacao>
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            <h6 class="modal-title pull-center">{{'LABEL_ALTERAR_STATUS_VALIDACAO_MEMBRO_CHAPA' |i18n}}</h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalJustificativaRef.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        <form #formAlterarStatusValidacao="ngForm">
+            <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8 text-center">
+                    <div class="row p-3 h-100 bg-green" style="border-radius: 10px;">
+                        <div class="col-md-6 text-center">
+                            <input type="radio" name="status" [value]="statusValidacaoMembroChapa.pendente.id"
+                                #input_radio_status_pendente="ngModel"
+                                [(ngModel)]="alterarStatusValidacao.idStatusValidacao">
+                            <label [for]="input_radio_status_pendente">{{ statusValidacaoMembroChapa.pendente.label
+                                }}</label>
+                        </div>
+                        <div class="col-md-6 text-center">
+                            <input type="radio" name="status" [value]="statusValidacaoMembroChapa.valido.id"
+                                #input_radio_status_concluido="ngModel"
+                                [(ngModel)]="alterarStatusValidacao.idStatusValidacao">
+                            <label [for]="input_radio_status_concluido">{{ statusValidacaoMembroChapa.valido.label
+                                }}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-center pt-3">
+                    <button type="submit" class="btn btn-primary pl-3 pr-3"
+                        (click)="confirmarAlterarStatusValidacaoMembroChapa()">
+                        {{'LABEL_CONFIRMAR' |i18n}}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>

@@ -1,0 +1,180 @@
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-tabs">
+            <li class="nav-item pointer">
+                <a class="nav-link no-wrap-title-aba" [ngClass]="{ 'active':false}" (click)="sair()">
+                    {{'LABEL_VISAO_GERAL' | i18n}}
+                </a>
+            </li>
+            <li class="nav-item pointer text-center">
+                <a class="nav-link wrap-title-aba" [ngClass]="{ 'active': true}">
+                    <div class="aba" [innerHTML]="getTitulo()"></div>
+                </a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane fade card rounded-0" [ngClass]="{ 'active show':true}">
+                <div class="col-md-12" (click)="sair()">
+                    <i class="fa fa-desktop fa-2x m-2 pointer colorGray" aria-hidden="true"></i>
+                </div>
+                <div class="box-separador bg-primary"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body p-0 mt-1">
+
+        <div class="col-md-2">
+            <button type="button" class="btn btn-link p-0" (click)="sair()" style="margin-top: 5px;">
+                <h5 class="m-0"><i class="fa fa-reply text-primary"
+                    title="{{'LABEL_VOLTAR' | i18n}}"></i></h5>
+            </button>
+        </div>
+
+        <div class="tab-content">
+            <div class="tab-pane active show fade card rounded-0">
+                <div class="tab-pane fade pl-3 pr-3 pb-1 mt-3 mb-3" [ngClass]="{ 'active show': true}">
+                    <form #formImpugnacao="ngForm">
+                        <div class="card card-pricipal mb-3">
+                            <div class="row m-2">
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <card-panel [titulo]="'LABEL_INFORMACOES_IMPUGNANTE'" class="mt-3">
+                                            <div class="p-4">
+                                                <div fxLayout="row" fxFlexFill>
+                                                    <div fxFlex>
+                                                        <div fxLayout="row">
+                                                            <div fxFlex class="ml-2 text-center pb-1">
+                                                                <strong class="label-subtitle">{{ 'LABEL_NOME_COMPLETO' | i18n }}</strong>
+                                                            </div>
+                                                            <div fxFlex class="text-center">
+                                                                <strong class="label-subtitle">{{ 'LABEL_REGISTRO' | i18n }}</strong>
+                                                            </div>
+                                                            <div fxFlex class="text-center">
+                                                                <strong class="label-subtitle">{{ 'LABEl_EMAIL_MIN' | i18n }}</strong>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!--Impugnantes-->
+                                                <div class="list-item mt-3">
+                                                    <div fxLayout="row" class="list-item-box custom-grid mt-2">
+                                                        <div fxFlex fxLayoutAlign="center center" class="text-center border-grid-tbl h-100  bg-white">
+                                                            <div fxLayout="column" fxLayoutAlign="space-around center" class="w-100 border-right">
+                                                                <div>
+                                                                    {{profissional.name}}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div fxFlex fxLayoutAlign="center center" class="text-center border-grid-tb h-100  bg-white">
+                                                            <div fxLayout="column" fxLayoutAlign="space-around center" class="w-100 border-right">
+                                                                <div>
+                                                                    {{getRegistroComMask(profissional.registroNacional)}}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div fxFlex fxLayoutAlign="center center" class="text-center h-100 border-grid-tb bg-white">
+                                                            <div fxLayout="column" fxLayoutAlign="space-around center" class="w-100">
+                                                                <div>
+                                                                    {{profissional.email}}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </card-panel>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row pt-3">
+                            <div class="col-md-12">
+                                <div class="rounded-0 mb-5">
+                                    <div class="subtitle-line mt-3">
+                                        <span class="bg-white"> {{'TITLE_CADASTRAR_IMPUGNACAO_RESULTADO' | i18n}} </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card card-pricipal">
+                            <div class="row m-2">
+                                <div class="card-body">
+                                    
+                                    <div class="card-body bg-green border p-2 mb-5">
+                                        <div class="row">
+                                            <div class="col-1 label-uf">
+                                                <label class="mr-auto"><strong>{{ 'LABEL_UF' | i18n }}</strong></label>
+                                            </div>
+                                            <div class="col-2 layout-uf">
+                                                <select class="form-control" required [(ngModel)]="impugnacao.cauBR"
+                                                    name="cauUf"  #idCauBR="ngModel">
+                                                    <option [value]="undefined">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                                                    <ng-container *ngFor="let ufCalendario of ufsCalendario">
+                                                        <option [ngValue]="ufCalendario">
+                                                            {{ufCalendario.uf.prefixo}}
+                                                        </option>
+                                                    </ng-container>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <validation-message [for]="idCauBR" [submitted]="submitted && !validarCauBR()">
+                                        </validation-message>
+                                    </div>
+
+                                    <div class="mb-3 mt-3">
+                                        <card-panel [titulo]="'TITLE_NARRACAO_FATOS'" [msgHint]="getHintNarracao()" class="mt-3">
+                                            <editor-de-texto
+                                                [isRequerido]="true"
+                                                [isHabilitado]="true"
+                                                [tamanhoMaximo]="2000"
+                                                [isSubmetido]="submitted"
+                                                [valor]="impugnacao.descricao"
+                                                [isMostrarTamanhoTextoRestantes]="true"
+                                                (valorChange)="adicionarDescricao($event)">
+                                            </editor-de-texto>
+                                        </card-panel>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <card-panel [titulo]="'LABEL_DOCUMENTO'"  class="mt-3">
+                                                <arquivo 
+                                                    [maxArquivos]="1" 
+                                                    [hasUpload]="true"
+                                                    [tipoValidacao]="3"
+                                                    [hasDownload]="true"
+                                                    [hasExclusao]="true"
+                                                    [isHabilitado]="true"
+                                                    [msgHint]="getHintArquivo()"
+                                                    (salvarEvent)="salvarArquivos($event)" 
+                                                    [msgMaxArquivos]="'MSG_QTD_MAXIMA_UPLOAD_1'"
+                                                    (download)="downloadArquivo($event)">
+                                                </arquivo>
+                                        </card-panel>
+                                    </div>
+
+                                    <div class="col-md-12 p-3">
+                                        <button (click)="sair()"
+                                            class="btn btn-danger px-3 mr-3">
+                                            {{ 'LABEL_CANCELAR' | i18n }}
+                                        </button>  
+                                        <button 
+                                        class="btn btn-primary px-3 mr-3"
+                                            (click)="validarAtividade()">
+                                            {{ 'LABEL_CADASTRAR' | i18n }}
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

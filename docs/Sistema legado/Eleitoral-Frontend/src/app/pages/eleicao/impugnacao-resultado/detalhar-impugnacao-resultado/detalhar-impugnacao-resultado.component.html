@@ -1,0 +1,112 @@
+<div class="row">
+  <div class="col-md-12">
+    <ul class="nav nav-tabs">
+      <li class="nav-item pointer">
+        <a class="nav-link no-wrap-title-aba" [ngClass]="{ 'active': false}">{{'LABEL_VISAO_GERAL' | i18n}}
+        </a>
+      </li>
+      <li class="nav-item pointer">
+        <a class="nav-link wrap-title-aba" [ngClass]="{ 'active': abas.detalhar.ativa }" (click)="redirecionaAba(1)">
+          <div class="aba" [innerHTML]="getTituloAbaImpugnacaoResultado()"></div>
+        </a>
+      </li>
+      <li class="nav-item pointer" *ngIf="isAbaAlegacao()">
+        <a class="nav-link no-wrap-title-aba" [ngClass]="{ 'active': abas.alegacao.ativa }" (click)="redirecionaAba(2)">
+          {{'LABEL_ALEGACOES' | i18n}}
+        </a>
+      </li>
+      <li class="nav-item pointer" *ngIf="isAbaJulgamento()">
+        <a class="nav-link wrap-title-aba" [ngClass]="{ 'active': abas.julgamento.ativa }" (click)="redirecionaAba(3)">
+          <div class="aba" [innerHTML]="getTituloAbaJulgamentoPrimeiraInstancia()"></div>
+        </a>
+      </li>
+      <li class="nav-item pointer" *ngIf="hasRecursoJulgamentoImpugnante()">
+        <a class="nav-link wrap-title-aba" [ngClass]="{ 'active': abas.recursoImpugnante.ativa }" (click)="redirecionaAba(4)">
+          <div class="aba" [innerHTML]="getTituloAbaRecursoJulgamentoImpugnante()"></div>
+        </a>
+    </li>
+    <li class="nav-item pointer" *ngIf="hasRecursoJulgamentoImpugnado()">
+        <a class="nav-link wrap-title-aba" [ngClass]="{ 'active': abas.recursoImpugnado.ativa }" (click)="redirecionaAba(5)">
+          <div class="aba" [innerHTML]="getTituloAbaRecursoJulgamentoImpugnado()"></div>
+        </a>
+    </li>
+    <li class="nav-item pointer" *ngIf="isAbaJulgamentoSegunda()">
+      <a class="nav-link wrap-title-aba" [ngClass]="{ 'active': abas.julgamentoSegunda.ativa }" (click)="redirecionaAba(6)">
+        <div class="aba" [innerHTML]="getTituloAbaJulgamentoSegundaInstancia()"></div>
+      </a>
+    </li>
+    </ul>
+
+    <div class="tab-content">
+      <div class="tab-pane fade card rounded-0" [ngClass]="{ 'active show':true}">
+        <div class="tab-content">
+          <div class="tab-pane fade rounded-0" [ngClass]="{ 'active show':true}">
+            <!-- ABA PEDIDO IMPUGNAÇÃO-->
+            <div class="tab-pane fade" [ngClass]="{ 'active show':abas.detalhar.ativa}" *ngIf="abas.detalhar.ativa">
+              <aba-detalhar-impugnacao-resultado
+                [cauUf]="cauUf"
+                [impugnacao]="impugnacao">
+              </aba-detalhar-impugnacao-resultado>
+            </div>
+            <!-- ABA ALEGACOES-->
+            <div class="tab-pane fade" [ngClass]="{ 'active show':abas.alegacao.ativa}"
+              *ngIf="abas.alegacao.ativa">
+              <aba-alegacao-impugnacao-resultado
+                [bandeira]="bandeira"
+                [alegacoes]="alegacao"
+                [impugnacao]="impugnacao"
+                (mudarAba)="redirecionaAba($event)"
+                (voltarAba)="redirecionaAba($event)">
+              </aba-alegacao-impugnacao-resultado>
+            </div>
+            <!-- ABA JULGAMENTO -->
+            <div class="tab-pane fade" [ngClass]="{ 'active show':abas.julgamento.ativa}"
+              *ngIf="abas.julgamento.ativa">
+              <aba-julgamento-impugnacao-resultado
+                [bandeira]="bandeira"
+                [julgamento]="julgamento"
+                (voltarAba)="redirecionaAba($event)">
+              </aba-julgamento-impugnacao-resultado>
+            </div>
+            <!-- ABA RECURSO DO JULGAMENTO IMPUGNANTE -->
+            <div class="tab-pane fade" [ngClass]="{ 'active show':abas.recursoImpugnante.ativa}"
+              *ngIf="abas.recursoImpugnante.ativa">
+              <aba-recurso-julgamento-impugnante
+                [bandeira]="bandeira"
+                [recursos]="recursosImpugnante"
+                [impugnacao]="impugnacao"
+                [julgamento]="julgamento"
+                (voltarAba)="redirecionaAba($event)"
+                (mudarAbaJulgRecursoAposCadastro)="redirecionarAbaJulgRecursoAposCadastro($event)">
+              </aba-recurso-julgamento-impugnante>
+            </div>
+            <!-- ABA RECURSO DO JULGAMENTO IMPUGNADO -->
+            <div class="tab-pane fade" [ngClass]="{ 'active show':abas.recursoImpugnado.ativa}"
+              *ngIf="abas.recursoImpugnado.ativa">
+              <aba-recurso-julgamento-impugnado
+                [bandeira]="bandeira"
+                [recursos]="recursosImpugnado"
+                [impugnacao]="impugnacao"
+                [julgamento]="julgamento"
+                (voltarAba)="redirecionaAba($event)"
+                (mudarAbaJulgRecursoAposCadastro)="redirecionarAbaJulgRecursoAposCadastro($event)">
+              </aba-recurso-julgamento-impugnado>
+            </div>
+            <!-- ABA RECURSO DO JULGAMENTO SEGUNDA INSTANCIA -->
+            <div class="tab-pane fade" [ngClass]="{ 'active show':abas.julgamentoSegunda.ativa}"
+              *ngIf="abas.julgamentoSegunda.ativa">
+              <aba-julgamento-impug-resultado-segunda-instancia
+                [bandeira]="bandeira"
+                [julgamentoSegunda]="julgamentoSegunda"
+                [impugnacao]="impugnacao"
+                (voltarAba)="redirecionaAba($event)">
+              </aba-julgamento-impug-resultado-segunda-instancia>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>

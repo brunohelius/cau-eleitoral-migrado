@@ -1,0 +1,143 @@
+<div class="header">
+    <h1 class="header-title">
+        <i class="fa fa-wpforms" style="margin-right: 10px; font-size: 30px" aria-hidden="true"></i>
+        {{ 'LABEL_ACOMPANHAR_CHAPA' | i18n }}
+    </h1>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+
+        <ul class="nav nav-tabs">
+
+            <li class="nav-item pointer">
+                <a class="nav-link" (click)="mudarAbaSelecionada(tabs.principal.nome)"
+                    [ngClass]="{ 'active': tabs.principal.ativo }">{{'LABEL_VISAO_GERAL' | i18n}}
+                </a>
+            </li>
+
+            <li class="nav-item pointer" *ngIf="isMostrarHistoricoChapa()">
+                <a class="nav-link" (click)="mudarAbaSelecionada(tabs.historico.nome)"
+                    [ngClass]="{ 'active': tabs.historico.ativo }">{{'LABEL_TABS_HISTORICO' | i18n}}
+                </a>
+            </li>
+
+        </ul>
+
+        <div class="tab-content">
+
+            <div class="tab-pane fade card rounded-0" [ngClass]="{ 'active show': tabs.principal.ativo }"
+                *ngIf="tabs.principal.ativo">
+                <div class="col-md-12">
+                    <i class="fa fa-desktop fa-2x m-2 pointer coloPrimary" aria-hidden="true"></i>
+                </div>
+                <div class="col-md-12">
+                    <h5 class="card-title colorGray">
+                        <a class="pointer" (click)="voltar()">
+                            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                        </a>
+                        {{'LABEL_VISUALIZAR_QUANTIDADE_CHAPAS_CRIADAS' |i18n}}
+                    </h5>
+                </div>
+                <div class="box-separador"></div>
+
+                <div class="tab-pane fade p-5" id="tab-pane-principal"
+                    [ngClass]="{ 'active show': tabs.principal.ativo }" *ngIf="tabs.principal.ativo">
+                    <div class="rounded-0">
+
+                        <div class="subtitle-line mb-5">
+                            <span class="bg-white"> {{ 'LABEL_CHAPAS_CADASTRADAS_POR_ESTADO' | i18n }}</span>
+                        </div>
+
+                        <table class="table" [mfData]="chapas" #mf="mfDataTable" *ngIf="chapas">
+                            <thead>
+                                <tr class="green-font-bolder">
+                                    <th class="text-center tb-width-10"> {{ 'LABEL_ESTADO' | i18n }}</th>
+                                    <th class="text-center tb-width-10">
+                                        {{ 'LABEL_QUANTIDADE_CHAPAS' | i18n }}</th>
+                                    <th class="text-center tb-width-10">
+                                        {{ 'LABEL_QUANTIDADE_CHAPAS_COM_PENDENCIA' | i18n }}
+                                    </th>
+                                    <th class="text-center tb-width-10">
+                                        {{ 'LABEL_QUANTIDADE_CHAPAS_CONCLUIDA' | i18n }}
+                                    </th>
+                                    <th class="text-center tb-width-10">{{ 'LABEL_ACAO' | i18n }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let chapa of mf.data;" [ngClass]="{ 'chapa-ies': isIES(chapa) }"
+                                    class="td-cauf list-item list-item-card">
+                                    <td class="pl-5 tb-width-10 p-3  green-font-bolder">
+                                        <div class="title-comissao">
+                                            <img class="img-fluid rounded-circle mb-2 img-bandeira"
+                                                [src]="getImagemBandeira(chapa.idCauUf)" [alt]="chapa.uf">
+                                            {{ chapa.uf }}
+                                        </div>
+                                    </td>
+                                    <td class="text-center p-3 tb-width-10">{{ chapa.quantidadeTotalChapas }}</td>
+                                    <td class="text-center p-3 tb-width-10">{{ chapa.quantidadeChapasPendentes }}</td>
+                                    <td class="text-center p-3 tb-width-10">{{ chapa.quantidadeChapasConcluidas }}</td>
+                                    <td class="text-center p-3 tb-width-10">
+                                        <div class="btn-group" dropdown triggers="hover" (mouseleave)="dp.hide()"
+                                            #dp="bs-dropdown">
+                                            <button dropdownToggle type="button" class="btn btn-link text-muted"
+                                                aria-controls="dropdown-basic">
+                                                <i class="align-middle colorAcao fas fa-ellipsis-v"
+                                                    aria-hidden="true"></i>
+                                            </button>
+                                            <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu" role="menu"
+                                                aria-labelledby="button-basic">
+                                                <li role="menuitem">
+                                                    <a href="#" class="dropdown-item"
+                                                        [ngClass]="{ 'disabled': isDisabledAcaoVisualizarChapas(chapa) }"
+                                                        [routerLink]="getURLVisualizarChapasUf(chapa.idCauUf)">{{'LABEL_VISUALIZAR_CHAPAS' |i18n}}
+                                                    </a>
+                                                </li>
+                                                <li role="menuitem" *ngIf="isMostrarAcaoExtratoChapa(chapa.idCauUf)" >
+                                                  <a class="dropdown-item"
+                                                     [ngClass]="{ 'disabled': isDisabledAcaoVisualizarChapas(chapa) }">
+                                                      <download title="{{ 'LABEL_GERAR_EXTRATO' | i18n }}"
+                                                                class="center-no-arquivo pl-0" style="background:
+                                                                none; text-decoration: none !important;"
+                                                                [ngStyle]="{'color':
+                                                                isDisabledAcaoVisualizarChapas(chapa)  ? '#6c757d' :
+                                                                'black' }"
+                                                                                                  [download]="getLabelExtratoChapaPorUf(chapa.prefixoUf)"
+                                                                                                  (process)="downloadExtratoChapaPorUf($event, chapa.idCauUf)">
+                                                      <span>{{ 'LABEL_GERAR_EXTRATO' | i18n }}</span>
+                                                    </download>
+                                                  </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="pt-3">
+                            <span class="green-font-bolder"> {{ 'LABEL_TOTAL_CHAPAS_CADASTRADAS' | i18n }}: </span>
+                            <b>{{ getTotalChapas() }}</b>
+                        </div>
+
+                        <div class="pt-3">
+                            <span>
+                                <download title="{{ 'LABEL_EXTRATO_QUANTIDADE_CHAPA' | i18n }}" class="center-no-arquivo pl-0" style="background: none; font-size: 1rem;"
+                                    download="{{ 'LABEL_EXTRATO_QUANTIDADE_CHAPA' | i18n }}.pdf" (process)="downloadExtratoQuantidadeChapa($event)">
+                                    <i class="fa fa-file-pdf-o" style="font-size: 1.5rem;" aria-hidden="true"></i>
+                                    <span style="color: black;">{{ 'LABEL_GERAR_PDF' | i18n }}</span>
+                                </download>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade card rounded-0" [ngClass]="{ 'active show': tabs.historico.ativo }"
+                *ngIf="tabs.historico.ativo">
+                <aba-historico-chapa-eleicao [historico]="historico"></aba-historico-chapa-eleicao>
+            </div>
+
+        </div>
+    </div>
+</div>

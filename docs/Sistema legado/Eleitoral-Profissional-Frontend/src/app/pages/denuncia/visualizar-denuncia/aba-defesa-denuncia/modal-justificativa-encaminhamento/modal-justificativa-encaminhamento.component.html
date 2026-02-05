@@ -1,0 +1,39 @@
+<div class="modal-header border-header-green">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 text-center">
+        <h6 class="modal-title pull-center">{{'LABEL_INSERIR_JUSTIFICATIVA' |i18n}}</h6>
+    </div>
+    <div class="col-md-2 align-items-right">
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</div>
+<div class="modal-body">
+    <form #formJustificativaEncaminhamento="ngForm">
+        <div class="p-2">
+            <strong>{{'LABEL_JUSTIFICATIVA' | i18n}}</strong>
+            <form-valid [submitted]="submitted">
+                <div class="alert bg-green border shadow">
+                    <ckeditor id="dsJustificativaEncaminhamento" required name="dsJustificativaEncaminhamento"
+                        [config]="configuracaoCkeditor" (ready)="onReadyCKJustificativa($event)"
+                        (change)="onChangeCKDescricao($event)" [(ngModel)]="justificativaEncaminhamento"></ckeditor>
+                    <input type="hidden" maxlength="2000" name="hideJustificativaEncaminhamento"
+                        #input_justificativa="ngModel" [(ngModel)]="justificativaEncaminhamentoSimpleText" required>
+                    <span>{{ getContagemJustificativaEncaminhamento() }}</span>
+                </div>
+            </form-valid>
+        </div>
+    </form>
+</div>
+
+<div class="modal-footer aling-left">
+    <div class="row p-2 py-3">
+        <div class="col-md-12 p-0 align-items-left">
+            <button class="btn btn-danger mr-4" type="button"
+                (click)="cancelarJustificativaEncaminhamento(true)">{{'LABEL_CANCELAR' | i18n}}</button>
+            <button class="btn btn-primary mr-4" type="button"
+                (click)="salvar(formJustificativaEncaminhamento)">{{'LABEL_CONCLUIR' | i18n}}</button>
+        </div>
+    </div>
+</div>

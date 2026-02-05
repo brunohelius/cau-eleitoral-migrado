@@ -1,0 +1,39 @@
+<span style="display: flex; justify-content: center; align-items: center; align-content: center;">
+
+		{% for elementoNumeroMembrosComissao in numeroMembrosComissao %}
+
+		<table style="width: 20%;">
+				<thead>
+				<tr class="text-center">
+						<th style="background-color: #016C71; border-color: #016C71; color: #FFFFFF;">UF</th>
+						<th style="background-color: #019ca4; border-color: #019ca4; color: #FFFFFF;">Quant</th>
+				</tr>
+				</thead>
+
+				<tbody class="text-center">
+
+				{% for numeroMembros in elementoNumeroMembrosComissao %}
+
+				<tr>
+						<td class="text-center">{{ numeroMembros.prefixo }}</td>
+						<td class="text-center">
+
+								{% if numeroMembros.quantidade == 0 %}
+								<span style="color: #DC3545;">N/A</span>
+								{% endif %}
+
+								{% if numeroMembros.quantidade > 0 %}
+								<span>{{ numeroMembros.quantidade }}</span>
+								{% endif %}
+
+						</td>
+				</tr>
+
+				{% endfor %}
+
+				</tbody>
+		</table>
+
+		{% endfor %}
+
+</span>

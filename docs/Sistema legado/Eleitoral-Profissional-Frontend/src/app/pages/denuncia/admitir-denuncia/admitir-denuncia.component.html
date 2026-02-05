@@ -1,0 +1,57 @@
+<form #formAdmitir="ngForm">
+    <div class="p-2">
+        <strong>{{'LABEL_DESCRICAO_DESIGNACAO_RELATOR' | i18n}}</strong>
+        <form-valid [submitted]="submitted">
+            <div class="alert bg-green border shadow">
+                <ckeditor id="dsDesignacaoRelator" required name="dsDesignacaoRelator" [config]="configuracaoCkeditor"
+                    (ready)="onReadyCKDesignacaoRelator($event)" (change)="onChangeCKDescricao($event)"
+                    [(ngModel)]="admissao.descricaoDesignacao"></ckeditor>
+                <input type="hidden" maxlength="2000" name="hideDesignacaoRelator" #input_designacao_relator="ngModel"
+                    [(ngModel)]="admissao.designacaoRelatorSimpleText" required>
+                <span>{{ getContagemDesignacaoRelator() }}</span>
+            </div>
+        </form-valid>
+    </div>
+
+    <div class="p-2">
+        <strong>{{'LABEL_SELECIONAR_RELATOR' | i18n}}</strong>
+        <div class="alert bg-green border shadow">
+            <label>{{'LABEL_NOME_COMPLETO' | i18n}}</label>
+            <div fxLayout="row" fxLayout.sm="column">
+                <div fxFlex="40">
+                    <form-valid [submitted]="submitted">
+                        <select class="form-control mr-1" name="relator" required (change)="carregarInformacoesResultado()"
+                            [(ngModel)]="admissao.relator">
+                            <option [value]="undefined">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                            <ng-container *ngFor="let relator of relatores">
+                                <option [ngValue]="relator" *ngIf="!isRelatorDenunciado(relator)">
+                                    {{relator.profissional.nome}}
+                                </option>
+                                <option [ngValue]="relator.membroSubstituto" *ngIf="relator.membroSubstituto && !isRelatorDenunciado(relator.membroSubstituto)">
+                                    {{relator.membroSubstituto.profissional.nome}}
+                                </option>
+                            </ng-container>
+                        </select>
+                    </form-valid>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="admissao.relator">
+        <div class="p-2">
+            <strong>{{'LABEL_RESULTADO' | i18n}}</strong>
+            <div class="alert bg-green m-0 border shadow">
+                <card-list [config]="infoRelator"></card-list>
+            </div>
+        </div>
+    </div>
+
+    <div class="row p-2 py-3">
+        <div class="col-md-12 p-6">
+            <button class="btn btn-danger mr-4 btn-action-denuncia" type="button"
+                (click)="cancelarAdmissao()">{{'LABEL_CANCELAR' | i18n}}</button>
+            <button class="btn btn-primary mr-4 btn-action-denuncia" type="button"
+                (click)="concluirAdmissao(formAdmitir)">{{'LABEL_CONCLUIR' | i18n}}</button>
+        </div>
+    </div>
+</form>

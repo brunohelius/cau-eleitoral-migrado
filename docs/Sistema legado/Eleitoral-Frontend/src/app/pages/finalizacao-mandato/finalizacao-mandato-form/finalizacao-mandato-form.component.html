@@ -1,0 +1,171 @@
+<div class="header">
+    <h1 class="header-title">
+        <i class="fa fa-wpforms" style="margin-right: 10px; font-size: 30px" aria-hidden="true"></i>
+        {{ 'LABEL_TIPO_FINALIZACAO_MANDATO' | i18n}}
+    </h1>
+</div>
+
+<form #formTipoFinalizacao="ngForm">
+    <div class="card">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card-header rounded-0">
+                    <h5 class="card-title">
+                        {{ (!acao.isAcaoAlterar() ? 'TITLE_CADASTRAR_FINALIZCAO_MANDATO' : 'TITLE_ALTERAR_FINALIZCAO_MANDATO') | i18n }}
+                    </h5>
+                </div>
+            </div>
+
+            <div class="col-md-8 ml-4">
+                <label for="inputTitulo" class="mb-0">{{ 'LABEL_DESCRICAO' | i18n }}:</label>
+                <input id="inputTitulo" name="titulo" type="text"
+                    title="{{ 'LABEL_TITULO' | i18n }}" class="form-control"
+                    [(ngModel)]="tipoFinalizacao.descricao"
+                    #inputTitulo="ngModel"
+                    (keyup)="contarCaracteres()"
+                    pattern="[a-zA-ZÀ-ú0-9\s\'\!\@\#\$\%\¨\&\*\(\)\_\+\-\=\|\\\,\.\;\/\<\>\:\?\[\]\{\}\`\^\ª\º\§\~]+"
+                    required>
+                <div id="contagemTitulo" fxLayoutAlign="start">
+                    {{ tamanhoDescricao }}/100
+                </div>
+                <span class="text-danger" [hidden]="!alertaTamanhoDescricao">Limite máximo de caracteres atingido.</span>
+                <validation-message [for]="inputTitulo" [submitted]="submitted">
+                </validation-message>
+            </div> 
+
+            <div class="col-md-12 ml-4 mt-4">
+                <label id="lbl-isAtivo" class="pr-2">{{ 'LABEL_ATIVO' | i18n }}:</label>
+                <ui-switch id="isAtivo"
+                    [(ngModel)]="tipoFinalizacao.ativo"
+                    title="{{ 'LABEL_ATIVO' | i18n }}"
+                    [ngModelOptions]="{standalone: true}">
+                </ui-switch>
+            </div>
+
+            <div class="col-md-10 m-4">
+                <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutAlign="start stretch"
+                    fxLayoutGap="10px">
+                    <button 
+                        fxFlex="12"
+                        class="btn btn-primary" 
+                        title="{{ 'LABEL_SALVAR' | i18n }}"
+                        (click)="!acao.isAcaoAlterar() ? salvar(formTipoFinalizacao) : alterar(formTipoFinalizacao)">
+                        {{ 'LABEL_SALVAR' | i18n }}
+                    </button>
+
+                    <button 
+                        fxFlex="12" 
+                        class="btn btn-primary"
+                        title="{{ 'LABEL_CANCELAR' | i18n }}"
+                        (click)="cancelar()">
+                        {{ 'LABEL_CANCELAR' | i18n }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="card">
+    <div fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayoutAlign="space-between stretch"
+        class="mt-4 mb-0 ml-5 mr-5">
+        <div fxFlex class="h5 text-muted">{{ 'LABEL_RESULTADO_PESQUISA' | i18n }}</div>
+        <div fxFlex="200px" fxFlex.xs="100%" fxFlex.sm="100%">
+            <input type="text" class="form-control form-control-sm" name="busca-calendario-eleitoral" [(ngModel)]="search"
+            placeholder="{{'LABEL_BUSCAR' |i18n}}" (ngModelChange)="filter($event)" maxlength="50">
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <table class="table table-striped" style="width: 96%; margin-left: 2%;" [mfData]="itensLista" #mf="mfDataTable"
+                [mfRowsOnPage]="numeroRegistrosPaginacao">
+                <thead>
+                    <tr>
+                        <th class="tb-width-10">
+                            <mfDefaultSorter>
+                            </mfDefaultSorter>
+                        </th>
+                        <th class="tb-width-20">
+                            <mfDefaultSorter by="id">{{ 'LABEL_CODIGO' | i18n }}
+                            </mfDefaultSorter>
+                        </th>
+                        <th class="tb-width-20">
+                            <mfDefaultSorter by="descricao">
+                                {{ 'LABEL_DESCRICAO' | i18n }}</mfDefaultSorter>
+                        </th>
+                        <th class="tb-width-20">
+                            <mfDefaultSorter by="ativo">{{ 'LABEL_STATUS' | i18n }}
+                            </mfDefaultSorter>
+                        </th>
+                        <th class="tb-width-30">
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let item of mf.data let indice = index;"
+                        [class]="item.ativo ? 'ativo' : 'inativo'">
+                        <td>
+                            {{ indice+1 }}
+                        </td>
+
+                        <td>
+                            {{ item.id }}
+                        </td>
+
+                        <td>
+                            {{ item.descricao }}
+                        </td>
+
+                        <td *ngIf="!item.ativo">
+                            <i class="align-middle fas fa-exclamation-triangle"></i>
+                            Inativo
+                        </td>
+                        <td class="text-primary" *ngIf="item.ativo">
+                            <i class="align-middle fas fa-check-circle"></i> Ativo
+                        </td>
+
+                        <td class="text-right">
+                            <div class="btn-group" dropdown triggers="hover" (mouseleave)="dp.hide()" #dp="bs-dropdown">
+                                <button dropdownToggle type="button" class="btn btn-link text-muted" aria-controls="dropdown-basic">
+                                  <i class="align-middle colorAcao fas fa-ellipsis-v" aria-hidden="true"></i>
+                                </button>
+                                <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu" role="menu"
+                                    aria-labelledby="button-basic">
+                                    <li role="menuitem">
+                                        <a (click)="abrirAlterar(item.id)"
+                                            class="dropdown-item cursor-pointer" title="{{'LABEL_ALTERAR' |i18n}}">
+                                            {{'LABEL_ALTERAR' |i18n}}
+                                        </a>
+                                    </li>
+                                    <li role="menuitem">
+                                        <a (click)="excluir(item.id)"
+                                            class="dropdown-item cursor-pointer" title="{{'LABEL_EXCLUIR' |i18n}}">
+                                            {{'LABEL_EXCLUIR' |i18n}}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+
+                <tfoot>
+                    <tr>
+                        <td colspan="6" class="col-12" *ngIf="itensLista?.length > 0">
+                            <paginacao [paginaAtual]="mf.activePage"
+                                [totalPorPagina]="numeroRegistrosPaginacao"
+                                [totalRegistros]="itensLista?.length"></paginacao>
+                        </td>
+                        <td colspan="6" class="col-12" *ngIf="itensLista?.length == 0">
+                            <div class="text-center">
+                                {{'LABEL_NENHUM_REGISTRO_ENCONTRADO' |i18n}}
+                            </div>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>

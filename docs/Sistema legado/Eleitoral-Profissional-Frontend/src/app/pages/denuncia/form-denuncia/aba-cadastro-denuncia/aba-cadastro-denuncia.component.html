@@ -1,0 +1,96 @@
+<div class="card border" *ngIf="!dadosFormulario.atividadeSecundaria.id">
+    <div class="card-body">
+        <div class="alert border bg-green shadow">
+            <div fxLayout="row" fxLayoutAlign="center center">
+                <b><u>{{'MSG_SEM_ACESSO_CADASTRO_DENUNCIA' | i18n}}</u></b>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form #form="ngForm" (change)="saveStateDenuncia()" *ngIf="dadosFormulario.atividadeSecundaria.id">
+    <div class="card">
+        <div class="card-body">
+            <i class="fa fa-reply fa-2x mb-3" aria-hidden="true"></i>
+
+            <div class="border shadow p-3">
+                <div class="text-right p-0">
+                    <label class="label-toggle">{{'LABEL_PERGUNTA_DENUNCIA_SIGILOSA' | i18n}}</label>
+                    <ui-switch class="pl-2 pr-0 btn-sm" title="{{ 'LABEL_DENUNCIA_SIGILOSA' | i18n }}" name="toggleSigiloso"
+                        [(ngModel)]="dadosFormulario.isSigiloso" (change)="showModalAlertaDenunciaSigilosa($event)">
+                    </ui-switch>
+                </div>
+                <app-info-denunciante [denunciante]="dadosFormulario.denunciante" [isSigiloso]="dadosFormulario.isSigiloso">
+                </app-info-denunciante>
+            </div>
+
+            <span class="subtitle-lines green-font-bolder p-6"> {{ 'LABEL_CADASTRAR_DENUNCIA' | i18n }} </span>
+
+            <div class="border shadow p-2">
+                <app-selecao-denunciado [submitted]="submitted" (onSelect)="setDenunciado($event)" [denunciado]="getDenunciado()">
+                </app-selecao-denunciado>
+                <app-info-denunciado *ngIf="isDenunciadoValido() && !isTipoDenunciaOutros()" [denunciado]="getDenunciado()">
+                </app-info-denunciado>
+
+                <div class="bg-primary text-white p-2">
+                    <strong>{{'LABEL_NARRACAO_FATOS' | i18n}}</strong>
+                </div>
+
+                <div class="alert bg-green">
+                    <ckeditor name="dsNarracaoFatos" id="dsNarracaoFatos" [config]="configuracaoCkeditor" (ready)="onReadyCKNarracaoFatos($event)" (change)="onChangeCKDescricao($event)" [(ngModel)]="dadosFormulario.narracaoFatos" required>
+                    </ckeditor>
+                    <input type="hidden" maxlength="2000" name="hideNarracaoFatos" #input_narracao_fatos="ngModel" [(ngModel)]="dadosFormulario.narracaoFatosSimpleText" required>
+                    <span>{{ getContagemNarracaoFatos() }}</span>
+
+                    <div class="text-danger" *ngIf="submitted && isEmptyNarracaoFatos()">
+                        {{ 'required' | i18n }}</div>
+                </div>
+
+                <div class="bg-primary text-white p-2">
+                    <strong>{{'LABEL_DOCUMENTOS' | i18n}}</strong>
+                </div>
+                <div class="alert bg-green">
+                    <div class="mt-2" fxLayout="row" fxLayoutGap="10px">
+                        <div fxFlex>
+                            <label for="documento"><span>{{ 'LABEL_ARQUIVO' | i18n }}</span></label>
+                            <upload id="documento" title="{{'LABEL_SELECIONAR_ARQUIVO' | i18n}}" [name]="nomeArquivoDenuncia" [disabled]="isQuantidadeUploadMaxima()" (process)="uploadDocumento($event)">
+                                <i class="fa fa-file-o text-success" aria-hidden="true"></i>
+                                <span>{{'LABEL_SELECIONAR_ARQUIVO' | i18n}}</span>
+                            </upload>
+                        </div>
+                        <div fxFlex>
+                            <i aria-hidden="true" class="fa fa-info-circle fa-2x pointer center-info-doc" [title]="getHintInformativoDocumento()"></i>
+                        </div>
+                    </div>
+                    <div class="lista-arquivos mt-2" fxLayout="row">
+                        <table class="table table-sm" *ngIf="dadosFormulario.arquivos?.length > 0">
+                            <tbody>
+                                <tr *ngFor="let arquivo of dadosFormulario.arquivos let indiceArquivo = index">
+                                    <td class="text-center">
+                                        <div>
+                                            {{ arquivo.nome }}
+                                        </div>
+                                    </td>
+                                    <td class="table-action text-center">
+                                        <button type="button" class="btn" (click)="excluiUpload(indiceArquivo)">
+                                            <i class="align-middle fas fa-fw fa-times"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <app-testemunhas [(submitted)]="submitted" (onSuccess)="setTestemunhas($event, form);" [testemunhas]="dadosFormulario.testemunhas">
+                </app-testemunhas>
+            </div>
+        </div>
+
+        <div class="col-md-12 p-6">
+            <button type="button" class="btn btn-primary mr-4" (click)="salvarDenuncia(form)">
+                {{ 'LABEL_CADASTRAR_DENUNCIA' | i18n }}
+            </button>
+        </div>
+    </div>
+</form>

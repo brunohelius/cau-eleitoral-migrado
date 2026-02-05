@@ -1,0 +1,92 @@
+$primary:      #14385D;
+
+.white-font-bold {
+  color: white;
+  font-weight: bold;
+}
+
+.list-item  {
+  background: #fff;
+  border-radius: 2px;
+  width: 100%;
+  position: relative;
+}
+
+.list-item-card td{
+  box-shadow: 0 4px 0px 0px rgba(0,0,0,0.16);
+}
+
+.list-item-card{
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+.colorGray {
+  color: #909090;
+}
+.list-item-box{
+  align-content: center;
+  align-items: center;
+  height: 20px;
+  color: black;
+}
+
+.list-item td{
+  color: black;
+}
+
+.texto-titulo {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.colorGreen {
+    color:#14385D
+}
+.spinnerStatus {
+    text-align: center;
+    color: #14385D;
+}
+
+.spinnerStatus span i {
+    font-size: 2rem;
+}
+
+.spinnerStatus span{
+    display: block;
+}
+.icons-title{
+  margin: 0 auto;
+  position: relative;
+  width: 40px;
+  height: 40px;
+
+  .fa-spinner{
+      font-size: 40px;
+      left: 0;
+      top: 0;
+      position: absolute;
+  }
+
+  .fa-times, .fa-check{
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      font-size: 15px;
+      color: rgb(45, 175, 182);
+  }
+
+  .fa-times{
+      left: 15px;
+  }
+
+}
+
+.title-comissao img {
+  width: 45px;
+  height: 45px;
+}
+
+.green-font-bolder{
+    text-shadow: 0px 0px, 0px 0px, 0px 0px;
+    font-weight: bolder;
+    color: $primary;
+}

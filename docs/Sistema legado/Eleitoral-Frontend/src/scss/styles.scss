@@ -1,0 +1,264 @@
+// Font Awesome
+$fa-font-path: "~font-awesome/fonts";
+
+/* You can add global styles to this file, and also import other style files */
+@import url(https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,600);
+
+//Core files
+@import "~bootstrap/scss/functions";
+@import "~@cau/layout/variables";
+
+// Plugins
+@import "~bootstrap/scss/bootstrap";
+@import "~ngx-toastr/toastr-bs4-alert";
+@import "~font-awesome/scss/font-awesome";
+@import "~ngx-ui-switch/ui-switch.component";
+@import "~ngx-bootstrap/datepicker/bs-datepicker";
+
+// CAU/BR
+@import "~@cau/message/message.scss";
+@import "~@cau/layout/layouts";
+
+html {
+    body {
+
+        i {
+            font-style: normal;
+        }
+
+        a.text-muted {
+            text-decoration: none;
+        }
+    }
+}
+
+// multiselect-dropdown
+.multiselect-dropdown .disabled > span {
+    background-color: #e9ecef !important;
+}
+
+.multiselect-dropdown .dropdown-btn {
+    border: 1px solid #ced4da !important;
+    padding: 3.5px 12px !important;
+}
+
+.dropup-multiselect {
+    .dropdown-list{
+        bottom: 40px;
+    }
+    .dropdown-btn{
+        .dropdown-down{
+            border-top: none !important;
+            border-bottom: 10px solid #adadad;
+        }
+        .dropdown-up{
+            border-top: 10px solid #adadad;
+            border-bottom: none !important;
+        }
+    }
+
+}
+
+// Pointer
+.pointer {
+    cursor: pointer;
+}
+
+// Tabs
+main a.nav-link {
+    color: #FFFFFF !important;
+}
+
+main a.nav-link.active {
+    color: #495057 !important;
+}
+
+// Line
+.line {
+    border: 2px solid #eee;
+    width: 100%;
+}
+
+// Calendario
+.inputSubAtividade{
+    width: 96.2%;
+    float: left;
+}
+
+.inputSubAtividadeSemColapse{
+    width: 99%;
+    float: left;
+}
+
+.botao-adicionar-atividade {
+    height: 26px !important;
+    padding: 3px 9px 9px !important;
+    background-color: #14385D !important;
+    border-color: #14385D !important;
+    font-size: 12px !important;
+}
+
+.botao-adicionar-sub-atividade {
+    height: 26px !important;
+    padding: 3px 9px 9px !important;
+    background-color: #14385D !important;
+    border-color: #14385D !important;
+    font-size: 12px !important;
+}
+
+.botao-excluir-atividade {
+    cursor: pointer;
+    margin-left: 10px;
+    margin-top: 4px
+}
+
+.icon-atividade {
+    cursor: pointer;
+    margin-left: 10px;
+    margin-top: 4px
+}
+
+.icon-atividade-switch {
+    margin-top: 5px !important;
+}
+
+p {
+    word-break: break-all;
+}
+
+.bg-calendario {
+    background-color: #14385D !important;
+    border-color: #14385D !important;
+    color: #FFFFFF;
+}
+
+.bg-calendario-lighten {
+    background-color: #019ca4 !important;
+    border-color: #019ca4 !important;
+    color: #FFFFFF;
+}
+
+.card {
+    margin-bottom: 1.5rem;
+}
+
+.div-tabela-vazia {
+    width: 100%;
+    height: 400px;
+    position: relative;
+    padding-top: 25%;
+}
+
+.tabela-vazio {
+    font-size: 25px;
+    color: #909090;
+    font-weight: bold;
+}
+
+.display-ck table {
+    width: 500px;
+}
+
+// Largura Personalizada (Custom Size).
+.w-10 {
+    width: 10% !important;
+}
+
+.w-20 {
+    width: 20% !important;
+}
+
+.w-30 {
+    width: 30% !important;
+}
+
+.w-40 {
+    width: 40% !important;
+}
+
+
+.box-separador {
+    min-height: 14px;
+    background-color: $primary;
+}
+
+.box-destaque {
+    padding: 15px;
+    border-radius: 10px;
+    background: #e0f2f1;
+}
+
+.subtitle-lines {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-weight: 700;
+}
+
+.subtitle-lines:before,
+.subtitle-lines:after {
+    content: '';
+    border-top: 1px solid #cccccc;
+    margin: 0 20px 0 0;
+    flex: 1 0 20px;
+}
+
+.subtitle-lines:after {
+    margin: 0 0 0 20px;
+}
+
+.border-header-green{
+    border-bottom: 15px solid $primary;
+}
+
+.modal {
+    overflow: auto !important;
+    overflow-y:auto !important;
+}
+
+/**
+* Configuração do css do componente de
+* acordion
+*/
+.card.customClass .card-body{
+    padding: 0px;
+}
+
+.card.customClass,
+.panel.customClass,
+.card.customClass .card-header {
+ padding-left: 0px;
+ padding-right: 0px;
+ padding-bottom: 1px;
+ padding-top: 1px;
+ margin: 1px;
+}
+.panel.customClass .panel-body {
+  background-color: #ffffff;
+  color: #000;
+}
+.card-header.panel-enabled .btn.btn-link {
+    cursor: default;
+    text-decoration: none;
+    padding: 0px;
+}
+
+.card.customClass .accordionPrimay {
+    background-color: #14385D;
+    color: white;
+}
+
+// fim configurações do accordion
+
+
+.full-message > validation-message > span > .validation-invalid {
+    width: 260%;
+    position: absolute;
+}
+
+.full-message-relative > validation-message > span > .validation-invalid {
+    width: max-content;
+    margin: 0;
+}

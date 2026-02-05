@@ -1,0 +1,152 @@
+<div class="row conteudo">
+    <form #form="ngForm" class="w-100" id="aba-defesa-impugnacao-form-id">
+        <div class="col-md-12" *ngIf="defesa">
+            <div class="row">
+                <div class="col-md-12">
+
+                    <div class="card">
+                        <div class="card-body" style="border-radius: 8px;">
+                            <div class="row bg-primary m-0">
+                                <div class="col-md-12 py-3 px-0">
+                                    <span class="white-font-bold pl-3"> {{ 'LABEL_DESCRICAO_DEFESA' | i18n }} </span>
+                                </div>
+                            </div>
+                            <div class="row  m-0 bg-green p-3">
+                                <div class="col-md-12">
+                                    <impugnacao-justificativa-profissional
+                                        label=" {{ 'LABEL_DESCRICAO_DEFESA' | i18n }}" [(valor)]="defesa.descricao"
+                                        [isHabilitado]="false">
+                                    </impugnacao-justificativa-profissional>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body" style="border-radius: 8px;">
+                            <div class="row bg-primary m-0">
+                                <div class="col-md-12 py-3 px-0">
+                                    <span class="white-font-bold pl-3"> {{ 'LABEL_DOCUMENTO' | i18n }} </span>
+                                </div>
+                            </div>
+                            <div class="row  m-0 bg-green p-3">
+                                <div class="col-md-12">
+                                    <arquivo [arquivos]="defesa.arquivos" [hasDownload]="true"
+                                        (download)="downloadArquivo($event)">
+                                    </arquivo>
+                                    <div class="col-md-4 col-xs-12" *ngIf="defesa.id && (!defesa.arquivos || !defesa.arquivos[0])">
+                                        <table class="table table-sm">
+                                            <tbody>
+                                                <td class="text-left pr-3 mt-3">
+                                                    <span>{{ 'LABEL_NAO_APLICADO' | i18n }}</span>
+                                                </td>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3" *ngIf="isMostrarJulgarImpugnacao()">
+                            <button class="btn btn-primary" (click)="julgarImpugnacao(templateJulgamento)">
+                                {{ 'LABEL_JULGAR_IMPUGNACAO' | i18n }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="col-md-12" *ngIf="!defesa">
+            <div class="row ">
+                <div class="col-md-12 p-3 text-center msgNaoExisteDefesa">
+                    {{ 'TITLE_NAO_EXISTE_DEFESA_IMPUGNACAO' | i18n }}
+                </div>
+            </div>
+
+            <div class="row mx-0">
+                <div class="col-md-12 p-3" *ngIf="isMostrarJulgarImpugnacao()">
+                    <button class="btn btn-primary" (click)="julgarImpugnacao(templateJulgamento)">
+                         {{ 'LABEL_JULGAR_IMPUGNACAO' | i18n }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<ng-template #templateJulgamento>
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            <h6 class="modal-title pull-center">{{'TITLE_ANALISAR_PEDIDO_IMPUGNACAO' |i18n}}</h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="julgamentomodalRef.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body" style="height: 100%; background-color: white">
+        <form #formjulgamento="ngForm">
+            <card-panel [titulo]="'LABEL_DESCRICAO'">
+                <editor-de-texto name="julgamentoDescricao" [isRequerido]="true" [isHabilitado]="true" [tamanhoMaximo]="1000" [isSubmetido]="submitted"
+                    [(valor)]="julgamento.descricao" [configuracao]="configuracaoCkeditor" [isMostrarTamanhoTextoRestantes]="true">
+                </editor-de-texto>
+            </card-panel>
+
+            <card-panel [titulo]="'LABEL_DOCUMENTO'">
+                <div class="row">
+                    <div class="col-md-12 p-0">
+                        <arquivo [maxArquivos]="1" [hasUpload]="true" [hasDownload]="true" [hasExclusao]="true" [arquivos]="julgamento.arquivos"
+                            [hasCadastro]="true" [msgMaxArquivos]="'MSG_PERMISSAO_UPLOAD_1'"
+                            (download)="downloadArquivoJulgamentoImpugnacao($event)">
+                        </arquivo>
+                    </div>
+                </div>
+                <div class="text-danger" *ngIf="submitted && !hasArquivosJulgameto()">{{ 'required' | i18n }}</div>
+            </card-panel>
+            <div class="row">
+                <div class="col-md-12 text-left pt-3">
+                    <button class="btn btn-danger"
+                        (click)="indeferirJulgamento(templateConfirmacao)">{{'LABEL_IMPROCEDENTE' |i18n}}</button>
+                    <button class="btn btn-primary ml-3"
+                        (click)="deferirJulgamento(templateConfirmacao)">{{'LABEL_PROCEDENTE' |i18n}}</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #templateConfirmacao style="margin-top: 25%;">
+    <div class="modal-header border-header-green">
+        <div class="col-md-12 text-center">
+            <h6 class="modal-title pull-center">{{ 'LABEL_CONFIRMAR_JULGAMENTO_IMPUGNACAO' |i18n}}</h6>
+        </div>
+    </div>
+    <div class="modal-body" style="height: 100%; background-color: white">
+        <div class=" pl-3 pr-3">
+        <div class="box-separador-linha"></div>
+            <div class="row">
+                <div class="box-destaque shadow text-left" *ngIf="idStatusJulgamentoImpugnacao == 1">
+                    {{'LABEL_MSG_CONFIRMACAO_JULGAMENTO' | i18n: ['procedente', impugnacao.numeroProtocolo] }}
+                </div>
+                <div class="box-destaque shadow text-left" *ngIf="idStatusJulgamentoImpugnacao == 2">
+                    {{'LABEL_MSG_CONFIRMACAO_JULGAMENTO' | i18n: ['improcedente', impugnacao.numeroProtocolo] }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-left pt-3 pl-0">
+                    <button class="btn btn-danger" (click)="cancelarJulgamento()">{{'LABEL_CANCELAR' |i18n}}</button>
+                    <button class="btn btn-primary ml-3" (click)="confirmarJulgamento()">{{'LABEL_CONFIRMAR' |i18n}}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>

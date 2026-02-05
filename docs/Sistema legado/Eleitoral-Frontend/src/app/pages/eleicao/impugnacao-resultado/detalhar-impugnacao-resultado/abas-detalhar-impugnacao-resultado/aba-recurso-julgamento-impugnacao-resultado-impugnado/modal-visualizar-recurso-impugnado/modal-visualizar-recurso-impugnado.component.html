@@ -1,0 +1,80 @@
+<button class="btn btn-primary btn-sm ml-2" title="{{'TITLE_VISUALIZAR' | i18n}}" type="button"
+  (click)="abrirModal(templateVisualizar)">
+  <i class="far fa-list-alt icon-action"></i>
+</button>
+<ng-template #templateVisualizar>
+  <div class="modal-header border-header-green">
+    <div class="col-md-12 text-center">
+      <h6 class="modal-title pull-center" style="color: grey;">
+        {{ getTituloModal() }}
+      </h6>
+    </div>
+  </div>
+
+  <div fxLayout="column" fxLayoutAlign="center start" class="pl-4 pb-1 pt-3 colorGreen">
+
+    <div class="col-md-12 text-center">
+      <div class="col-md-12 text-center">
+        <span class="bold"> <strong> {{getSubTituloRecurso()}}</strong> </span>
+      </div>
+    </div>
+
+    <strong>
+      {{'LABEL_NUMERO_IMPUGNACAO_RESULTADO' | i18n}}{{impugnacao.numero}}
+    </strong>
+    <strong>
+      {{'LABEL_DATA_CADASTRO' | i18n}}{{recursos.dataCadastro | date:'dd/MM/yyyy' : '+0' }}
+      às {{recursos.dataCadastro | date:'HH:mm' : '+0'}}
+    </strong>
+  </div>
+
+  <div class="modal-body pt-1" style="height: 100%">
+    <div class="mb-5">
+      <card-panel [titulo]="getTituloDescricao()" class="mt-3">
+        <editor-de-texto [valor]="recursos.descricao" [configuracao]="configuracaoCkeditor">
+        </editor-de-texto>
+      </card-panel>
+    </div>
+
+    <card-panel [titulo]="'LABEL_DOCUMENTO'" class="mt-3">
+      <arquivo [hasDownload]="true" [arquivos]="arquivos" (download)="downloadArquivo($event)">
+      </arquivo>
+      <div class="col-md-4 col-xs-12" *ngIf="recursos.nomeArquivo == '' || recursos.nomeArquivo == undefined">
+        <table class="table table-sm">
+          <tbody>
+            <td class="text-left pr-3 mt-3">
+              <span>{{ 'LABEL_NAO_APLICADO' | i18n }}</span>
+            </td>
+          </tbody>
+        </table>
+      </div>
+    </card-panel>
+
+    <!-- Exibir dados de contrarrazão(Inicio)-->
+    <div *ngIf="hasContrarrazao()" class="col-md-12 p-0 pt-3">
+      <div class="border">
+        <modal-cadastro-impugnacao-resultado-contrarrazao [impugnacaoResultado]="impugnacao"
+          [recurso]="recursos" [readOnly]="true" [_contrarrazao]="recursos.contrarrazoesRecursoImpugnacaoResultado[0]">
+        </modal-cadastro-impugnacao-resultado-contrarrazao>
+      </div>
+    </div>
+
+    <div *ngIf="!hasContrarrazao() && isFinalizadoAtividadeContrarrazao()" class="col-md-12 p-0 pt-3">
+      <div class="text-center border p-3">
+        <div class="bold pb-3">
+          <span class="bold"> <strong class="colorGreen"> {{ 'LABEL_CONTRARRAZAO_IMPUGNANTE' | i18n}} </strong> </span>
+        </div>
+        <div class="border bg-green text-center p-5">
+          <b class="colorGreen">{{ 'LABEL_NAO_HOUVE_CADASTRO_CONTRARRAZAO' | i18n }} </b>
+        </div>
+      </div>
+    </div>
+    <!-- Exibir dados de contrarrazão(Fim) -->
+
+    <div class="col-md-12 p-3">
+      <button class="btn btn-primary px-3 mr-3" (click)="modalVisualizar.hide()">
+        {{ 'LABEL_FECHAR' | i18n }}
+      </button>
+    </div>
+  </div>
+</ng-template>

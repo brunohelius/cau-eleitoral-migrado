@@ -1,0 +1,473 @@
+<div class="row">
+    <div class="col-md-12">
+
+        <ul class="nav nav-tabs">
+            <li class="nav-item pointer">
+                <a class="nav-link" [routerLink]="['/']">{{ 'LABEL_VISAO_GERAL' | i18n }}</a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane active show fade card rounded-0">
+                <div class="col-md-12">
+                    <a class="pointer" (click)="inicio()">
+                        <i class="fa fa-desktop fa-2x m-2 pointer coloPrimary" aria-hidden="true"></i>
+                    </a>
+                </div>
+                <div class="col-md-12 colorGray">
+
+                    <h5 *ngIf="cauUf.prefixo !== 'IES'" class="card-title ">
+                        <a class="pointer" (click)="voltar()">
+                            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                        </a>
+                        {{'LABEL_VISUALIZAR_QUANTIDADE_CHAPAS_CRIADAS' |i18n}}
+                    </h5>
+
+                    <h5 *ngIf="cauUf.prefixo === 'IES'" class="card-title ">
+                        <a class="pointer" (click)="voltar()">
+                            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                        </a>
+                        {{'LABEL_VISUALIZAR_CHAPAS_POR_IES' |i18n}}
+                    </h5>
+                </div>
+                <div class="box-separador"></div>
+
+                <div class="tab-pane fade p-3" id="tab-pane-principal" [ngClass]="{ 'active show': true }">
+                    <div class="rounded-0">
+                        <div class="row">
+                            <div class="col-md-4 align-items-right form-inline green-font-bolder">
+                                <div>
+                                    <span>{{ 'LABEL_MOSTRAR' | i18n }}: </span>
+                                    <select class="form-control" [(ngModel)]="limitePaginacao"
+                                        (ngModelChange)="onChangeLimitePaginacao(limitePaginacao)"
+                                        [name]="limitePaginacao">
+                                        <option *ngFor="let item of limitesPaginacao" [ngValue]="item">
+                                            {{ item }}
+                                        </option>
+                                    </select>
+                                    <span> {{ 'LABEL_REGISTRO' | i18n}}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-2 align-items-left green-font-bolder">
+                                <div class="div-right mt-3">
+
+                                </div>
+                            </div>
+                            <div class="col-md-4 offset-md-2 align-items-left">
+                                <div class="div-right mt-3">
+                                    <input type="text" class="form-control largura-campo" [(ngModel)]="search"
+                                        placeholder="{{'LABEL_BUSCAR' |i18n}}" (ngModelChange)="filter($event)"
+                                        maxlength="50">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="text-center title-comissao green-font mt-3 mb-1">
+                                    <img class="img-fluid rounded-circle mb-2 img-bandeira" [src]="cauUf.imagemBandeira"
+                                        [alt]="cauUf.prefixo">
+                                    {{cauUf.prefixo}}
+                                </div>
+                                <div class="alert bg-green">
+                                    <div class="subtitle-line">
+                                        <span class="bg-green">{{'LABEL_CHAPAS_CADASTRADAS' |i18n}}</span>
+                                    </div>
+                                    <table class="table-chapas mt-4 w-100" [mfData]="chapas" #mf="mfDataTable"
+                                        *ngIf="chapas" [mfRowsOnPage]="limitePaginacao">
+                                        <thead>
+                                            <tr class="green-font-bolder">
+                                                <th *ngIf="cauUf.prefixo === 'IES'"
+                                                    class="text-center pl-4 tb-width-10 p-3">
+                                                    {{ 'LABEL_UF_CHAPA' | i18n }}</th>
+                                                <th class="text-center pl-4 tb-width-10 p-3">{{ 'LABEL_N_CHAPA' | i18n
+                                                    }}</th>
+                                                <th class="text-center pl-4 tb-width-10 p-3">
+                                                    {{ 'LABEL_RESPONSAVEL_PELA_CHAPA' | i18n }}</th>
+                                                <th class="text-center pl-4 tb-width-10 p-3">
+                                                    {{ 'LABEL_QUANTIDADE_MEMBROS' | i18n }}
+                                                </th>
+                                                <th class="text-center pl-4 tb-width-10 p-3"
+                                                    title=" {{ 'MSG_CONFIRMACAO_SERA_DADA_QUANDO_TITULAR_E_SUPLENTE_COMFIRMAREM' | i18n }}">
+                                                    {{ 'LABEL_MEMBROS_CONFIRMADOS' | i18n }}
+                                                </th>
+                                                <th class="text-center pl-4 tb-width-10 p-3">{{ 'LABEL_STATUS_CHAPA' |
+                                                    i18n }}
+                                                </th>
+                                                <th class="text-center pl-4 tb-width-10 p-3">{{ 'LABEL_ACAO' | i18n }}
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let chapa of mf.data;" class="td-cauf list-item list-item-card">
+                                                <td *ngIf="cauUf.prefixo === 'IES'"
+                                                    class="text-center pl-4 tb-width-10 p-3">
+                                                    {{ chapa.uf }}</td>
+                                                <td class="text-center pl-4 tb-width-10 p-3">
+                                                    <div *ngIf="!isAlterarNumerosChapa(chapa)">
+                                                        {{ getNumeroChapa(chapa.numeroChapa) }}
+                                                    </div>
+                                                    <div *ngIf="isAlterarNumerosChapa(chapa)" class="grid-numero-chapa">
+                                                        <input [inputMask]="'9999990'" class="form-control input-sm float-left"
+                                                            placeholder="{{ 'LABEL_N_CHAPA' | i18n }}" number
+                                                            (keyup.enter)="updateNumeroChapa(chapa, $event)"
+                                                            [value]="chapa.numeroChapa ? chapa.numeroChapa : null ">
+                                                            <i aria-hidden="true" class="fa fa-info-circle fa-2x float-right pointer coloPrimary"
+                                                            [title]="getHintInformativoNumeroChapa()"></i>     
+                                                    </div>
+                                                </td>
+                                                <td class="text-center pl-4 tb-width-10 p-3">
+                                                    <span class="d-block"
+                                                        *ngFor="let nomeResponsval of chapa.membrosResponsaveis">
+                                                        {{ nomeResponsval }}
+                                                    </span>
+                                                </td>
+                                                <td class="text-center pl-4 tb-width-10 p-3">
+                                                    {{ chapa.quantidadeTotalMembrosChapa }}
+                                                </td>
+                                                <td class="text-center pl-4 tb-width-10 p-3">
+                                                    {{ chapa.quantidadeMembrosConfirmados }}
+                                                </td>
+                                                <td class="text-center pl-4 tb-width-10 p-3">
+                                                    <div class="progress" *ngIf="isChapaPendente(chapa.idStatusChapa)">
+                                                        <div class="progress-bar bg-warning" role="progressbar"
+                                                            style="width: 100%; border-radius: 50px;" aria-valuenow="25"
+                                                            aria-valuemin="0" aria-valuemax="100">
+                                                            {{ 'LABEL_COM_PENDENCIA' | i18n }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="progress" *ngIf="!isChapaPendente(chapa.idStatusChapa)">
+                                                        <div class="progress-bar colorCircle" role="progressbar"
+                                                            style="width: 100%; border-radius: 50px;" aria-valuenow="25"
+                                                            aria-valuemin="0" aria-valuemax="100">
+                                                            {{ 'LABEL_CONCLUIDA' | i18n }}
+                                                        </div>
+                                                    </div>
+                                                    <div *ngIf="!isChapaPendente(chapa.idStatusChapa)">
+                                                        {{ chapa.dataStatusChapa | date:'dd/MM/yyyy HH:mm' : '+0' }}
+                                                    </div>
+                                                </td>
+                                                <td class="text-center pl-5 tb-width-10 p-3 pr-2">
+                                                    <div class="btn-group" dropdown triggers="hover"
+                                                        (mouseleave)="dp.hide()" #dp="bs-dropdown">
+                                                        <button dropdownToggle type="button"
+                                                            class="btn btn-link text-muted"
+                                                            aria-controls="dropdown-basic">
+                                                            <i class="align-middle colorAcao fas fa-ellipsis-v"
+                                                                aria-hidden="true"></i>
+                                                        </button>
+                                                        <ul id="dropdown-basic" *dropdownMenu
+                                                            class="dropdown-menu dropdown-menu-right" role="menu"
+                                                            aria-labelledby="button-basic">
+                                                            <li role="menuitem">
+                                                                <a href="#" class="dropdown-item"
+                                                                    (click)="getRotaAcessarChapa(chapa)"
+                                                                    [routerLink]="null">{{'LABEL_ACESSAR_CHAPA' |i18n}}
+                                                                </a>
+                                                            </li>
+                                                            <li role="menuitem">
+                                                                <a href="#" class="dropdown-item"
+                                                                    (click)="alterarStatusChapa(templateAlterarStatus, chapa)"
+                                                                    [ngClass]="{ 'disabled': isDisabledAcaoAlterarStatusChapa() }"
+                                                                    [routerLink]="null">{{'LABEL_ALTERAR_STATUS_CHAPA'
+                                                                    |i18n}}
+                                                                </a>
+                                                            </li>
+                                                            <li role="menuitem">
+                                                                <a href="#" class="dropdown-item"
+                                                                    (click)="excluirChapa(templateJustificativa, chapa)"
+                                                                    [ngClass]="{ 'disabled': isDisabledAcaoExcluirChapa() }"
+                                                                    [routerLink]="null">{{'LABEL_EXCLUIR_CHAPA' |i18n}}
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="6" class="col-12 pr-0" *ngIf="chapas.length > 0">
+                                                    <div class="mt-3 col-md-12 pr-0 mr-0">
+                                                        <paginacao [paginaAtual]="mf.activePage"
+                                                            [totalPorPagina]="limitePaginacao"
+                                                            [mostrarTotalDeRegistros]="false"
+                                                            [totalRegistros]="chapas.length">
+                                                        </paginacao>
+                                                    </div>
+
+                                                </td>
+
+                                                <td colspan="6" class="col-12" *ngIf="chapas.length == 0">
+                                                    <div class="text-center py-5">
+                                                        {{ 'LABEL_NENHUM_REGISTRO_ENCONTRADO' | i18n }}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+
+                                </div>
+                                <div class="pt-3">
+                                    <span *ngIf="isMostrarExtratoChapa()" class="btn" style="font-size: 1rem;"
+                                        (click)="mostrarModalStatusExtrato(templateStatusExtratoPDF)">
+                                        <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                                        <span>{{ 'LABEL_EXTRATO_PDF' | i18n }}</span>
+                                    </span>
+                                    <span *ngIf="isMostrarExtratoChapa()" class="pl-3 btn" style="font-size: 1rem;"
+                                        (click)="mostrarModalStatusExtrato(templateStatusExtratoNavegavel)">
+                                        <i class="fa fa-file-code-o" aria-hidden="true"></i>
+                                        <span>{{ 'LABEL_GERAR_EXTRATO_NAVEGAVEL' | i18n }}</span>
+                                    </span>
+                                    <span *ngIf="isMostrarAlterarNumeroChapa()" class="pl-3 btn"
+                                        style="font-size: 1rem;" (click)="alterarNumerosChapas()">
+                                        <i class="fa fa-exchange" aria-hidden="true"></i>
+                                        <span> {{'LABEL_ALTERAR_N_CHAPA' |i18n}} </span>
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<ng-template #templateJustificativa>
+    <div class="modal-body" style="height: 100%">
+        <button type="button" class="close pull-right mb-3" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <form #formJustificativaExclusao="ngForm">
+            <div class="mt-2 body-justify">
+                {{'LABEL_MESSAGE_JUSTIFICATIVA_PREENCHIMENTO_EXCLUSAO_CHAPA' |i18n}}
+
+                <div class="input-group mb-2 mr-sm-2 mb-2 mt-4">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text inputJustificativa"><i class="fa fa-bell" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <input [disabled]="true" type="text" class="form-control" id="inlineFormInputGroupUsername2"
+                        value="{{'LABEL_MESSAGE_JUSTIFICATIVA_EXCLUSAO_CHAPA' | i18n}}">
+                </div>
+
+                <div class="mt-3">
+                    {{'LABEL_MESSAGE_JUSTIFICATIVA_EXCLUSAO' |i18n}}
+                    <div class="mt-2">
+                        <textarea name="justificativaExclusao" class="form-control" rows="3"
+                            #input_justificativa_exclusao="ngModel" [(ngModel)]="exclusao.justificativa"
+                            required></textarea>
+                        <validation-message [for]="input_justificativa_exclusao" [submitted]="submitted">
+                        </validation-message>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3 mb-2"
+                (click)="salvarJustificativaExclusao(formJustificativaExclusao)">
+                {{'LABEL_SALVAR' |i18n}}
+            </button>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #templateJustificativaAlterarStatus>
+    <div class="modal-body" style="height: 100%">
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <form #formJustificativaExclusao="ngForm">
+            <div class="mt-2 body-justify">
+                {{'LABEL_MESSAGE_JUSTIFICATIVA_ALTERACAO_STATUS' |i18n}}
+                <div class="input-group mb-2 mr-sm-2 mb-2 mt-4">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text inputJustificativa"><i class="fa fa-bell" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <input [disabled]="true" type="text" class="form-control" id="inlineFormInputGroupUsername2"
+                        value="{{'LABEL_JUSTIFICATIVA_ALTERAR_STATUS_CHAPA' | i18n}}">
+                </div>
+                <div class="mt-3">
+                    <div class="mt-2">
+                        <textarea name="alteraracaoStatusChapa" class="form-control" rows="3"
+                            #input_justificativa_alteracao_status="ngModel"
+                            [(ngModel)]="alteraracaoStatus.justificativa" required></textarea>
+                        <validation-message [for]="input_justificativa_alteracao_status" [submitted]="submitted">
+                        </validation-message>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class=" btn btn-primary mt-3 mb-2"
+                (click)="salvarJustificativaAlteraracaoStatusChapa(formJustificativaExclusao) ">
+                {{'LABEL_SALVAR' |i18n}}
+            </button>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #templateAlterarStatus>
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            <h6 class="modal-title pull-center colorGray">{{'LABEL_ALTERAR_STATUS_CHAPA' |i18n}}</h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body p-3" style="height: 100%">
+        <form #formJustificativaExclusao="ngForm">
+            <div class="row m-0">
+                <div class="col-md-1"></div>
+                <div class="col-md-10 text-center">
+                    <div class="row p-3 bg-green mt-3">
+                        <div class="col-md-6 text-center">
+                            <input type="radio" name="status" id="inputRadioStatusPendente" [value]="1"
+                                #input_radio_status_pendente="ngModel" [(ngModel)]="alteraracaoStatus.idStatusChapa">
+                            <label for="inputRadioStatusPendente" class="pl-2">{{ 'LABEL_COM_PENDENCIA' | i18n
+                                }}</label>
+                        </div>
+                        <div class="col-md-6 text-center">
+                            <input type="radio" name="status" id="inputRadioStatusConcluido" [value]="2"
+                                #input_radio_status_concluido="ngModel" [(ngModel)]="alteraracaoStatus.idStatusChapa">
+                            <label for="inputRadioStatusConcluido" class="pl-2">{{ 'LABEL_CONCLUIDA' | i18n }}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-center pt-3">
+                    <button type="submit" class="btn btn-primary pl-3 pr-3"
+                        (click)="mostrarModalJustificativaAlterarStatusChapa(templateJustificativaAlterarStatus)">
+                        {{'LABEL_CONFIRMAR' |i18n}}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #templateStatusExtratoPDF>
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            <h6 class="modal-title pull-center colorGray">{{'LABEL_GERAR_EXTATO_PDF' |i18n}}</h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body p-3" style="height: 100%">
+        <form #formJustificativaExclusao="ngForm">
+            <div class="row m-0">
+                <div class="col-md-1"></div>
+                <div class="col-md-10 text-center">
+                    <div class="row p-3 bg-green mt-3">
+                        <div class="col-md-4 d-flex justify-content-center">
+                            <div style="max-width: 123px;width: 100%" class="intemModalStatus">
+                                <input type="radio" name="status" id="inputRadioExtatoStatusConcluido"
+                                    [value]="STATUS_CHAPA_CONCLUIDO" [(ngModel)]="statusExtrato">
+                                <label for="inputRadioExtatoStatusConcluido" class="pl-2">{{ 'LABEL_CONCLUIDA' | i18n
+                                    }}</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 d-flex justify-content-center">
+                            <div class="intemModalStatus" style="max-width: 150px;width: 100%">
+                                <input type="radio" name="status" id="inputExtratoRadioStatusPendente"
+                                    [value]="STATUS_CHAPA_EM_ANDAMENTO" [(ngModel)]="statusExtrato">
+                                <label for="inputExtratoRadioStatusPendente" class="pl-2">{{ 'LABEL_COM_PENDENCIA' |
+                                    i18n }}</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center d-flex justify-content-center">
+                            <div class="intemModalStatus">
+                                <input type="radio" name="status" id="inputExtratoRadioStatusTodos" [value]="0"
+                                    [(ngModel)]="statusExtrato">
+                                <label for="inputExtratoRadioStatusTodos" class="pl-2">{{ 'LABEL_TODOS' | i18n
+                                    }}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-center pt-3">
+                    <download title="{{'LABEL_CONFIRMAR' |i18n }}" class="btn btn-primary px-3"
+                        download="extrato_chapa.pdf"
+                        (process)="confirmarStatusExtrato($event, formJustificativaExclusao)">
+                        <span style="color:white">{{ 'LABEL_CONFIRMAR' | i18n }}</span>
+                    </download>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #templateStatusExtratoNavegavel>
+    <div class="modal-header border-header-green">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 text-center">
+            <h6 class="modal-title pull-center colorGray">{{'LABEL_GERAR_EXTRATO_NAVEGAVEL' |i18n}}</h6>
+        </div>
+        <div class="col-md-2 align-items-right">
+            <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="modal-body p-3" style="height: 100%">
+        <form #formJustificativaExclusao="ngForm">
+            <div class="row m-0">
+                <div class="col-md-1"></div>
+                <div class="col-md-10 text-center">
+                    <div class="row p-3 bg-green mt-3">
+                        <div class="col-md-4 text-center d-flex justify-content-center">
+                            <div class="intemModalStatus">
+                                <input type="radio" name="status" id="inputRadioStatusPendente" [value]="2"
+                                    #input_radio_status_pendente="ngModel" [(ngModel)]="statusExtrato">
+                                <label for="inputRadioStatusPendente" class="pl-2">{{ 'LABEL_CONCLUIDA' | i18n
+                                    }}</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center d-flex justify-content-center">
+                            <div class="intemModalStatus">
+                                <input type="radio" name="status" id="inputRadioStatusConcluido" [value]="1"
+                                    #input_radio_status_concluido="ngModel" [(ngModel)]="statusExtrato">
+                                <label for="inputRadioStatusConcluido" class="pl-2">{{ 'LABEL_COM_PENDENCIA' | i18n
+                                    }}</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center d-flex justify-content-center">
+                            <div class="intemModalStatus">
+                                <input type="radio" name="status" id="inputRadioStatusConcluido" [value]="0"
+                                    #input_radio_status_concluido="ngModel" [(ngModel)]="statusExtrato">
+                                <label for="inputRadioStatusConcluido" class="pl-2">{{ 'LABEL_TODOS' | i18n }}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-center pt-3">
+                    <button type="submit" target="_blank" class="btn btn-primary pl-3 pr-3"
+                        (click)="gerarExtratoChapaNavegavel()">
+                        {{'LABEL_CONFIRMAR' |i18n}}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>

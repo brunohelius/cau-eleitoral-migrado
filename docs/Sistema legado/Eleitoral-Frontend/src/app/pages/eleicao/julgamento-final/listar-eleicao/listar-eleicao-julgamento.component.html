@@ -1,0 +1,204 @@
+<div class="container-grid">
+    <div class="row">
+        <div class="col-md-9 col-sm-9">
+            <div class="card card-box-shadow">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card-body">
+                                <div *ngIf="!isShowMsgTabelaVazia()">
+                                    <div class="row my-2">
+                                        <div class="col-md-8 h5 text-muted">
+                                            {{ 'LABEL_RESULTADO_PESQUISA' | i18n }}
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control largura-campo" [(ngModel)]="search"
+                                               placeholder="{{'LABEL_BUSCAR' |i18n}}" (ngModelChange)="filter($event)"
+                                               maxlength="50">
+                                        </div>
+                                    </div>                                   
+
+                                    <table class="table table-striped" [mfData]="eleicoes" #mf="mfDataTable"
+                                           [mfRowsOnPage]="10" *ngIf="eleicoes">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center tb-width-10">
+                                                    <mfDefaultSorter by="eleicao.ano">{{ 'LABEL_ANO' | i18n }}
+                                                    </mfDefaultSorter>
+                                                </th>
+                                                <th class="text-center tb-width-20">
+                                                    <mfDefaultSorter by="eleicao.descricao">{{ 'LABEL_ELEICAO' | i18n }}
+                                                    </mfDefaultSorter>
+                                                </th>
+                                                <th class="text-center tb-width-20">
+                                                    <mfDefaultSorter by="tipoProcesso.descricao">
+                                                        {{ 'LABEL_TIPO_PROCESSO' | i18n }}</mfDefaultSorter>
+                                                </th>
+                                                <th class="text-center tb-width-20">
+                                                    <mfDefaultSorter by="idResolucao">{{ 'LABEL_RESOLUCAO' | i18n }}
+                                                    </mfDefaultSorter>
+                                                </th>
+                                                <th class="text-center tb-width-30">
+                                                    <mfDefaultSorter by="idSituacao">{{ 'LABEL_STATUS_ELEICAO' | i18n }}
+                                                    </mfDefaultSorter>
+                                                </th>
+                                                <th class="text-center tb-width-10">{{ 'LABEL_ACAO' | i18n }}</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            <tr *ngFor="let item of mf.data;">
+                                                <td class="text-center tb-width-10">{{ item.eleicao.ano }}</td>
+                                                <td class="text-center tb-width-10">{{ item.eleicao.descricao }}</td>
+                                                <td class="text-center tb-width-20">
+                                                    {{ item.eleicao.tipoProcesso.descricao }}
+                                                </td>
+                                                <td class="text-center tb-width-20">
+                                                    <download title=" {{item.resolucao}}" class="center-no-arquivo"
+                                                        [download]="item.resolucao"
+                                                        (process)="downloadResolucao($event, item.idResolucao)">
+                                                        <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                                                    </download>
+                                                </td>
+                                                <td class="text-center tb-width-30 colorTriangle"
+                                                    *ngIf="item.idSituacaoEleicao == 1">
+                                                    <i class="align-middle fas fa-exclamation-triangle"></i>
+                                                    {{ item.descricaoSituacaoEleicao }}
+                                                </td>
+                                                <td class="text-center tb-width-30 colorCircle"
+                                                    *ngIf="item.idSituacaoEleicao == 2">
+                                                    <i class="align-middle fas fa-check-circle"></i>
+                                                    {{ item.descricaoSituacaoEleicao }}
+                                                </td>
+                                                <td class="text-center tb-width-30 colorCircleM"
+                                                    *ngIf="item.idSituacaoEleicao == 3">
+                                                    <i class="align-middle fas fa-minus-circle"></i>
+                                                    {{ item.descricaoSituacaoEleicao }}
+                                                </td>
+                                                <td class="text-center tb-width-30 colorCircleM"
+                                                    *ngIf="item.idSituacaoEleicao == undefined">
+                                                    <i class="align-middle fas fa-minus-circle"></i>
+                                                    {{ item.descricaoSituacaoEleicao }}
+                                                </td>
+                                                <td class="text-center tb-width-10">
+                                                    <div class="btn-group" dropdown triggers="hover"
+                                                        (mouseleave)="dp.hide()" #dp="bs-dropdown">
+                                                        <button dropdownToggle type="button"
+                                                            class="btn btn-link text-muted"
+                                                            aria-controls="dropdown-basic">
+                                                            <i class="align-middle colorAcao fas fa-ellipsis-v"
+                                                                aria-hidden="true"></i>
+                                                        </button>
+                                                        <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu"
+                                                            role="menu" aria-labelledby="button-basic">
+                                                            <li role="menuitem">
+                                                                <a href="#" class="dropdown-item"
+                                                                    title="{{'LABEL_ALTERAR' |i18n}}"
+                                                                    [routerLink]="getUrlVisualizar(item.id)">{{'LABEL_VISUALIZAR' |i18n}}</a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+
+                                        <tfoot>
+                                        <tr>
+                                            <td colspan="6" class="col-12" *ngIf="getQtdRegistroEleicoes() > 0">
+                                                <paginacao [paginaAtual]="mf.activePage"
+                                                           [totalPorPagina]="numeroRegistrosPaginacao"
+                                                           [totalRegistros]="getQtdRegistroEleicoes()"></paginacao>
+                                            </td>
+                                            <td colspan="6" class="col-12" *ngIf="getQtdRegistroEleicoes() == 0">
+                                                <div class="text-center">
+                                                    {{'LABEL_NENHUM_REGISTRO_ENCONTRADO' |i18n}}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                                <br />
+                                <div class="div-tabela-vazia text-center" *ngIf="isShowMsgTabelaVazia()">
+                                    <span class="tabela-vazio">{{'LABEL_TABLE_FILTRO_VAZIO' |i18n}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3" id='div-filtro'>
+            <div class="card card-box-shadow p-3">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="header-filtro">
+                            <i class="fas fa-filter" aria-hidden="true"></i>
+                            <span class="h4">{{'LABEL_FILTROS' |i18n}}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row action-filtro">
+                    <div class="col-sm">
+                        <a class="remove-link" href="#" (click)="limpar($event)" title="{{'LABEL_LIMPAR' |i18n}}">
+                            <i class="fas fa-bars" aria-hidden="true"></i>
+                            <span>{{'LABEL_LIMPAR' |i18n}}</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <label>{{'LABEL_ANO_ELEICAO' |i18n}}</label>
+                        <ng-multiselect-dropdown placeholder="{{'LABEL_SELECIONAR' |i18n}}"
+                                                 [data]="anosEleicoesChapaDropdownData" [(ngModel)]="filtro.anos"
+                                                 [settings]="dropdownSettings" title="{{'LABEL_ANO_ELEICAO' |i18n}}"
+                                                 (onSelect)="getEleicaoPorFiltroAno()" (onSelectAll)="onSelectAllYear()"
+                                                 (onDeSelect)="getEleicaoPorFiltroAno()"
+                                                 (onDeSelectAll)="onDeSelectAllYear()">
+                        </ng-multiselect-dropdown>
+
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <label>{{'LABEL_SELECT_ELEICAO' |i18n}}</label>
+                        <ng-multiselect-dropdown placeholder="{{'LABEL_SELECIONAR' |i18n}}"
+                                                 [data]="eleicoesChapaDropdownData"
+                                                 [(ngModel)]="filtro.idsCalendariosEleicao"
+                                                 [settings]="dropdownSettingsCalendario"
+                                                 title="{{'LABEL_SELECT_ELEICAO' |i18n}}"
+                                                 [disabled]="disabledEleicaoDropdown">
+                        </ng-multiselect-dropdown>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <label for="tpProcesso">{{'LABEL_TIPO_PROCESSO' |i18n}}</label>
+                        <ng-multiselect-dropdown placeholder="{{'LABEL_SELECIONAR' |i18n}}"
+                                                 [data]="tipoProcessoEleicaoDropdownData"
+                                                 [(ngModel)]="filtro.idTipoProcesso"
+                                                 [settings]="dropdownSettingsProcesso"
+                                                 title="{{'LABEL_TIPO_PROCESSO' |i18n}}">
+                        </ng-multiselect-dropdown>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12 text-center">
+                        <button type="button" class="btn btn-primary btn-calendario" (click)="pesquisar()"
+                                title=" {{'LABEL_PESQUISAR' |i18n}}">
+                            {{'LABEL_PESQUISAR' |i18n}}
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,76 @@
+
+
+.colorCircle {
+    background-color: #14385D;
+}
+
+.colorTriangle {
+    color: #FF532B;
+}
+
+.colorCircleM {
+    color: #E82326;
+}
+
+.colorGray {
+    color: #909090;
+}
+
+.spinnerStatus {
+    text-align: center;
+    color: #0c3635;
+}
+
+.spinnerStatus span i {
+    font-size: 2rem;
+}
+
+.spinnerStatus span{
+    display: block;
+}
+
+.texto-titulo {
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.icons-title{
+    margin: 0 auto;
+    position: relative;
+    width: 40px;
+    height: 40px;
+
+    .fa-spinner{
+        font-size: 40px;
+        left: 0;
+        top: 0;
+        position: absolute;
+    }
+
+    .fa-times, .fa-check{
+        position: absolute;
+        top: 10px;
+        left: 12px;
+        font-size: 15px;
+        color: rgb(16, 144, 151);
+    }
+
+    .fa-times{
+        left: 15px;
+    }
+}
+
+.grey-font-bolder {
+    text-shadow: 0px 0px, 0px 0px, 0px 0px;
+    font-weight: bolder;
+    color: #878787;
+}
+.green-font-bolder {
+    text-shadow: 0px 0px, 0px 0px, 0px 0px;
+    font-weight: bolder;
+    color: #14385D;
+}
+
+.modal-header .close {
+    margin-right: -2rem;
+}

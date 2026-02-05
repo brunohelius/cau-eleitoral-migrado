@@ -1,0 +1,80 @@
+<div class="card-body bg-green pl-5 pr-5" style="border-radius: 8px; padding-left: 15px; padding-right: 15px;">
+    <div fxLayout="row" class="mb-5">
+        <div fxFlex="100%" class="ml-2 text-center pb-1">
+            <strong class="label-subtitle">{{'LABEL_INFORMACOES_IMPUGNADO' | i18n}}</strong>
+        </div>
+    </div>
+    <div fxLayout="row" fxLayoutGap="10px" fxFlexFill>
+        <div fxFlex>
+            <div fxLayout="row" fxLayoutGap="10px">
+                <div fxFlex="35%" class="ml-2 text-center pb-1"> <strong class="label-subtitle">{{'LABEL_NOME_CANDIDATO' | i18n}}</strong></div>
+                <div fxFlex="25%" class="text-center"><strong class="label-subtitle">{{'LABEL_REGISTRO_IMPUGNACAO' | i18n}}</strong></div>
+                <div fxFlex="25%" class="text-center"><strong class="label-subtitle">{{'LABEL_TIPO_DE_PARTICIPACAO' | i18n}}</strong> </div>
+                <div fxFlex="15%" class="text-center"><strong class="label-subtitle">{{'LABEL_POSICAO_NA_CHAPA' | i18n}}</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="list-item list-item-card mt-1" style="height: 50px;">
+        <div fxLayout="row" fxLayoutGap="10px" class="list-item-box custom-grid pt-4">
+            <div fxFlex="35%" class="pl-3 text-center pb-1 border-right">
+                <div fxLayout="column" fxLayoutAlign="space-around center">
+                {{dados.informacoesCandidato.nome}}
+                </div>
+            </div>
+            <div fxFlex="25%" class="pl-3 text-center pb-1 border-right">
+                <div fxLayout="column" fxLayoutAlign="space-around center">
+                    {{getRegistroComMask(dados.informacoesCandidato.registro)}}
+                </div>
+            </div>
+            <div fxFlex="25%" class="pl-3 text-center pb-1 border-right">
+                <div fxLayout="column" fxLayoutAlign="space-around center">
+                    {{dados.informacoesCandidato.tipoParticipacao}}
+                </div>
+            </div>
+            <div fxFlex="15%" class="pl-3 text-center pb-1">
+                <div fxLayout="column" fxLayoutAlign="space-around center">
+                
+                    {{getPosicaoFormatada(dados.informacoesCandidato.posicaoChapa)}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Informações do Impugnante -->
+
+<div class="card-body bg-green pl-5 pr-5 mt-3"
+    style="border-radius: 8px; padding-left: 15px; padding-right: 15px;">
+
+    <div fxLayout="row" class="mb-3">
+        <div fxFlex="100%" class="ml-2 text-center pb-1">
+            <strong class="label-subtitle">{{'LABEL_INFORMACOES_IMPUGNANTE' | i18n}}</strong>
+        </div>
+    </div>
+    <div fxLayout="row" fxLayoutGap="10px" fxFlexFill>
+        <div fxFlex>
+            <div fxLayout="row">
+                <div fxFlex="50%" class="ml-2 text-center pb-1">
+                    <strong class="label-subtitle">{{'LABEL_NOME' | i18n}}</strong>
+                </div>
+                <div fxFlex="50%" class="ml-2 text-center pb-1">
+                    <strong class="label-subtitle">{{'LABEL_REGISTRO' | i18n}}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="list-item list-item-card" style="height: 50px;">
+        <div fxLayout="row" fxLayoutGap="10px" class="list-item-box custom-grid pt-4">
+            <div fxFlex="50%" class="pl-3 text-center pb-1 border-right">
+                <div fxLayout="column" fxLayoutAlign="space-around center">
+                    {{dados.informacoesImpugnante.nome}}
+                </div>
+            </div>
+            <div fxFlex="50%" class="pl-3 text-center pb-1 border-right">
+                <div fxLayout="column" fxLayoutAlign="space-around center">
+                    {{getRegistroComMask(dados.informacoesImpugnante.registro)}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

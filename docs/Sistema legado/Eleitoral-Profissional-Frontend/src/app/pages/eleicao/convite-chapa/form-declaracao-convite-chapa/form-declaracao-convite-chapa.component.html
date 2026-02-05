@@ -1,0 +1,96 @@
+<div class="header">
+    <h1 class="header-title">
+        <i class="fa fa-wpforms" style="margin-right: 10px; font-size: 30px" aria-hidden="true"></i>
+        {{ 'LABEL_MEMBROS_CHAPA_ELEITORAL' | i18n }}
+    </h1>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-abas">
+            <li class="nav-item pointer active">
+                <a href="#" class="nav-link">
+                    {{ 'LABEL_VISAO_GERAL' | i18n }}
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade active show">
+                <div class="col-md-12">
+                    <i class="fa fa-desktop fa-2x m-2 pointer" aria-hidden="true"></i>
+                    <span> {{ 'LABEL_VISUALIZAR_CONVITES_PARA_MEMBRO_CHAPA_ELEITORAL' | i18n }} </span>
+                </div>
+                <div class="box-separador"></div>
+                <div class="px-3 pt-3">
+                    <i class="fa fa-reply fa-2x  pointer" (click)="voltar()" aria-hidden="true"></i>
+                </div>
+                <div class="p-4">
+                    <div class="col-md-12 pt-2 px-0" style="border: 1px solid #878787;">
+                        <div class="box-separador"></div>
+
+                        <div *ngIf="declaracaoParametrizada" class="row p-4">
+                            <div *ngIf="declaracaoParametrizada.declaracao" class="col-md-12">
+                                <div class="row" >
+                                    <div class="col-md-12 pt-2 box-destaque">
+                                        <div class="row m-3">
+                                            <div class="col-md-12 text-center">
+                                                <span class="texto-cinza-destaque ">
+                                                    {{ declaracaoParametrizada.declaracao.titulo }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <p [innerHTML]="declaracaoParametrizada.declaracao.textoInicial"
+                                                    class="text-justify">
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12 form-inline" *ngFor="let itemDeclaracao of declaracaoParametrizada.declaracao.itensDeclaracao; let indice = index;">
+                                                <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="start stretch" class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="item{{indice}}"
+                                                        name="itemDeclaracao" (ngModelChange)="onChanteItemDeclaracao(itemDeclaracao)"
+                                                        [(ngModel)]="itemDeclaracao.valor">
+                                                    <label class="custom-control-label ml-1" for="item{{indice}}">{{itemDeclaracao.descricao}}</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row my-3">
+                                            <div class="col-md-12">
+                                                <button (click)="abrirModalConfirmarCancelamento(templateConfirmarCancelamento)" class="btn btn-danger px-3 mr-3">
+                                                    {{ 'LABEL_CANCELAR' | i18n }}
+                                                </button>
+                                                <button id="btn-declaracao-convite-confirmar" class="btn btn-primary px-3" (click)="confimar()">
+                                                    {{ 'LABEL_CONFIRMAR' | i18n }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #templateConfirmarCancelamento>
+    <div class="modal-body" style="height: 100%">
+        <div class="row p-3">
+            <div class="col-md-12 texto-destaque-cinza text-center">
+                <span> {{ 'MSG_DESEJA_REALMENTE_CANCELAR' | i18n }} </span> <br>
+                <span>{{ 'MSG_TODOS_DADOS_PREENCHIDOS_SERAO_EXCLUIDOS_PERMANENTEMENTE' | i18n }}</span>
+            </div>
+        </div>
+        <div class="row p-3">
+            <div class="col-md-12 text-center">
+                <button (click)="cancelar()" class="btn btn-success px-4 mr-4">{{ 'LABEL_SIM' | i18n }} </button>
+                <button (click)="modalRef.hide()" class="btn btn-danger px-4">{{ 'LABEL_NAO' | i18n }} </button>
+            </div>
+        </div>
+    </div>
+</ng-template>

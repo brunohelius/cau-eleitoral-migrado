@@ -1,0 +1,87 @@
+<div class="card">
+    <div class="card-body">
+        <i class="fa fa-reply fa-2x mb-3" (click)="voltar()" aria-hidden="true"></i>
+        <div fxLayout="row" class="mb-3">
+            <div class="text-center" fxFlex="10"></div>
+            <div fxFlex="80" fxLayoutAlign="center center" >
+                <strong>{{ 'LABEL_NUMERO_DENUNCIA' | i18n}}: </strong> 
+                {{denuncia.numeroDenuncia}}
+            </div>
+            <div class="text-center" fxFlex="10">
+                <div fxLayout="column" class="mb-3">
+                    <div *ngIf="julgamentoRecurso.descricaoTipoSentencaJulgamento" fxFlex>
+                        <i class="fa fa-spinner fa-4x pr-0 text-primary"></i>
+                        <div class="text-primary">
+                            <strong>{{julgamentoRecurso.descricaoTipoSentencaJulgamento}}</strong>
+                        </div>
+                        <div class="text-primary" *ngIf="julgamentoRecurso.multa && !isSentencaMulta()">
+                            <strong>{{'LABEL_ACRESCIDO_MULTA' | i18n}}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h6><strong>{{'LABEL_DATA_HORA_CADASTRO' | i18n}}: </strong>
+            {{ julgamentoRecurso.data | date:'dd/MM/yyyy' }} às
+            {{ julgamentoRecurso.data | date:'HH:mm' : '+0' }}
+        </h6>
+
+        <div class="border shadow rounded p-2">
+            <div class="px-2">
+                <app-alerta-denuncia-sigilosa *ngIf="denuncia.isSigiloso"></app-alerta-denuncia-sigilosa>
+            </div>
+            <div class="p-2" *ngIf="denuncia.analiseAdmissibilidade.admissao?.admitida">
+                <div class="bg-primary text-white p-2">
+                    <strong>{{'TITLE_DETALHAMENTO_JULGAMENTO' | i18n}}</strong>
+                </div>
+
+                <div class="alert bg-green">
+                    <card-list [config]="infoJulgamento"></card-list>
+                </div>
+            </div>
+
+            <div class="p-2">
+                <div class="bg-primary text-white p-2">
+                    <strong>{{'TITLE_DESCRICAO_JULGAMENTO' | i18n}}</strong>
+                </div>
+
+                <div class="alert bg-green">
+                    <ckeditor id="dsJulgamento" [config]="configuracaoCkeditor"
+                        [(ngModel)]="julgamentoRecurso.descricaoJulgamento" [readOnly]="true">
+                    </ckeditor>
+                    <span>{{ getContagemDescricaoJulgamento() }}</span>
+                </div>
+            </div>
+
+            <div class="p-2"
+                *ngIf="julgamentoRecurso.arquivosJulgamentoRecursoDenuncia && julgamentoRecurso.arquivosJulgamentoRecursoDenuncia.length > 0">
+                <div class="bg-primary text-white p-2">
+                    <strong>{{'LABEL_DOCUMENTOS' | i18n}}</strong>
+                </div>
+                <div class="alert bg-green">
+                    <label for="documento"><span>{{ 'LABEL_ARQUIVO' | i18n }}</span></label>
+                    <div class="lista-arquivos mt-2 w-50" fxLayout="row">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr *ngFor="let arquivo of julgamentoRecurso.arquivosJulgamentoRecursoDenuncia">
+                                    <td class="text-center">
+                                        <div>
+                                            {{ arquivo.nome }}
+                                        </div>
+                                    </td>
+                                    <td class="table-action text-center">
+                                        <download title="{{ arquivo.nome }}" class="text-primary pointer p-0"
+                                            [download]="arquivo.nome" (process)="downloadArquivo($event, arquivo.id)">
+                                            <i class="align-middle fa fa-download"></i>
+                                        </download>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

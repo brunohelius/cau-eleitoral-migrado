@@ -1,0 +1,139 @@
+<div class="body-card">
+
+    <div fxLayout fxLayout.xs="column" fxLayout.sm="column" fxLayoutAlign="space-between">
+        <div fxLayoutAlign="center center" fxFlex="40">
+            <h5 class="colorGreen">
+                <strong>{{'TITLE_INFORMACOES_DO_SUBSTITUIDO' | i18n}}</strong>
+            </h5>
+        </div>
+        <div fxLayoutAlign="center center" fxFlex="55">
+            <h5 class="colorGreen"><strong>{{'TITLE_INFORMACOES_DO_SUBSTITUTO' | i18n}}</strong>
+            </h5>
+        </div>
+    </div>
+
+    <div class="mb-3" fxLayout fxLayout.xs="column" fxLayout.sm="column"
+        fxLayoutAlign="space-between" fxLayoutWrap="wrap">
+
+        <div fxFlex="40">
+            <div class="text-center mt-2">
+                <div class="custom-grid-dark">
+                    <div fxFlex="70" fxLayoutAlign="center center"
+                        class="border-right text-center">
+                        {{'LABEL_NOME' | i18n}}</div>
+                    <div fxFlex="30" fxLayoutAlign="center center" class="text-center">
+                        {{'LABEL_REGISTRO' | i18n}}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ml-2" fxFlex="5"></div>
+
+        <div fxLayout fxLayout.xs="column" fxLayout.sm="column" fxLayoutWrap="wrap"
+            fxLayoutAlign="space-around" fxFlex="55">
+
+            <div fxFlex="100">
+                <div class="text-center mt-2">
+                    <div class="custom-grid-dark">
+                        <div fxLayoutAlign="center center" class="border-right text-center"
+                            fxFlex="60">{{'LABEL_NOME' | i18n}}</div>
+                        <div fxLayoutAlign="center center" class="border-right text-center"
+                            fxFlex="25">{{'LABEL_REGISTRO_IMPUGNACAO' | i18n}}</div>
+                        <div fxLayoutAlign="center center" class="text-center" fxFlex="15"><span
+                                tooltip='{{getLabelStatusValidacao()}}'>{{'LABEL_STATUS' | i18n}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngFor="let membro of substituicao.membrosSubstitutosDaChapa; let key = index; last as isLast">
+        <div fxLayout fxLayout.xs="column" fxLayout.sm="column" fxLayoutAlign="space-between"
+            fxLayoutWrap="wrap">
+
+            <div class="widget" fxFlex="40">
+                <div class="card text-center font-card">
+                    <div class="custom-grid-white">
+                        <div fxFlex="70" fxLayoutAlign="center center" class="border-right text-center">
+                            <span tooltip="{{membro.substituido.profissional.nome}}" *ngIf="membro.substituido">
+                                {{ membro.substituido.profissional.nome | slice:0:35 }}
+                            </span>
+                            <span *ngIf="!membro.substituido" class="red">{{ 'LABEL_SEM_MEMBRO_INCLUSAO' | i18n }}</span>
+                        </div>
+                        <div fxFlex="30" fxLayoutAlign="center center" class="text-center">
+                            <span *ngIf="membro.substituido">{{ getRegistroComMask(membro.substituido.profissional.registroNacional) }}</span>
+                            <span *ngIf="!membro.substituido">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ml-2" fxFlex="5" fxLayoutAlign="space-around center"><i
+                    class="fa fa-exchange icone-32" aria-hidden="true"></i></div>
+
+            <div fxLayout fxLayout.xs="column" fxLayout.sm="column" fxLayoutWrap="wrap"
+                fxLayoutAlign="space-around" fxFlex="55">
+
+                <div class="widget" fxFlex="100">
+                    <div class="card text-center font-card">
+                        <div class="custom-grid-white">
+                            <div fxLayoutAlign="center center" class="border-right text-center" fxFlex="60">
+                                <span tooltip="{{membro.substituto.profissional.nome}}">{{ membro.substituto.profissional.nome | slice:0:40 }}</span>
+                            </div>
+                            <div fxLayoutAlign="center center" class="border-right text-center" fxFlex="25">
+                                <span>{{ getRegistroComMask(membro.substituto.profissional.registroNacional) }}</span>
+                            </div>
+
+                            <div *ngIf="statusValidacao(membro.substituto)"
+                                fxLayoutAlign="center center"
+                                class="pl-2 text-center" fxFlex="15">
+                                <i aria-hidden="true"
+                                    class="fa fa-check-circle text-success icone-19"></i>
+                            </div>
+
+                            <div *ngIf="!statusValidacao(membro.substituto)"
+                                tooltip="{{ 'MSG_SELECIONE_ICONE_PARA_DETALHAR_PENDENCIAS_PROFISSIONAL' | i18n }}"
+                                placement="left" fxLayoutAlign="center center"
+                                class="pl-2 text-center" fxFlex="15">
+                                <i aria-hidden="true"
+                                    (click)="abrirModalPendeciasMembro(templateSubstituicaoPendeciasMembro, membro.substituto)"
+                                    class="fa fa-exclamation-circle text-alert icone-19 color-alert"></i>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #templateSubstituicaoPendeciasMembro>
+    <div class="modal-header border-header-green">
+      <div class="col-md-2"></div>
+      <div class="col-md-8 text-center">
+          <h6 class="modal-title pull-center">{{'TITLE_PENDECIAS_MEMBRO' |i18n}}</h6>
+      </div>
+      <div class="col-md-2 align-items-right">
+          <button type="button" class="close pull-right" aria-label="Close" (click)="modalPendeciasMembro.hide()">
+              <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+    </div>
+      <div class="modal-body body-height">
+          <div class="row p-3">
+              <div class="col-md-12">
+                  <p class="text-center pb-2"
+                      *ngFor="let pendencia of membroChapaSelecionado.pendencias; let indice = index;">
+                      {{ pendencia.tipoPendencia.descricao }}
+                  </p>
+              </div>
+          </div>
+          <div class="row">
+              <div class="col-md-12 text-center pt-3">
+                  <button class="btn btn-primary" (click)="modalPendeciasMembro.hide()">{{'LABEL_FECHAR' |i18n}}</button>
+              </div>
+          </div>
+      </div>
+  </ng-template>

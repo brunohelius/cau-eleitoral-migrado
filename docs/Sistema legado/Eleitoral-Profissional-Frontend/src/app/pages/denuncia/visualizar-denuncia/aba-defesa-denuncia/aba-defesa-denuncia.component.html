@@ -1,0 +1,72 @@
+<div class="card">
+    <div class="card-body">
+        <i class="fa fa-reply fa-2x mb-3" (click)="voltar()" aria-hidden="true"></i>
+
+        <h6 class="text-center"><strong>{{ 'LABEL_NUMERO_DENUNCIA' | i18n }}: </strong>{{ denuncia.numeroDenuncia }}</h6>
+
+        <h6 *ngIf="!hasParametrosSemPossibilidadeDefesa()"><strong>{{'LABEL_DATA_HORA_CADASTRO' | i18n}}: </strong>
+            {{ denuncia.defesaApresentada.dataDefesa | date:'dd/MM/yyyy':'+0' }} às 
+            {{ denuncia.defesaApresentada.dataDefesa | date:'HH:mm':'+0' }}
+        </h6>
+        
+        <div class="border shadow rounded p-2">
+            <div *ngIf="hasParametrosSemPossibilidadeDefesa()">
+                <div class="p-2 text-center">
+                    <app-alerta-denuncia-sigilosa *ngIf="denuncia.isSigiloso"></app-alerta-denuncia-sigilosa>
+                    <div class="alert border bg-green font-12 p-4">
+                        <strong>{{'MSG_NAO_HOUVE_APRESENTACAO_DEFESA_DENUNCIA' | i18n}}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="!hasParametrosSemPossibilidadeDefesa()">
+                <div class="p-2">
+                    <app-alerta-denuncia-sigilosa *ngIf="denuncia.isSigiloso"></app-alerta-denuncia-sigilosa>
+                    <div class="bg-primary text-white p-2">
+                        <strong>{{'LABEL_APRESENTACAO_DEFESA' | i18n}}</strong>
+                    </div>
+
+                    <div class="alert bg-green">
+                        <ckeditor id="dsAdmissibilidade" [config]="configuracaoCkeditor" [(ngModel)]="denuncia.defesaApresentada.descricaoDefesa"
+                            [readOnly]="true">
+                        </ckeditor>
+                        <span>{{ getContagemDescricaoDefesa() }}</span>
+                    </div>
+                </div>
+
+                <div class="p-2" *ngIf="denuncia.defesaApresentada.arquivos?.length > 0">
+                    <div class="bg-primary text-white p-2">
+                        <strong>{{'LABEL_DOCUMENTOS' | i18n}}</strong>
+                    </div>
+                    <div class="alert bg-green">
+                        <label for="documento"><span>{{ 'LABEL_ARQUIVO' | i18n }}</span></label>
+                        <div class="lista-arquivos mt-2" fxLayout="row">
+                            <table class="table table-sm">
+                                <tbody>
+                                    <tr *ngFor="let arquivo of denuncia.defesaApresentada.arquivos">
+                                        <td class="text-center">
+                                            <div>
+                                                {{ arquivo.nome }}
+                                            </div>
+                                        </td>
+                                        <td class="table-action text-center">
+                                            <download title="{{ arquivo.nome }}" class="text-primary pointer p-0"
+                                                [download]="arquivo.nome" (process)="downloadArquivo($event, arquivo.id)">
+                                                <i class="align-middle fa fa-download"></i>
+                                            </download>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-2" *ngIf="hasParametrosAcessoParaAnalise()" [ngClass]="{'text-center': hasParametrosSemPossibilidadeDefesa()}">
+                <button class="btn btn-primary" (click)="abrirModalAnalisarDenuncia()"
+                    type="button">{{'LABEL_ANALISAR_DENUNCIA' | i18n}}</button>
+            </div>
+        </div>
+    </div>
+</div>

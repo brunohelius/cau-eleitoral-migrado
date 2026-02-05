@@ -1,0 +1,148 @@
+<div class="card">
+    <div class="card-body" [ngClass]="{'p-0': !hasAnaliseAdmissaoInadmissao, 'p-2': hasAnaliseAdmissaoInadmissao}">
+        <span *ngIf="hasAnaliseAdmissaoInadmissao && analiseAdmissibilidade.inadmitida">
+            <div class="float-right" fxLayout="row" fxLayoutGap="10px">
+                <div class="status-center" fxLayout="column" *ngIf="analiseAdmissibilidade.admitida" fxFlex>
+                    <i class="fa fa-spinner fa-4x pr-0"></i>
+                    <span class="texto-titulo">
+                        <strong>{{ 'LABEL_ADMITIDO' | i18n }}</strong>
+                    </span>
+                </div>
+                <div class="status-center pr-2" fxLayout="column" *ngIf="analiseAdmissibilidade.inadmitida" fxFlex>
+                    <i class="fa fa-spinner fa-4x pr-0 text-danger"></i>
+                    <span class="texto-titulo text-danger">
+                        <strong>{{ 'LABEL_INADMITIDO' | i18n }}</strong>
+                    </span>
+                </div>
+            </div>
+
+            <h6 class="text-center pb-5" *ngIf="!hasAnaliseAdmissaoInadmissao">
+                <strong>{{ 'LABEL_NUMERO_DENUNCIA' | i18n }}: </strong>{{ denuncia.numeroDenuncia }}
+            </h6>
+
+            <h6 class="text-center pb-5" *ngIf="hasAnaliseAdmissaoInadmissao">
+                <strong>{{ 'LABEL_HISTORICO_INADMISSAO_DENUNCIA' | i18n }}</strong>
+            </h6>
+
+            <h6 [ngClass]="{'px-2': hasAnaliseAdmissaoInadmissao}">
+                <strong>{{'LABEL_DATA_HORA_CADASTRO' | i18n}}: </strong>
+                {{ analiseAdmissibilidade.dataHora | date:'dd/MM/yyyy' }} às
+                {{ analiseAdmissibilidade.dataHora | date:'HH:mm' }} 
+            </h6>
+        </span>
+        
+        <div [ngClass]="{'border shadow rounded p-2': !hasAnaliseAdmissaoInadmissao, 'p-0': hasAnaliseAdmissaoInadmissao}">
+            <div class="p-2" *ngIf="analiseAdmissibilidade.admitida">
+                <div class="bg-primary text-white p-2">
+                    <strong>{{'LABEL_DADOS_RELATOR' | i18n}}</strong>
+                </div>
+
+                <div class="alert bg-green">
+                    <card-list [config]="infoRelator"></card-list>
+                </div>
+            </div>
+
+            <div class="p-2" *ngIf="analiseAdmissibilidade.inadmitida">
+                <div class="bg-primary text-white p-2">
+                    <strong>{{'LABEL_DADOS_ADMISSIBILIDADE' | i18n}}</strong>
+                </div>
+
+                <div class="alert bg-green">
+                    <card-list [config]="infoCoordenador"></card-list>
+                </div>
+            </div>
+
+            <div class="p-2">
+                <app-alerta-denuncia-sigilosa *ngIf="denuncia.isSigiloso"></app-alerta-denuncia-sigilosa>
+                <div class="bg-primary text-white p-2">
+                    <strong *ngIf="analiseAdmissibilidade.admitida">{{'LABEL_DESCRICAO_ADMISSAO' | i18n}}</strong>
+                    <strong *ngIf="analiseAdmissibilidade.inadmitida">{{'LABEL_DESCRICAO_INADMISSAO' | i18n}}</strong>
+                </div>
+
+                <div class="alert bg-green">
+                    <ckeditor id="dsAdmissibilidade" [config]="configuracaoCkeditor" [(ngModel)]="analiseAdmissibilidade.despacho"
+                        [readOnly]="true">
+                    </ckeditor>
+                    <span>{{ getContagemDespachoAdmissibilidade() }}</span>
+                </div>
+            </div>
+
+            <div class="p-2" *ngIf="analiseAdmissibilidade.inadmitida && analiseAdmissibilidade.arquivos?.length > 0">
+                <div class="bg-primary text-white p-2">
+                    <strong>{{'LABEL_DOCUMENTOS' | i18n}}</strong>
+                </div>
+                <div class="alert bg-green">
+                    <label for="documento"><span>{{ 'LABEL_ARQUIVO' | i18n }}</span></label>
+                    <div class="lista-arquivos mt-2" fxLayout="row">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr *ngFor="let arquivo of analiseAdmissibilidade.arquivos">
+                                    <td class="text-center">
+                                        <div>
+                                            {{ arquivo.nome }}
+                                        </div>
+                                    </td>
+                                    <td class="table-action text-center">
+                                        <download title="{{ arquivo.nome }}" class="text-primary pointer p-0"
+                                            [download]="arquivo.nome" (process)="downloadArquivo($event, arquivo.id)">
+                                            <i class="align-middle fa fa-download"></i>
+                                        </download>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-2" *ngIf="denuncia.impedimentoSuspeicao?.length > 1">
+                <div class="bg-primary text-white p-2">
+                    <strong>{{'LABEL_HISTORICO_RELATORES_DENUNCIA' | i18n}}</strong>
+                </div>
+                <div class="alert bg-green">
+                    <table class="table table-borderless table-sm mt-0">
+                        <thead>
+                            <tr>
+                                <td class="p-0" colspan="2">
+                                    <div fxLayout="row" class="font-weight-bold font-header text-center px-3">
+                                        <div fxFlex>{{'LABEL_DATA_HORA_CADASTRO' | i18n}}</div>
+                                        <div fxFlex>{{'LABEL_RELATOR' | i18n}}</div>
+                                        <div fxFlex>{{'LABEL_DESPACHO_DESIGNACAO' | i18n}}</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let impedimento of denuncia.impedimentoSuspeicao">
+                                <td class="p-0" colspan="2">
+                                    <div class="card shadow border rounded-2 my-1">
+                                        <div class="card-body p-8">
+                                            <div fxLayout="row" class="text-center">
+                                                <div fxFlex>
+                                                    {{ impedimento.denunciaAdmitida.dataAdmissao | date:'dd/MM/yyyy' }} às {{ impedimento.denunciaAdmitida.dataAdmissao | date:'HH:mm' }}
+                                                </div>
+                                                <div fxFlex>{{ impedimento.encaminhamentoDenuncia.membroComissao.profissionalEntity.nome }}</div>
+                                                <div fxFlex><a href="#mdl{{impedimento.id}}" data-toggle="modal" data-target="#mdl{{impedimento.id}}">Visualizar</a></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="p-2" *ngIf="denuncia.condicao.posso_inserir_relator">
+                <button class="btn btn-primary" type="button" title="Inserir Relator" (click)="inserirRelator()">
+                    {{'LABEL_INSERIR_RELATOR' | i18n}}
+                </button>
+            </div>
+
+            <div class="p-2" *ngIf="(denuncia.defesaApresentada == undefined && isUsuarioDenunciadoResponsavelChapa()) && (!denuncia.hasDefesaPrazoEncerrado && isAguardandoDefesaDenuncia())">
+                <button class="btn btn-primary mr-4" (click)="abrirModalApresentarDefesa()"
+                    type="button">{{'LABEL_APRESENTAR_DEFESA' | i18n}}</button>
+            </div>
+        </div>
+    </div>
+</div>

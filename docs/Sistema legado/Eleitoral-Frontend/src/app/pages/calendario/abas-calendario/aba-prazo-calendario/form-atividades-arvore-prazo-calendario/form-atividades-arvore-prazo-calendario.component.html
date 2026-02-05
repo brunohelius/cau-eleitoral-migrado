@@ -1,0 +1,134 @@
+<form #form="ngForm">
+    <div class="card-body pt-1">
+        <div class="row mb-3">
+            <div class="col-12">
+                <h6 class="title-atividade">{{ 'LABEL_ATIVIDADE' | i18n }}</h6>
+                <button class="btn btn-primary botao-adicionar-atividade float-right" (click)="criarAtividade()"
+                    *ngIf="!acaoSistema.isAcaoVisualizar()" [disabled]="isCalendarioInativo()">
+                    <i class="fa fa-plus-square" aria-hidden="true"></i>
+                    {{ 'LABEL_INCLUIR' | i18n }} {{ 'LABEL_ATIVIDADE' | i18n }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Atividade -->
+        <div class="row">
+            <div class="col-12 atividade" *ngFor="let atividade of atividades; index as ativKey">
+                <div class="card border">
+                    <div class="card-header p-9 mb-0">
+                        <span><b>{{ 'LABEL_ATIVIDADE' | i18n }} {{ atividade.descricaoNivel }}</b></span>
+                    </div>
+
+                    <div class="col-12 atividade-itens">
+
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+
+                                <label>{{atividade.descricaoNivel}}.
+                                    {{ 'LABEL_ATIVIDADE_PRINCIPAL' | i18n }}</label><br>
+                                <form-valid [submitted]="submitted">
+                                    <select class="form-control" [(ngModel)]="atividade.id"
+                                        (change)="selectTipoAtividadePrincipal(atividade.id, atividade)"
+                                        [disabled]="acaoSistema.isAcaoVisualizar() || isCalendarioInativo()"
+                                        name="{{'tipoAtividade' + ativKey}}" required>
+                                        <option [ngValue]="undefined">{{'LABEL_SELECIONAR' |i18n}}</option>
+                                        <option [ngValue]="atividadeTipo.id" [disabled]="atividadeTipo.selecionada"
+                                            *ngFor=" let atividadeTipo of atividadePrincipal">
+                                            {{atividadeTipo.descricao}}
+                                        </option>
+                                    </select>
+                                    <div *ngIf="isPeriodoObedeceVigencia(atividade.id)">
+                                        {{ 'MSG_OBEDECER_VIGENCIA' | i18n }}
+                                    </div>
+                                </form-valid>
+                            </div>
+
+                            <div class="form-group col-md-3">
+                                <label>{{ 'LABEL_DATA_INICIO' | i18n }}</label>
+                                <div class="input-group">
+                                    <form-valid class="w-100" [submitted]="submitted">
+                                        <calendar class="input-group-append" id="inputDataInicio"
+                                            [name]="'inputDataInicio_' + ativKey" [(ngModel)]="atividade.dataInicio"
+                                            #inputDataInicio="ngModel" [disabled]="true" required>
+                                        </calendar>
+                                    </form-valid>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-3">
+                                <label>{{ 'LABEL_DATA_FIM' | i18n }}</label>
+
+                                <div class="input-group">
+                                    <form-valid class="w-100" [submitted]="submitted">
+                                        <calendar class="input-group-append" id="inputDataFim"
+                                            [name]="'inputDataFim_' + ativKey" [(ngModel)]="atividade.dataFim"
+                                            #inputDataFim="ngModel" [disabled]="true" required>
+                                        </calendar>
+                                    </form-valid>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-2">
+                                <div class="input-group">
+                                    <a class="botao-excluir-atividade text-success mt-33"
+                                        (click)="addPorAtividade(atividade)"
+                                        *ngIf="atividade.isExibeIncluirSubAtividade && !acaoSistema.isAcaoVisualizar() && !isCalendarioInativo()">
+                                        <i class=" fas fa-plus-square"></i>
+                                    </a>
+                                    <a class="botao-excluir-atividade text-danger mt-33"
+                                        *ngIf="!acaoSistema.isAcaoVisualizar() && !isCalendarioInativo() && !calendario.calendarioConcluido"
+                                        (click)="excluirAtividade(atividade);">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-12">
+                                <prazo [control]="prazoControl" [prazo]="prazo" [atividades]="atividades"
+                                    [prazosRemovidos]="prazosRemovidos" [disabled]="isCalendarioInativo()"
+                                    [acao]="acaoSistema" *ngFor="let prazo of atividade.prazos;"
+                                    [ocultarExcluir]="isCalendarioInativo() || calendario.calendarioConcluido">
+                                </prazo>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="col-12 mb-2" *ngIf="!acaoSistema.isAcaoVisualizar()">
+    <button type="submit" class="btn btn-primary mr-2" (click)="salvar(templateJustificativa, form)">
+        {{ 'LABEL_SALVAR' | i18n }}
+    </button>
+    <button type="submit" class="btn btn-primary mr-2" *ngIf="calendario.prazosDefinidos"
+        (click)="concluirCalendario(calendario, form)">
+        {{ 'LABEL_CONCLUIR' | i18n }}
+    </button>
+</div>
+
+<ng-template #templateJustificativa>
+    <div class="modal-header">
+        <h6 class="modal-title pull-left">Período</h6>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body" style="height: 100%">
+        {{'LABEL_MESSAGE_JUSTIFICATIVA' |i18n}}
+        <div class="mt-2 body-justify">
+            <div *ngFor="let prazo of justificativaAlteracao; index as i" class="mt-3">
+                <i class="fa fa-bell" aria-hidden="true"></i>
+                {{'LABEL_MESSAGE_JUSTIFICATIVA_ALTERACAO' |i18n}} - {{prazo.descricao}}
+                <div class="mt-2">
+                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"
+                        [(ngModel)]="prazo.justificativa"></textarea>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn-primary mt-3 mb-2" (click)="salvarDados(true)">
+            {{'LABEL_SALVAR' |i18n}}
+        </button>
+    </div>
+</ng-template>

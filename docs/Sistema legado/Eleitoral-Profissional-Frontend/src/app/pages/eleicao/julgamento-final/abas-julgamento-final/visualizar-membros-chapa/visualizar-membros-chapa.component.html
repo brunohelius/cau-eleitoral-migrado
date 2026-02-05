@@ -1,0 +1,82 @@
+<!-- Voltar aba principal -->
+<div class="col-md-2">
+    <button type="button" class="btn btn-link p-0" (click)="voltarAbaPrincipal()" style="margin-top: 5px;">
+        <h5 class="m-0"><i class="fa fa-reply text-primary"
+                           title="{{'LABEL_VOLTAR' | i18n}}"></i></h5>
+    </button>
+</div>
+<div class="col-md-12 text-right" *ngIf="isMostrarBotaoPlataforma()">
+    <button class="btn btn-primary mr-3" (click)="abrirModalInforPlataforma()">
+        {{ 'LABEL_VISUALIZAR_PLATAFORMA' | i18n}}
+    </button>
+</div>
+
+<div class="tab-pane fade pl-3 pr-3 pb-5 mt-1" id="tab-pane-principal" [ngClass]="{ 'active show': true}">
+    <div class="rounded-0">
+
+        <div class="row pt-3">
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+                <div class="rounded-0 mb-5">
+                    <div class="subtitle-line mt-3">
+                        <span class="bg-white"> {{'LABEL_VISUALIZAR_MEMBROS_CHAPA' | i18n}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 spinnerStatus text-center">
+            </div>
+        </div>
+
+        <div>
+            <div class="row pl-3 mt-3">
+                <div class="col-5">
+                    <span class="texto-titulo"><b>{{ 'LABEL_UF' | i18n }} </b></span> {{membros.uf}} <br>
+                    <span class="texto-titulo"><b>{{ 'LABEL_N_CHAPA' | i18n }}</b></span> {{numeroChapa || "N/A"}}<br>
+                </div>
+            </div>
+            <div class="tab-pane fade card rounded-0 pl-2 pr-2 pb-2" [ngClass]="{ 'active show':true}">
+                <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px mb-5">
+                    <div class="row">
+                        <div class="col-md-12 mb-3 pr-5" fxLayout="row" fxLayoutAlign="center">
+                            <b>{{'LABEL_CONSELHEIRO_FEDERAL' | i18n}}</b>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card-body bg-green pl-3 pr-3" style="border-radius: 8px;">
+                                <membros-chapa
+                                    [membros]="conselheiros"
+                                    [title]="true"
+                                    [isMostraCheckVazio]="true"
+                                >
+                                </membros-chapa>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="membrosChapas" class="box-separador bg-primary mb-3"></div>
+
+            <div *ngIf="membrosChapas" class="tab-pane fade card rounded-0 pl-2 pr-2 pb-2"
+                 [ngClass]="{ 'active show':true}">
+                <div class="card border pl-2 pr-2 pb-3 pt-3" style="border-radius: 8px mb-5">
+                    <div class="row">
+                        <div class="col-md-12 mb-3 pr-5" fxLayout="row" fxLayoutAlign="center">
+                            <b>{{'LABEL_CONSELHEIROS_ESTADUAIS' | i18n}}</b>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <list-membros-chapa
+                                [membrosChapa]="membrosChapas"
+                            >
+                            </list-membros-chapa>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

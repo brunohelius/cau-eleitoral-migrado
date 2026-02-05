@@ -1,0 +1,204 @@
+<div class="header">
+    <h1 class="header-title">
+        <i class="fa fa-wpforms" style="margin-right: 10px; font-size: 30px" aria-hidden="true"></i>
+        {{ 'LABEL_PARAMETRIZAR_CORPO_EMAIL' | i18n }}
+    </h1>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="tab-content">
+            <div class="tab-pane fade show active ">
+                <div class="card rounded-0">
+                    <div class="card-header rounded-0">
+                        <h5 class="card-title">
+                            <a class="pointer" (click)="voltar(form)">
+                                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                            </a>
+                            {{'LABEL_PARAMETRIZAR_CORPO_EMAIL' |i18n}}
+                        </h5>
+                    </div>
+                    <div class="col-md-12 p-3">
+                        <form #form="ngForm">
+                            <div class="row p-2">
+                                <div class="col-md-6">
+                                    <label for="">{{ 'LABEL_ATIVAR_EMAIL' | i18n }}</label>
+                                    <ui-switch class="pl-2" [(ngModel)]="corpoEmail.ativo"
+                                        [disabled]="acaoSistema.isAcaoVisualizar()" title="{{ 'LABEL_ATIVAR' | i18n }}"
+                                        name="ativo">
+                                    </ui-switch>
+                                </div>
+                            </div>
+                            <div class="row p-2">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="input_titulo">{{ 'LABEL_ASSUNTO' | i18n }}</label>
+                                        <input type="text" [(ngModel)]="corpoEmail.assunto" #input_assunto="ngModel"
+                                            class="form-control" name="assunto" id="input_titulo" [name]="'assunto'"
+                                            title="{{ 'LABEL_ASSUNTO' | i18n }}"
+                                            [disabled]="isCampoDisabled()" required>
+                                        <validation-message [for]="input_assunto" [submitted]="submitted">
+                                        </validation-message>
+                                        <div class="text-danger" *ngIf="submitted && isCampoDisabled() && !corpoEmail.assunto">
+                                            {{ 'required' | i18n }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="form-group">
+                                            <label>{{'LABEL_CABECALHO_RODAPE' |i18n}}</label>
+                                            <ng-multiselect-dropdown placeholder="{{'LABEL_SELECIONAR' |i18n}}"
+                                                (onSelect)="onSelectCabecalho()" [data]="cabecalhosEmail"
+                                                [disabled]="isCampoDisabled()"
+                                                [(ngModel)]="corpoEmail.cabecalhoEmail" #input_cabecalhoEmail="ngModel"
+                                                [name]="'input_cabecalhoEmail'"
+                                                [settings]="dropdownSettingsCabecalhoEmail"
+                                                title="{{'LABEL_CABECALHO_RODAPE' |i18n}}" required>
+                                            </ng-multiselect-dropdown>
+                                            <validation-message [for]="input_cabecalhoEmail" [submitted]="submitted">
+                                            </validation-message>
+                                            <div class="text-danger" *ngIf="submitted && isCampoDisabled() && !isCabecalhoRodapePreenchido()">
+                                                {{ 'required' | i18n }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="row p-2" *ngFor="let atividade of atividades; let i = index">
+                                    <div class="col-md-6">
+                                        <label for="">
+                                            {{ 'LABEL_ATIVIDADE_PRINCIPAL' | i18n }}
+                                            <i *ngIf="atividade.hasDefinicao" 
+                                                aria-hidden="true" 
+                                                title="{{ getDescricaoMsgAlertaDefinicao(atividade)}}"
+                                                class="fa fa-exclamation-circle text-alert icone-size primary ml-2"></i>
+                                        </label>
+                                        <ng-multiselect-dropdown placeholder="{{'LABEL_SELECIONAR' |i18n}}" [data]="atividadesPrincipais"
+                                            [(ngModel)]="atividade.atividadePrincipal" (ngModelChange)="onSelectAtividadePrincipal(atividade)"
+                                            [disabled]="isAtividadePrincipalDisabled(atividade)" [name]="'idAtividadePrincipal' + i"
+                                            #input_idAtividadePrincipal="ngModel" [settings]="dropdownSettingsAtividadePrincipal"
+                                            title="{{'LABEL_ATIVIDADE_PRINCIPAL' |i18n}}" required>
+                                        </ng-multiselect-dropdown>
+                                        <validation-message [for]="input_idAtividadePrincipal" [submitted]="submitted">
+                                        </validation-message>
+                                        <div class="text-danger"
+                                            *ngIf="submitted && isAtividadePrincipalDisabled(atividade) && !atividade.atividadePrincipal[0]">
+                                            {{ 'required' | i18n }}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label for="">
+                                            {{ 'LABEL_ATIVIDADE_SECUNDARIA' | i18n }}
+                                        </label>
+                                        <ng-multiselect-dropdown placeholder="{{'LABEL_SELECIONAR' |i18n}}"
+                                            [data]="getAtividadesSecundariasPorAtividadePrincipal(atividade.atividadePrincipal[0])"
+                                            [(ngModel)]="atividade.atividadeSecundaria"
+                                            [disabled]="isAtividadeSecundariaDisabled(atividade, atividade.atividadePrincipal[0])"
+                                            [name]="'idAtividadeSecundaria' + i" #input_idAtividadeSecundaria="ngModel"
+                                            [settings]="dropdownSettingsAtividadeSecundaria" title="{{'LABEL_ATIVIDADE_SECUNDARIA' |i18n}}" required>
+                                        </ng-multiselect-dropdown>
+                                        <validation-message [for]="input_idAtividadeSecundaria" [submitted]="submitted">
+                                        </validation-message>
+                                        <div class="text-danger"
+                                            *ngIf="submitted && isAtividadeSecundariaDisabled(atividade, atividade.atividadePrincipal[0]) && !atividade.atividadeSecundaria[0]">
+                                            {{ 'required' | i18n }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row p-2">
+                                    <div class="col-md-12">
+                                        <button (click)="addAtividade()" [disabled]="isAddAtividadeDisabled()"
+                                            class="btn btn-primary botao-adicionar-sub-atividade ng-star-inserted float-right">
+                                            <i aria-hidden="true" class="fa fa-plus-square"></i>
+                                            {{ 'LABEL_INCLUIR_ATIVIDADE' | i18n}}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row p-2">
+                                <div class="col-md-12">
+                                    <ckeditor name="descricao" [(ngModel)]="corpoEmail.descricao"
+                                        #input_descricao="ngModel" id="input_descricao" [config]="configuracaoCkeditor"
+                                        [readOnly]="isCampoDisabled()" required>
+                                    </ckeditor>
+                                    <validation-message [for]="input_descricao" [submitted]="submitted">
+                                    </validation-message>
+                                    <button type="button" class="btn btn-sm btn-primary btn-calendario float-right mt-2"
+                                        [disabled]="acaoSistema.isAcaoVisualizar()" (click)="limparCampo('descricao')">
+                                        {{ 'LABEL_LIMPAR' | i18n }}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="row p-2">
+                                <div class="col-md-12">
+                                    <button type="button" class="btn btn-sm btn-primary btn-calendario float-left mt-2"
+                                        (click)="apresentarModalCorpoEmail(templateVisualizarCorpoEmail, form)">
+                                        {{ 'LABEL_VISUALIZAR' | i18n }}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #templateVisualizarCorpoEmail>
+    <div class="card m-0">
+        <div class="card-header">
+            <a class="pointer" (click)="fecharModalCorpoEmail()">
+                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+            </a>
+            {{ 'LABEL_VISUALIZAR_CORPO_EMAIL' | i18n }}
+        </div>
+        <div class="card-body">
+            <div class="row col-md-12 col-md-12">
+                <div class="row"
+                    *ngIf="cabecalhoEmailSelecionado != undefined && cabecalhoEmailSelecionado.isCabecalhoAtivo">
+                    <div class="col-md-12" *ngIf="cabecalhoEmailSelecionado.imagemCabecalho">
+                        <p><img [src]="cabecalhoEmailSelecionado.imagemCabecalho" class="img-fluid" alt=""></p>
+                    </div>
+
+                    <div class="col-md-12" *ngIf="cabecalhoEmailSelecionado.textoCabecalho">
+                        <p [innerHTML]="getHtmlConfiavel(cabecalhoEmailSelecionado.textoCabecalho)"></p>
+                    </div>
+                </div>
+
+                <div class="row col-md-12">
+                    <div class="row col-md-12">
+                        <p [innerHTML]="getHtmlConfiavel(corpoEmail.descricao)"> </p>
+                    </div>
+                </div>
+
+                <div class="row col-md-12"
+                    *ngIf="cabecalhoEmailSelecionado != undefined && cabecalhoEmailSelecionado.isRodapeAtivo">
+                    <div class="row col-md-12" *ngIf="cabecalhoEmailSelecionado.textoRodape">
+                        <p [innerHTML]="getHtmlConfiavel(cabecalhoEmailSelecionado.textoRodape)"> </p>
+                    </div>
+
+                    <div class="row col-md-12" *ngIf="cabecalhoEmailSelecionado.imagemRodape">
+                        <p><img [src]="cabecalhoEmailSelecionado.imagemRodape" class="img-fluid" alt=""></p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="card-footer bg-transparent">
+            <button type="button" (click)="salvar()" [disabled]="acaoSistema.isAcaoVisualizar()"
+                class="btn btn-sm btn-primary btn-calendario">
+                {{ 'LABEL_CONCLUIR' | i18n }}
+            </button>
+        </div>
+    </div>
+</ng-template>

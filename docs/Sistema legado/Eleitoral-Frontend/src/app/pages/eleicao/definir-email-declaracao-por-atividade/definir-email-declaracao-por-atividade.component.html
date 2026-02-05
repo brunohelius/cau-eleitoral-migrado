@@ -1,0 +1,293 @@
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-tabs">
+            <li class="nav-item pointer">
+                <a class="nav-link" [ngClass]="{ 'active': true }">{{'LABEL_VISAO_GERAL' | i18n}}
+                </a>
+            </li>
+        </ul>
+        <div class="tab-content border-bottom">
+            <div class="tab-pane active show fade bg-white rounded-0">
+                <div class="align-items-center" fxLayout="row" fxFlex="110px">
+                    <div class="d-flex justify-content-center" fxFlex>
+                        <a class="pointer" (click)="inicio()">
+                            <i class="fa fa-desktop fa-2x m-2 pointer pr-0" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                    <div class="border-left">&nbsp;</div>
+                </div>
+
+                <div class="align-items-center" fxLayout="row" fxFlex>
+                    <div class="pl-2" fxFlex>
+                        <a class="pointer" (click)="voltar()">
+                            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                        </a>
+                        <span> {{tituloSecundario |i18n}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-0">
+            <div class="p-3">
+                <i class="fa fa-copy fa-3x" aria-hidden="true"></i>
+            </div>
+        </div>
+        <div class="card rounded-0">
+            <form #form="ngForm">
+                <div class="bg-calendario p-1 pl-3 mt-2 mb-1" *ngIf="tiposEmails.length > 0">{{ 'LABEL_SELECIONE_EMAIL' | i18n }}</div>
+
+                <div class="card m-3 border" *ngIf="tiposEmails.length > 0">
+                    <div class="card m-3 border-0 bg-green">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr class="text-center">
+                                            <th class="w-10 align-middle">{{ 'LABEL_QUANTIDADE_EMAIL' | i18n }}</th>
+                                            <th class="w-20 align-middle">{{ 'LABEL_SELECIONE_EMAIL' | i18n }}</th>
+                                            <th class="w-25 align-middle">{{ 'LABEL_REGRA_ENVIO' | i18n }}</th>
+                                            <th class="w-10 align-middle">{{ 'LABEL_CORPO_EMAIL' | i18n }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-center">
+                                        <ng-container *ngFor="let tipoEmail of tiposEmails; let i = index">
+                                            <ng-container>
+                                                <tr>
+                                                    <td>{{("00"+(i+1)).slice(-2)}} </td>
+                                                    <td class="text-left">
+                                                        <select class="form-control" [compareWith]="compareFn"
+                                                                [(ngModel)]="emailsDeclaracao.tiposEmail[i].idEmailAtividadeSecundaria"
+                                                                name="tipoEmail{{tipoEmail.id}}" id="tipoEmail{{tipoEmail.id}}"
+                                                                #input_email="ngModel" required>
+                                                            <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                                                            <option *ngFor="let item of emailsAtividadeSecundaria" [value]="item.id">
+                                                                {{ item.corpoEmail.assunto }}
+                                                            </option>
+                                                        </select>
+                                                        <div class="text-danger" *ngIf="submitted && hasErrorRequeridEmail(i)">
+                                                            {{ 'required' | i18n }}
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-left">
+                                                        <textarea
+                                                            [disabled]="!isAdministrador()"
+                                                            [(ngModel)]="emailsDeclaracao.tiposEmail[i].descricaoTipoEmailAtividadeSecundaria"
+                                                            name="descricaoTipoEmail{{tipoEmail.id}}"
+                                                            class="form-control no-resize" rows="3"
+                                                            #input_regra_email="ngModel" required maxlength="1000">
+                                                            {{tipoEmail.descricao}}
+                                                        </textarea>
+                                                        <div class="text-danger" *ngIf="submitted && hasErrorRequeridTipoEmail(i)">
+                                                            {{ 'required' | i18n }}
+                                                        </div>
+                                                        <div class="text-danger" *ngIf="submitted && hasErrorMaxLengthTipoEmail(i)">
+                                                            {{ 'MSG_TAMANHO_MAXIMO_1000_CARACTERES' | i18n}}
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <button type="button"
+                                                                (click)="visualizarCorpoEmail(templateVisualizarCorpoEmail, emailsDeclaracao.tiposEmail[i].idEmailAtividadeSecundaria)"
+                                                                [disabled]="!emailsDeclaracao.tiposEmail[i].idEmailAtividadeSecundaria"
+                                                                class="btn btn-primary btn-sm btn-calendario my-3">
+                                                            {{ 'LABEL_VISUALIZAR' | i18n }}
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </ng-container>
+                                        </ng-container>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-calendario p-1 pl-3 mt-2 mb-1" *ngIf="tiposDeclaracoes.length > 0">{{ 'LABEL_SELECIONAR_DECLARACAO' | i18n }}</div>
+
+                <div class="card m-3 border" *ngIf="tiposDeclaracoes.length > 0">
+                    <div class="card m-3 border-0 bg-green">
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr class="text-center">
+                                            <th class="w-10 align-middle">{{ 'LABEL_QUANTIDADE_DECLARACAO' | i18n }}</th>
+                                            <th class="w-20 align-middle">{{ 'LABEL_SELECIONE_DECLARACAO' | i18n }}</th>
+                                            <th class="w-25 align-middle">{{ 'LABEL_REGRA_DECLARACAO' | i18n }}</th>
+                                            <th class="w-10 align-middle">{{ 'LABEL_TEXTO_DECLARACAO' | i18n }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-center">
+                                        <ng-container *ngFor="let tipoDeclaracao of tiposDeclaracoes; let i = index">
+                                            <ng-container>
+                                                <tr>
+                                                    <td>{{("00"+(i+1)).slice(-2)}}</td>
+                                                    <td class="text-left">
+                                                        <select class="form-control" [compareWith]="compareFn"
+                                                                [(ngModel)]="emailsDeclaracao.tiposDeclaracao[i].idDeclaracao"
+                                                                (ngModelChange)="onChangeDeclaracao()"
+                                                                name="declaracao{{tipoDeclaracao.id}}" id="declaracao{{tipoDeclaracao.id}}"
+                                                                #input_declaracao="ngModel" required>
+                                                            <option value="">{{ 'LABEL_SELECIONE' | i18n }}</option>
+                                                            <option *ngFor="let declaracao of declaracoes" [value]="declaracao.id">
+                                                                {{ declaracao.nome }}
+                                                            </option>
+                                                        </select>
+                                                        <div class="text-danger" *ngIf="submitted && hasErrorRequeridDeclaracao(i)">
+                                                            {{ 'required' | i18n }}
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-left">
+                                                        <textarea
+                                                            [disabled]="!isAdministrador()"
+                                                            [(ngModel)]="emailsDeclaracao.tiposDeclaracao[i].descricaoTipoDeclaracaoAtividade"
+                                                            name="descricaoTipoEmail{{tipoDeclaracao.id}}"
+                                                            class="form-control no-resize" rows="4"
+                                                            #input_regra_declaracao="ngModel" required maxlength="1000">
+                                                            {{tipoDeclaracao.descricao}}
+                                                        </textarea>
+                                                        <div class="text-danger" *ngIf="submitted && hasErrorRequeridTipoDeclaracao(i)">
+                                                            {{ 'required' | i18n }}
+                                                        </div>
+                                                        <div class="text-danger" *ngIf="submitted && hasErrorMaxLengthTipoDeclaracao(i)">
+                                                            {{ 'MSG_TAMANHO_MAXIMO_1000_CARACTERES' | i18n}}
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" [title]="isBotaoVisualizarTitle(emailsDeclaracao.tiposDeclaracao[i])"
+                                                            (click)="visualizarDeclaracao(templateVisualizarDeclaracao, emailsDeclaracao.tiposDeclaracao[i].idDeclaracao)"
+                                                            [disabled]="!emailsDeclaracao.tiposDeclaracao[i].idDeclaracao"
+                                                                class="btn btn-primary btn-sm btn-calendario my-3">
+                                                            {{ 'LABEL_VISUALIZAR' | i18n }}
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </ng-container>
+                                        </ng-container>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <button type="button" class="btn btn-primary btn-calendario ml-3 mb-3"
+                            title="{{ 'LABEL_SALVAR' | i18n }}" (click)="salvar(form)">
+                            {{ 'LABEL_SALVAR' | i18n }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<ng-template #templateVisualizarCorpoEmail>
+    <div class="card m-0">
+        <div class="card-header">
+            <a class="pointer" (click)="fecharModalVisualizarEmail()">
+                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+            </a>
+            {{ 'LABEL_VISUALIZAR_CORPO_EMAIL' | i18n }}
+        </div>
+        <div class="card-body">
+            <div class="row col-md-12" *ngIf="corpoEmailSelecionado != undefined">
+                <div class="row col-md-12"
+                    *ngIf="corpoEmailSelecionado.cabecalhoEmail != undefined && corpoEmailSelecionado.cabecalhoEmail.isCabecalhoAtivo">
+                    <div class="row col-md-12" *ngIf="corpoEmailSelecionado.cabecalhoEmail.imagemCabecalho">
+                        <p><img [src]="corpoEmailSelecionado.cabecalhoEmail.imagemCabecalho" class="img-fluid" alt="">
+                        </p>
+                    </div>
+
+                    <div class="row col-md-12" *ngIf="corpoEmailSelecionado.cabecalhoEmail.textoCabecalho">
+                        <p [innerHTML]="corpoEmailSelecionado.cabecalhoEmail.textoCabecalho"></p>
+                    </div>
+                </div>
+
+                <div class="row col-md-12">
+                    <div class="row col-md-12">
+                        <p [innerHTML]="corpoEmailSelecionado.descricao"> </p>
+                    </div>
+                </div>
+
+                <div class="row col-md-12"
+                    *ngIf="corpoEmailSelecionado.cabecalhoEmail != undefined && corpoEmailSelecionado.cabecalhoEmail.isRodapeAtivo">
+                    <div class="row col-md-12" *ngIf="corpoEmailSelecionado.cabecalhoEmail.textoRodape">
+                        <p [innerHTML]="corpoEmailSelecionado.cabecalhoEmail.textoRodape"> </p>
+                    </div>
+
+                    <div class="row col-md-12" *ngIf="corpoEmailSelecionado.cabecalhoEmail.imagemRodape">
+                        <p><img [src]="corpoEmailSelecionado.cabecalhoEmail.imagemRodape" class="img-fluid" alt=""></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer bg-transparent">
+            <button type="button" (click)="fecharModalVisualizarEmail()" class="btn btn-sm btn-primary btn-calendario">
+                {{ 'LABEL_FECHAR' | i18n }}
+            </button>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #templateVisualizarDeclaracao>
+    <div fxLayout="column" fxLayout.xs="column" fxLayout.sm="column" fxLayoutAlign="space-between stretch"
+        fxLayoutGap="10px">
+        <div fxFlex class="card">
+            <div class="card-body">
+                <h5 class="text-center font-weight-bold mb-3">{{declaracaoSelecionada.titulo}}</h5>
+                <div fxLayout="column" fxLayoutGap="15px">
+
+                    <div fxLayout.xs="column" fxLayout.sm="column" fxLayout="row" fxLayoutGap="10px"
+                        fxLayoutAlign="center stretch">
+                        <div [innerHTML]="domSanitizer.bypassSecurityTrustHtml(declaracaoSelecionada.textoInicial)"></div>
+                    </div>
+
+                    <div fxLayout="row" fxLayoutGap="10px" fxLayoutAlign="start stretch">
+                        <span class="text-justify">{{'LABEL_EU' | i18n}}, &lt;nome do profissional&gt;, &lt;CPF do
+                            profissional&gt;
+                            <b>{{'LABEL_DECLARO' | i18n}}</b> {{'LABEL_QUE' | i18n}}:</span>
+                    </div>
+
+                    <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="start stretch">
+                        <ng-template [ngIf]="declaracaoSelecionada.tipoResposta == 2">
+                            <div class="custom-control custom-radio"
+                                *ngFor="let item of declaracaoSelecionada.itensDeclaracao; let indice = index">
+                                <input type="radio" id="item{{indice}}" name="itemDeclaracao"
+                                    class="custom-control-input">
+                                <label class="custom-control-label" for="item{{indice}}">{{item.descricao}}</label>
+                            </div>
+                        </ng-template>
+                        <ng-template [ngIf]="declaracaoSelecionada.tipoResposta == 1">
+                            <div class="custom-control custom-checkbox"
+                                *ngFor="let item of declaracaoSelecionada.itensDeclaracao; let indice = index">
+                                <input type="checkbox" class="custom-control-input" id="item{{indice}}"
+                                    name="itemDeclaracao">
+                                <label class="custom-control-label" for="item{{indice}}">{{item.descricao}}</label>
+                            </div>
+                        </ng-template>
+                    </div>
+
+                    <div fxLayout="column" fxLayoutGap="10px" fxLayoutAlign="start stretch"
+                        *ngIf="declaracaoSelecionada.permiteUpload">
+                        <label for="arquivo">{{'LABEL_ARQUIVO' | i18n}}:</label>
+                        <input type="file" class="form-control-file" id="arquivo" [disabled]="true">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="card-footer bg-transparent">
+            <button type="button" (click)="fecharModalVisualizarDeclaracao()"
+                class="btn btn-sm btn-primary btn-calendario">
+                {{ 'LABEL_FECHAR' | i18n }}
+            </button>
+        </div>
+    </div>
+</ng-template>

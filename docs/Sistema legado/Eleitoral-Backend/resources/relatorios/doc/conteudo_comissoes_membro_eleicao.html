@@ -1,0 +1,43 @@
+<div style="font-size: 11px; font-family: Arial Negrito, Arial;">
+    <br />
+    <p style="text-align: center;">
+        <strong>RELAÇÃO DE MEMBROS E ASSESSORES DAS CE/UF</strong>
+    </p>
+    <br />
+    {% for comissao in comissoes %}
+        <br />
+        <p>
+            <strong>{{ loop.index }}. TITULARES DA COMISSÃO ELEITORAL {% if comissao.cauUf.id == caubr %} NACIONAL {% endif %} - {{ comissao.cauUf.descricao }}</strong>
+        </p>
+        <div>
+        {% set index = 0 %}
+        {% for membro in comissao.membros %}
+            {% for situacao in membro.membroComissaoSituacao %}
+                {% if situacao.situacaoMembroComissao.id == 2 %}
+                <p class="ml-1">
+                {{ index+1 }}. {{ membro.profissional.nome }} <strong>({{ membro.tipoParticipacao.descricao }})</strong>
+                </p>
+                {% set index = index+1 %}
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+        </div>
+        <br />
+        <p>
+            <strong>{{ loop.index }}A. SUBSTITUTOS DA COMISSÃO ELEITORAL {% if comissao.cauUf.id == caubr %} NACIONAL {% endif %} - {{ comissao.cauUf.descricao }}</strong>
+        </p>
+        <div>
+        {% set index = 0 %}
+        {% for membro in comissao.membros %}
+            {% for situacao in membro.membroSubstituto.membroComissaoSituacao %}
+                {% if situacao.situacaoMembroComissao.id == 2 %}
+                <p class="ml-1">
+                {{ index+1 }}. {{ membro.membroSubstituto.profissional.nome }}
+                </p>
+                {% set index = index+1 %}
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+        </div>
+    {% endfor %}
+</div>

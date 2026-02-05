@@ -1,0 +1,154 @@
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-tabs">
+            <li class="nav-item pointer">
+                <a class="nav-link" [ngClass]="{ 'active':true }">
+                    {{'LABEL_VISAO_GERAL' | i18n}}
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+
+            <div class="tab-pane fade card rounded-0" [ngClass]="{ 'active show':true}">
+                <div class="col-md-12">
+                    <i class="fa fa-desktop fa-2x m-2 pointer" aria-hidden="true"></i>
+                </div>
+                <div class="col-md-12">
+                    <h5 class="card-title colorGray">
+                        <a class="pointer" (click)="voltar()">
+                            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                        </a>
+                        <b>{{'TITLE_ACOMPANHAR_PEDIDO_IMPUGNACAO' | i18n}}</b>
+                    </h5>
+                </div>
+                <div class="box-separador bg-primary"></div>
+
+                <div class="tab-pane fade pl-3 pr-3 pb-3" id="tab-pane-principal" [ngClass]="{ 'active show': true}">
+                    <div class="rounded-0 mt-3">
+                        <div class="subtitle-line">
+                            <span class="bg-white"> {{'TITLE_PEDIDO_DE_IMPUGNACAO' | i18n}} </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center title-comissao green-font-bolder mb-4">
+                    <img class="img-fluid rounded-circle img-bandeira"
+                        [src]="imagemBandeira.imagem" style="margin-right: 5px;">
+                        {{ imagemBandeira.sigla}}
+                </div>
+                
+            <div class="tab-pane fade card rounded-0 pl-4 pr-4 pb-4" [ngClass]="{ 'active show':true}" >
+
+                <div class="card pl-3 pr-3 pb-5 pt-4 bg-green" style="border-radius: 4px;">
+                    <div class="card-body " style="border-radius: 8px;">  
+
+
+                        <div class="row pt-3 pb-3">
+                            <div class="col-md-6 align-items-right form-inline green-font-bolder">
+                                <div>
+                                    <span>{{ 'LABEL_MOSTRAR' | i18n }}: </span>
+                                    <select class="form-control" [(ngModel)]="limitePaginacao" [name]="limitePaginacao">
+                                        <option *ngFor="let item of limitesPaginacao" [ngValue]="item">
+                                            {{ item }}
+                                        </option>
+                                    </select>
+                                    <span> {{ 'LABEL_REGISTRO' | i18n}}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 align-items-left">
+                                <div class="div-right">
+                                    <input type="text" class="form-control largura-campo" [(ngModel)]="search"
+                                        placeholder="{{'LABEL_BUSCAR' |i18n}}" (ngModelChange)="filter($event)" maxlength="50">
+                                </div>
+                            </div>
+                        </div>
+
+                        <table
+                              [mfData]="pedidos" 
+                              #mf="mfDataTable" 
+                              *ngIf="pedidos"
+                              [mfRowsOnPage]="limitePaginacao"
+                              class="w-100"
+                        >
+                            <thead>
+                                <tr class="green-font-bolder">
+                                    <th class="text-center tb-width-10"> {{'LABEL_PROTOCOLO' |i18n}} </th>
+                                    <th class="text-center tb-width-10"> {{'LABEL_HORA_CADASTRO' |i18n}} </th>
+                                    <th class="text-center tb-width-10"> {{'LABEL_NUM_CHAPA' |i18n}} </th>
+                                    <th class="text-center tb-width-10"> {{'LABEL_RESPONSAVEL' |i18n}} </th>
+                                    <th class="text-center tb-width-10"> {{'LABEL_STATUS' |i18n}} </th>
+                                    <th class="text-center tb-width-10"> {{'LABEL_IMPUGNANTE' |i18n}} </th>
+                                    <th class="text-center tb-width-10"> {{'LABEL_ACAO' |i18n}} </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let solicitacaoImpugnacao of mf.data;"
+                                    class="td-cauf list-item list-item-card">
+ 
+                                    <td class="text-center p-3 tb-width-10">{{solicitacaoImpugnacao.protocolo}}</td>
+                                    <td class="text-center p-3 tb-width-10">{{solicitacaoImpugnacao.dataCadastro | date:'dd/MM/yyyy HH:mm' : '+0'}}</td>
+                                    <td class="text-center p-3 tb-width-10">{{solicitacaoImpugnacao.numeroChapa}}</td>
+                                    <td class="text-center p-3 tb-width-10">
+                                        <ul>
+                                            <li class="no-decoration" *ngFor="let responsavel of solicitacaoImpugnacao.responsaveis">
+                                               {{responsavel.nome}}
+                                            </li>
+                                        </ul>
+                                    </td>
+
+                                    <td class="text-center tb-width-10 p-3">
+                                        <div class="progress" style="min-width: 80px;">
+                                            <div class="progress-bar" [ngClass]="status(solicitacaoImpugnacao.idStatusImpugnacao)" role="progressbar"
+                                                style="width: 100%; border-radius: 50px;" aria-valuenow="25" aria-valuemin="0"
+                                                aria-valuemax="100">
+                                                {{solicitacaoImpugnacao.statusImpugnacao}}
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td class="text-center p-3 tb-width-10">{{solicitacaoImpugnacao.impugnante}}</td>
+
+                                    <td class="text-center p-3 tb-width-10">                   
+                                        <div class="btn-group" dropdown triggers="hover" (mouseleave)="dp.hide()"
+                                            #dp="bs-dropdown">
+                                            <button dropdownToggle type="button" class="btn btn-link text-muted"
+                                                aria-controls="dropdown-basic">
+                                                <i class="align-middle colorAcao fas fa-ellipsis-v"
+                                                    aria-hidden="true"></i>
+                                            </button>
+                                            <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu" role="menu"
+                                                aria-labelledby="button-basic">
+                                                <li role="menuitem" class="pointer">
+                                                    <a (click)="redirecionaDetalhamento(solicitacaoImpugnacao.id)" class="dropdown-item">
+                                                        {{'LABEL_ACAO_DETALHAR' | i18n}}
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="7" class="col-12" *ngIf="pedidos.length > 0">
+                                        
+                                        <div class="mt-3 col-md-12 pr-0 mr-0">
+                                            <app-mfBootstrapPaginator [mfTable]="mf" class="float-right"></app-mfBootstrapPaginator>
+                                        </div>
+                                        
+                                    </td>
+                                    <td colspan="7" class="col-12" *ngIf="pedidos.length == 0">
+                                        <div class="text-center">
+                                            {{'LABEL_NENHUM_REGISTRO_ENCONTRADO' |i18n}}
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

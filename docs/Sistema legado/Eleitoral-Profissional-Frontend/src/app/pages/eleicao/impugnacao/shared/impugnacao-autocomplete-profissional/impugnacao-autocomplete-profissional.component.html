@@ -1,0 +1,28 @@
+<div class="subtitle-line mb-3">
+    <span class="bg-white">{{titulo | i18n}}</span>
+</div>
+<div class="card card-pricipal">
+    <div class="row m-2">
+        <div class="card-body text-center">
+            <div class="box-destaque shadow text-left">
+                <p>{{ mensagemDados | i18n }}</p>
+                <div class="row">
+                    <div class="col-md-5">
+                        <app-autocomplete 
+                            [limitMax]="limitMax"
+                            [(inputModel)]="profissional" 
+                            [placeholder]="getPlaceholderAutoCompleteProfissional()" 
+                            [membroChapaAtual]="profissional" 
+                            [isNumeroRegistro]="true"
+                            (onSelectProfissional)="adicionarProfissional.emit($event)">
+                        </app-autocomplete>
+                    </div>
+                    <div class="col-md-7 icone">
+                        <i *ngIf="hasHint" class="fa fa-info-circle fa-2x pointer" 
+                            aria-hidden="true"  [title]="getHintImpugnacao()"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
