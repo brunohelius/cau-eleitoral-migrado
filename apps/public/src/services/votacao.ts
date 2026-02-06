@@ -73,7 +73,7 @@ export interface JustificativaAusencia {
 export const votacaoService = {
   // Check voting status
   getStatus: async (eleicaoId: string): Promise<StatusVotacao> => {
-    const response = await api.get<StatusVotacao>(`/votacao/${eleicaoId}/status`)
+    const response = await api.get<StatusVotacao>(`/votacao/status/${eleicaoId}`)
     return response.data
   },
 
@@ -130,7 +130,7 @@ export const votacaoService = {
   // Get voting receipt
   getComprovante: async (eleicaoId: string): Promise<ComprovanteVoto> => {
     setTokenType('voter')
-    const response = await api.get<ComprovanteVoto>(`/votacao/${eleicaoId}/comprovante`)
+    const response = await api.get<ComprovanteVoto>(`/votacao/comprovante/${eleicaoId}`)
     return response.data
   },
 
@@ -219,7 +219,7 @@ export const votacaoService = {
     ultimaAtualizacao: string
     progressoPorHora?: { hora: string; votos: number }[]
   }> => {
-    const response = await api.get(`/votacao/${eleicaoId}/estatisticas`)
+    const response = await api.get(`/votacao/estatisticas/${eleicaoId}`)
     return response.data
   },
 
@@ -235,7 +235,7 @@ export const votacaoService = {
   }> => {
     setTokenType('voter')
     const url = eleicaoId
-      ? `/votacao/elegibilidade?eleicaoId=${eleicaoId}`
+      ? `/votacao/elegibilidade/${eleicaoId}`
       : '/votacao/elegibilidade'
     const response = await api.get(url)
     return response.data
