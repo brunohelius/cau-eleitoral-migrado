@@ -279,6 +279,160 @@ app.MapPost("/api/admin/setup-admin", async (HttpContext context, AppDbContext d
     }
 });
 
+// Setup test voter endpoint (protected by secret key)
+app.MapPost("/api/admin/setup-test-voter", async (HttpContext context, AppDbContext db) =>
+{
+    var seedKey = context.Request.Headers["X-Seed-Key"].FirstOrDefault();
+    var expectedKey = app.Configuration["Admin:SeedKey"] ?? "CAU-SEED-2026-SECRET";
+
+    if (seedKey != expectedKey)
+    {
+        return Results.Unauthorized();
+    }
+
+    try
+    {
+        var cpf = "60000000003";
+        var registroCAU = "A000005-SP";
+        var senha = "Eleitor@123";
+        var email = "eleitor003@teste.com";
+
+        // Get or create regional SP
+        var regionalSP = await db.RegionaisCAU.FirstOrDefaultAsync(r => r.UF == "SP");
+        if (regionalSP == null)
+        {
+            regionalSP = new CAU.Eleitoral.Domain.Entities.Core.RegionalCAU
+            {
+                Sigla = "CAU/SP", Nome = "CAU Sao Paulo", UF = "SP", Ativo = true
+            };
+            await db.RegionaisCAU.AddAsync(regionalSP);
+            await db.SaveChangesAsync();
+        }
+
+        // Generate password hash
+        var saltBytes = System.Security.Cryptography.RandomNumberGenerator.GetBytes(16);
+        var salt = Convert.ToBase64String(saltBytes);
+        using var pbkdf2 = new System.Security.Cryptography.Rfc2898DeriveBytes(
+            senha, saltBytes, 100000, System.Security.Cryptography.HashAlgorithmName.SHA256);
+        var hash = Convert.ToBase64String(pbkdf2.GetBytes(32));
+
+        // Find or create usuario
+        var usuario = await db.Usuarios.FirstOrDefaultAsync(u => u.Cpf == cpf);
+        if (usuario == null)
+        {
+            usuario = new CAU.Eleitoral.Domain.Entities.Usuarios.Usuario
+            {
+                Nome = "Eleitor Teste 003",
+                Email = email,
+                Cpf = cpf,
+                PasswordHash = hash,
+                PasswordSalt = salt,
+                Status = CAU.Eleitoral.Domain.Enums.StatusUsuario.Ativo,
+                EmailConfirmado = true,
+                Tipo = CAU.Eleitoral.Domain.Enums.TipoUsuario.Eleitor
+            };
+            await db.Usuarios.AddAsync(usuario);
+            await db.SaveChangesAsync();
+
+            // Add Eleitor role
+            var eleitorRole = await db.Roles.FirstOrDefaultAsync(r => r.Nome == "Eleitor");
+            if (eleitorRole != null)
+            {
+                await db.UsuarioRoles.AddAsync(new CAU.Eleitoral.Domain.Entities.Usuarios.UsuarioRole
+                {
+                    UsuarioId = usuario.Id,
+                    RoleId = eleitorRole.Id
+                });
+                await db.SaveChangesAsync();
+            }
+        }
+        else
+        {
+            // Update password
+            usuario.PasswordHash = hash;
+            usuario.PasswordSalt = salt;
+            usuario.Status = CAU.Eleitoral.Domain.Enums.StatusUsuario.Ativo;
+            usuario.EmailConfirmado = true;
+            await db.SaveChangesAsync();
+        }
+
+        // Find or create profissional
+        var profissional = await db.Profissionais.FirstOrDefaultAsync(p => p.Cpf == cpf);
+        if (profissional == null)
+        {
+            profissional = new CAU.Eleitoral.Domain.Entities.Usuarios.Profissional
+            {
+                UsuarioId = usuario.Id,
+                RegistroCAU = registroCAU,
+                Nome = "Eleitor Teste 003",
+                NomeCompleto = "Eleitor Teste 003",
+                Cpf = cpf,
+                Email = email,
+                Tipo = CAU.Eleitoral.Domain.Enums.TipoProfissional.Arquiteto,
+                Status = CAU.Eleitoral.Domain.Enums.StatusProfissional.Ativo,
+                RegionalId = regionalSP.Id,
+                EleitorApto = true,
+                DataRegistro = DateTime.UtcNow.AddYears(-5)
+            };
+            await db.Profissionais.AddAsync(profissional);
+            await db.SaveChangesAsync();
+        }
+        else
+        {
+            profissional.UsuarioId = usuario.Id;
+            profissional.RegistroCAU = registroCAU;
+            profissional.EleitorApto = true;
+            await db.SaveChangesAsync();
+        }
+
+        // Ensure at least one active election exists
+        var activeEleicao = await db.Eleicoes.FirstOrDefaultAsync(e =>
+            e.Status == CAU.Eleitoral.Domain.Enums.StatusEleicao.EmAndamento);
+
+        if (activeEleicao == null)
+        {
+            activeEleicao = await db.Eleicoes.OrderByDescending(e => e.DataInicio).FirstOrDefaultAsync();
+        }
+
+        // Create eleitor record if election exists
+        if (activeEleicao != null)
+        {
+            var existingEleitor = await db.Eleitores.FirstOrDefaultAsync(e =>
+                e.ProfissionalId == profissional.Id && e.EleicaoId == activeEleicao.Id);
+
+            if (existingEleitor == null)
+            {
+                await db.Eleitores.AddAsync(new CAU.Eleitoral.Domain.Entities.Core.Eleitor
+                {
+                    EleicaoId = activeEleicao.Id,
+                    ProfissionalId = profissional.Id,
+                    NumeroInscricao = "INS-TEST-003",
+                    Apto = true,
+                    Votou = false
+                });
+                await db.SaveChangesAsync();
+            }
+        }
+
+        return Results.Ok(new
+        {
+            message = "Test voter setup successfully",
+            cpf,
+            registroCAU,
+            senha,
+            email,
+            profissionalId = profissional.Id,
+            eleicaoId = activeEleicao?.Id,
+            eleicaoNome = activeEleicao?.Nome
+        });
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error setting up test voter");
+        return Results.Problem($"Error setting up test voter: {ex.Message}");
+    }
+});
+
 // Apply migrations on startup (controlled by environment variable)
 var runMigrations = builder.Configuration.GetValue<bool>("Database:RunMigrationsOnStartup", app.Environment.IsDevelopment());
 if (runMigrations)
