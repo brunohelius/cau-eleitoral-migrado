@@ -1334,8 +1334,11 @@ public class DatabaseSeeder
         }
 
         // Ensure all admin-type users have the Admin role
+        // Match by TipoUsuario OR by known admin emails (handles legacy data)
         var adminUsers = await _context.Usuarios
-            .Where(u => u.Tipo == TipoUsuario.Administrador)
+            .Where(u => u.Tipo == TipoUsuario.Administrador
+                || u.Email == "admin@cau.org.br"
+                || u.Email == "superadmin@cau.org.br")
             .ToListAsync();
 
         foreach (var user in adminUsers)
