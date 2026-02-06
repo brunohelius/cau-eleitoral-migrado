@@ -138,6 +138,7 @@ builder.Services.AddScoped<IRelatorioService, RelatorioService>();
 builder.Services.AddScoped<INotificacaoService, NotificacaoService>();
 builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
 builder.Services.AddScoped<IConfiguracaoService, ConfiguracaoService>();
+builder.Services.AddScoped<CAU.Eleitoral.Api.Controllers.IDashboardService, CAU.Eleitoral.Api.Services.DashboardService>();
 
 // Add Health Checks
 builder.Services.AddHealthChecks()
