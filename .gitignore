@@ -58,6 +58,11 @@ playwright-report*/
 *.tmp
 *.temp
 
+# Local artifacts
+screenshots/
+capture-screens.mjs
+CAU-Sistema-Eleitoral-Migrado.pdf
+
 # Terraform
 .terraform/
 *.tfstate
