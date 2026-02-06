@@ -139,6 +139,15 @@ builder.Services.AddScoped<INotificacaoService, NotificacaoService>();
 builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
 builder.Services.AddScoped<IConfiguracaoService, ConfiguracaoService>();
 builder.Services.AddScoped<CAU.Eleitoral.Api.Controllers.IDashboardService, CAU.Eleitoral.Api.Services.DashboardService>();
+builder.Services.AddScoped<CAU.Eleitoral.Api.Controllers.IAuditoriaService, CAU.Eleitoral.Api.Services.AuditoriaApiService>();
+builder.Services.AddScoped<CAU.Eleitoral.Api.Controllers.IFilialService, CAU.Eleitoral.Api.Services.FilialApiService>();
+builder.Services.AddScoped<CAU.Eleitoral.Api.Controllers.INotificacaoService, CAU.Eleitoral.Api.Services.NotificacaoApiService>();
+builder.Services.AddScoped<CAU.Eleitoral.Api.Controllers.IDocumentoService, CAU.Eleitoral.Api.Services.DocumentoApiService>();
+builder.Services.AddScoped<CAU.Eleitoral.Api.Controllers.IJulgamentoService, CAU.Eleitoral.Api.Services.JulgamentoApiService>();
+builder.Services.AddScoped<CAU.Eleitoral.Api.Controllers.IRelatorioService, CAU.Eleitoral.Api.Services.RelatorioApiService>();
+builder.Services.AddScoped<CAU.Eleitoral.Api.Controllers.IMembroChapaService, CAU.Eleitoral.Api.Services.MembroChapaApiService>();
+builder.Services.AddScoped<CAU.Eleitoral.Api.Controllers.ICalendarioService, CAU.Eleitoral.Api.Services.CalendarioApiService>();
+builder.Services.AddScoped<CAU.Eleitoral.Api.Controllers.IConselheiroService, CAU.Eleitoral.Api.Services.ConselheiroApiService>();
 
 // Add Health Checks
 builder.Services.AddHealthChecks()
