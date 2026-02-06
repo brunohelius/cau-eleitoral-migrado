@@ -177,15 +177,7 @@ export const useConfiguracaoStore = create<ConfiguracaoState>()(
           set({ isSaving: true, error: null })
           try {
             const result = await configuracoesService.updateMultiplas(configuracoes)
-            set((state) => {
-              const updatedMap = new Map(result.map((c) => [c.chave, c]))
-              return {
-                configuracoes: state.configuracoes.map((c) =>
-                  updatedMap.has(c.chave) ? updatedMap.get(c.chave)! : c
-                ),
-                isSaving: false,
-              }
-            })
+            set({ isSaving: false })
             return result
           } catch (error) {
             const message = error instanceof Error ? error.message : 'Erro ao atualizar configuracoes'

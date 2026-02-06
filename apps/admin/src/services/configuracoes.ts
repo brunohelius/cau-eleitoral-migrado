@@ -173,8 +173,11 @@ export const configuracoesService = {
     return response.data
   },
 
-  updateMultiplas: async (configuracoes: { chave: string; valor: string }[]): Promise<ConfiguracaoSistema[]> => {
-    const response = await api.put<ConfiguracaoSistema[]>('/configuracao/batch', { configuracoes })
+  updateMultiplas: async (configuracoes: { chave: string; valor: string }[]): Promise<any> => {
+    // API expects PUT /configuracao with { configuracoes: { "key": "value", ... } }
+    const configMap: Record<string, string> = {}
+    configuracoes.forEach((c) => { configMap[c.chave] = c.valor })
+    const response = await api.put('/configuracao', { configuracoes: configMap })
     return response.data
   },
 
