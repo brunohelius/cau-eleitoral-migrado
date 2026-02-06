@@ -871,6 +871,51 @@ public class ImpugnacaoController : BaseController
     }
 
     /// <summary>
+    /// Obtem estatisticas gerais de impugnacoes (com filtro opcional por eleicao)
+    /// </summary>
+    /// <param name="eleicaoId">Filtro opcional por eleicao</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Estatisticas de impugnacoes</returns>
+    [HttpGet("estatisticas")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral,Analista")]
+    [ProducesResponseType(typeof(EstatisticasImpugnacaoResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<EstatisticasImpugnacaoResponse>> GetEstatisticas(
+        [FromQuery] Guid? eleicaoId,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            IEnumerable<ImpugnacaoDto> impugnacoes;
+            if (eleicaoId.HasValue)
+            {
+                impugnacoes = await _impugnacaoService.GetByEleicaoAsync(eleicaoId.Value, cancellationToken);
+            }
+            else
+            {
+                impugnacoes = await _impugnacaoService.GetAllAsync(cancellationToken);
+            }
+
+            var list = impugnacoes.ToList();
+            var response = new EstatisticasImpugnacaoResponse
+            {
+                Total = list.Count,
+                Pendentes = list.Count(i => i.Status == StatusImpugnacao.Recebida),
+                EmAnalise = list.Count(i => i.Status == StatusImpugnacao.EmAnalise),
+                Julgadas = list.Count(i => i.Status == StatusImpugnacao.Julgada),
+                Procedentes = list.Count(i => i.Status == StatusImpugnacao.Procedente),
+                Improcedentes = list.Count(i => i.Status == StatusImpugnacao.Improcedente)
+            };
+
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao obter estatisticas de impugnacoes");
+            return InternalError("Erro ao obter estatisticas");
+        }
+    }
+
+    /// <summary>
     /// Obtem estatisticas de impugnacoes por eleicao
     /// </summary>
     /// <param name="eleicaoId">ID da eleicao</param>

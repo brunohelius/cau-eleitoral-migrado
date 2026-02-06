@@ -125,7 +125,7 @@ export interface LogAtividade {
 export const usuariosService = {
   // CRUD Operations
   getAll: async (params?: UsuarioListParams): Promise<PaginatedResponse<Usuario>> => {
-    const response = await api.get('/usuario', { params })
+    const response = await api.get('/usuario/paged', { params })
     return mapPagedResponse<Usuario>(response.data)
   },
 
