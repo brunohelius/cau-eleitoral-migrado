@@ -209,6 +209,34 @@ app.MapPost("/api/admin/seed", async (HttpContext context, DatabaseSeeder seeder
     }
 });
 
+// Diagnostic endpoint - returns table counts for debugging
+app.MapGet("/api/admin/diag", async (HttpContext context, AppDbContext db) =>
+{
+    var seedKey = context.Request.Headers["X-Seed-Key"].FirstOrDefault();
+    var expectedKey = app.Configuration["Admin:SeedKey"] ?? "CAU-SEED-2026-SECRET";
+    if (seedKey != expectedKey) return Results.Unauthorized();
+
+    var calFiltered = await db.Calendarios.CountAsync();
+    var calTotal = await db.Calendarios.IgnoreQueryFilters().CountAsync();
+    var calDeleted = await db.Calendarios.IgnoreQueryFilters().Where(c => c.IsDeleted).CountAsync();
+    var docFiltered = await db.Documentos.CountAsync();
+    var docTotal = await db.Documentos.IgnoreQueryFilters().CountAsync();
+    var docDeleted = await db.Documentos.IgnoreQueryFilters().Where(d => d.IsDeleted).CountAsync();
+    var editalCount = await db.Editais.CountAsync();
+    var eleicaoCount = await db.Eleicoes.CountAsync();
+    var chapaCount = await db.Chapas.CountAsync();
+    var membroCount = await db.MembrosChapa.CountAsync();
+
+    return Results.Ok(new {
+        calendarios = new { filtered = calFiltered, total = calTotal, deleted = calDeleted },
+        documentos = new { filtered = docFiltered, total = docTotal, deleted = docDeleted },
+        editais = editalCount,
+        eleicoes = eleicaoCount,
+        chapas = chapaCount,
+        membrosChapa = membroCount
+    });
+});
+
 // Force create admin endpoint (protected by secret key)
 app.MapPost("/api/admin/setup-admin", async (HttpContext context, AppDbContext db) =>
 {
