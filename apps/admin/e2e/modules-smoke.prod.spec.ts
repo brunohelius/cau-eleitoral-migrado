@@ -44,7 +44,9 @@ test.describe('Admin Modules Smoke (Production)', () => {
     for (const { path, heading } of CORE_PAGES) {
       await test.step(`${heading} (${path})`, async () => {
         await page.goto(path);
-        await expect(page.getByRole('heading', { name: heading })).toBeVisible({
+        await expect(
+          page.getByRole('heading', { name: heading, level: 1, exact: true })
+        ).toBeVisible({
           timeout: 15000,
         });
       });
@@ -57,7 +59,9 @@ test.describe('Admin Modules Smoke (Production)', () => {
     for (const { path, heading } of AUX_PAGES) {
       await test.step(`${heading} (${path})`, async () => {
         await page.goto(path);
-        await expect(page.getByRole('heading', { name: heading })).toBeVisible({
+        await expect(
+          page.getByRole('heading', { name: heading, level: 1, exact: true })
+        ).toBeVisible({
           timeout: 15000,
         });
       });
