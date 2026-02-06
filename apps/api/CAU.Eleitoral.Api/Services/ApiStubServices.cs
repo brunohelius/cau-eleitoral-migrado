@@ -867,6 +867,45 @@ public class JulgamentoApiService : Controllers.IJulgamentoService
         var sessoes = await GetSessoesAsync(dto.EleicaoId, ct);
         return sessoes.First(s => s.Id == sessao.Id);
     }
+
+    public async Task<IEnumerable<MembroComissaoJulgamentoDto>> GetMembrosAsync(Guid julgamentoId, CancellationToken ct = default)
+    {
+        var julgamento = await _db.JulgamentosFinais.IgnoreQueryFilters()
+            .Include(j => j.Sessao)
+            .ThenInclude(s => s!.Comissao)
+            .Where(j => !j.IsDeleted)
+            .FirstOrDefaultAsync(j => j.Id == julgamentoId, ct)
+            ?? throw new KeyNotFoundException();
+
+        Guid? comissaoId = julgamento.Sessao?.ComissaoId;
+        if (!comissaoId.HasValue)
+        {
+            comissaoId = await _db.ComissoesJulgadoras.IgnoreQueryFilters()
+                .Where(c => !c.IsDeleted && c.EleicaoId == julgamento.EleicaoId && c.Ativa)
+                .Select(c => (Guid?)c.Id)
+                .FirstOrDefaultAsync(ct);
+        }
+
+        if (!comissaoId.HasValue)
+            return Array.Empty<MembroComissaoJulgamentoDto>();
+
+        var membros = await _db.MembrosComissaoJulgadora.IgnoreQueryFilters()
+            .Include(m => m.Conselheiro)
+            .ThenInclude(c => c.Profissional)
+            .Where(m => !m.IsDeleted && m.ComissaoId == comissaoId.Value && m.Ativo)
+            .OrderBy(m => m.Ordem)
+            .ToListAsync(ct);
+
+        return membros.Select(m => new MembroComissaoJulgamentoDto
+        {
+            Id = m.Id,
+            ConselheiroId = m.ConselheiroId,
+            Nome = m.Conselheiro?.Profissional?.Nome ?? "Membro",
+            Tipo = m.Tipo,
+            Ordem = m.Ordem,
+            Ativo = m.Ativo
+        });
+    }
 }
 
 // ── RelatorioService ──

@@ -74,6 +74,34 @@ public class JulgamentoController : BaseController
     }
 
     /// <summary>
+    /// Lista membros da comissao julgadora associados a um julgamento
+    /// </summary>
+    /// <param name="id">ID do julgamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Lista de membros da comissao</returns>
+    [HttpGet("{id:guid}/membros")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral")]
+    [ProducesResponseType(typeof(IEnumerable<MembroComissaoJulgamentoDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IEnumerable<MembroComissaoJulgamentoDto>>> GetMembros(Guid id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var membros = await _julgamentoService.GetMembrosAsync(id, cancellationToken);
+            return Ok(membros);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Julgamento nao encontrado" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao listar membros do julgamento {Id}", id);
+            return InternalError("Erro ao listar membros do julgamento");
+        }
+    }
+
+    /// <summary>
     /// Lista julgamentos por eleicao
     /// </summary>
     /// <param name="eleicaoId">ID da eleicao</param>
@@ -540,6 +568,16 @@ public record SessaoJulgamentoDto
     public DateTime CreatedAt { get; init; }
 }
 
+public record MembroComissaoJulgamentoDto
+{
+    public Guid Id { get; init; }
+    public Guid ConselheiroId { get; init; }
+    public string Nome { get; init; } = string.Empty;
+    public TipoMembroComissao Tipo { get; init; }
+    public int Ordem { get; init; }
+    public bool Ativo { get; init; }
+}
+
 public record CreateSessaoJulgamentoDto
 {
     public Guid EleicaoId { get; init; }
@@ -567,4 +605,5 @@ public interface IJulgamentoService
     Task<JulgamentoDto> CancelarAsync(Guid id, string motivo, CancellationToken cancellationToken = default);
     Task<IEnumerable<SessaoJulgamentoDto>> GetSessoesAsync(Guid? eleicaoId, CancellationToken cancellationToken = default);
     Task<SessaoJulgamentoDto> CreateSessaoAsync(CreateSessaoJulgamentoDto dto, Guid userId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<MembroComissaoJulgamentoDto>> GetMembrosAsync(Guid julgamentoId, CancellationToken cancellationToken = default);
 }
