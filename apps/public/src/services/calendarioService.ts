@@ -12,9 +12,7 @@ export interface CalendarioEvento {
   titulo: string
   descricao?: string
   tipo: TipoCalendario
-  tipoNome: string
   status: StatusCalendario
-  statusNome: string
   dataInicio: string
   dataFim: string
   diaInteiro: boolean
@@ -54,27 +52,31 @@ export interface CalendarioFilters {
 export const getTipoCalendarioLabel = (tipo: TipoCalendario): string => {
   const labels: Record<TipoCalendario, string> = {
     [TipoCalendario.INSCRICAO]: 'Inscricao',
-    [TipoCalendario.ANALISE_CANDIDATURAS]: 'Analise de Candidaturas',
+    [TipoCalendario.IMPUGNACAO]: 'Impugnacao',
+    [TipoCalendario.DEFESA]: 'Defesa',
+    [TipoCalendario.JULGAMENTO]: 'Julgamento',
+    [TipoCalendario.RECURSO]: 'Recurso',
     [TipoCalendario.PROPAGANDA]: 'Propaganda Eleitoral',
     [TipoCalendario.VOTACAO]: 'Votacao',
     [TipoCalendario.APURACAO]: 'Apuracao',
+    [TipoCalendario.RESULTADO]: 'Resultado',
     [TipoCalendario.DIPLOMACAO]: 'Diplomacao',
-    [TipoCalendario.RECURSO]: 'Prazo de Recurso',
-    [TipoCalendario.OUTROS]: 'Outros',
   }
-  return labels[tipo] || 'Desconhecido'
+  return labels[tipo] || 'Outros'
 }
 
 export const getTipoCalendarioColor = (tipo: TipoCalendario): string => {
   const colors: Record<TipoCalendario, string> = {
     [TipoCalendario.INSCRICAO]: 'blue',
-    [TipoCalendario.ANALISE_CANDIDATURAS]: 'purple',
+    [TipoCalendario.IMPUGNACAO]: 'red',
+    [TipoCalendario.DEFESA]: 'orange',
+    [TipoCalendario.JULGAMENTO]: 'purple',
+    [TipoCalendario.RECURSO]: 'red',
     [TipoCalendario.PROPAGANDA]: 'orange',
     [TipoCalendario.VOTACAO]: 'green',
     [TipoCalendario.APURACAO]: 'yellow',
+    [TipoCalendario.RESULTADO]: 'cyan',
     [TipoCalendario.DIPLOMACAO]: 'cyan',
-    [TipoCalendario.RECURSO]: 'red',
-    [TipoCalendario.OUTROS]: 'gray',
   }
   return colors[tipo] || 'gray'
 }

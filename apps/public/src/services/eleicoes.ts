@@ -1,4 +1,4 @@
-import api from './api'
+import api, { extractApiError } from './api'
 
 // Enums
 export enum StatusEleicao {
@@ -29,10 +29,12 @@ export interface EleicaoPublica {
   status: StatusEleicao
   ano: number
   regional?: string
+  regionalNome?: string
   dataInicio: string
   dataFim: string
   dataVotacaoInicio?: string
   dataVotacaoFim?: string
+  dataApuracao?: string
   quantidadeVagas?: number
   totalChapas: number
   totalEleitores: number
@@ -79,30 +81,36 @@ export interface CalendarioEleicao {
 }
 
 export interface ResultadoEleicao {
+  id: string
   eleicaoId: string
   eleicaoNome: string
-  dataApuracao: string
+  statusApuracao: number
+  homologado: boolean
+  publicado: boolean
+  dataApuracao?: string
   totalEleitores: number
   totalVotos: number
-  participacao: number
   votosValidos: number
   votosNulos: number
   votosBrancos: number
-  resultado: {
-    posicao: number
+  votosAnulados: number
+  totalAbstencoes: number
+  percentualParticipacao: number
+  percentualAbstencao: number
+  resultadosChapas: {
     chapaId: string
-    chapaNome: string
-    chapaNumero: number
-    votos: number
-    percentual: number
-    eleita: boolean
-  }[]
-  chapaVencedora?: {
-    id: string
-    nome: string
     numero: number
-    votos: number
-  }
+    nome: string
+    sigla?: string
+    totalVotos: number
+    percentual: number
+    percentualVotosValidos: number
+    posicao: number
+    vencedora: boolean
+  }[]
+  chapaVencedoraId?: string
+  chapaVencedoraNome?: string
+  votosChapaVencedora?: number
 }
 
 export interface EstatisticasPublicas {
@@ -113,123 +121,114 @@ export interface EstatisticasPublicas {
 }
 
 export const eleicoesPublicService = {
-  // Get all public elections
+  // Get all elections (public - no auth required)
   getAll: async (): Promise<EleicaoPublica[]> => {
-    const response = await api.get<EleicaoPublica[]>('/public/eleicoes')
-    return response.data
+    try {
+      const response = await api.get<EleicaoPublica[]>('/eleicao')
+      return response.data
+    } catch (error) {
+      const apiError = extractApiError(error)
+      throw new Error(apiError.message || 'Erro ao listar eleicoes')
+    }
   },
 
   // Get active elections
   getAtivas: async (): Promise<EleicaoPublica[]> => {
-    const response = await api.get<EleicaoPublica[]>('/public/eleicoes/ativas')
-    return response.data
+    try {
+      const response = await api.get<EleicaoPublica[]>('/eleicao/ativas')
+      return response.data
+    } catch (error) {
+      const apiError = extractApiError(error)
+      throw new Error(apiError.message || 'Erro ao listar eleicoes ativas')
+    }
   },
 
-  // Get elections in voting phase
+  // Get elections in voting phase (status=3)
   getEmVotacao: async (): Promise<EleicaoPublica[]> => {
-    const response = await api.get<EleicaoPublica[]>('/public/eleicoes/em-votacao')
-    return response.data
+    try {
+      const response = await api.get<EleicaoPublica[]>('/eleicao/status/3')
+      return response.data
+    } catch (error) {
+      const apiError = extractApiError(error)
+      throw new Error(apiError.message || 'Erro ao listar eleicoes em votacao')
+    }
   },
 
-  // Get concluded elections (with results)
+  // Get concluded elections (status=6)
   getConcluidas: async (): Promise<EleicaoPublica[]> => {
-    const response = await api.get<EleicaoPublica[]>('/public/eleicoes/concluidas')
-    return response.data
+    try {
+      const response = await api.get<EleicaoPublica[]>('/eleicao/status/6')
+      return response.data
+    } catch (error) {
+      const apiError = extractApiError(error)
+      throw new Error(apiError.message || 'Erro ao listar eleicoes concluidas')
+    }
   },
 
   // Get election by ID
   getById: async (id: string): Promise<EleicaoPublica> => {
-    const response = await api.get<EleicaoPublica>(`/public/eleicoes/${id}`)
-    return response.data
+    try {
+      const response = await api.get<EleicaoPublica>(`/eleicao/${id}`)
+      return response.data
+    } catch (error) {
+      const apiError = extractApiError(error)
+      throw new Error(apiError.message || 'Erro ao obter eleicao')
+    }
   },
 
   // Get election chapas
   getChapas: async (eleicaoId: string): Promise<ChapaPublica[]> => {
-    const response = await api.get<ChapaPublica[]>(`/public/eleicoes/${eleicaoId}/chapas`)
-    return response.data
-  },
-
-  // Get specific chapa details
-  getChapa: async (eleicaoId: string, chapaId: string): Promise<ChapaPublica> => {
-    const response = await api.get<ChapaPublica>(`/public/eleicoes/${eleicaoId}/chapas/${chapaId}`)
-    return response.data
+    try {
+      const response = await api.get<ChapaPublica[]>(`/chapa/eleicao/${eleicaoId}`)
+      return response.data
+    } catch (error) {
+      const apiError = extractApiError(error)
+      throw new Error(apiError.message || 'Erro ao listar chapas')
+    }
   },
 
   // Get election calendar
   getCalendario: async (eleicaoId: string): Promise<CalendarioEleicao[]> => {
-    const response = await api.get<CalendarioEleicao[]>(`/public/eleicoes/${eleicaoId}/calendario`)
-    return response.data
+    try {
+      const response = await api.get<CalendarioEleicao[]>(`/calendario/eleicao/${eleicaoId}`)
+      return response.data
+    } catch (error) {
+      const apiError = extractApiError(error)
+      throw new Error(apiError.message || 'Erro ao listar calendario')
+    }
   },
 
-  // Get election results (only for concluded elections)
+  // Get election results (apuracao) - AllowAnonymous
   getResultado: async (eleicaoId: string): Promise<ResultadoEleicao> => {
-    const response = await api.get<ResultadoEleicao>(`/public/eleicoes/${eleicaoId}/resultado`)
-    return response.data
+    try {
+      const response = await api.get<ResultadoEleicao>(`/apuracao/${eleicaoId}`)
+      return response.data
+    } catch (error) {
+      const apiError = extractApiError(error)
+      throw new Error(apiError.message || 'Erro ao obter resultados')
+    }
   },
 
-  // Get election documents
-  getDocumentos: async (eleicaoId: string): Promise<{
-    id: string
-    nome: string
-    tipo: string
-    url: string
-    tamanho: number
-    dataPublicacao: string
-  }[]> => {
-    const response = await api.get(`/public/eleicoes/${eleicaoId}/documentos`)
-    return response.data
+  // Get votes per chapa - AllowAnonymous
+  getVotosPorChapa: async (eleicaoId: string) => {
+    try {
+      const response = await api.get(`/apuracao/${eleicaoId}/votos-por-chapa`)
+      return response.data
+    } catch (error) {
+      const apiError = extractApiError(error)
+      throw new Error(apiError.message || 'Erro ao obter votos por chapa')
+    }
   },
 
-  // Download election document
-  downloadDocumento: async (eleicaoId: string, documentoId: string): Promise<Blob> => {
-    const response = await api.get(`/public/eleicoes/${eleicaoId}/documentos/${documentoId}/download`, {
-      responseType: 'blob',
-    })
-    return response.data
-  },
-
-  // Get public statistics (for voting tracking)
-  getEstatisticas: async (eleicaoId: string): Promise<EstatisticasPublicas> => {
-    const response = await api.get<EstatisticasPublicas>(`/public/eleicoes/${eleicaoId}/estatisticas`)
-    return response.data
-  },
-
-  // Check voter eligibility (before login)
-  verificarEleitor: async (
-    eleicaoId: string,
-    cpf: string,
-    registroCAU: string
-  ): Promise<{
-    encontrado: boolean
-    podeVotar: boolean
-    motivo?: string
-    regional?: string
-  }> => {
-    const response = await api.post(`/public/eleicoes/${eleicaoId}/verificar-eleitor`, {
-      cpf,
-      registroCAU,
-    })
-    return response.data
-  },
-
-  // Get voting instructions
-  getInstrucoes: async (eleicaoId: string): Promise<{
-    titulo: string
-    passos: { numero: number; descricao: string }[]
-    avisos: string[]
-    faq: { pergunta: string; resposta: string }[]
-  }> => {
-    const response = await api.get(`/public/eleicoes/${eleicaoId}/instrucoes`)
-    return response.data
-  },
-
-  // Subscribe to election notifications
-  inscreverNotificacoes: async (
-    eleicaoId: string,
-    email: string
-  ): Promise<{ message: string }> => {
-    const response = await api.post(`/public/eleicoes/${eleicaoId}/notificacoes`, { email })
-    return response.data
+  // Get winner info - AllowAnonymous
+  getVencedor: async (eleicaoId: string) => {
+    try {
+      const response = await api.get(`/apuracao/${eleicaoId}/vencedor`)
+      return response.data
+    } catch (error) {
+      const apiError = extractApiError(error)
+      throw new Error(apiError.message || 'Erro ao obter vencedor')
+    }
   },
 }
 
@@ -247,6 +246,21 @@ export const getStatusLabel = (status: StatusEleicao): string => {
     [StatusEleicao.CANCELADA]: 'Cancelada',
   }
   return labels[status] || 'Desconhecido'
+}
+
+export const getStatusColor = (status: StatusEleicao): string => {
+  const colors: Record<StatusEleicao, string> = {
+    [StatusEleicao.CRIADA]: 'bg-gray-100 text-gray-800',
+    [StatusEleicao.ABERTA_INSCRICOES]: 'bg-blue-100 text-blue-800',
+    [StatusEleicao.INSCRICOES_ENCERRADAS]: 'bg-yellow-100 text-yellow-800',
+    [StatusEleicao.EM_VOTACAO]: 'bg-green-100 text-green-800',
+    [StatusEleicao.VOTACAO_ENCERRADA]: 'bg-orange-100 text-orange-800',
+    [StatusEleicao.EM_APURACAO]: 'bg-purple-100 text-purple-800',
+    [StatusEleicao.CONCLUIDA]: 'bg-gray-100 text-gray-800',
+    [StatusEleicao.SUSPENSA]: 'bg-red-100 text-red-800',
+    [StatusEleicao.CANCELADA]: 'bg-red-100 text-red-800',
+  }
+  return colors[status] || 'bg-gray-100 text-gray-800'
 }
 
 export const getTipoLabel = (tipo: TipoEleicao): string => {

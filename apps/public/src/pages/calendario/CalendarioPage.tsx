@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ChevronLeft,
@@ -9,98 +9,30 @@ import {
   Filter,
   Loader2,
   CalendarDays,
+  AlertCircle,
 } from 'lucide-react'
+import {
+  calendarioService,
+  CalendarioEvento,
+  getTipoCalendarioLabel,
+  getTipoCalendarioColor,
+} from '../../services/calendarioService'
+import { TipoCalendario } from '../../services/types'
 
-// Types
-interface EventoCalendario {
-  id: string
-  titulo: string
-  descricao: string
-  dataInicio: string
-  dataFim: string
-  tipo: 'inscricao' | 'votacao' | 'apuracao' | 'prazo' | 'reuniao' | 'outro'
-  eleicaoId?: string
-  eleicaoNome?: string
-  local?: string
-  destaque: boolean
+const tipoColorMap: Record<string, string> = {
+  blue: 'bg-blue-100 text-blue-800 border-blue-200',
+  purple: 'bg-purple-100 text-purple-800 border-purple-200',
+  orange: 'bg-orange-100 text-orange-800 border-orange-200',
+  green: 'bg-green-100 text-green-800 border-green-200',
+  yellow: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  cyan: 'bg-cyan-100 text-cyan-800 border-cyan-200',
+  red: 'bg-red-100 text-red-800 border-red-200',
+  gray: 'bg-gray-100 text-gray-800 border-gray-200',
 }
 
-// Mock data
-const mockEventos: EventoCalendario[] = [
-  {
-    id: '1',
-    titulo: 'Abertura das Inscricoes',
-    descricao: 'Inicio do periodo de inscricao de chapas para a Eleicao Ordinaria 2024',
-    dataInicio: '2024-01-20',
-    dataFim: '2024-02-20',
-    tipo: 'inscricao',
-    eleicaoId: '1',
-    eleicaoNome: 'Eleicao Ordinaria 2024',
-    destaque: true,
-  },
-  {
-    id: '2',
-    titulo: 'Prazo Final para Documentacao',
-    descricao: 'Ultimo dia para entrega de documentos complementares das chapas',
-    dataInicio: '2024-02-25',
-    dataFim: '2024-02-25',
-    tipo: 'prazo',
-    eleicaoId: '1',
-    eleicaoNome: 'Eleicao Ordinaria 2024',
-    destaque: false,
-  },
-  {
-    id: '3',
-    titulo: 'Periodo de Votacao',
-    descricao: 'Votacao online para todos os eleitores aptos',
-    dataInicio: '2024-03-15',
-    dataFim: '2024-03-22',
-    tipo: 'votacao',
-    eleicaoId: '1',
-    eleicaoNome: 'Eleicao Ordinaria 2024',
-    destaque: true,
-  },
-  {
-    id: '4',
-    titulo: 'Apuracao dos Votos',
-    descricao: 'Contagem e validacao dos votos pela Comissao Eleitoral',
-    dataInicio: '2024-03-23',
-    dataFim: '2024-03-25',
-    tipo: 'apuracao',
-    eleicaoId: '1',
-    eleicaoNome: 'Eleicao Ordinaria 2024',
-    destaque: false,
-  },
-  {
-    id: '5',
-    titulo: 'Reuniao da Comissao Eleitoral',
-    descricao: 'Reuniao ordinaria para deliberacao sobre recursos',
-    dataInicio: '2024-03-10',
-    dataFim: '2024-03-10',
-    tipo: 'reuniao',
-    local: 'Sede do CAU/SP - Sala de Reunioes',
-    destaque: false,
-  },
-  {
-    id: '6',
-    titulo: 'Divulgacao do Resultado Oficial',
-    descricao: 'Publicacao do resultado oficial da eleicao',
-    dataInicio: '2024-03-26',
-    dataFim: '2024-03-26',
-    tipo: 'outro',
-    eleicaoId: '1',
-    eleicaoNome: 'Eleicao Ordinaria 2024',
-    destaque: true,
-  },
-]
-
-const tipoConfig = {
-  inscricao: { label: 'Inscricao', color: 'bg-blue-100 text-blue-800 border-blue-200' },
-  votacao: { label: 'Votacao', color: 'bg-green-100 text-green-800 border-green-200' },
-  apuracao: { label: 'Apuracao', color: 'bg-purple-100 text-purple-800 border-purple-200' },
-  prazo: { label: 'Prazo', color: 'bg-red-100 text-red-800 border-red-200' },
-  reuniao: { label: 'Reuniao', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-  outro: { label: 'Evento', color: 'bg-gray-100 text-gray-800 border-gray-200' },
+const getTipoStyle = (tipo: TipoCalendario) => {
+  const color = getTipoCalendarioColor(tipo)
+  return tipoColorMap[color] || tipoColorMap.gray
 }
 
 const meses = [
@@ -113,16 +45,33 @@ export function CalendarioPage() {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [selectedTipo, setSelectedTipo] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
-  const [isLoading] = useState(false)
+  const [eventos, setEventos] = useState<CalendarioEvento[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    loadEventos()
+  }, [])
+
+  const loadEventos = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      const data = await calendarioService.getAll()
+      setEventos(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao carregar calendario')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   // Filter events
-  const filteredEventos = mockEventos.filter(evento => {
+  const filteredEventos = eventos.filter(evento => {
     const eventoDate = new Date(evento.dataInicio)
     const matchesMonth = eventoDate.getMonth() === selectedMonth && eventoDate.getFullYear() === selectedYear
-    const matchesTipo = !selectedTipo || evento.tipo === selectedTipo
+    const matchesTipo = !selectedTipo || evento.tipo.toString() === selectedTipo
 
-    // For list view, show events from selected month
-    // For calendar view, show all events in the year
     if (viewMode === 'list') {
       return matchesMonth && matchesTipo
     }
@@ -158,6 +107,9 @@ export function CalendarioPage() {
     return filteredEventos.filter(evento => {
       const start = new Date(evento.dataInicio)
       const end = new Date(evento.dataFim)
+      start.setHours(0, 0, 0, 0)
+      end.setHours(23, 59, 59, 999)
+      date.setHours(12, 0, 0, 0)
       return date >= start && date <= end
     })
   }
@@ -168,12 +120,10 @@ export function CalendarioPage() {
     const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate()
     const days: (number | null)[] = []
 
-    // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDay; i++) {
       days.push(null)
     }
 
-    // Add days of the month
     for (let i = 1; i <= daysInMonth; i++) {
       days.push(i)
     }
@@ -189,6 +139,36 @@ export function CalendarioPage() {
       </div>
     )
   }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64">
+        <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+        <p className="text-gray-700 font-medium">Erro ao carregar calendario</p>
+        <p className="text-gray-500 text-sm">{error}</p>
+        <button
+          onClick={loadEventos}
+          className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+        >
+          Tentar novamente
+        </button>
+      </div>
+    )
+  }
+
+  // All tipo values for the filter dropdown
+  const tipoValues = [
+    { value: TipoCalendario.INSCRICAO.toString(), label: getTipoCalendarioLabel(TipoCalendario.INSCRICAO) },
+    { value: TipoCalendario.IMPUGNACAO.toString(), label: getTipoCalendarioLabel(TipoCalendario.IMPUGNACAO) },
+    { value: TipoCalendario.DEFESA.toString(), label: getTipoCalendarioLabel(TipoCalendario.DEFESA) },
+    { value: TipoCalendario.JULGAMENTO.toString(), label: getTipoCalendarioLabel(TipoCalendario.JULGAMENTO) },
+    { value: TipoCalendario.RECURSO.toString(), label: getTipoCalendarioLabel(TipoCalendario.RECURSO) },
+    { value: TipoCalendario.PROPAGANDA.toString(), label: getTipoCalendarioLabel(TipoCalendario.PROPAGANDA) },
+    { value: TipoCalendario.VOTACAO.toString(), label: getTipoCalendarioLabel(TipoCalendario.VOTACAO) },
+    { value: TipoCalendario.APURACAO.toString(), label: getTipoCalendarioLabel(TipoCalendario.APURACAO) },
+    { value: TipoCalendario.RESULTADO.toString(), label: getTipoCalendarioLabel(TipoCalendario.RESULTADO) },
+    { value: TipoCalendario.DIPLOMACAO.toString(), label: getTipoCalendarioLabel(TipoCalendario.DIPLOMACAO) },
+  ]
 
   return (
     <div className="space-y-6">
@@ -263,8 +243,8 @@ export function CalendarioPage() {
               className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="">Todos os tipos</option>
-              {Object.entries(tipoConfig).map(([key, config]) => (
-                <option key={key} value={key}>{config.label}</option>
+              {tipoValues.map(t => (
+                <option key={t.value} value={t.value}>{t.label}</option>
               ))}
             </select>
           </div>
@@ -311,7 +291,7 @@ export function CalendarioPage() {
                         {events.slice(0, 2).map(evento => (
                           <div
                             key={evento.id}
-                            className={`text-xs p-1 rounded truncate ${tipoConfig[evento.tipo].color}`}
+                            className={`text-xs p-1 rounded truncate ${getTipoStyle(evento.tipo)}`}
                             title={evento.titulo}
                           >
                             {evento.titulo}
@@ -342,16 +322,16 @@ export function CalendarioPage() {
             </div>
           ) : (
             filteredEventos.map(evento => {
-              const config = tipoConfig[evento.tipo]
               const dataInicio = new Date(evento.dataInicio)
               const dataFim = new Date(evento.dataFim)
-              const isSingleDay = evento.dataInicio === evento.dataFim
+              const isSingleDay = evento.dataInicio.substring(0, 10) === evento.dataFim.substring(0, 10)
+              const isDestaque = evento.obrigatorio
 
               return (
                 <div
                   key={evento.id}
                   className={`bg-white rounded-lg shadow-sm border overflow-hidden ${
-                    evento.destaque ? 'ring-2 ring-primary ring-offset-2' : ''
+                    isDestaque ? 'ring-2 ring-primary ring-offset-2' : ''
                   }`}
                 >
                   <div className="flex">
@@ -368,18 +348,20 @@ export function CalendarioPage() {
                     {/* Content */}
                     <div className="flex-1 p-4">
                       <div className="flex flex-wrap items-start gap-2 mb-2">
-                        <span className={`px-2 py-0.5 text-xs font-medium rounded border ${config.color}`}>
-                          {config.label}
+                        <span className={`px-2 py-0.5 text-xs font-medium rounded border ${getTipoStyle(evento.tipo)}`}>
+                          {getTipoCalendarioLabel(evento.tipo)}
                         </span>
-                        {evento.destaque && (
+                        {isDestaque && (
                           <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded">
-                            Destaque
+                            Obrigatorio
                           </span>
                         )}
                       </div>
 
                       <h3 className="text-lg font-semibold text-gray-900">{evento.titulo}</h3>
-                      <p className="text-gray-600 text-sm mt-1">{evento.descricao}</p>
+                      {evento.descricao && (
+                        <p className="text-gray-600 text-sm mt-1">{evento.descricao}</p>
+                      )}
 
                       <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-500">
                         <div className="flex items-center gap-1">
@@ -423,12 +405,12 @@ export function CalendarioPage() {
       <div className="bg-white p-4 rounded-lg shadow-sm border">
         <h3 className="text-sm font-medium text-gray-700 mb-3">Legenda</h3>
         <div className="flex flex-wrap gap-3">
-          {Object.entries(tipoConfig).map(([key, config]) => (
+          {tipoValues.map(t => (
             <span
-              key={key}
-              className={`px-3 py-1 text-xs font-medium rounded border ${config.color}`}
+              key={t.value}
+              className={`px-3 py-1 text-xs font-medium rounded border ${tipoColorMap[getTipoCalendarioColor(Number(t.value) as TipoCalendario)] || tipoColorMap.gray}`}
             >
-              {config.label}
+              {t.label}
             </span>
           ))}
         </div>

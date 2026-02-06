@@ -66,6 +66,7 @@ public interface ICalendarioService
 
     Task<CalendarioDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<IEnumerable<CalendarioDto>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<CalendarioDto>> GetAllAsync(Guid? eleicaoId, TipoCalendario? tipo, CancellationToken cancellationToken = default);
     Task<IEnumerable<CalendarioDto>> GetByEleicaoAsync(Guid eleicaoId, CancellationToken cancellationToken = default);
     Task<IEnumerable<CalendarioDto>> GetByFaseAsync(FaseEleicao fase, CancellationToken cancellationToken = default);
     Task<IEnumerable<CalendarioDto>> GetByTipoAsync(TipoCalendario tipo, CancellationToken cancellationToken = default);

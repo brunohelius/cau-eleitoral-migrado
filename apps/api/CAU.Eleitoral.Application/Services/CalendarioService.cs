@@ -334,6 +334,27 @@ public class CalendarioService : ICalendarioService
         return calendarios.Select(MapToDto);
     }
 
+    public async Task<IEnumerable<CalendarioDto>> GetAllAsync(Guid? eleicaoId, TipoCalendario? tipo, CancellationToken cancellationToken = default)
+    {
+        var query = _calendarioRepository.Query()
+            .Include(c => c.Eleicao)
+            .Include(c => c.AtividadesPrincipais)
+            .Include(c => c.AtividadesSecundarias)
+            .AsQueryable();
+
+        if (eleicaoId.HasValue)
+            query = query.Where(c => c.EleicaoId == eleicaoId.Value);
+
+        if (tipo.HasValue)
+            query = query.Where(c => c.Tipo == tipo.Value);
+
+        var calendarios = await query
+            .OrderBy(c => c.Ordem)
+            .ToListAsync(cancellationToken);
+
+        return calendarios.Select(MapToDto);
+    }
+
     public async Task<IEnumerable<CalendarioDto>> GetByEleicaoAsync(Guid eleicaoId, CancellationToken cancellationToken = default)
     {
         var calendarios = await _calendarioRepository.Query()

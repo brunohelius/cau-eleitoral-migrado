@@ -179,13 +179,15 @@ export enum TipoAlegacao {
 
 export enum TipoCalendario {
   INSCRICAO = 0,
-  ANALISE_CANDIDATURAS = 1,
-  PROPAGANDA = 2,
-  VOTACAO = 3,
-  APURACAO = 4,
-  DIPLOMACAO = 5,
-  RECURSO = 6,
-  OUTROS = 99,
+  IMPUGNACAO = 1,
+  DEFESA = 2,
+  JULGAMENTO = 3,
+  RECURSO = 4,
+  PROPAGANDA = 5,
+  VOTACAO = 6,
+  APURACAO = 7,
+  RESULTADO = 8,
+  DIPLOMACAO = 9,
 }
 
 export enum StatusCalendario {

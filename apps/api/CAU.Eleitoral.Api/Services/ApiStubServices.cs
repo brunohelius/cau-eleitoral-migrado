@@ -1,7 +1,10 @@
 using CAU.Eleitoral.Api.Controllers;
 using CAU.Eleitoral.Application.DTOs;
+using CAU.Eleitoral.Domain.Entities.Core;
 using CAU.Eleitoral.Domain.Enums;
+using CAU.Eleitoral.Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace CAU.Eleitoral.Api.Services;
 
@@ -218,17 +221,78 @@ public class MembroChapaApiService : Controllers.IMembroChapaService
 // ── CalendarioService ──
 public class CalendarioApiService : Controllers.ICalendarioService
 {
-    public Task<IEnumerable<CalendarioEventoDto>> GetAllAsync(Guid? eleicaoId, TipoCalendario? tipo, CancellationToken ct = default)
-        => Task.FromResult<IEnumerable<CalendarioEventoDto>>(new List<CalendarioEventoDto>());
-    public Task<CalendarioEventoDto?> GetByIdAsync(Guid id, CancellationToken ct = default) => Task.FromResult<CalendarioEventoDto?>(null);
-    public Task<IEnumerable<CalendarioEventoDto>> GetByEleicaoAsync(Guid eleicaoId, CancellationToken ct = default)
-        => Task.FromResult<IEnumerable<CalendarioEventoDto>>(new List<CalendarioEventoDto>());
-    public Task<IEnumerable<CalendarioEventoDto>> GetProximosAsync(int dias, Guid? eleicaoId, CancellationToken ct = default)
-        => Task.FromResult<IEnumerable<CalendarioEventoDto>>(new List<CalendarioEventoDto>());
-    public Task<IEnumerable<CalendarioEventoDto>> GetEmAndamentoAsync(Guid? eleicaoId, CancellationToken ct = default)
-        => Task.FromResult<IEnumerable<CalendarioEventoDto>>(new List<CalendarioEventoDto>());
-    public Task<IEnumerable<CalendarioEventoDto>> GetByPeriodoAsync(DateTime dataInicio, DateTime dataFim, Guid? eleicaoId, CancellationToken ct = default)
-        => Task.FromResult<IEnumerable<CalendarioEventoDto>>(new List<CalendarioEventoDto>());
+    private readonly AppDbContext _db;
+    public CalendarioApiService(AppDbContext db) => _db = db;
+
+    private static CalendarioEventoDto MapToDto(Calendario c) => new()
+    {
+        Id = c.Id,
+        EleicaoId = c.EleicaoId,
+        EleicaoNome = c.Eleicao?.Nome ?? string.Empty,
+        Titulo = c.Nome,
+        Descricao = c.Descricao,
+        Tipo = c.Tipo,
+        Status = c.Status,
+        DataInicio = c.DataInicio,
+        DataFim = c.DataFim,
+        DiaInteiro = !c.HoraInicio.HasValue,
+        Obrigatorio = c.Obrigatorio,
+        CreatedAt = c.CreatedAt,
+        UpdatedAt = c.UpdatedAt
+    };
+
+    public async Task<IEnumerable<CalendarioEventoDto>> GetAllAsync(Guid? eleicaoId, TipoCalendario? tipo, CancellationToken ct = default)
+    {
+        var query = _db.Calendarios.Include(c => c.Eleicao).AsQueryable();
+        if (eleicaoId.HasValue) query = query.Where(c => c.EleicaoId == eleicaoId.Value);
+        if (tipo.HasValue) query = query.Where(c => c.Tipo == tipo.Value);
+        var items = await query.OrderBy(c => c.Ordem).ToListAsync(ct);
+        return items.Select(MapToDto);
+    }
+
+    public async Task<CalendarioEventoDto?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        var c = await _db.Calendarios.Include(x => x.Eleicao).FirstOrDefaultAsync(x => x.Id == id, ct);
+        return c == null ? null : MapToDto(c);
+    }
+
+    public async Task<IEnumerable<CalendarioEventoDto>> GetByEleicaoAsync(Guid eleicaoId, CancellationToken ct = default)
+    {
+        var items = await _db.Calendarios.Include(c => c.Eleicao)
+            .Where(c => c.EleicaoId == eleicaoId).OrderBy(c => c.Ordem).ToListAsync(ct);
+        return items.Select(MapToDto);
+    }
+
+    public async Task<IEnumerable<CalendarioEventoDto>> GetProximosAsync(int dias, Guid? eleicaoId, CancellationToken ct = default)
+    {
+        var hoje = DateTime.UtcNow;
+        var limite = hoje.AddDays(dias);
+        var query = _db.Calendarios.Include(c => c.Eleicao)
+            .Where(c => c.DataInicio >= hoje && c.DataInicio <= limite);
+        if (eleicaoId.HasValue) query = query.Where(c => c.EleicaoId == eleicaoId.Value);
+        var items = await query.OrderBy(c => c.DataInicio).ToListAsync(ct);
+        return items.Select(MapToDto);
+    }
+
+    public async Task<IEnumerable<CalendarioEventoDto>> GetEmAndamentoAsync(Guid? eleicaoId, CancellationToken ct = default)
+    {
+        var hoje = DateTime.UtcNow;
+        var query = _db.Calendarios.Include(c => c.Eleicao)
+            .Where(c => c.DataInicio <= hoje && c.DataFim >= hoje);
+        if (eleicaoId.HasValue) query = query.Where(c => c.EleicaoId == eleicaoId.Value);
+        var items = await query.OrderBy(c => c.Ordem).ToListAsync(ct);
+        return items.Select(MapToDto);
+    }
+
+    public async Task<IEnumerable<CalendarioEventoDto>> GetByPeriodoAsync(DateTime dataInicio, DateTime dataFim, Guid? eleicaoId, CancellationToken ct = default)
+    {
+        var query = _db.Calendarios.Include(c => c.Eleicao)
+            .Where(c => c.DataInicio >= dataInicio && c.DataFim <= dataFim);
+        if (eleicaoId.HasValue) query = query.Where(c => c.EleicaoId == eleicaoId.Value);
+        var items = await query.OrderBy(c => c.DataInicio).ToListAsync(ct);
+        return items.Select(MapToDto);
+    }
+
     public Task<CalendarioEventoDto> CreateAsync(CreateCalendarioEventoDto dto, Guid userId, CancellationToken ct = default) => throw new NotImplementedException();
     public Task<CalendarioEventoDto> UpdateAsync(Guid id, UpdateCalendarioEventoDto dto, CancellationToken ct = default) => throw new NotImplementedException();
     public Task DeleteAsync(Guid id, CancellationToken ct = default) => throw new NotImplementedException();
