@@ -58,3 +58,63 @@ public record ChangePasswordRequestDto
     public string NewPassword { get; init; } = string.Empty;
     public string ConfirmPassword { get; init; } = string.Empty;
 }
+
+// Voter Auth DTOs
+public record VoterVerificationRequestDto
+{
+    public string Cpf { get; init; } = string.Empty;
+    public string RegistroCAU { get; init; } = string.Empty;
+}
+
+public record VoterLoginRequestDto
+{
+    public string Cpf { get; init; } = string.Empty;
+    public string RegistroCAU { get; init; } = string.Empty;
+    public string CodigoVerificacao { get; init; } = string.Empty;
+}
+
+// Candidate Auth DTOs
+public record CandidateLoginRequestDto
+{
+    public string Cpf { get; init; } = string.Empty;
+    public string RegistroCAU { get; init; } = string.Empty;
+    public string Senha { get; init; } = string.Empty;
+}
+
+public record CandidateRegisterRequestDto
+{
+    public string Nome { get; init; } = string.Empty;
+    public string Cpf { get; init; } = string.Empty;
+    public string RegistroCAU { get; init; } = string.Empty;
+    public string Email { get; init; } = string.Empty;
+    public string? Telefone { get; init; }
+    public string Senha { get; init; } = string.Empty;
+    public string ConfirmacaoSenha { get; init; } = string.Empty;
+    public bool AceitouTermos { get; init; }
+}
+
+public record CandidateForgotPasswordRequestDto
+{
+    public string Cpf { get; init; } = string.Empty;
+    public string RegistroCAU { get; init; } = string.Empty;
+}
+
+public record CandidateResetPasswordRequestDto
+{
+    public string Token { get; init; } = string.Empty;
+    public string NovaSenha { get; init; } = string.Empty;
+    public string ConfirmacaoSenha { get; init; } = string.Empty;
+}
+
+public record CandidateChangePasswordRequestDto
+{
+    public string SenhaAtual { get; init; } = string.Empty;
+    public string NovaSenha { get; init; } = string.Empty;
+    public string ConfirmacaoSenha { get; init; } = string.Empty;
+}
+
+public record VerifyTokenRequestDto
+{
+    public string Token { get; init; } = string.Empty;
+    public string Tipo { get; init; } = string.Empty;
+}
