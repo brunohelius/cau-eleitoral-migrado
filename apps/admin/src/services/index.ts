@@ -31,6 +31,10 @@ export type {
 // Julgamentos
 export { julgamentosService } from './julgamentos'
 
+// Calendario
+export { calendarioService } from './calendario'
+export type { CalendarioEvento } from './calendario'
+
 // Usuarios
 export { usuariosService } from './usuarios'
 
@@ -42,6 +46,10 @@ export { relatoriosService } from './relatorios'
 
 // Dashboard
 export { dashboardService } from './dashboard'
+
+// Auditoria
+export { auditoriaService } from './auditoria'
+export type { AuditoriaLog, AuditoriaLogDetalhe, EstatisticasAuditoria, PagedResult } from './auditoria'
 
 // Configuracoes
 export { configuracoesService } from './configuracoes'

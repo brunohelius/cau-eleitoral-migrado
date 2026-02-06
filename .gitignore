@@ -47,6 +47,11 @@ pnpm-debug.log*
 
 # Testing
 coverage/
+test-results/
+test-results-*/
+playwright-report/
+playwright-report-*/
+playwright-report*/
 
 # Misc
 *.bak
@@ -58,4 +63,5 @@ coverage/
 *.tfstate
 *.tfstate.*
 terraform.tfvars
+tfplan
 *.log

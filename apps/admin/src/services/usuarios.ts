@@ -1,60 +1,89 @@
 import api, { mapPagedResponse } from './api'
 
-// Enums
+// Enums matching backend (CAU.Eleitoral.Domain.Enums)
 export enum StatusUsuario {
   ATIVO = 0,
   INATIVO = 1,
-  PENDENTE = 2,
-  BLOQUEADO = 3,
-  SUSPENSO = 4,
+  BLOQUEADO = 2,
+  PENDENTE_CADASTRO = 3,
+  PENDENTE_CONFIRMACAO = 4,
 }
 
 export enum TipoUsuario {
   ADMINISTRADOR = 0,
-  COMISSAO = 1,
-  FISCAL = 2,
-  ANALISTA = 3,
-  AUDITOR = 4,
-  OPERADOR = 5,
+  COMISSAO_ELEITORAL = 1,
+  CONSELHEIRO = 2,
+  PROFISSIONAL = 3,
+  CANDIDATO = 4,
+  ELEITOR = 5,
 }
 
-// Interfaces
-export interface Permissao {
-  id: string
-  nome: string
-  codigo: string
-  descricao?: string
-  modulo: string
-}
-
+// DTO shapes
 export interface Role {
   id: string
   nome: string
-  codigo: string
-  descricao?: string
-  permissoes?: Permissao[]
+  descricao?: string | null
+  ativo?: boolean
+  totalUsuarios?: number
+  permissoes?: string[]
+}
+
+export interface ProfissionalResumo {
+  id: string
+  usuarioId?: string | null
+  registroCAU: string
+  nome: string
+  cpf: string
+  email?: string | null
+  telefone?: string | null
+  tipo: number
+  tipoNome?: string
+  status: number
+  statusNome?: string
+  regionalId?: string | null
+  regionalNome?: string | null
+  eleitorApto?: boolean
+  dataRegistro?: string | null
+  dataUltimaAtualizacao?: string | null
+}
+
+export interface LogAcesso {
+  id: string
+  usuarioId: string
+  ipAddress?: string | null
+  userAgent?: string | null
+  acao?: string | null
+  sucesso: boolean
+  detalhes?: string | null
+  dataAcesso: string
 }
 
 export interface Usuario {
   id: string
   email: string
   nome: string
-  nomeCompleto?: string
-  cpf?: string
-  telefone?: string
-  registroCAU?: string
-  tipo: TipoUsuario
+  nomeCompleto?: string | null
+  cpf?: string | null
+  telefone?: string | null
   status: StatusUsuario
-  avatarUrl?: string
-  regionalId?: string
-  regionalNome?: string
-  roles: Role[]
-  permissoes?: string[]
-  ultimoAcesso?: string
-  emailVerificado: boolean
-  doisFatoresAtivo: boolean
+  statusNome?: string
+  tipo: TipoUsuario
+  tipoNome?: string
+  ultimoAcesso?: string | null
+  emailConfirmado: boolean
+  doisFatoresHabilitado: boolean
+  roles: string[]
   createdAt: string
-  updatedAt?: string
+  updatedAt?: string | null
+}
+
+export interface UsuarioDetail extends Usuario {
+  rolesDetail: Role[]
+  ultimaTrocaSenha?: string | null
+  tentativasLogin: number
+  bloqueadoAte?: string | null
+  profissional?: ProfissionalResumo | null
+  ultimosAcessos?: LogAcesso[]
 }
 
 export interface CreateUsuarioRequest {
@@ -63,42 +92,25 @@ export interface CreateUsuarioRequest {
   nomeCompleto?: string
   cpf?: string
   telefone?: string
-  registroCAU?: string
+  password: string
   tipo: TipoUsuario
-  regionalId?: string
-  roles: string[]
-  password?: string
-  enviarEmailBoasVindas?: boolean
+  roles?: string[]
+  enviarEmailConfirmacao?: boolean
 }
 
 export interface UpdateUsuarioRequest {
   nome?: string
   nomeCompleto?: string
-  cpf?: string
   telefone?: string
-  registroCAU?: string
   tipo?: TipoUsuario
-  regionalId?: string
-  avatarUrl?: string
-}
-
-export interface UpdateSenhaRequest {
-  senhaAtual: string
-  novaSenha: string
-  confirmacaoSenha: string
-}
-
-export interface ResetSenhaAdminRequest {
-  novaSenha?: string
-  enviarEmail?: boolean
+  roles?: string[]
 }
 
 export interface UsuarioListParams {
   tipo?: TipoUsuario
   status?: StatusUsuario
-  regionalId?: string
-  role?: string
   search?: string
+  role?: string
   page?: number
   pageSize?: number
 }
@@ -111,19 +123,7 @@ export interface PaginatedResponse<T> {
   totalPages: number
 }
 
-export interface LogAtividade {
-  id: string
-  usuarioId: string
-  acao: string
-  descricao: string
-  ip?: string
-  userAgent?: string
-  metadata?: Record<string, unknown>
-  createdAt: string
-}
-
 export const usuariosService = {
-  // CRUD Operations
   getAll: async (params?: UsuarioListParams): Promise<PaginatedResponse<Usuario>> => {
     const response = await api.get('/usuario/paged', { params })
     return mapPagedResponse<Usuario>(response.data)
@@ -134,18 +134,8 @@ export const usuariosService = {
     return response.data
   },
 
-  getByEmail: async (email: string): Promise<Usuario> => {
-    const response = await api.get<Usuario>(`/usuario/email/${email}`)
-    return response.data
-  },
-
-  getByCpf: async (cpf: string): Promise<Usuario> => {
-    const response = await api.get<Usuario>(`/usuario/cpf/${cpf}`)
-    return response.data
-  },
-
-  getByRegistroCAU: async (registro: string): Promise<Usuario> => {
-    const response = await api.get<Usuario>(`/usuario/registro-cau/${registro}`)
+  getByIdDetailed: async (id: string): Promise<UsuarioDetail> => {
+    const response = await api.get<UsuarioDetail>(`/usuario/${id}/detail`)
     return response.data
   },
 
@@ -163,157 +153,33 @@ export const usuariosService = {
     await api.delete(`/usuario/${id}`)
   },
 
-  // Status Operations
   ativar: async (id: string): Promise<Usuario> => {
-    const response = await api.post<Usuario>(`/usuario/${id}/ativar`)
+    const response = await api.post<Usuario>(`/usuario/${id}/activate`)
     return response.data
   },
 
-  inativar: async (id: string, motivo?: string): Promise<Usuario> => {
-    const response = await api.post<Usuario>(`/usuario/${id}/inativar`, { motivo })
+  inativar: async (id: string): Promise<Usuario> => {
+    const response = await api.post<Usuario>(`/usuario/${id}/deactivate`)
     return response.data
   },
 
-  bloquear: async (id: string, motivo: string): Promise<Usuario> => {
-    const response = await api.post<Usuario>(`/usuario/${id}/bloquear`, { motivo })
+  bloquear: async (id: string): Promise<Usuario> => {
+    const response = await api.post<Usuario>(`/usuario/${id}/block`)
     return response.data
   },
 
   desbloquear: async (id: string): Promise<Usuario> => {
-    const response = await api.post<Usuario>(`/usuario/${id}/desbloquear`)
+    const response = await api.post<Usuario>(`/usuario/${id}/unblock`)
     return response.data
   },
 
-  suspender: async (id: string, motivo: string, dataFim?: string): Promise<Usuario> => {
-    const response = await api.post<Usuario>(`/usuario/${id}/suspender`, { motivo, dataFim })
+  resetarSenha: async (id: string, newPassword: string): Promise<Usuario> => {
+    const response = await api.post<Usuario>(`/usuario/${id}/reset-password`, { newPassword })
     return response.data
   },
 
-  // Password Operations
-  alterarSenha: async (id: string, data: UpdateSenhaRequest): Promise<void> => {
-    await api.post(`/usuario/${id}/alterar-senha`, data)
-  },
-
-  resetarSenha: async (id: string, data?: ResetSenhaAdminRequest): Promise<{ tempPassword?: string }> => {
-    const response = await api.post(`/usuario/${id}/resetar-senha`, data)
-    return response.data
-  },
-
-  // Roles & Permissions Operations
   getRoles: async (): Promise<Role[]> => {
     const response = await api.get<Role[]>('/usuario/roles')
-    return response.data
-  },
-
-  getPermissoes: async (): Promise<Permissao[]> => {
-    const response = await api.get<Permissao[]>('/usuario/permissoes')
-    return response.data
-  },
-
-  atribuirRoles: async (id: string, roles: string[]): Promise<Usuario> => {
-    const response = await api.post<Usuario>(`/usuario/${id}/roles`, { roles })
-    return response.data
-  },
-
-  removerRole: async (id: string, roleId: string): Promise<Usuario> => {
-    const response = await api.delete<Usuario>(`/usuario/${id}/roles/${roleId}`)
-    return response.data
-  },
-
-  atribuirPermissoes: async (id: string, permissoes: string[]): Promise<Usuario> => {
-    const response = await api.post<Usuario>(`/usuario/${id}/permissoes`, { permissoes })
-    return response.data
-  },
-
-  // Avatar Operations
-  uploadAvatar: async (id: string, arquivo: File): Promise<{ avatarUrl: string }> => {
-    const formData = new FormData()
-    formData.append('arquivo', arquivo)
-
-    const response = await api.post<{ avatarUrl: string }>(`/usuario/${id}/avatar`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
-    return response.data
-  },
-
-  removeAvatar: async (id: string): Promise<void> => {
-    await api.delete(`/usuario/${id}/avatar`)
-  },
-
-  // Two-Factor Auth Operations
-  ativar2FA: async (id: string): Promise<{ qrCode: string; secret: string }> => {
-    const response = await api.post(`/usuario/${id}/2fa/ativar`)
-    return response.data
-  },
-
-  confirmar2FA: async (id: string, codigo: string): Promise<void> => {
-    await api.post(`/usuario/${id}/2fa/confirmar`, { codigo })
-  },
-
-  desativar2FA: async (id: string, codigo: string): Promise<void> => {
-    await api.post(`/usuario/${id}/2fa/desativar`, { codigo })
-  },
-
-  // Activity Log
-  getAtividades: async (id: string, params?: {
-    dataInicio?: string
-    dataFim?: string
-    page?: number
-    pageSize?: number
-  }): Promise<PaginatedResponse<LogAtividade>> => {
-    const response = await api.get<PaginatedResponse<LogAtividade>>(`/usuario/${id}/atividades`, { params })
-    return response.data
-  },
-
-  // Email Verification
-  enviarVerificacaoEmail: async (id: string): Promise<void> => {
-    await api.post(`/usuario/${id}/enviar-verificacao`)
-  },
-
-  verificarEmail: async (token: string): Promise<void> => {
-    await api.post('/usuario/verificar-email', { token })
-  },
-
-  // Statistics
-  getEstatisticas: async (): Promise<{
-    total: number
-    ativos: number
-    inativos: number
-    pendentes: number
-    bloqueados: number
-    porTipo: Record<string, number>
-    porRegional: Record<string, number>
-  }> => {
-    const response = await api.get('/usuario/estatisticas')
-    return response.data
-  },
-
-  // Export
-  exportar: async (params?: UsuarioListParams & { formato?: 'xlsx' | 'csv' }): Promise<Blob> => {
-    const response = await api.get('/usuario/exportar', {
-      params,
-      responseType: 'blob',
-    })
-    return response.data
-  },
-
-  // Import
-  importar: async (arquivo: File, opcoes?: {
-    atualizarExistentes?: boolean
-    enviarEmailBoasVindas?: boolean
-  }): Promise<{
-    sucesso: number
-    erros: { linha: number; erro: string }[]
-  }> => {
-    const formData = new FormData()
-    formData.append('arquivo', arquivo)
-    if (opcoes) {
-      formData.append('opcoes', JSON.stringify(opcoes))
-    }
-
-    const response = await api.post('/usuario/importar', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
     return response.data
   },
 }

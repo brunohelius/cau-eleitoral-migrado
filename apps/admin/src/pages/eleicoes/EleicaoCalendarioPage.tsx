@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { ArrowLeft, Calendar, Plus, Edit, Trash2, Loader2, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
 import { eleicoesService } from '@/services/eleicoes'
+import api from '@/services/api'
 
 interface EventoCalendario {
   id: string
@@ -29,10 +30,30 @@ const tiposEvento = [
   { value: 'diplomacao', label: 'Diplomacao', cor: 'bg-indigo-500' },
 ]
 
+const mapTipoCalendario = (tipo: number): { value: string; cor: string } => {
+  switch (tipo) {
+    case 0: return { value: 'inscricao', cor: 'bg-blue-500' }
+    case 1: return { value: 'impugnacao', cor: 'bg-orange-500' }
+    case 2: return { value: 'campanha', cor: 'bg-green-500' }
+    case 3: return { value: 'votacao', cor: 'bg-purple-500' }
+    case 4: return { value: 'apuracao', cor: 'bg-red-500' }
+    case 5: return { value: 'recurso', cor: 'bg-yellow-500' }
+    case 6: return { value: 'diplomacao', cor: 'bg-indigo-500' }
+    default: return { value: 'inscricao', cor: 'bg-gray-500' }
+  }
+}
+
+const mapTipoToIndex = (tipo: string): number => {
+  const map: Record<string, number> = {
+    inscricao: 0, impugnacao: 1, campanha: 2, votacao: 3,
+    apuracao: 4, recurso: 5, diplomacao: 6,
+  }
+  return map[tipo] ?? 0
+}
+
 export function EleicaoCalendarioPage() {
   const { id } = useParams<{ id: string }>()
   const { toast } = useToast()
-  // const queryClient = useQueryClient()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingEvento, setEditingEvento] = useState<EventoCalendario | null>(null)
   const [formData, setFormData] = useState({
@@ -49,45 +70,30 @@ export function EleicaoCalendarioPage() {
     enabled: !!id,
   })
 
-  // Mock eventos - em producao viria da API
-  const [eventos, setEventos] = useState<EventoCalendario[]>([
-    {
-      id: '1',
-      titulo: 'Inscricao de Chapas',
-      descricao: 'Periodo para inscricao de chapas',
-      dataInicio: '2024-03-01',
-      dataFim: '2024-03-15',
-      tipo: 'inscricao',
-      cor: 'bg-blue-500',
+  const { data: eventos = [], isLoading: isLoadingEventos, refetch: refetchEventos } = useQuery({
+    queryKey: ['calendario', id],
+    queryFn: async () => {
+      try {
+        const response = await api.get('/calendario', { params: { eleicaoId: id } })
+        const apiData = Array.isArray(response.data) ? response.data : []
+        return apiData.map((e: any) => {
+          const tipoInfo = mapTipoCalendario(e.tipo)
+          return {
+            id: e.id,
+            titulo: e.titulo,
+            descricao: e.descricao,
+            dataInicio: e.dataInicio?.split('T')[0] || '',
+            dataFim: e.dataFim?.split('T')[0] || '',
+            tipo: tipoInfo.value,
+            cor: tipoInfo.cor,
+          }
+        }) as EventoCalendario[]
+      } catch {
+        return [] as EventoCalendario[]
+      }
     },
-    {
-      id: '2',
-      titulo: 'Prazo de Impugnacao',
-      descricao: 'Periodo para apresentacao de impugnacoes',
-      dataInicio: '2024-03-16',
-      dataFim: '2024-03-20',
-      tipo: 'impugnacao',
-      cor: 'bg-orange-500',
-    },
-    {
-      id: '3',
-      titulo: 'Campanha Eleitoral',
-      descricao: 'Periodo de campanha',
-      dataInicio: '2024-03-21',
-      dataFim: '2024-04-10',
-      tipo: 'campanha',
-      cor: 'bg-green-500',
-    },
-    {
-      id: '4',
-      titulo: 'Votacao',
-      descricao: 'Periodo de votacao',
-      dataInicio: '2024-04-11',
-      dataFim: '2024-04-12',
-      tipo: 'votacao',
-      cor: 'bg-purple-500',
-    },
-  ])
+    enabled: !!id,
+  })
 
   const handleOpenModal = (evento?: EventoCalendario) => {
     if (evento) {
@@ -117,45 +123,63 @@ export function EleicaoCalendarioPage() {
     setEditingEvento(null)
   }
 
-  const handleSaveEvento = () => {
-    const tipoInfo = tiposEvento.find((t) => t.value === formData.tipo)
-
-    if (editingEvento) {
-      setEventos((prev) =>
-        prev.map((e) =>
-          e.id === editingEvento.id
-            ? { ...e, ...formData, cor: tipoInfo?.cor || 'bg-gray-500' }
-            : e
-        )
-      )
-      toast({
-        title: 'Evento atualizado',
-        description: 'O evento foi atualizado com sucesso.',
-      })
-    } else {
-      const novoEvento: EventoCalendario = {
-        id: Date.now().toString(),
-        ...formData,
-        cor: tipoInfo?.cor || 'bg-gray-500',
+  const handleSaveEvento = async () => {
+    try {
+      if (editingEvento) {
+        await api.put(`/calendario/${editingEvento.id}`, {
+          titulo: formData.titulo,
+          descricao: formData.descricao || undefined,
+          tipo: mapTipoToIndex(formData.tipo),
+          dataInicio: formData.dataInicio,
+          dataFim: formData.dataFim,
+        })
+        toast({
+          title: 'Evento atualizado',
+          description: 'O evento foi atualizado com sucesso.',
+        })
+      } else {
+        await api.post('/calendario', {
+          eleicaoId: id,
+          titulo: formData.titulo,
+          descricao: formData.descricao || undefined,
+          tipo: mapTipoToIndex(formData.tipo),
+          dataInicio: formData.dataInicio,
+          dataFim: formData.dataFim,
+        })
+        toast({
+          title: 'Evento adicionado',
+          description: 'O evento foi adicionado ao calendario.',
+        })
       }
-      setEventos((prev) => [...prev, novoEvento])
+      refetchEventos()
+    } catch {
       toast({
-        title: 'Evento adicionado',
-        description: 'O evento foi adicionado ao calendario.',
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Erro ao salvar evento.',
       })
     }
     handleCloseModal()
   }
 
-  const handleDeleteEvento = (eventoId: string) => {
-    setEventos((prev) => prev.filter((e) => e.id !== eventoId))
-    toast({
-      title: 'Evento removido',
-      description: 'O evento foi removido do calendario.',
-    })
+  const handleDeleteEvento = async (eventoId: string) => {
+    try {
+      await api.delete(`/calendario/${eventoId}`)
+      toast({
+        title: 'Evento removido',
+        description: 'O evento foi removido do calendario.',
+      })
+      refetchEventos()
+    } catch {
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Erro ao remover evento.',
+      })
+    }
   }
 
-  if (isLoadingEleicao) {
+  if (isLoadingEleicao || isLoadingEventos) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-gray-400" />

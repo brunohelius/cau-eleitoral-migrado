@@ -1,8 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 // Full system tests for CAU Sistema Eleitoral
-const BASE_URL = 'https://cau-admin.migrai.com.br';
-const API_URL = 'https://cau-api.migrai.com.br';
+const API_URL = process.env.PLAYWRIGHT_API_URL || 'http://localhost:5001';
 
 const ADMIN_CREDENTIALS = {
   email: 'admin@cau.org.br',
@@ -13,14 +12,14 @@ test.describe('CAU Sistema Eleitoral - Full System Tests', () => {
 
   test.describe('Authentication', () => {
     test('should display login page', async ({ page }) => {
-      await page.goto(`${BASE_URL}/login`);
+      await page.goto('/login');
       await expect(page.getByRole('heading', { name: /entrar/i })).toBeVisible();
       await expect(page.getByLabel(/email/i)).toBeVisible();
       await expect(page.getByLabel(/senha/i)).toBeVisible();
     });
 
     test('should show error with invalid credentials', async ({ page }) => {
-      await page.goto(`${BASE_URL}/login`);
+      await page.goto('/login');
       await page.getByLabel(/email/i).fill('invalid@email.com');
       await page.getByLabel(/senha/i).fill('wrongpassword');
       await page.getByRole('button', { name: /entrar/i }).click();
@@ -30,7 +29,7 @@ test.describe('CAU Sistema Eleitoral - Full System Tests', () => {
     });
 
     test('should login successfully with valid credentials', async ({ page }) => {
-      await page.goto(`${BASE_URL}/login`);
+      await page.goto('/login');
       await page.getByLabel(/email/i).fill(ADMIN_CREDENTIALS.email);
       await page.getByLabel(/senha/i).fill(ADMIN_CREDENTIALS.password);
       await page.getByRole('button', { name: /entrar/i }).click();
@@ -43,7 +42,7 @@ test.describe('CAU Sistema Eleitoral - Full System Tests', () => {
   test.describe('Dashboard', () => {
     test.beforeEach(async ({ page }) => {
       // Login before each test
-      await page.goto(`${BASE_URL}/login`);
+      await page.goto('/login');
       await page.getByLabel(/email/i).fill(ADMIN_CREDENTIALS.email);
       await page.getByLabel(/senha/i).fill(ADMIN_CREDENTIALS.password);
       await page.getByRole('button', { name: /entrar/i }).click();
@@ -63,7 +62,7 @@ test.describe('CAU Sistema Eleitoral - Full System Tests', () => {
 
   test.describe('Elections (Eleições)', () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto(`${BASE_URL}/login`);
+      await page.goto('/login');
       await page.getByLabel(/email/i).fill(ADMIN_CREDENTIALS.email);
       await page.getByLabel(/senha/i).fill(ADMIN_CREDENTIALS.password);
       await page.getByRole('button', { name: /entrar/i }).click();
@@ -77,7 +76,7 @@ test.describe('CAU Sistema Eleitoral - Full System Tests', () => {
     });
 
     test('should display list of elections', async ({ page }) => {
-      await page.goto(`${BASE_URL}/eleicoes`);
+      await page.goto('/eleicoes');
       await page.waitForLoadState('networkidle');
       // Should show elections heading (uses "Eleicoes" without accents)
       await expect(page.getByRole('heading', { name: /eleicoes/i })).toBeVisible({ timeout: 15000 });
@@ -86,7 +85,7 @@ test.describe('CAU Sistema Eleitoral - Full System Tests', () => {
 
   test.describe('Slates (Chapas)', () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto(`${BASE_URL}/login`);
+      await page.goto('/login');
       await page.getByLabel(/email/i).fill(ADMIN_CREDENTIALS.email);
       await page.getByLabel(/senha/i).fill(ADMIN_CREDENTIALS.password);
       await page.getByRole('button', { name: /entrar/i }).click();
@@ -147,7 +146,11 @@ test.describe('CAU Sistema Eleitoral - Full System Tests', () => {
         }
       });
       expect(response.ok()).toBeTruthy();
-      const slates = await response.json();
+      const payload = await response.json();
+      const slates = Array.isArray(payload)
+        ? payload
+        : payload?.items ?? payload?.data ?? payload?.results ?? payload?.value;
+
       expect(Array.isArray(slates)).toBeTruthy();
     });
   });

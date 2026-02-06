@@ -37,13 +37,19 @@ const usuarioSchema = z.object({
   nome: z.string().min(3, 'Nome deve ter no minimo 3 caracteres'),
   nomeCompleto: z.string().optional(),
   email: z.string().email('Email invalido'),
-  cpf: z.string().min(11, 'CPF invalido').max(14, 'CPF invalido'),
+  cpf: z
+    .string()
+    .optional()
+    .or(z.literal(''))
+    .refine((value) => {
+      if (!value) return true
+      const cleaned = value.replace(/\D/g, '')
+      return cleaned.length === 11
+    }, 'CPF invalido'),
   telefone: z.string().optional(),
-  registroCAU: z.string().optional(),
   tipo: z.nativeEnum(TipoUsuario),
-  regionalId: z.string().optional(),
   roles: z.array(z.string()).min(1, 'Selecione pelo menos um perfil'),
-  password: z.string().min(6, 'Senha deve ter no minimo 6 caracteres').optional(),
+  password: z.string().min(8, 'Senha deve ter no minimo 8 caracteres').optional(),
   confirmarSenha: z.string().optional(),
   enviarEmailBoasVindas: z.boolean().default(true),
 }).refine((data) => {
@@ -61,20 +67,11 @@ type UsuarioFormData = z.infer<typeof usuarioSchema>
 // Tipo de usuario options
 const tiposUsuario = [
   { value: TipoUsuario.ADMINISTRADOR, label: 'Administrador', descricao: 'Acesso total ao sistema' },
-  { value: TipoUsuario.COMISSAO, label: 'Comissao Eleitoral', descricao: 'Gerencia eleicoes e julgamentos' },
-  { value: TipoUsuario.FISCAL, label: 'Fiscal', descricao: 'Acompanha o processo eleitoral' },
-  { value: TipoUsuario.ANALISTA, label: 'Analista', descricao: 'Analisa dados e gera relatorios' },
-  { value: TipoUsuario.AUDITOR, label: 'Auditor', descricao: 'Acesso aos logs e auditoria' },
-  { value: TipoUsuario.OPERADOR, label: 'Operador', descricao: 'Operacoes basicas do sistema' },
-]
-
-// Mock roles for development
-const mockRoles: Role[] = [
-  { id: '1', nome: 'Administrador', codigo: 'admin', descricao: 'Acesso total ao sistema' },
-  { id: '2', nome: 'Comissao Eleitoral', codigo: 'comissao', descricao: 'Gerencia eleicoes' },
-  { id: '3', nome: 'Fiscal', codigo: 'fiscal', descricao: 'Fiscaliza o processo' },
-  { id: '4', nome: 'Auditor', codigo: 'auditor', descricao: 'Auditoria e relatorios' },
-  { id: '5', nome: 'Operador', codigo: 'operador', descricao: 'Operacoes basicas' },
+  { value: TipoUsuario.COMISSAO_ELEITORAL, label: 'Comissao Eleitoral', descricao: 'Gerencia eleicoes e julgamentos' },
+  { value: TipoUsuario.CONSELHEIRO, label: 'Conselheiro', descricao: 'Atua nos julgamentos e comissoes' },
+  { value: TipoUsuario.PROFISSIONAL, label: 'Profissional', descricao: 'Usuario profissional registrado no CAU' },
+  { value: TipoUsuario.CANDIDATO, label: 'Candidato', descricao: 'Usuario candidato em uma eleicao' },
+  { value: TipoUsuario.ELEITOR, label: 'Eleitor', descricao: 'Usuario apto a votar na eleicao' },
 ]
 
 // Format CPF for display
@@ -104,7 +101,13 @@ export function UsuarioFormPage() {
   const [showPassword, setShowPassword] = useState(false)
 
   // Fetch roles
-  const { data: roles = mockRoles } = useQuery({
+  const {
+    data: roles = [],
+    isLoading: isLoadingRoles,
+    isError: isRolesError,
+    error: rolesError,
+    refetch: refetchRoles,
+  } = useQuery({
     queryKey: ['roles'],
     queryFn: () => usuariosService.getRoles(),
   })
@@ -126,7 +129,7 @@ export function UsuarioFormPage() {
   } = useForm<UsuarioFormData>({
     resolver: zodResolver(usuarioSchema),
     defaultValues: {
-      tipo: TipoUsuario.OPERADOR,
+      tipo: TipoUsuario.PROFISSIONAL,
       roles: [],
       enviarEmailBoasVindas: true,
     },
@@ -147,10 +150,8 @@ export function UsuarioFormPage() {
         email: usuario.email,
         cpf: usuario.cpf || '',
         telefone: usuario.telefone || '',
-        registroCAU: usuario.registroCAU || '',
         tipo: usuario.tipo,
-        regionalId: usuario.regionalId || '',
-        roles: usuario.roles.map((r) => r.id),
+        roles: usuario.roles,
         enviarEmailBoasVindas: false,
       })
     }
@@ -169,12 +170,12 @@ export function UsuarioFormPage() {
   }
 
   // Handle role toggle
-  const handleRoleToggle = (roleId: string) => {
+  const handleRoleToggle = (roleName: string) => {
     const current = selectedRoles || []
-    if (current.includes(roleId)) {
-      setValue('roles', current.filter((r) => r !== roleId))
+    if (current.includes(roleName)) {
+      setValue('roles', current.filter((r) => r !== roleName))
     } else {
-      setValue('roles', [...current, roleId])
+      setValue('roles', [...current, roleName])
     }
   }
 
@@ -219,14 +220,6 @@ export function UsuarioFormPage() {
     },
   })
 
-  // Update roles mutation
-  const updateRolesMutation = useMutation({
-    mutationFn: (roleIds: string[]) => usuariosService.atribuirRoles(id!, roleIds),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['usuario', id] })
-    },
-  })
-
   const onSubmit = async (data: UsuarioFormData) => {
     // Remove confirmarSenha before sending
     const { confirmarSenha, ...submitData } = data
@@ -239,14 +232,14 @@ export function UsuarioFormPage() {
     }
 
     if (isEditing) {
-      // Update user data
-      const { roles: roleIds, password, enviarEmailBoasVindas, ...updateData } = cleanedData
-      await updateMutation.mutateAsync(updateData)
-
-      // Update roles if changed
-      if (roleIds && roleIds.length > 0) {
-        await updateRolesMutation.mutateAsync(roleIds)
+      const updateData: UpdateUsuarioRequest = {
+        nome: cleanedData.nome,
+        nomeCompleto: cleanedData.nomeCompleto || undefined,
+        telefone: cleanedData.telefone || undefined,
+        tipo: cleanedData.tipo,
+        roles: cleanedData.roles,
       }
+      await updateMutation.mutateAsync(updateData)
     } else {
       // Create new user
       if (!cleanedData.password) {
@@ -257,7 +250,18 @@ export function UsuarioFormPage() {
         })
         return
       }
-      createMutation.mutate(cleanedData as CreateUsuarioRequest)
+      const createData: CreateUsuarioRequest = {
+        email: cleanedData.email,
+        nome: cleanedData.nome,
+        nomeCompleto: cleanedData.nomeCompleto || undefined,
+        cpf: cleanedData.cpf || undefined,
+        telefone: cleanedData.telefone || undefined,
+        password: cleanedData.password,
+        tipo: cleanedData.tipo,
+        roles: cleanedData.roles,
+        enviarEmailConfirmacao: cleanedData.enviarEmailBoasVindas,
+      }
+      createMutation.mutate(createData)
     }
   }
 
@@ -324,27 +328,20 @@ export function UsuarioFormPage() {
                 </div>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="cpf">CPF *</Label>
+                  <Label htmlFor="cpf">CPF</Label>
                   <Input
                     id="cpf"
                     placeholder="000.000.000-00"
                     value={cpfValue || ''}
                     onChange={handleCPFChange}
                     maxLength={14}
+                    disabled={isEditing}
                   />
                   {errors.cpf && (
                     <p className="text-sm text-red-500">{errors.cpf.message}</p>
                   )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="registroCAU">Registro CAU</Label>
-                  <Input
-                    id="registroCAU"
-                    placeholder="A000000-UF"
-                    {...register('registroCAU')}
-                  />
                 </div>
               </div>
             </CardContent>
@@ -368,6 +365,7 @@ export function UsuarioFormPage() {
                     type="email"
                     placeholder="usuario@email.com"
                     {...register('email')}
+                    disabled={isEditing}
                   />
                   {errors.email && (
                     <p className="text-sm text-red-500">{errors.email.message}</p>
@@ -436,36 +434,67 @@ export function UsuarioFormPage() {
               <CardDescription>Selecione os perfis que definem as permissoes do usuario</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-3 sm:grid-cols-2">
-                {roles.map((role) => (
-                  <label
-                    key={role.id}
-                    className={`flex items-center gap-4 rounded-lg border p-4 cursor-pointer transition-colors ${
-                      selectedRoles?.includes(role.id)
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'hover:bg-gray-50'
-                    }`}
+              {isLoadingRoles && (
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Carregando perfis...</span>
+                </div>
+              )}
+
+              {isRolesError && (
+                <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                  <p className="font-medium">Erro ao carregar perfis de acesso</p>
+                  <p className="mt-1 text-red-600">
+                    {rolesError instanceof Error ? rolesError.message : 'Tente novamente mais tarde.'}
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-3"
+                    onClick={() => refetchRoles()}
                   >
-                    <input
-                      type="checkbox"
-                      checked={selectedRoles?.includes(role.id) || false}
-                      onChange={() => handleRoleToggle(role.id)}
-                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium">{role.nome}</p>
-                        {selectedRoles?.includes(role.id) && (
-                          <CheckCircle className="h-4 w-4 text-blue-500" />
+                    Tentar novamente
+                  </Button>
+                </div>
+              )}
+
+              {!isLoadingRoles && !isRolesError && roles.length === 0 && (
+                <p className="text-sm text-gray-500">Nenhum perfil encontrado.</p>
+              )}
+
+              {!isLoadingRoles && !isRolesError && roles.length > 0 && (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {roles.map((role) => (
+                    <label
+                      key={role.id}
+                      className={`flex items-center gap-4 rounded-lg border p-4 cursor-pointer transition-colors ${
+                        selectedRoles?.includes(role.nome)
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'hover:bg-gray-50'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedRoles?.includes(role.nome) || false}
+                        onChange={() => handleRoleToggle(role.nome)}
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">{role.nome}</p>
+                          {selectedRoles?.includes(role.nome) && (
+                            <CheckCircle className="h-4 w-4 text-blue-500" />
+                          )}
+                        </div>
+                        {role.descricao && (
+                          <p className="text-sm text-gray-500">{role.descricao}</p>
                         )}
                       </div>
-                      {role.descricao && (
-                        <p className="text-sm text-gray-500">{role.descricao}</p>
-                      )}
-                    </div>
-                  </label>
-                ))}
-              </div>
+                    </label>
+                  ))}
+                </div>
+              )}
               {errors.roles && (
                 <p className="text-sm text-red-500">{errors.roles.message}</p>
               )}

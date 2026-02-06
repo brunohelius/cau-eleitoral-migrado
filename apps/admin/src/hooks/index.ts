@@ -71,31 +71,4 @@ export {
 } from './use-denuncias'
 
 // Usuarios
-export * from './use-usuarios'
-export {
-  useUsuarios,
-  useUsuario,
-  useUsuarioByEmail,
-  useUsuarioByCpf,
-  useUsuarioByRegistroCAU,
-  useRoles,
-  usePermissoes,
-  useUsuarioAtividades,
-  useEstatisticasUsuarios,
-  useCreateUsuario,
-  useUpdateUsuario,
-  useDeleteUsuario,
-  useAtivarUsuario,
-  useInativarUsuario,
-  useBloquearUsuario,
-  useDesbloquearUsuario,
-  useResetarSenhaUsuario,
-  useAtribuirRolesUsuario,
-  useUploadAvatarUsuario,
-  useAtivar2FAUsuario,
-  useExportarUsuarios,
-  useImportarUsuarios,
-  useUsuarioLabels,
-  usePrefetchUsuario,
-  usuarioKeys,
-} from './use-usuarios'
+// (Removed unused usuario hooks; use pages/services directly)

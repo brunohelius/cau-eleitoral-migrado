@@ -6,7 +6,6 @@ import {
   Download,
   Filter,
   User,
-  Calendar,
   Clock,
   AlertTriangle,
   CheckCircle,
@@ -20,6 +19,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
+import api from '@/services/api'
 
 interface LogAuditoria {
   id: string
@@ -43,111 +43,44 @@ export function AuditoriaPage() {
   const [dataFim, setDataFim] = useState('')
   const [selectedLog, setSelectedLog] = useState<LogAuditoria | null>(null)
 
-  // Mock dados - em producao viria da API
   const { data: logs, isLoading, refetch } = useQuery({
     queryKey: ['auditoria', filterNivel, filterEntidade, dataInicio, dataFim],
     queryFn: async () => {
-      return [
-        {
-          id: '1',
-          data: '2024-02-20T15:30:00',
-          usuario: 'Carlos Silva',
-          usuarioId: 'usr-001',
-          acao: 'Login realizado',
-          entidade: 'auth',
-          ip: '192.168.1.100',
-          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/121.0.0.0',
-          nivel: 'info',
-        },
-        {
-          id: '2',
-          data: '2024-02-20T15:25:00',
-          usuario: 'Maria Santos',
-          usuarioId: 'usr-002',
-          acao: 'Eleicao editada',
-          entidade: 'eleicao',
-          entidadeId: 'ele-001',
-          ip: '192.168.1.101',
-          userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15',
-          nivel: 'success',
-          detalhes: 'Alterado: nome, data de inicio',
-        },
-        {
-          id: '3',
-          data: '2024-02-20T15:20:00',
-          usuario: 'Sistema',
-          usuarioId: 'system',
-          acao: 'Tentativa de acesso negada',
-          entidade: 'auth',
-          ip: '203.0.113.42',
-          userAgent: 'curl/7.68.0',
-          nivel: 'warning',
-          detalhes: 'Tentativa de login com credenciais invalidas para usuario: admin@cau.org.br',
-        },
-        {
-          id: '4',
-          data: '2024-02-20T15:15:00',
-          usuario: 'Pedro Almeida',
-          usuarioId: 'usr-003',
-          acao: 'Usuario criado',
-          entidade: 'usuario',
-          entidadeId: 'usr-010',
-          ip: '192.168.1.102',
-          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Firefox/122.0',
-          nivel: 'success',
-          detalhes: 'Novo usuario: joao.teste@cau.org.br',
-        },
-        {
-          id: '5',
-          data: '2024-02-20T15:10:00',
-          usuario: 'Carlos Silva',
-          usuarioId: 'usr-001',
-          acao: 'Chapa aprovada',
-          entidade: 'chapa',
-          entidadeId: 'chp-001',
-          ip: '192.168.1.100',
-          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/121.0.0.0',
-          nivel: 'success',
-          detalhes: 'Chapa Renovacao aprovada para Eleicao CAU/SP 2024',
-        },
-        {
-          id: '6',
-          data: '2024-02-20T15:05:00',
-          usuario: 'Sistema',
-          usuarioId: 'system',
-          acao: 'Erro ao processar voto',
-          entidade: 'voto',
-          ip: '192.168.1.150',
-          userAgent: 'Mozilla/5.0 (Linux; Android 11) Chrome/121.0.0.0 Mobile',
-          nivel: 'error',
-          detalhes: 'Timeout ao conectar com servidor de votacao. Eleitor: ***789-00',
-        },
-        {
-          id: '7',
-          data: '2024-02-20T15:00:00',
-          usuario: 'Ana Costa',
-          usuarioId: 'usr-004',
-          acao: 'Relatorio exportado',
-          entidade: 'relatorio',
-          ip: '192.168.1.103',
-          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Edge/121.0.0.0',
-          nivel: 'info',
-          detalhes: 'Relatorio: Resultado Final CAU/SP 2024 (PDF)',
-        },
-        {
-          id: '8',
-          data: '2024-02-20T14:55:00',
-          usuario: 'Carlos Silva',
-          usuarioId: 'usr-001',
-          acao: 'Denuncia julgada',
-          entidade: 'denuncia',
-          entidadeId: 'den-001',
-          ip: '192.168.1.100',
-          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/121.0.0.0',
-          nivel: 'success',
-          detalhes: 'Denuncia DEN-2024-00001 deferida',
-        },
-      ] as LogAuditoria[]
+      try {
+        const params: Record<string, any> = { page: 1, pageSize: 100 }
+        if (filterNivel === 'error') params.sucesso = false
+        if (filterEntidade !== 'all') params.entidadeTipo = filterEntidade
+        if (dataInicio) params.dataInicio = dataInicio
+        if (dataFim) params.dataFim = dataFim
+
+        const response = await api.get('/auditoria', { params })
+        const pagedResult = response.data
+        const items = pagedResult?.items || pagedResult || []
+        return (Array.isArray(items) ? items : []).map((l: any) => {
+          const nivel: LogAuditoria['nivel'] = !l.sucesso
+            ? 'error'
+            : l.acao?.toLowerCase().includes('login') ||
+              l.acao?.toLowerCase().includes('consulta') ||
+              l.acao?.toLowerCase().includes('exporta')
+            ? 'info'
+            : 'success'
+          return {
+            id: l.id,
+            data: l.dataHora,
+            usuario: l.usuarioNome || 'Sistema',
+            usuarioId: l.usuarioId || 'system',
+            acao: l.acao || '',
+            entidade: (l.entidadeTipo || 'sistema').toLowerCase(),
+            entidadeId: l.entidadeId,
+            ip: l.ipAddress || '-',
+            userAgent: l.userAgent || '-',
+            nivel,
+            detalhes: l.mensagem,
+          }
+        }) as LogAuditoria[]
+      } catch {
+        return [] as LogAuditoria[]
+      }
     },
   })
 
@@ -195,6 +128,7 @@ export function AuditoriaPage() {
       denuncia: 'Denuncia',
       impugnacao: 'Impugnacao',
       relatorio: 'Relatorio',
+      sistema: 'Sistema',
     }
     return entidades[entidade] || entidade
   }
@@ -209,8 +143,19 @@ export function AuditoriaPage() {
     return matchesSearch && matchesNivel && matchesEntidade
   })
 
-  const handleExport = () => {
-    console.log('Exportando logs...')
+  const handleExport = async () => {
+    try {
+      const response = await api.get('/auditoria/exportar', { responseType: 'blob' })
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `auditoria_${new Date().toISOString().split('T')[0]}.csv`)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+    } catch {
+      console.log('Exportando logs...')
+    }
   }
 
   const stats = {

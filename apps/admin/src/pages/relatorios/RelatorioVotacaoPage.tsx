@@ -18,6 +18,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
+import api from '@/services/api'
 
 interface DadosVotacao {
   eleicaoId: string
@@ -47,47 +48,80 @@ interface DadosVotacao {
 }
 
 export function RelatorioVotacaoPage() {
-  const [selectedEleicao, setSelectedEleicao] = useState<string>('1')
+  const [selectedEleicao, setSelectedEleicao] = useState<string>('')
 
-  // Mock dados - em producao viria da API
+  // Load elections from API
+  const { data: eleicoes = [] } = useQuery({
+    queryKey: ['eleicoes-votacao-relatorio'],
+    queryFn: async () => {
+      try {
+        const response = await api.get('/eleicao')
+        const apiData = Array.isArray(response.data) ? response.data : response.data?.data || []
+        return apiData.map((e: any) => ({
+          id: e.id,
+          nome: e.nome || e.titulo || '',
+        }))
+      } catch {
+        return []
+      }
+    },
+  })
+
+  // Load voting data for selected election
   const { data: dadosVotacao, isLoading } = useQuery({
     queryKey: ['votacao-relatorio', selectedEleicao],
-    queryFn: async () => {
-      return {
-        eleicaoId: '1',
-        eleicaoNome: 'Eleicao CAU/SP 2024',
-        totalEleitores: 15000,
-        totalVotos: 12450,
-        votosValidos: 11800,
-        votosBrancos: 350,
-        votosNulos: 300,
-        participacao: 83,
-        chapas: [
-          { id: '1', numero: 1, nome: 'Chapa Renovacao', votos: 5200, percentual: 44.07 },
-          { id: '2', numero: 2, nome: 'Chapa Unidade', votos: 3800, percentual: 32.2 },
-          { id: '3', numero: 3, nome: 'Chapa Mudanca', votos: 2100, percentual: 17.8 },
-          { id: '4', numero: 4, nome: 'Chapa Progresso', votos: 700, percentual: 5.93 },
-        ],
-        votosPorHora: [
-          { hora: '08:00', votos: 450 },
-          { hora: '09:00', votos: 890 },
-          { hora: '10:00', votos: 1230 },
-          { hora: '11:00', votos: 1450 },
-          { hora: '12:00', votos: 980 },
-          { hora: '13:00', votos: 1100 },
-          { hora: '14:00', votos: 1350 },
-          { hora: '15:00', votos: 1500 },
-          { hora: '16:00', votos: 1800 },
-          { hora: '17:00', votos: 1700 },
-        ],
-        votosPorRegional: [
-          { regional: 'Capital', votos: 5200, participacao: 85 },
-          { regional: 'Grande SP', votos: 3100, participacao: 82 },
-          { regional: 'Campinas', votos: 1800, participacao: 80 },
-          { regional: 'Ribeirao Preto', votos: 1200, participacao: 78 },
-          { regional: 'Santos', votos: 1150, participacao: 81 },
-        ],
-      } as DadosVotacao
+    queryFn: async (): Promise<DadosVotacao | null> => {
+      try {
+        // Try to get apuracao results first
+        const response = await api.get(`/apuracao/${selectedEleicao}`)
+        const r = response.data
+
+        const chapas = (r.resultadosChapas || []).map((c: any) => ({
+          id: c.chapaId,
+          numero: c.numero,
+          nome: c.nome,
+          votos: c.totalVotos,
+          percentual: Number(c.percentualVotosValidos) || Number(c.percentual) || 0,
+        }))
+
+        // Try to get statistics for time/regional data
+        let votosPorHora: DadosVotacao['votosPorHora'] = []
+        let votosPorRegional: DadosVotacao['votosPorRegional'] = []
+
+        try {
+          const statsResponse = await api.get(`/apuracao/${selectedEleicao}/estatisticas`)
+          const stats = statsResponse.data
+          votosPorHora = (stats.votosPorHora || []).map((v: any) => ({
+            hora: new Date(v.hora).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+            votos: v.totalVotos,
+          }))
+          votosPorRegional = (stats.votosPorRegiao || []).map((v: any) => ({
+            regional: v.nomeRegiao || v.uf || '',
+            votos: v.totalVotantes || 0,
+            participacao: Number(v.taxaParticipacao) || 0,
+          }))
+        } catch {
+          // Statistics endpoint may require auth or return empty
+        }
+
+        const eleicaoInfo = eleicoes.find((e: any) => e.id === selectedEleicao)
+
+        return {
+          eleicaoId: selectedEleicao,
+          eleicaoNome: r.eleicaoNome || eleicaoInfo?.nome || '',
+          totalEleitores: r.totalEleitores || 0,
+          totalVotos: r.totalVotos || 0,
+          votosValidos: r.votosValidos || 0,
+          votosBrancos: r.votosBrancos || 0,
+          votosNulos: r.votosNulos || 0,
+          participacao: Number(r.percentualParticipacao) || 0,
+          chapas,
+          votosPorHora,
+          votosPorRegional,
+        }
+      } catch {
+        return null
+      }
     },
     enabled: !!selectedEleicao,
   })
@@ -99,12 +133,6 @@ export function RelatorioVotacaoPage() {
   const handlePrint = () => {
     window.print()
   }
-
-  const eleicoes = [
-    { id: '1', nome: 'Eleicao CAU/SP 2024' },
-    { id: '2', nome: 'Eleicao CAU/RJ 2024' },
-    { id: '3', nome: 'Eleicao CAU/BR 2021' },
-  ]
 
   // Encontrar maior valor para escala do grafico
   const maxVotos = dadosVotacao?.votosPorHora.reduce((max, item) => Math.max(max, item.votos), 0) || 1
@@ -151,7 +179,8 @@ export function RelatorioVotacaoPage() {
                 value={selectedEleicao}
                 onChange={(e) => setSelectedEleicao(e.target.value)}
               >
-                {eleicoes.map((eleicao) => (
+                <option value="">Selecione uma eleicao</option>
+                {eleicoes.map((eleicao: any) => (
                   <option key={eleicao.id} value={eleicao.id}>
                     {eleicao.nome}
                   </option>
@@ -162,7 +191,14 @@ export function RelatorioVotacaoPage() {
         </CardContent>
       </Card>
 
-      {isLoading ? (
+      {!selectedEleicao ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <Vote className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+            <p className="text-gray-500">Selecione uma eleicao para visualizar os dados de votacao</p>
+          </CardContent>
+        </Card>
+      ) : isLoading ? (
         <div className="flex items-center justify-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
         </div>
@@ -236,7 +272,7 @@ export function RelatorioVotacaoPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {dadosVotacao.chapas.map((chapa, index) => (
+                  {dadosVotacao.chapas.length > 0 ? dadosVotacao.chapas.map((chapa, index) => (
                     <div key={chapa.id} className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">
@@ -261,7 +297,9 @@ export function RelatorioVotacaoPage() {
                         />
                       </div>
                     </div>
-                  ))}
+                  )) : (
+                    <p className="text-center py-4 text-gray-500">Nenhum dado disponivel</p>
+                  )}
                 </div>
 
                 <div className="mt-6 pt-4 border-t grid grid-cols-3 gap-4 text-center">
@@ -291,67 +329,80 @@ export function RelatorioVotacaoPage() {
                 <CardDescription>Distribuicao temporal da votacao</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {dadosVotacao.votosPorHora.map((item) => (
-                    <div key={item.hora} className="flex items-center gap-3">
-                      <span className="w-12 text-sm text-gray-500">{item.hora}</span>
-                      <div className="flex-1 h-6 rounded bg-gray-100 overflow-hidden">
-                        <div
-                          className="h-full bg-blue-500 rounded transition-all duration-500"
-                          style={{ width: `${(item.votos / maxVotos) * 100}%` }}
-                        />
+                {dadosVotacao.votosPorHora.length > 0 ? (
+                  <div className="space-y-2">
+                    {dadosVotacao.votosPorHora.map((item) => (
+                      <div key={item.hora} className="flex items-center gap-3">
+                        <span className="w-12 text-sm text-gray-500">{item.hora}</span>
+                        <div className="flex-1 h-6 rounded bg-gray-100 overflow-hidden">
+                          <div
+                            className="h-full bg-blue-500 rounded transition-all duration-500"
+                            style={{ width: `${(item.votos / maxVotos) * 100}%` }}
+                          />
+                        </div>
+                        <span className="w-16 text-sm text-right">{item.votos.toLocaleString()}</span>
                       </div>
-                      <span className="w-16 text-sm text-right">{item.votos.toLocaleString()}</span>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-center py-8 text-gray-500">Dados de distribuicao por hora nao disponiveis</p>
+                )}
               </CardContent>
             </Card>
 
             {/* Votos por Regional */}
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
-                  Participacao por Regional
-                </CardTitle>
-                <CardDescription>Distribuicao geografica dos votos</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left py-3 px-4 font-medium">Regional</th>
-                        <th className="text-right py-3 px-4 font-medium">Votos</th>
-                        <th className="text-right py-3 px-4 font-medium">Participacao</th>
-                        <th className="text-left py-3 px-4 font-medium w-1/3">Grafico</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {dadosVotacao.votosPorRegional.map((item) => (
-                        <tr key={item.regional} className="border-b hover:bg-gray-50">
-                          <td className="py-3 px-4 font-medium">{item.regional}</td>
-                          <td className="py-3 px-4 text-right">{item.votos.toLocaleString()}</td>
-                          <td className="py-3 px-4 text-right">{item.participacao}%</td>
-                          <td className="py-3 px-4">
-                            <div className="h-4 w-full rounded-full bg-gray-100 overflow-hidden">
-                              <div
-                                className="h-full bg-green-500 rounded-full transition-all duration-500"
-                                style={{ width: `${item.participacao}%` }}
-                              />
-                            </div>
-                          </td>
+            {dadosVotacao.votosPorRegional.length > 0 && (
+              <Card className="lg:col-span-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5" />
+                    Participacao por Regional
+                  </CardTitle>
+                  <CardDescription>Distribuicao geografica dos votos</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-3 px-4 font-medium">Regional</th>
+                          <th className="text-right py-3 px-4 font-medium">Votos</th>
+                          <th className="text-right py-3 px-4 font-medium">Participacao</th>
+                          <th className="text-left py-3 px-4 font-medium w-1/3">Grafico</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
+                      </thead>
+                      <tbody>
+                        {dadosVotacao.votosPorRegional.map((item) => (
+                          <tr key={item.regional} className="border-b hover:bg-gray-50">
+                            <td className="py-3 px-4 font-medium">{item.regional}</td>
+                            <td className="py-3 px-4 text-right">{item.votos.toLocaleString()}</td>
+                            <td className="py-3 px-4 text-right">{item.participacao}%</td>
+                            <td className="py-3 px-4">
+                              <div className="h-4 w-full rounded-full bg-gray-100 overflow-hidden">
+                                <div
+                                  className="h-full bg-green-500 rounded-full transition-all duration-500"
+                                  style={{ width: `${item.participacao}%` }}
+                                />
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </>
-      ) : null}
+      ) : (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <BarChart3 className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+            <p className="text-gray-500">Nenhum dado de apuracao disponivel para esta eleicao</p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

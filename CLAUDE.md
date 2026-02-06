@@ -106,6 +106,13 @@ cd /Users/brunosouza/Development/cau-eleitoral-migrado
 docker compose -f infrastructure/docker/docker-compose.yml up -d
 ```
 
+Por padrao, o compose sobe apenas Postgres + Redis (os services `api`, `admin`, `public` estao no profile `app`).
+
+Para subir tudo via Docker:
+```bash
+docker compose -f infrastructure/docker/docker-compose.yml --profile app up -d
+```
+
 ### API (.NET)
 ```bash
 cd apps/api/CAU.Eleitoral.Api

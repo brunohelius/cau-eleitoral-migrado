@@ -20,6 +20,7 @@ import {
   type UpdateDenunciaRequest,
 } from '@/services/denuncias'
 import { eleicoesService, type Eleicao } from '@/services/eleicoes'
+import { chapasService } from '@/services/chapas'
 
 const denunciaSchema = z.object({
   titulo: z.string().min(10, 'Titulo deve ter no minimo 10 caracteres'),
@@ -50,6 +51,14 @@ interface Membro {
   nome: string
   cargo: string
   chapaId: string
+}
+
+const cargoLabel: Record<number, string> = {
+  0: 'Presidente',
+  1: 'Vice-Presidente',
+  2: 'Conselheiro',
+  3: 'Diretor',
+  4: 'Coordenador',
 }
 
 // Type options from enum
@@ -85,10 +94,6 @@ export function DenunciaFormPage() {
     queryKey: ['eleicoes'],
     queryFn: eleicoesService.getAll,
   })
-
-  // Mock chapas - in production would come from API based on selected eleicao
-  const [chapas, setChapas] = useState<Chapa[]>([])
-  const [membros, setMembros] = useState<Membro[]>([])
 
   const {
     register,
@@ -130,37 +135,44 @@ export function DenunciaFormPage() {
   const selectedEleicaoId = watch('eleicaoId')
   const selectedChapaId = watch('chapaId')
 
-  // Load chapas when eleicao changes
+  const { data: chapas = [], isLoading: isLoadingChapas } = useQuery({
+    queryKey: ['chapas-denuncia', selectedEleicaoId],
+    queryFn: async () => {
+      const result = await chapasService.getByEleicao(selectedEleicaoId!)
+      return result.map((c) => ({
+        id: c.id,
+        nome: c.nome,
+        numero: c.numero,
+        eleicaoId: c.eleicaoId,
+      })) as Chapa[]
+    },
+    enabled: !!selectedEleicaoId,
+  })
+
+  const { data: membros = [], isLoading: isLoadingMembros } = useQuery({
+    queryKey: ['membros-denuncia', selectedChapaId],
+    queryFn: async () => {
+      const result = await chapasService.getMembros(selectedChapaId!)
+      return result.map((m) => ({
+        id: m.id,
+        nome: m.candidatoNome,
+        cargo: cargoLabel[m.cargo] || String(m.cargo),
+        chapaId: m.chapaId,
+      })) as Membro[]
+    },
+    enabled: !!selectedChapaId,
+  })
+
+  // Reset dependent selects when eleicao changes
   useEffect(() => {
-    if (selectedEleicaoId) {
-      // In production, this would be an API call
-      // For now, using mock data
-      setChapas([
-        { id: '1', nome: 'Chapa Renovacao', numero: 1, eleicaoId: selectedEleicaoId },
-        { id: '2', nome: 'Chapa Unidade', numero: 2, eleicaoId: selectedEleicaoId },
-        { id: '3', nome: 'Chapa Progresso', numero: 3, eleicaoId: selectedEleicaoId },
-      ])
-    } else {
-      setChapas([])
-    }
     if (!isEditing) {
       setValue('chapaId', '')
       setValue('membroId', '')
     }
   }, [selectedEleicaoId, setValue, isEditing])
 
-  // Load membros when chapa changes
+  // Reset dependent selects when chapa changes
   useEffect(() => {
-    if (selectedChapaId) {
-      // In production, this would be an API call
-      setMembros([
-        { id: '1', nome: 'Joao Silva', cargo: 'Presidente', chapaId: selectedChapaId },
-        { id: '2', nome: 'Maria Santos', cargo: 'Vice-Presidente', chapaId: selectedChapaId },
-        { id: '3', nome: 'Carlos Oliveira', cargo: 'Secretario', chapaId: selectedChapaId },
-      ])
-    } else {
-      setMembros([])
-    }
     if (!isEditing) {
       setValue('membroId', '')
     }
@@ -362,7 +374,7 @@ export function DenunciaFormPage() {
                     id="chapaId"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     {...register('chapaId')}
-                    disabled={!selectedEleicaoId || isEditing}
+                    disabled={!selectedEleicaoId || isEditing || isLoadingChapas}
                   >
                     <option value="">Selecione uma chapa (opcional)</option>
                     {chapas.map((chapa) => (
@@ -381,6 +393,7 @@ export function DenunciaFormPage() {
                     id="membroId"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     {...register('membroId')}
+                    disabled={isLoadingMembros}
                   >
                     <option value="">Selecione um membro (opcional)</option>
                     {membros.map((membro) => (

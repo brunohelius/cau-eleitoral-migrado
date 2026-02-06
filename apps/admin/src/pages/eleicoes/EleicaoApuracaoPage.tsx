@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
 import { eleicoesService } from '@/services/eleicoes'
+import api from '@/services/api'
 
 interface ResultadoChapa {
   id: string
@@ -41,6 +42,16 @@ interface DadosApuracao {
   percentualApurado: number
 }
 
+const mapStatusApuracao = (statusApuracao: number): DadosApuracao['status'] => {
+  switch (statusApuracao) {
+    case 0: return 'aguardando'
+    case 1: return 'em_andamento'
+    case 2: return 'em_andamento' // Pausada
+    case 3: return 'finalizada'
+    default: return 'aguardando'
+  }
+}
+
 export function EleicaoApuracaoPage() {
   const { id } = useParams<{ id: string }>()
   const { toast } = useToast()
@@ -52,29 +63,52 @@ export function EleicaoApuracaoPage() {
     enabled: !!id,
   })
 
-  // Mock dados de apuracao - em producao viria da API
-  const [dadosApuracao] = useState<DadosApuracao>({
-    totalEleitores: 15000,
-    totalVotos: 12450,
-    votosValidos: 11800,
-    votosBrancos: 350,
-    votosNulos: 300,
-    participacao: 83,
-    percentualApurado: 100,
-    status: 'finalizada',
-    ultimaAtualizacao: new Date().toISOString(),
-    chapas: [
-      { id: '1', numero: 1, nome: 'Chapa Renovacao', votos: 5200, percentual: 44.07, posicao: 1 },
-      { id: '2', numero: 2, nome: 'Chapa Unidade', votos: 3800, percentual: 32.20, posicao: 2 },
-      { id: '3', numero: 3, nome: 'Chapa Mudanca', votos: 2100, percentual: 17.80, posicao: 3 },
-      { id: '4', numero: 4, nome: 'Chapa Progresso', votos: 700, percentual: 5.93, posicao: 4 },
-    ],
+  const { data: dadosApuracao, isLoading: isLoadingApuracao, refetch } = useQuery({
+    queryKey: ['apuracao', id],
+    queryFn: async (): Promise<DadosApuracao> => {
+      try {
+        const response = await api.get(`/apuracao/${id}`)
+        const r = response.data
+        return {
+          totalEleitores: r.totalEleitores || 0,
+          totalVotos: r.totalVotos || 0,
+          votosValidos: r.votosValidos || 0,
+          votosBrancos: r.votosBrancos || 0,
+          votosNulos: r.votosNulos || 0,
+          participacao: Number(r.percentualParticipacao) || 0,
+          percentualApurado: r.statusApuracao === 3 ? 100 : 0,
+          status: mapStatusApuracao(r.statusApuracao),
+          ultimaAtualizacao: r.dataApuracao || r.dataPublicacao || new Date().toISOString(),
+          chapas: (r.resultadosChapas || []).map((c: any) => ({
+            id: c.chapaId,
+            numero: c.numero,
+            nome: c.nome,
+            votos: c.totalVotos,
+            percentual: Number(c.percentualVotosValidos) || Number(c.percentual) || 0,
+            posicao: c.posicao,
+          })),
+        }
+      } catch {
+        return {
+          totalEleitores: 0,
+          totalVotos: 0,
+          votosValidos: 0,
+          votosBrancos: 0,
+          votosNulos: 0,
+          participacao: 0,
+          percentualApurado: 0,
+          status: 'aguardando',
+          ultimaAtualizacao: new Date().toISOString(),
+          chapas: [],
+        }
+      }
+    },
+    enabled: !!id,
   })
 
   const handleRefresh = async () => {
     setIsRefreshing(true)
-    // Simular atualizacao
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    await refetch()
     setIsRefreshing(false)
     toast({
       title: 'Dados atualizados',
@@ -115,7 +149,7 @@ export function EleicaoApuracaoPage() {
     }
   }
 
-  if (isLoadingEleicao) {
+  if (isLoadingEleicao || isLoadingApuracao || !dadosApuracao) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
@@ -217,34 +251,38 @@ export function EleicaoApuracaoPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {dadosApuracao.chapas
-                .sort((a, b) => a.posicao - b.posicao)
-                .map((chapa, index) => (
-                  <div key={chapa.id} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        {index === 0 && dadosApuracao.status === 'finalizada' && (
-                          <Trophy className="h-5 w-5 text-yellow-500" />
-                        )}
-                        <span className="text-sm font-medium">
-                          {chapa.numero}. {chapa.nome}
-                        </span>
+              {dadosApuracao.chapas.length > 0 ? (
+                dadosApuracao.chapas
+                  .sort((a, b) => a.posicao - b.posicao)
+                  .map((chapa, index) => (
+                    <div key={chapa.id} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          {index === 0 && dadosApuracao.status === 'finalizada' && (
+                            <Trophy className="h-5 w-5 text-yellow-500" />
+                          )}
+                          <span className="text-sm font-medium">
+                            {chapa.numero}. {chapa.nome}
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <span className="font-bold">{chapa.votos.toLocaleString()}</span>
+                          <span className="text-sm text-gray-500 ml-2">({chapa.percentual.toFixed(2)}%)</span>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <span className="font-bold">{chapa.votos.toLocaleString()}</span>
-                        <span className="text-sm text-gray-500 ml-2">({chapa.percentual.toFixed(2)}%)</span>
+                      <div className="h-2 w-full rounded-full bg-gray-100 overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            index === 0 ? 'bg-green-500' : 'bg-blue-500'
+                          }`}
+                          style={{ width: `${chapa.percentual}%` }}
+                        />
                       </div>
                     </div>
-                    <div className="h-2 w-full rounded-full bg-gray-100 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          index === 0 ? 'bg-green-500' : 'bg-blue-500'
-                        }`}
-                        style={{ width: `${chapa.percentual}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
+                  ))
+              ) : (
+                <p className="text-center py-4 text-gray-500">Nenhum resultado disponivel</p>
+              )}
             </div>
           </CardContent>
         </Card>

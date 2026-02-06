@@ -41,7 +41,15 @@ test.describe('Admin Authentication', () => {
     await page.getByRole('button', { name: 'Entrar' }).click();
     await expect(page).toHaveURL(/dashboard/);
 
-    // User is logged in - test passes if we reach dashboard
-    await expect(page.getByText('Admin Sistema', { exact: true }).first()).toBeVisible();
+    const logoutButton = page
+      .getByRole('button')
+      .filter({ has: page.locator('svg.lucide-log-out') });
+
+    await Promise.all([
+      page.waitForURL(/\/login/, { timeout: 15000 }),
+      logoutButton.click(),
+    ]);
+
+    await expect(page.getByRole('heading', { name: 'Entrar' })).toBeVisible();
   });
 });

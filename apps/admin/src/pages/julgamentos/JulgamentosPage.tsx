@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import api from '@/services/api'
 
 interface Julgamento {
   id: string
@@ -30,71 +31,75 @@ interface Julgamento {
   eleicaoNome: string
 }
 
+const mapTipo = (tipo: number): 'denuncia' | 'impugnacao' | 'recurso' => {
+  // CAU.Eleitoral.Domain.Enums.TipoJulgamento
+  switch (tipo) {
+    case 0:
+      return 'denuncia'
+    case 1:
+      return 'impugnacao'
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+      return 'recurso'
+    default:
+      return 'denuncia'
+  }
+}
+
+const mapStatus = (status: number): 'aguardando' | 'em_julgamento' | 'julgado' => {
+  // CAU.Eleitoral.Domain.Enums.StatusJulgamento
+  switch (status) {
+    case 0:
+      return 'aguardando' // Agendado
+    case 1:
+      return 'em_julgamento' // EmAndamento
+    case 4:
+      return 'julgado' // Concluido
+    default:
+      return 'aguardando'
+  }
+}
+
+const mapDecisao = (decisaoTexto?: string | null): 'deferida' | 'indeferida' | 'arquivada' | undefined => {
+  if (!decisaoTexto) return undefined
+
+  const upper = decisaoTexto.toUpperCase()
+  if (upper.includes('ARQUIV')) return 'arquivada'
+  if (upper.includes('IMPROCEDENTE')) return 'indeferida'
+  if (upper.includes('PROCEDENTE')) return 'deferida'
+  if (upper.includes('INDEFER')) return 'indeferida'
+  if (upper.includes('DEFER')) return 'deferida'
+  return undefined
+}
+
 export function JulgamentosPage() {
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState<string>('all')
   const [filterTipo, setFilterTipo] = useState<string>('all')
 
-  // Mock dados - em producao viria da API
   const { data: julgamentos, isLoading } = useQuery({
     queryKey: ['julgamentos'],
     queryFn: async () => {
-      return [
-        {
-          id: '1',
-          protocolo: 'JUL-2024-00001',
-          tipo: 'denuncia',
-          titulo: 'Irregularidade na campanha eleitoral',
-          status: 'julgado',
-          decisao: 'deferida',
-          relatorNome: 'Dr. Carlos Oliveira',
-          dataDistribuicao: '2024-02-17T10:00:00',
-          dataJulgamento: '2024-02-20T14:00:00',
-          eleicaoNome: 'Eleicao CAU/SP 2024',
-        },
-        {
-          id: '2',
-          protocolo: 'JUL-2024-00002',
-          tipo: 'impugnacao',
-          titulo: 'Irregularidade na documentacao da chapa',
-          status: 'em_julgamento',
-          relatorNome: 'Dr. Pedro Oliveira',
-          dataDistribuicao: '2024-02-18T09:30:00',
-          eleicaoNome: 'Eleicao CAU/SP 2024',
-        },
-        {
-          id: '3',
-          protocolo: 'JUL-2024-00003',
-          tipo: 'denuncia',
-          titulo: 'Uso indevido de recursos publicos',
-          status: 'aguardando',
-          relatorNome: 'Dra. Maria Santos',
-          dataDistribuicao: '2024-02-19T11:00:00',
-          eleicaoNome: 'Eleicao CAU/SP 2024',
-        },
-        {
-          id: '4',
-          protocolo: 'JUL-2024-00004',
-          tipo: 'recurso',
-          titulo: 'Recurso contra indeferimento de registro',
-          status: 'julgado',
-          decisao: 'indeferida',
-          relatorNome: 'Dr. Antonio Lima',
-          dataDistribuicao: '2024-02-15T08:00:00',
-          dataJulgamento: '2024-02-18T16:00:00',
-          eleicaoNome: 'Eleicao CAU/SP 2024',
-        },
-        {
-          id: '5',
-          protocolo: 'JUL-2024-00005',
-          tipo: 'impugnacao',
-          titulo: 'Inelegibilidade de candidato',
-          status: 'aguardando',
-          relatorNome: 'Dr. Carlos Oliveira',
-          dataDistribuicao: '2024-02-20T14:30:00',
-          eleicaoNome: 'Eleicao CAU/SP 2024',
-        },
-      ] as Julgamento[]
+      try {
+        const response = await api.get('/julgamento')
+        const apiData = Array.isArray(response.data) ? response.data : response.data?.data || []
+        return apiData.map((j: any) => ({
+          id: j.id,
+          protocolo: j.protocolo || `JUL-${String(j.id).substring(0, 8).toUpperCase()}`,
+          tipo: mapTipo(j.tipo),
+          titulo: j.ementa || j.decisao || 'Julgamento eleitoral',
+          status: mapStatus(j.status),
+          decisao: mapDecisao(j.decisao),
+          relatorNome: j.relatorNome || 'Nao definido',
+          dataDistribuicao: j.createdAt,
+          dataJulgamento: j.dataFim,
+          eleicaoNome: j.eleicaoNome || '',
+        })) as Julgamento[]
+      } catch {
+        return [] as Julgamento[]
+      }
     },
   })
 
@@ -138,6 +143,11 @@ export function JulgamentosPage() {
         label: 'Em Julgamento',
         color: 'bg-blue-100 text-blue-800',
         icon: <Gavel className="h-3 w-3" />,
+      },
+      julgado: {
+        label: 'Concluido',
+        color: 'bg-green-100 text-green-800',
+        icon: <CheckCircle className="h-3 w-3" />,
       },
     }
     const config = statusConfig[status] || statusConfig.aguardando

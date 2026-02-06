@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
+import api from '@/services/api'
 
 interface Eleicao {
   id: string
@@ -28,47 +29,72 @@ interface Eleicao {
   participacao: number
 }
 
+const mapStatusEleicao = (status: number): string => {
+  switch (status) {
+    case 0: return 'criada'
+    case 1: return 'inscricoes_abertas'
+    case 2: return 'em_campanha'
+    case 3: return 'em_votacao'
+    case 4: return 'finalizada'
+    case 5: return 'cancelada'
+    default: return 'criada'
+  }
+}
+
 export function RelatorioEleicaoPage() {
   const [selectedEleicao, setSelectedEleicao] = useState<string>('')
   const [tipoRelatorio, setTipoRelatorio] = useState<string>('resumo')
 
-  // Mock dados - em producao viria da API
   const { data: eleicoes, isLoading } = useQuery({
     queryKey: ['eleicoes-relatorio'],
     queryFn: async () => {
-      return [
-        {
-          id: '1',
-          nome: 'Eleicao CAU/SP 2024',
-          ano: 2024,
-          status: 'finalizada',
-          totalChapas: 4,
-          totalEleitores: 15000,
-          totalVotos: 12450,
-          participacao: 83,
-        },
-        {
-          id: '2',
-          nome: 'Eleicao CAU/RJ 2024',
-          ano: 2024,
-          status: 'em_andamento',
-          totalChapas: 3,
-          totalEleitores: 12000,
-          totalVotos: 8500,
-          participacao: 70.8,
-        },
-        {
-          id: '3',
-          nome: 'Eleicao CAU/BR 2021',
-          ano: 2021,
-          status: 'finalizada',
-          totalChapas: 5,
-          totalEleitores: 180000,
-          totalVotos: 145800,
-          participacao: 81,
-        },
-      ] as Eleicao[]
+      try {
+        const response = await api.get('/eleicao')
+        const apiData = Array.isArray(response.data) ? response.data : response.data?.data || []
+        return apiData.map((e: any) => ({
+          id: e.id,
+          nome: e.nome || e.titulo || '',
+          ano: e.ano || new Date(e.dataInicio || e.createdAt).getFullYear(),
+          status: typeof e.status === 'number' ? mapStatusEleicao(e.status) : (e.status || 'criada'),
+          totalChapas: e.totalChapas || 0,
+          totalEleitores: e.totalEleitores || 0,
+          totalVotos: e.totalVotos || 0,
+          participacao: e.totalEleitores > 0
+            ? Math.round((e.totalVotos / e.totalEleitores) * 100 * 10) / 10
+            : 0,
+        })) as Eleicao[]
+      } catch {
+        return [] as Eleicao[]
+      }
     },
+  })
+
+  // Load calendario for selected election
+  const { data: calendario } = useQuery({
+    queryKey: ['calendario-relatorio', selectedEleicao],
+    queryFn: async () => {
+      try {
+        const response = await api.get('/calendario', { params: { eleicaoId: selectedEleicao } })
+        return Array.isArray(response.data) ? response.data : []
+      } catch {
+        return []
+      }
+    },
+    enabled: !!selectedEleicao,
+  })
+
+  // Load chapas for selected election
+  const { data: chapas } = useQuery({
+    queryKey: ['chapas-relatorio', selectedEleicao],
+    queryFn: async () => {
+      try {
+        const response = await api.get(`/chapa/eleicao/${selectedEleicao}`)
+        return Array.isArray(response.data) ? response.data : (response.data?.items ?? [])
+      } catch {
+        return []
+      }
+    },
+    enabled: !!selectedEleicao,
   })
 
   const selectedEleicaoData = eleicoes?.find((e) => e.id === selectedEleicao)
@@ -87,6 +113,29 @@ export function RelatorioEleicaoPage() {
     { value: 'calendario', label: 'Calendario Eleitoral', icon: Calendar },
     { value: 'historico', label: 'Historico de Alteracoes', icon: FileText },
   ]
+
+  const mapTipoCalendario = (tipo: number): string => {
+    const tipos: Record<number, string> = {
+      0: 'Inscricao de Chapas',
+      1: 'Prazo de Impugnacao',
+      2: 'Campanha Eleitoral',
+      3: 'Periodo de Votacao',
+      4: 'Apuracao',
+      5: 'Prazo de Recursos',
+      6: 'Diplomacao',
+    }
+    return tipos[tipo] || 'Evento'
+  }
+
+  const mapStatusCalendario = (status: number): string => {
+    switch (status) {
+      case 0: return 'Agendado'
+      case 1: return 'Em Andamento'
+      case 2: return 'Concluido'
+      case 3: return 'Cancelado'
+      default: return 'Agendado'
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -296,39 +345,22 @@ export function RelatorioEleicaoPage() {
                             <th className="text-left py-3 px-4 font-medium">Numero</th>
                             <th className="text-left py-3 px-4 font-medium">Nome</th>
                             <th className="text-left py-3 px-4 font-medium">Candidato</th>
-                            <th className="text-left py-3 px-4 font-medium">Votos</th>
-                            <th className="text-left py-3 px-4 font-medium">Percentual</th>
+                            <th className="text-left py-3 px-4 font-medium">Status</th>
                           </tr>
                         </thead>
                         <tbody>
-                          <tr className="border-b">
-                            <td className="py-3 px-4">1</td>
-                            <td className="py-3 px-4">Chapa Renovacao</td>
-                            <td className="py-3 px-4">Joao Silva</td>
-                            <td className="py-3 px-4">5.200</td>
-                            <td className="py-3 px-4">44,07%</td>
-                          </tr>
-                          <tr className="border-b">
-                            <td className="py-3 px-4">2</td>
-                            <td className="py-3 px-4">Chapa Unidade</td>
-                            <td className="py-3 px-4">Maria Santos</td>
-                            <td className="py-3 px-4">3.800</td>
-                            <td className="py-3 px-4">32,20%</td>
-                          </tr>
-                          <tr className="border-b">
-                            <td className="py-3 px-4">3</td>
-                            <td className="py-3 px-4">Chapa Mudanca</td>
-                            <td className="py-3 px-4">Carlos Oliveira</td>
-                            <td className="py-3 px-4">2.100</td>
-                            <td className="py-3 px-4">17,80%</td>
-                          </tr>
-                          <tr>
-                            <td className="py-3 px-4">4</td>
-                            <td className="py-3 px-4">Chapa Progresso</td>
-                            <td className="py-3 px-4">Ana Costa</td>
-                            <td className="py-3 px-4">700</td>
-                            <td className="py-3 px-4">5,93%</td>
-                          </tr>
+                          {chapas && chapas.length > 0 ? chapas.map((chapa: any) => (
+                            <tr key={chapa.id} className="border-b">
+                              <td className="py-3 px-4">{chapa.numero || '-'}</td>
+                              <td className="py-3 px-4">{chapa.nome || chapa.nomeChapa || '-'}</td>
+                              <td className="py-3 px-4">{chapa.candidatoNome || chapa.presidente || '-'}</td>
+                              <td className="py-3 px-4 capitalize">{typeof chapa.status === 'number' ? ['Pendente', 'Aprovada', 'Rejeitada', 'Registrada'][chapa.status] || '-' : chapa.status || '-'}</td>
+                            </tr>
+                          )) : (
+                            <tr>
+                              <td colSpan={4} className="py-8 text-center text-gray-500">Nenhuma chapa encontrada</td>
+                            </tr>
+                          )}
                         </tbody>
                       </table>
                     </div>
@@ -336,46 +368,24 @@ export function RelatorioEleicaoPage() {
 
                   {tipoRelatorio === 'calendario' && (
                     <div className="space-y-4">
-                      <div className="flex items-center gap-4 rounded-lg border p-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
-                          <Calendar className="h-6 w-6 text-blue-600" />
+                      {calendario && calendario.length > 0 ? calendario.map((evento: any) => (
+                        <div key={evento.id} className="flex items-center gap-4 rounded-lg border p-4">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
+                            <Calendar className="h-6 w-6 text-blue-600" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-medium">{evento.titulo || mapTipoCalendario(evento.tipo)}</h4>
+                            <p className="text-sm text-gray-500">
+                              {new Date(evento.dataInicio).toLocaleDateString('pt-BR')} - {new Date(evento.dataFim).toLocaleDateString('pt-BR')}
+                            </p>
+                          </div>
+                          <span className={`text-sm ${evento.status === 2 ? 'text-green-600' : evento.status === 1 ? 'text-blue-600' : 'text-gray-600'}`}>
+                            {mapStatusCalendario(evento.status)}
+                          </span>
                         </div>
-                        <div className="flex-1">
-                          <h4 className="font-medium">Inscricao de Chapas</h4>
-                          <p className="text-sm text-gray-500">01/03/2024 - 15/03/2024</p>
-                        </div>
-                        <span className="text-sm text-green-600">Concluido</span>
-                      </div>
-                      <div className="flex items-center gap-4 rounded-lg border p-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100">
-                          <FileText className="h-6 w-6 text-orange-600" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-medium">Prazo de Impugnacao</h4>
-                          <p className="text-sm text-gray-500">16/03/2024 - 20/03/2024</p>
-                        </div>
-                        <span className="text-sm text-green-600">Concluido</span>
-                      </div>
-                      <div className="flex items-center gap-4 rounded-lg border p-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                          <Users className="h-6 w-6 text-green-600" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-medium">Campanha Eleitoral</h4>
-                          <p className="text-sm text-gray-500">21/03/2024 - 10/04/2024</p>
-                        </div>
-                        <span className="text-sm text-green-600">Concluido</span>
-                      </div>
-                      <div className="flex items-center gap-4 rounded-lg border p-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
-                          <Vote className="h-6 w-6 text-purple-600" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-medium">Periodo de Votacao</h4>
-                          <p className="text-sm text-gray-500">11/04/2024 - 12/04/2024</p>
-                        </div>
-                        <span className="text-sm text-green-600">Concluido</span>
-                      </div>
+                      )) : (
+                        <p className="text-center py-8 text-gray-500">Nenhum evento no calendario</p>
+                      )}
                     </div>
                   )}
 
@@ -383,24 +393,18 @@ export function RelatorioEleicaoPage() {
                     <div className="relative">
                       <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200" />
                       <div className="space-y-6">
-                        {[
-                          { data: '12/04/2024 18:00', acao: 'Eleicao finalizada', usuario: 'Sistema' },
-                          { data: '12/04/2024 17:00', acao: 'Votacao encerrada', usuario: 'Sistema' },
-                          { data: '11/04/2024 08:00', acao: 'Votacao iniciada', usuario: 'Sistema' },
-                          { data: '10/04/2024 23:59', acao: 'Campanha encerrada', usuario: 'Sistema' },
-                          { data: '01/03/2024 00:00', acao: 'Eleicao criada', usuario: 'Carlos Silva' },
-                        ].map((item, index) => (
-                          <div key={index} className="relative flex gap-4 pl-10">
-                            <div className="absolute left-2 top-1 h-4 w-4 rounded-full bg-blue-500 ring-4 ring-white" />
-                            <div className="flex-1">
-                              <div className="flex items-center justify-between">
-                                <span className="font-medium">{item.acao}</span>
-                                <span className="text-xs text-gray-500">{item.data}</span>
-                              </div>
-                              <p className="text-sm text-gray-600">Por: {item.usuario}</p>
+                        <div className="relative flex gap-4 pl-10">
+                          <div className="absolute left-2 top-1 h-4 w-4 rounded-full bg-blue-500 ring-4 ring-white" />
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <span className="font-medium">Eleicao criada</span>
+                              <span className="text-xs text-gray-500">
+                                {selectedEleicaoData?.ano}
+                              </span>
                             </div>
+                            <p className="text-sm text-gray-600">Por: Sistema</p>
                           </div>
-                        ))}
+                        </div>
                       </div>
                     </div>
                   )}

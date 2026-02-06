@@ -25,6 +25,7 @@ services:
       - redis_data:/data
 
   api:
+    profiles: ["app"]
     build:
       context: ../../apps/api
       dockerfile: ../../infrastructure/docker/Dockerfile.api
@@ -33,7 +34,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=cau_eleitoral;Username=postgres;Password=postgres
     ports:
-      - "5000:8080"
+      - "${CAU_API_PORT:-5000}:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -41,22 +42,24 @@ services:
       - api_logs:/app/logs
 
   admin:
+    profiles: ["app"]
     build:
       context: ../../apps/admin
       dockerfile: ../../infrastructure/docker/Dockerfile.admin
     container_name: cau-eleitoral-admin
     ports:
-      - "4200:80"
+      - "${CAU_ADMIN_PORT:-4200}:80"
     depends_on:
       - api
 
   public:
+    profiles: ["app"]
     build:
       context: ../../apps/public
       dockerfile: ../../infrastructure/docker/Dockerfile.public
     container_name: cau-eleitoral-public
     ports:
-      - "4201:80"
+      - "${CAU_PUBLIC_PORT:-4201}:80"
     depends_on:
       - api
 

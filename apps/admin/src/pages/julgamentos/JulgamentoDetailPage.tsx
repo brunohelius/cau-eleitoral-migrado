@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import api from '@/services/api'
 
 interface Julgamento {
   id: string
@@ -53,98 +54,107 @@ interface Julgamento {
   }>
 }
 
+const mapTipo = (tipo: number): 'denuncia' | 'impugnacao' | 'recurso' => {
+  // CAU.Eleitoral.Domain.Enums.TipoJulgamento
+  switch (tipo) {
+    case 0:
+      return 'denuncia'
+    case 1:
+      return 'impugnacao'
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+      return 'recurso'
+    default:
+      return 'denuncia'
+  }
+}
+
+const mapStatus = (status: number): 'aguardando' | 'em_julgamento' | 'julgado' => {
+  // CAU.Eleitoral.Domain.Enums.StatusJulgamento
+  switch (status) {
+    case 0:
+      return 'aguardando'
+    case 1:
+      return 'em_julgamento'
+    case 4:
+      return 'julgado'
+    default:
+      return 'aguardando'
+  }
+}
+
+const mapDecisao = (decisaoTexto?: string | null): 'deferida' | 'indeferida' | 'arquivada' | undefined => {
+  if (!decisaoTexto) return undefined
+
+  const upper = decisaoTexto.toUpperCase()
+  if (upper.includes('ARQUIV')) return 'arquivada'
+  if (upper.includes('IMPROCEDENTE')) return 'indeferida'
+  if (upper.includes('PROCEDENTE')) return 'deferida'
+  if (upper.includes('INDEFER')) return 'indeferida'
+  if (upper.includes('DEFER')) return 'deferida'
+  return undefined
+}
+
+const mapVoto = (voto: number): 'deferido' | 'indeferido' | 'abstencao' => {
+  // CAU.Eleitoral.Domain.Enums.TipoVotoJulgamento
+  switch (voto) {
+    case 0:
+      return 'deferido' // Procedente
+    case 1:
+      return 'indeferido' // Improcedente
+    case 3:
+      return 'abstencao'
+    case 2:
+      return 'deferido' // ParcialmenteProcedente
+    case 4:
+      return 'abstencao' // Impedido
+    default:
+      return 'abstencao'
+  }
+}
+
 export function JulgamentoDetailPage() {
   const { id } = useParams<{ id: string }>()
 
-  // Mock dados - em producao viria da API
   const { data: julgamento, isLoading } = useQuery({
     queryKey: ['julgamento', id],
     queryFn: async () => {
-      return {
-        id: '1',
-        protocolo: 'JUL-2024-00001',
-        tipo: 'denuncia',
-        titulo: 'Irregularidade na campanha eleitoral',
-        descricao:
-          'Denuncia de distribuicao de material de campanha fora do periodo permitido pelo calendario eleitoral.',
-        status: 'julgado',
-        decisao: 'deferida',
-        fundamentacao:
-          'Restou comprovado nos autos que a Chapa Renovacao distribuiu material de campanha no dia 15/02/2024, antes do inicio oficial do periodo de campanha estabelecido no calendario eleitoral. As provas apresentadas, incluindo fotografias e testemunhos, sao conclusivas. A conduta configura violacao ao artigo 23 do Regimento Eleitoral.',
-        penalidade: 'Advertencia',
-        relatorNome: 'Dr. Carlos Oliveira',
-        relatorVoto: 'deferido',
-        eleicaoNome: 'Eleicao CAU/SP 2024',
-        dataDistribuicao: '2024-02-17T10:00:00',
-        dataJulgamento: '2024-02-20T14:00:00',
-        votos: [
-          {
-            id: '1',
-            membroNome: 'Dr. Carlos Oliveira (Relator)',
-            voto: 'deferido',
-            fundamentacao: 'Acompanho o voto do relator.',
-          },
-          {
-            id: '2',
-            membroNome: 'Dra. Maria Santos',
-            voto: 'deferido',
-          },
-          {
-            id: '3',
-            membroNome: 'Dr. Pedro Almeida',
-            voto: 'deferido',
-          },
-          {
-            id: '4',
-            membroNome: 'Dra. Ana Costa',
-            voto: 'indeferido',
-            fundamentacao: 'Entendo que as provas nao sao conclusivas.',
-          },
-          {
-            id: '5',
-            membroNome: 'Dr. Jose Lima',
-            voto: 'deferido',
-          },
-        ],
-        documentos: [
-          { id: '1', nome: 'Denuncia Original.pdf', url: '/docs/denuncia.pdf' },
-          { id: '2', nome: 'Defesa da Chapa.pdf', url: '/docs/defesa.pdf' },
-          { id: '3', nome: 'Voto do Relator.pdf', url: '/docs/voto.pdf' },
-          { id: '4', nome: 'Acordao.pdf', url: '/docs/acordao.pdf' },
-        ],
-        historico: [
-          {
-            id: '1',
-            data: '2024-02-16T10:30:00',
-            acao: 'Denuncia registrada',
-            usuario: 'Sistema',
-          },
-          {
-            id: '2',
-            data: '2024-02-17T10:00:00',
-            acao: 'Julgamento distribuido ao relator',
-            usuario: 'Comissao Eleitoral',
-          },
-          {
-            id: '3',
-            data: '2024-02-18T09:00:00',
-            acao: 'Vista dos autos ao denunciado',
-            usuario: 'Dr. Carlos Oliveira',
-          },
-          {
-            id: '4',
-            data: '2024-02-19T15:00:00',
-            acao: 'Defesa apresentada',
-            usuario: 'Chapa Renovacao',
-          },
-          {
-            id: '5',
-            data: '2024-02-20T14:00:00',
-            acao: 'Julgamento realizado - Deferido',
-            usuario: 'Comissao Eleitoral',
-          },
-        ],
-      } as Julgamento
+      try {
+        const response = await api.get(`/julgamento/${id}`)
+        const j = response.data
+        return {
+          id: j.id,
+          protocolo: j.protocolo || `JUL-${String(j.id).substring(0, 8).toUpperCase()}`,
+          tipo: mapTipo(j.tipo),
+          titulo: j.ementa || 'Julgamento eleitoral',
+          descricao: j.relatorio || j.ementa || 'Detalhes do julgamento',
+          status: mapStatus(j.status),
+          decisao: mapDecisao(j.decisao),
+          fundamentacao: j.fundamentacao,
+          penalidade: undefined,
+          relatorNome: j.relatorNome || 'Nao definido',
+          relatorVoto: undefined,
+          eleicaoNome: j.eleicaoNome || '',
+          dataDistribuicao: j.createdAt,
+          dataJulgamento: j.dataFim,
+          votos: (j.votos || []).map((v: any) => ({
+            id: v.id,
+            membroNome: v.membroNome,
+            voto: mapVoto(v.voto),
+            fundamentacao: v.fundamentacao,
+          })),
+          documentos: [],
+          historico: [
+            { id: '1', data: j.createdAt, acao: 'Julgamento criado', usuario: 'Sistema' },
+            ...(j.dataInicio ? [{ id: '2', data: j.dataInicio, acao: 'Julgamento iniciado', usuario: 'Comissao Eleitoral' }] : []),
+            ...(j.dataFim ? [{ id: '3', data: j.dataFim, acao: `Julgamento concluido${j.decisao ? ' - ' + j.decisao : ''}`, usuario: 'Comissao Eleitoral' }] : []),
+          ],
+        } as Julgamento
+      } catch {
+        return null
+      }
     },
     enabled: !!id,
   })
@@ -182,6 +192,7 @@ export function JulgamentoDetailPage() {
     const statusConfig: Record<string, { label: string; color: string }> = {
       aguardando: { label: 'Aguardando', color: 'bg-yellow-100 text-yellow-800' },
       em_julgamento: { label: 'Em Julgamento', color: 'bg-blue-100 text-blue-800' },
+      julgado: { label: 'Concluido', color: 'bg-green-100 text-green-800' },
     }
     const config = statusConfig[status] || statusConfig.aguardando
     return (
@@ -335,54 +346,60 @@ export function JulgamentoDetailPage() {
               Votacao
             </CardTitle>
             <CardDescription>
-              {votosDeferidos} x {votosIndeferidos}
+              {julgamento.votos.length > 0 ? `${votosDeferidos} x ${votosIndeferidos}` : 'Sem votos registrados'}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {julgamento.votos.map((voto) => (
-                <div key={voto.id} className="flex items-center justify-between py-2 border-b last:border-0">
-                  <div>
-                    <p className="text-sm font-medium">{voto.membroNome}</p>
-                    {voto.fundamentacao && (
-                      <p className="text-xs text-gray-500 mt-1">{voto.fundamentacao}</p>
-                    )}
+            {julgamento.votos.length > 0 ? (
+              <div className="space-y-3">
+                {julgamento.votos.map((voto) => (
+                  <div key={voto.id} className="flex items-center justify-between py-2 border-b last:border-0">
+                    <div>
+                      <p className="text-sm font-medium">{voto.membroNome}</p>
+                      {voto.fundamentacao && (
+                        <p className="text-xs text-gray-500 mt-1">{voto.fundamentacao}</p>
+                      )}
+                    </div>
+                    {getVotoBadge(voto.voto)}
                   </div>
-                  {getVotoBadge(voto.voto)}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500">Nenhum voto registrado ainda.</p>
+            )}
           </CardContent>
         </Card>
 
         {/* Documentos */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Documentos
-            </CardTitle>
-            <CardDescription>{julgamento.documentos.length} documentos</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {julgamento.documentos.map((doc) => (
-                <div key={doc.id} className="flex items-center justify-between rounded-lg border p-3">
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm">{doc.nome}</span>
+        {julgamento.documentos.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Documentos
+              </CardTitle>
+              <CardDescription>{julgamento.documentos.length} documentos</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {julgamento.documentos.map((doc) => (
+                  <div key={doc.id} className="flex items-center justify-between rounded-lg border p-3">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-gray-400" />
+                      <span className="text-sm">{doc.nome}</span>
+                    </div>
+                    <Button variant="ghost" size="icon">
+                      <Download className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <Button variant="ghost" size="icon">
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Historico */}
-        <Card className="lg:col-span-2">
+        <Card className={julgamento.documentos.length > 0 ? 'lg:col-span-2' : 'lg:col-span-3'}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5" />

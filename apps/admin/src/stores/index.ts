@@ -49,17 +49,6 @@ export {
   useImpugnacaoEstatisticas,
 } from './impugnacaoStore'
 
-// Usuario Store
-export * from './usuarioStore'
-export {
-  useUsuarioStore,
-  useUsuarios,
-  useUsuarioAtual,
-  useUsuarioActions,
-  useRolesPermissoes,
-  useUsuarioEstatisticas,
-} from './usuarioStore'
-
 // Configuracao Store
 export * from './configuracaoStore'
 export {

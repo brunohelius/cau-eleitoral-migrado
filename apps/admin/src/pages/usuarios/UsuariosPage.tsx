@@ -15,8 +15,6 @@ import {
   ChevronRight,
   Loader2,
   Users,
-  Download,
-  Upload,
   RefreshCw,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -36,9 +34,9 @@ const getStatusInfo = (status: StatusUsuario) => {
   const statusMap: Record<StatusUsuario, { label: string; color: string }> = {
     [StatusUsuario.ATIVO]: { label: 'Ativo', color: 'bg-green-100 text-green-800' },
     [StatusUsuario.INATIVO]: { label: 'Inativo', color: 'bg-gray-100 text-gray-800' },
-    [StatusUsuario.PENDENTE]: { label: 'Pendente', color: 'bg-yellow-100 text-yellow-800' },
     [StatusUsuario.BLOQUEADO]: { label: 'Bloqueado', color: 'bg-red-100 text-red-800' },
-    [StatusUsuario.SUSPENSO]: { label: 'Suspenso', color: 'bg-orange-100 text-orange-800' },
+    [StatusUsuario.PENDENTE_CADASTRO]: { label: 'Pendente (Cadastro)', color: 'bg-yellow-100 text-yellow-800' },
+    [StatusUsuario.PENDENTE_CONFIRMACAO]: { label: 'Pendente (Confirmacao)', color: 'bg-orange-100 text-orange-800' },
   }
   return statusMap[status] || { label: 'Desconhecido', color: 'bg-gray-100 text-gray-800' }
 }
@@ -47,17 +45,17 @@ const getStatusInfo = (status: StatusUsuario) => {
 const getTipoInfo = (tipo: TipoUsuario) => {
   const tipoMap: Record<TipoUsuario, { label: string; color: string }> = {
     [TipoUsuario.ADMINISTRADOR]: { label: 'Administrador', color: 'bg-purple-100 text-purple-800' },
-    [TipoUsuario.COMISSAO]: { label: 'Comissao Eleitoral', color: 'bg-blue-100 text-blue-800' },
-    [TipoUsuario.FISCAL]: { label: 'Fiscal', color: 'bg-teal-100 text-teal-800' },
-    [TipoUsuario.ANALISTA]: { label: 'Analista', color: 'bg-indigo-100 text-indigo-800' },
-    [TipoUsuario.AUDITOR]: { label: 'Auditor', color: 'bg-orange-100 text-orange-800' },
-    [TipoUsuario.OPERADOR]: { label: 'Operador', color: 'bg-cyan-100 text-cyan-800' },
+    [TipoUsuario.COMISSAO_ELEITORAL]: { label: 'Comissao Eleitoral', color: 'bg-blue-100 text-blue-800' },
+    [TipoUsuario.CONSELHEIRO]: { label: 'Conselheiro', color: 'bg-teal-100 text-teal-800' },
+    [TipoUsuario.PROFISSIONAL]: { label: 'Profissional', color: 'bg-indigo-100 text-indigo-800' },
+    [TipoUsuario.CANDIDATO]: { label: 'Candidato', color: 'bg-orange-100 text-orange-800' },
+    [TipoUsuario.ELEITOR]: { label: 'Eleitor', color: 'bg-cyan-100 text-cyan-800' },
   }
   return tipoMap[tipo] || { label: 'Outro', color: 'bg-gray-100 text-gray-800' }
 }
 
 // Format CPF for display
-const formatCPF = (cpf?: string) => {
+const formatCPF = (cpf?: string | null) => {
   if (!cpf) return '-'
   const cleaned = cpf.replace(/\D/g, '')
   if (cleaned.length !== 11) return cpf
@@ -65,7 +63,7 @@ const formatCPF = (cpf?: string) => {
 }
 
 // Format date for display
-const formatDate = (dateString?: string) => {
+const formatDate = (dateString?: string | null) => {
   if (!dateString) return 'Nunca'
   return new Date(dateString).toLocaleString('pt-BR', {
     day: '2-digit',
@@ -74,6 +72,41 @@ const formatDate = (dateString?: string) => {
     hour: '2-digit',
     minute: '2-digit',
   })
+}
+
+const getRandomInt = (max: number) => {
+  const bytes = new Uint32Array(1)
+  if (typeof crypto !== 'undefined' && 'getRandomValues' in crypto) {
+    crypto.getRandomValues(bytes)
+    return bytes[0] % max
+  }
+  return Math.floor(Math.random() * max)
+}
+
+const generateTempPassword = (length = 12) => {
+  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
+  const lower = 'abcdefghijkmnopqrstuvwxyz'
+  const digits = '23456789'
+  const special = '@$!%*?&'
+  const all = upper + lower + digits + special
+
+  const chars = [
+    upper[getRandomInt(upper.length)],
+    lower[getRandomInt(lower.length)],
+    digits[getRandomInt(digits.length)],
+    special[getRandomInt(special.length)],
+  ]
+
+  while (chars.length < length) {
+    chars.push(all[getRandomInt(all.length)])
+  }
+
+  for (let i = chars.length - 1; i > 0; i--) {
+    const j = getRandomInt(i + 1)
+    ;[chars[i], chars[j]] = [chars[j], chars[i]]
+  }
+
+  return chars.join('')
 }
 
 export function UsuariosPage() {
@@ -144,44 +177,23 @@ export function UsuariosPage() {
 
   // Reset senha mutation
   const resetSenhaMutation = useMutation({
-    mutationFn: (id: string) => usuariosService.resetarSenha(id, { enviarEmail: true }),
-    onSuccess: () => {
+    mutationFn: async (id: string) => {
+      const newPassword = generateTempPassword()
+      await usuariosService.resetarSenha(id, newPassword)
+      return newPassword
+    },
+    onSuccess: (newPassword) => {
+      queryClient.invalidateQueries({ queryKey: ['usuarios'] })
       toast({
-        title: 'Email enviado',
-        description: 'Um email de redefinicao de senha foi enviado ao usuario.',
+        title: 'Senha redefinida',
+        description: `Nova senha: ${newPassword}`,
       })
     },
     onError: () => {
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Nao foi possivel enviar o email de redefinicao.',
-      })
-    },
-  })
-
-  // Export mutation
-  const exportMutation = useMutation({
-    mutationFn: () => usuariosService.exportar({ ...queryParams, formato: 'xlsx' }),
-    onSuccess: (blob) => {
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `usuarios-${new Date().toISOString().split('T')[0]}.xlsx`
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
-      toast({
-        title: 'Exportacao concluida',
-        description: 'O arquivo foi baixado com sucesso.',
-      })
-    },
-    onError: () => {
-      toast({
-        variant: 'destructive',
-        title: 'Erro',
-        description: 'Nao foi possivel exportar os usuarios.',
+        description: 'Nao foi possivel redefinir a senha.',
       })
     },
   })
@@ -216,18 +228,6 @@ export function UsuariosPage() {
           <p className="text-gray-600">Gerencie os usuarios do sistema</p>
         </div>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => exportMutation.mutate()}
-            disabled={exportMutation.isPending}
-          >
-            {exportMutation.isPending ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Download className="mr-2 h-4 w-4" />
-            )}
-            Exportar
-          </Button>
           <Link to="/usuarios/novo">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
@@ -272,16 +272,19 @@ export function UsuariosPage() {
                   </label>
                   <select
                     value={tipoFilter}
-                    onChange={(e) => setTipoFilter(e.target.value as TipoUsuario | '')}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      setTipoFilter(value === '' ? '' : (Number(value) as TipoUsuario))
+                    }}
                     className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
                   >
                     <option value="">Todos</option>
                     <option value={TipoUsuario.ADMINISTRADOR}>Administrador</option>
-                    <option value={TipoUsuario.COMISSAO}>Comissao Eleitoral</option>
-                    <option value={TipoUsuario.FISCAL}>Fiscal</option>
-                    <option value={TipoUsuario.ANALISTA}>Analista</option>
-                    <option value={TipoUsuario.AUDITOR}>Auditor</option>
-                    <option value={TipoUsuario.OPERADOR}>Operador</option>
+                    <option value={TipoUsuario.COMISSAO_ELEITORAL}>Comissao Eleitoral</option>
+                    <option value={TipoUsuario.CONSELHEIRO}>Conselheiro</option>
+                    <option value={TipoUsuario.PROFISSIONAL}>Profissional</option>
+                    <option value={TipoUsuario.CANDIDATO}>Candidato</option>
+                    <option value={TipoUsuario.ELEITOR}>Eleitor</option>
                   </select>
                 </div>
                 <div>
@@ -290,15 +293,18 @@ export function UsuariosPage() {
                   </label>
                   <select
                     value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value as StatusUsuario | '')}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      setStatusFilter(value === '' ? '' : (Number(value) as StatusUsuario))
+                    }}
                     className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
                   >
                     <option value="">Todos</option>
                     <option value={StatusUsuario.ATIVO}>Ativo</option>
                     <option value={StatusUsuario.INATIVO}>Inativo</option>
-                    <option value={StatusUsuario.PENDENTE}>Pendente</option>
                     <option value={StatusUsuario.BLOQUEADO}>Bloqueado</option>
-                    <option value={StatusUsuario.SUSPENSO}>Suspenso</option>
+                    <option value={StatusUsuario.PENDENTE_CADASTRO}>Pendente (Cadastro)</option>
+                    <option value={StatusUsuario.PENDENTE_CONFIRMACAO}>Pendente (Confirmacao)</option>
                   </select>
                 </div>
                 <div className="flex items-end">
@@ -387,23 +393,12 @@ export function UsuariosPage() {
                           <td className="py-4">
                             <div className="flex items-center gap-3">
                               <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                {usuario.avatarUrl ? (
-                                  <img
-                                    src={usuario.avatarUrl}
-                                    alt={usuario.nome}
-                                    className="h-10 w-10 rounded-full object-cover"
-                                  />
-                                ) : (
-                                  <span className="text-sm font-medium text-gray-600">
-                                    {usuario.nome.charAt(0).toUpperCase()}
-                                  </span>
-                                )}
+                                <span className="text-sm font-medium text-gray-600">
+                                  {usuario.nome.charAt(0).toUpperCase()}
+                                </span>
                               </div>
                               <div>
                                 <p className="font-medium text-gray-900">{usuario.nome}</p>
-                                {usuario.registroCAU && (
-                                  <p className="text-xs text-gray-500">{usuario.registroCAU}</p>
-                                )}
                               </div>
                             </div>
                           </td>
@@ -517,17 +512,9 @@ export function UsuariosPage() {
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
                           <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center">
-                            {usuario.avatarUrl ? (
-                              <img
-                                src={usuario.avatarUrl}
-                                alt={usuario.nome}
-                                className="h-12 w-12 rounded-full object-cover"
-                              />
-                            ) : (
-                              <span className="text-lg font-medium text-gray-600">
-                                {usuario.nome.charAt(0).toUpperCase()}
-                              </span>
-                            )}
+                            <span className="text-lg font-medium text-gray-600">
+                              {usuario.nome.charAt(0).toUpperCase()}
+                            </span>
                           </div>
                           <div>
                             <p className="font-medium text-gray-900">{usuario.nome}</p>
