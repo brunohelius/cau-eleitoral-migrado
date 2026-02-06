@@ -48,8 +48,10 @@ public class DatabaseSeeder
             await SeedDocumentosTableAsync();
             await SeedImpugnacoesAsync();
             await SeedJulgamentosFinaisAsync();
-            await SeedAuditoriaAsync();
-            await SeedNotificacoesAsync();
+            try { await SeedAuditoriaAsync(); }
+            catch (Exception ex) { _logger.LogWarning(ex, "Skipping AuditoriaLogs seed (table may not exist)"); }
+            try { await SeedNotificacoesAsync(); }
+            catch (Exception ex) { _logger.LogWarning(ex, "Skipping Notificacoes seed (table may not exist)"); }
 
             // Always run: fixes missing roles and user-role assignments
             await PatchUserRolesAsync();
