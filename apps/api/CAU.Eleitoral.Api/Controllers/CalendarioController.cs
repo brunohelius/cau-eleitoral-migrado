@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using CAU.Eleitoral.Application.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using CAU.Eleitoral.Domain.Enums;
+using CAU.Eleitoral.Infrastructure.Data;
 
 namespace CAU.Eleitoral.Api.Controllers;
 
@@ -12,21 +13,19 @@ namespace CAU.Eleitoral.Api.Controllers;
 public class CalendarioController : BaseController
 {
     private readonly ICalendarioService _calendarioService;
+    private readonly AppDbContext _db;
     private readonly ILogger<CalendarioController> _logger;
 
-    public CalendarioController(ICalendarioService calendarioService, ILogger<CalendarioController> logger)
+    public CalendarioController(ICalendarioService calendarioService, AppDbContext db, ILogger<CalendarioController> logger)
     {
         _calendarioService = calendarioService;
+        _db = db;
         _logger = logger;
     }
 
     /// <summary>
     /// Lista todos os eventos do calendario
     /// </summary>
-    /// <param name="eleicaoId">Filtro opcional por eleicao</param>
-    /// <param name="tipo">Filtro opcional por tipo</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Lista de eventos</returns>
     [HttpGet]
     [AllowAnonymous]
     [ProducesResponseType(typeof(IEnumerable<CalendarioEventoDto>), StatusCodes.Status200OK)]
@@ -37,8 +36,38 @@ public class CalendarioController : BaseController
     {
         try
         {
-            var eventos = await _calendarioService.GetAllAsync(eleicaoId, tipo, cancellationToken);
-            return Ok(eventos);
+            // Direct DB query bypassing service layer to avoid soft-delete filter issues
+            var query = _db.Calendarios.IgnoreQueryFilters()
+                .Include(c => c.Eleicao)
+                .Where(c => !c.IsDeleted)
+                .AsQueryable();
+
+            if (eleicaoId.HasValue)
+                query = query.Where(c => c.EleicaoId == eleicaoId.Value);
+            if (tipo.HasValue)
+                query = query.Where(c => c.Tipo == tipo.Value);
+
+            var items = await query.OrderBy(c => c.Ordem).ToListAsync(cancellationToken);
+            _logger.LogInformation("CalendarioController.GetAll: found {Count} items (eleicaoId={EleicaoId}, tipo={Tipo})", items.Count, eleicaoId, tipo);
+
+            var dtos = items.Select(c => new CalendarioEventoDto
+            {
+                Id = c.Id,
+                EleicaoId = c.EleicaoId,
+                EleicaoNome = c.Eleicao?.Nome ?? string.Empty,
+                Titulo = c.Nome,
+                Descricao = c.Descricao,
+                Tipo = c.Tipo,
+                Status = c.Status,
+                DataInicio = c.DataInicio,
+                DataFim = c.DataFim,
+                DiaInteiro = !c.HoraInicio.HasValue,
+                Obrigatorio = c.Obrigatorio,
+                CreatedAt = c.CreatedAt,
+                UpdatedAt = c.UpdatedAt
+            });
+
+            return Ok(dtos);
         }
         catch (Exception ex)
         {

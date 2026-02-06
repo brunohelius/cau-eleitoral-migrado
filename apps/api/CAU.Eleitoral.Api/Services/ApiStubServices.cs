@@ -139,7 +139,7 @@ public class DocumentoApiService : Controllers.IDocumentoService
 
     public async Task<IEnumerable<Controllers.DocumentoDto>> GetAllAsync(Guid? eleicaoId, TipoDocumento? tipo, CategoriaDocumento? categoria, CancellationToken ct = default)
     {
-        var query = _db.Documentos.Include(d => d.Eleicao).AsQueryable();
+        var query = _db.Documentos.IgnoreQueryFilters().Include(d => d.Eleicao).Where(d => !d.IsDeleted).AsQueryable();
         if (eleicaoId.HasValue) query = query.Where(d => d.EleicaoId == eleicaoId.Value);
         if (tipo.HasValue) query = query.Where(d => d.Tipo == tipo.Value);
         if (categoria.HasValue) query = query.Where(d => d.Categoria == categoria.Value);
@@ -149,20 +149,20 @@ public class DocumentoApiService : Controllers.IDocumentoService
 
     public async Task<Controllers.DocumentoDto?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        var d = await _db.Documentos.Include(x => x.Eleicao).FirstOrDefaultAsync(x => x.Id == id, ct);
+        var d = await _db.Documentos.IgnoreQueryFilters().Include(x => x.Eleicao).Where(x => !x.IsDeleted).FirstOrDefaultAsync(x => x.Id == id, ct);
         return d == null ? null : MapToDto(d);
     }
 
     public async Task<IEnumerable<Controllers.DocumentoDto>> GetByEleicaoAsync(Guid eleicaoId, CancellationToken ct = default)
     {
-        var items = await _db.Documentos.Include(d => d.Eleicao)
-            .Where(d => d.EleicaoId == eleicaoId).OrderByDescending(d => d.DataPublicacao ?? d.CreatedAt).ToListAsync(ct);
+        var items = await _db.Documentos.IgnoreQueryFilters().Include(d => d.Eleicao)
+            .Where(d => !d.IsDeleted && d.EleicaoId == eleicaoId).OrderByDescending(d => d.DataPublicacao ?? d.CreatedAt).ToListAsync(ct);
         return items.Select(MapToDto);
     }
 
     public async Task<IEnumerable<Controllers.DocumentoDto>> GetPublicadosAsync(Guid? eleicaoId, CancellationToken ct = default)
     {
-        var query = _db.Documentos.Include(d => d.Eleicao).Where(d => d.Status == StatusDocumento.Publicado);
+        var query = _db.Documentos.IgnoreQueryFilters().Include(d => d.Eleicao).Where(d => !d.IsDeleted && d.Status == StatusDocumento.Publicado);
         if (eleicaoId.HasValue) query = query.Where(d => d.EleicaoId == eleicaoId.Value);
         var items = await query.OrderByDescending(d => d.DataPublicacao ?? d.CreatedAt).ToListAsync(ct);
         return items.Select(MapToDto);
@@ -266,21 +266,21 @@ public class MembroChapaApiService : Controllers.IMembroChapaService
 
     public async Task<IEnumerable<MembroChapaDetalheDto>> GetByChapaAsync(Guid chapaId, CancellationToken ct = default)
     {
-        var items = await _db.MembrosChapa.Include(m => m.Chapa).Include(m => m.Profissional)
-            .Where(m => m.ChapaId == chapaId).OrderBy(m => m.Ordem).ToListAsync(ct);
+        var items = await _db.MembrosChapa.IgnoreQueryFilters().Include(m => m.Chapa).Include(m => m.Profissional)
+            .Where(m => !m.IsDeleted && m.ChapaId == chapaId).OrderBy(m => m.Ordem).ToListAsync(ct);
         return items.Select(MapToDto);
     }
 
     public async Task<MembroChapaDetalheDto?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        var m = await _db.MembrosChapa.Include(x => x.Chapa).Include(x => x.Profissional).FirstOrDefaultAsync(x => x.Id == id, ct);
+        var m = await _db.MembrosChapa.IgnoreQueryFilters().Include(x => x.Chapa).Include(x => x.Profissional).Where(x => !x.IsDeleted).FirstOrDefaultAsync(x => x.Id == id, ct);
         return m == null ? null : MapToDto(m);
     }
 
     public async Task<IEnumerable<MembroChapaDetalheDto>> GetByProfissionalAsync(Guid profissionalId, CancellationToken ct = default)
     {
-        var items = await _db.MembrosChapa.Include(m => m.Chapa).Include(m => m.Profissional)
-            .Where(m => m.ProfissionalId == profissionalId).OrderBy(m => m.Ordem).ToListAsync(ct);
+        var items = await _db.MembrosChapa.IgnoreQueryFilters().Include(m => m.Chapa).Include(m => m.Profissional)
+            .Where(m => !m.IsDeleted && m.ProfissionalId == profissionalId).OrderBy(m => m.Ordem).ToListAsync(ct);
         return items.Select(MapToDto);
     }
 
@@ -363,14 +363,14 @@ public class CalendarioApiService : Controllers.ICalendarioService
 
     public async Task<CalendarioEventoDto?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        var c = await _db.Calendarios.Include(x => x.Eleicao).FirstOrDefaultAsync(x => x.Id == id, ct);
+        var c = await _db.Calendarios.IgnoreQueryFilters().Include(x => x.Eleicao).Where(x => !x.IsDeleted).FirstOrDefaultAsync(x => x.Id == id, ct);
         return c == null ? null : MapToDto(c);
     }
 
     public async Task<IEnumerable<CalendarioEventoDto>> GetByEleicaoAsync(Guid eleicaoId, CancellationToken ct = default)
     {
-        var items = await _db.Calendarios.Include(c => c.Eleicao)
-            .Where(c => c.EleicaoId == eleicaoId).OrderBy(c => c.Ordem).ToListAsync(ct);
+        var items = await _db.Calendarios.IgnoreQueryFilters().Include(c => c.Eleicao)
+            .Where(c => !c.IsDeleted && c.EleicaoId == eleicaoId).OrderBy(c => c.Ordem).ToListAsync(ct);
         return items.Select(MapToDto);
     }
 
@@ -378,8 +378,8 @@ public class CalendarioApiService : Controllers.ICalendarioService
     {
         var hoje = DateTime.UtcNow;
         var limite = hoje.AddDays(dias);
-        var query = _db.Calendarios.Include(c => c.Eleicao)
-            .Where(c => c.DataInicio >= hoje && c.DataInicio <= limite);
+        var query = _db.Calendarios.IgnoreQueryFilters().Include(c => c.Eleicao)
+            .Where(c => !c.IsDeleted && c.DataInicio >= hoje && c.DataInicio <= limite);
         if (eleicaoId.HasValue) query = query.Where(c => c.EleicaoId == eleicaoId.Value);
         var items = await query.OrderBy(c => c.DataInicio).ToListAsync(ct);
         return items.Select(MapToDto);
@@ -388,8 +388,8 @@ public class CalendarioApiService : Controllers.ICalendarioService
     public async Task<IEnumerable<CalendarioEventoDto>> GetEmAndamentoAsync(Guid? eleicaoId, CancellationToken ct = default)
     {
         var hoje = DateTime.UtcNow;
-        var query = _db.Calendarios.Include(c => c.Eleicao)
-            .Where(c => c.DataInicio <= hoje && c.DataFim >= hoje);
+        var query = _db.Calendarios.IgnoreQueryFilters().Include(c => c.Eleicao)
+            .Where(c => !c.IsDeleted && c.DataInicio <= hoje && c.DataFim >= hoje);
         if (eleicaoId.HasValue) query = query.Where(c => c.EleicaoId == eleicaoId.Value);
         var items = await query.OrderBy(c => c.Ordem).ToListAsync(ct);
         return items.Select(MapToDto);
@@ -397,8 +397,8 @@ public class CalendarioApiService : Controllers.ICalendarioService
 
     public async Task<IEnumerable<CalendarioEventoDto>> GetByPeriodoAsync(DateTime dataInicio, DateTime dataFim, Guid? eleicaoId, CancellationToken ct = default)
     {
-        var query = _db.Calendarios.Include(c => c.Eleicao)
-            .Where(c => c.DataInicio >= dataInicio && c.DataFim <= dataFim);
+        var query = _db.Calendarios.IgnoreQueryFilters().Include(c => c.Eleicao)
+            .Where(c => !c.IsDeleted && c.DataInicio >= dataInicio && c.DataFim <= dataFim);
         if (eleicaoId.HasValue) query = query.Where(c => c.EleicaoId == eleicaoId.Value);
         var items = await query.OrderBy(c => c.DataInicio).ToListAsync(ct);
         return items.Select(MapToDto);
