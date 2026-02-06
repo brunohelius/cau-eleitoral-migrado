@@ -222,7 +222,12 @@ public class MembroChapaApiService : Controllers.IMembroChapaService
 public class CalendarioApiService : Controllers.ICalendarioService
 {
     private readonly AppDbContext _db;
-    public CalendarioApiService(AppDbContext db) => _db = db;
+    private readonly ILogger<CalendarioApiService> _logger;
+    public CalendarioApiService(AppDbContext db, ILogger<CalendarioApiService> logger)
+    {
+        _db = db;
+        _logger = logger;
+    }
 
     private static CalendarioEventoDto MapToDto(Calendario c) => new()
     {
@@ -243,10 +248,29 @@ public class CalendarioApiService : Controllers.ICalendarioService
 
     public async Task<IEnumerable<CalendarioEventoDto>> GetAllAsync(Guid? eleicaoId, TipoCalendario? tipo, CancellationToken ct = default)
     {
-        var query = _db.Calendarios.Include(c => c.Eleicao).AsQueryable();
+        var query = _db.Calendarios.IgnoreQueryFilters().Include(c => c.Eleicao).Where(c => !c.IsDeleted).AsQueryable();
         if (eleicaoId.HasValue) query = query.Where(c => c.EleicaoId == eleicaoId.Value);
         if (tipo.HasValue) query = query.Where(c => c.Tipo == tipo.Value);
         var items = await query.OrderBy(c => c.Ordem).ToListAsync(ct);
+        _logger.LogInformation("CalendarioApiService.GetAllAsync: found {Count} items (eleicaoId={EleicaoId}, tipo={Tipo})", items.Count, eleicaoId, tipo);
+
+        if (items.Count == 0)
+        {
+            var totalAll = await _db.Calendarios.IgnoreQueryFilters().CountAsync(ct);
+            var totalDeleted = await _db.Calendarios.IgnoreQueryFilters().Where(c => c.IsDeleted).CountAsync(ct);
+            _logger.LogWarning("CalendarioApiService: 0 results. Total (incl deleted): {Total}, Deleted: {Deleted}", totalAll, totalDeleted);
+
+            if (totalDeleted > 0 && totalAll == totalDeleted)
+            {
+                _logger.LogWarning("All {Count} calendario records are soft-deleted! Restoring...", totalDeleted);
+                var deletedItems = await _db.Calendarios.IgnoreQueryFilters().Where(c => c.IsDeleted).ToListAsync(ct);
+                foreach (var item in deletedItems) item.IsDeleted = false;
+                await _db.SaveChangesAsync(ct);
+                items = await _db.Calendarios.Include(c => c.Eleicao).OrderBy(c => c.Ordem).ToListAsync(ct);
+                _logger.LogInformation("Restored {Count} calendario records", items.Count);
+            }
+        }
+
         return items.Select(MapToDto);
     }
 

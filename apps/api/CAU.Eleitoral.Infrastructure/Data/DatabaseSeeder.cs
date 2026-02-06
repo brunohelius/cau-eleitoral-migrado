@@ -841,7 +841,21 @@ public class DatabaseSeeder
 
     private async Task SeedCalendariosAsync()
     {
-        if (await _context.Calendarios.AnyAsync()) return;
+        // Check both filtered and unfiltered counts
+        var filteredCount = await _context.Calendarios.CountAsync();
+        var totalCount = await _context.Calendarios.IgnoreQueryFilters().CountAsync();
+
+        if (filteredCount > 0) return;
+
+        // If records exist but are all soft-deleted, restore them
+        if (totalCount > 0 && filteredCount == 0)
+        {
+            _logger.LogInformation("Restaurando {Count} calendários soft-deleted...", totalCount);
+            var deletedItems = await _context.Calendarios.IgnoreQueryFilters().Where(c => c.IsDeleted).ToListAsync();
+            foreach (var item in deletedItems) item.IsDeleted = false;
+            await _context.SaveChangesAsync();
+            return;
+        }
 
         _logger.LogInformation("Criando calendários eleitorais...");
 
