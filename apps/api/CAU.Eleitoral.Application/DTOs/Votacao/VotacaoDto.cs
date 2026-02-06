@@ -56,9 +56,11 @@ public record RegistrarVotoDto
 
 public record ComprovanteVotoDto
 {
+    public Guid Id { get; init; }
+    public string Protocolo { get; init; } = string.Empty;
     public Guid EleicaoId { get; init; }
     public string EleicaoNome { get; init; } = string.Empty;
-    public DateTime DataVoto { get; init; }
+    public DateTime DataHoraVoto { get; init; }
     public string HashComprovante { get; init; } = string.Empty;
     public string? Mensagem { get; init; }
 }

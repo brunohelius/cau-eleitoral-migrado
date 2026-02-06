@@ -107,7 +107,7 @@ export function VotacaoCedulaPage() {
 
   // Local state
   const [chapas, setChapas] = useState<ChapaVotacao[]>([])
-  const [eleicaoNome, setEleicaoNome] = useState(mockEleicao.nome)
+  const [eleicaoNome, setEleicaoNome] = useState(voter?.eleicaoNome || mockEleicao.nome)
   const [expandedChapa, setExpandedChapa] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [showChapaModal, setShowChapaModal] = useState<string | null>(null)
@@ -130,15 +130,20 @@ export function VotacaoCedulaPage() {
         const response = await votacaoService.getChapasVotacao(eleicaoId)
         setChapas(response)
 
-        // Also get election info
-        const status = await votacaoService.getStatus(eleicaoId)
-        if (status.tempoRestante) {
-          setTempoRestante(status.tempoRestante)
+        // Try to get election name from API cedula endpoint
+        try {
+          const status = await votacaoService.getStatus(eleicaoId)
+          if (status.tempoRestante) {
+            setTempoRestante(status.tempoRestante)
+            setTimerAtivo(true)
+          }
+        } catch {
+          // Set 15 minutes default time
+          setTempoRestante(15 * 60)
           setTimerAtivo(true)
         }
       } catch (err) {
-        // Use mock data for development
-        console.warn('Using mock data:', err)
+        console.warn('Failed to load chapas from API, using mock data:', err)
         setChapas(mockChapas)
         // Set 15 minutes default time for demo
         setTempoRestante(15 * 60)

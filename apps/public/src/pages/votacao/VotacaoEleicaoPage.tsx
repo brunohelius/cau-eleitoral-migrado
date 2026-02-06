@@ -13,54 +13,28 @@ import {
 } from 'lucide-react'
 import { useVoterStore } from '@/stores/voter'
 import { useVotacaoStore } from '@/stores/votacao'
+import api, { setTokenType } from '@/services/api'
 
 // Types
 interface EleicaoDisponivel {
   id: string
   nome: string
   descricao: string
-  regional: string
-  dataInicio: string
-  dataFim: string
+  dataInicioVotacao: string
+  dataFimVotacao: string
   totalChapas: number
-  status: 'disponivel' | 'votado' | 'encerrada' | 'nao_iniciada'
-  votadoEm?: string
+  emAndamento: boolean
+  jaVotou: boolean
 }
 
-// Mock data
-const mockEleicoes: EleicaoDisponivel[] = [
-  {
-    id: '1',
-    nome: 'Eleicao Ordinaria CAU/SP 2024',
-    descricao: 'Eleicao para renovacao dos cargos do Conselho Regional de Sao Paulo',
-    regional: 'CAU/SP',
-    dataInicio: '2024-03-15T08:00:00',
-    dataFim: '2024-03-22T18:00:00',
-    totalChapas: 5,
-    status: 'disponivel',
-  },
-  {
-    id: '2',
-    nome: 'Eleicao Ordinaria CAU/BR 2024',
-    descricao: 'Eleicao para renovacao dos cargos do Conselho Federal',
-    regional: 'CAU/BR',
-    dataInicio: '2024-03-15T08:00:00',
-    dataFim: '2024-03-22T18:00:00',
-    totalChapas: 3,
-    status: 'votado',
-    votadoEm: '2024-03-16T10:30:00',
-  },
-  {
-    id: '3',
-    nome: 'Eleicao Suplementar CAU/RJ 2024',
-    descricao: 'Eleicao suplementar para preenchimento de vaga',
-    regional: 'CAU/RJ',
-    dataInicio: '2024-04-01T08:00:00',
-    dataFim: '2024-04-08T18:00:00',
-    totalChapas: 2,
-    status: 'nao_iniciada',
-  },
-]
+const statusFromApi = (e: EleicaoDisponivel): 'disponivel' | 'votado' | 'encerrada' | 'nao_iniciada' => {
+  if (e.jaVotou) return 'votado'
+  if (e.emAndamento) return 'disponivel'
+  const now = new Date()
+  const fim = new Date(e.dataFimVotacao)
+  if (fim < now) return 'encerrada'
+  return 'nao_iniciada'
+}
 
 const statusConfig = {
   disponivel: {
@@ -91,7 +65,8 @@ const statusConfig = {
 
 export function VotacaoEleicaoPage() {
   const navigate = useNavigate()
-  const [isLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [eleicoes, setEleicoes] = useState<(EleicaoDisponivel & { status: ReturnType<typeof statusFromApi> })[]>([])
 
   // Get voter from store
   const { voter, isAuthenticated } = useVoterStore()
@@ -109,13 +84,51 @@ export function VotacaoEleicaoPage() {
     resetVotacao()
   }, [resetVotacao])
 
+  // Fetch elections from API
+  useEffect(() => {
+    const fetchEleicoes = async () => {
+      setIsLoading(true)
+      try {
+        setTokenType('voter')
+        const response = await api.get<EleicaoDisponivel[]>('/votacao/eleicoes-disponiveis')
+        const mapped = response.data.map(e => ({
+          ...e,
+          status: statusFromApi(e),
+        }))
+        setEleicoes(mapped)
+      } catch (err) {
+        console.warn('Failed to load elections from API, using voter store data:', err)
+        // Fallback: use election data from voter store
+        if (voter?.eleicaoId && voter.eleicaoId !== '00000000-0000-0000-0000-000000000000') {
+          setEleicoes([{
+            id: voter.eleicaoId,
+            nome: voter.eleicaoNome || 'Eleicao CAU',
+            descricao: '',
+            dataInicioVotacao: new Date().toISOString(),
+            dataFimVotacao: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+            totalChapas: 0,
+            emAndamento: !voter.jaVotou,
+            jaVotou: voter.jaVotou,
+            status: voter.jaVotou ? 'votado' : 'disponivel',
+          }])
+        }
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    if (isAuthenticated) {
+      fetchEleicoes()
+    }
+  }, [isAuthenticated, voter])
+
   // Get user info from voter store
   const user = {
     nome: voter?.nome || 'Eleitor',
     cau: voter?.registroCAU || 'A*****-*',
   }
 
-  const handleVotar = (eleicao: EleicaoDisponivel) => {
+  const handleVotar = (eleicao: typeof eleicoes[0]) => {
     if (eleicao.status === 'disponivel') {
       navigate(`/eleitor/votacao/${eleicao.id}/cedula`)
     } else if (eleicao.status === 'votado') {
@@ -142,9 +155,9 @@ export function VotacaoEleicaoPage() {
     return 'Ultimo dia!'
   }
 
-  const eleicoesDisponiveis = mockEleicoes.filter(e => e.status === 'disponivel')
-  const eleicoesVotadas = mockEleicoes.filter(e => e.status === 'votado')
-  const outrasEleicoes = mockEleicoes.filter(e => !['disponivel', 'votado'].includes(e.status))
+  const eleicoesDisponiveis = eleicoes.filter(e => e.status === 'disponivel')
+  const eleicoesVotadas = eleicoes.filter(e => e.status === 'votado')
+  const outrasEleicoes = eleicoes.filter(e => !['disponivel', 'votado'].includes(e.status))
 
   if (isLoading) {
     return (
@@ -195,7 +208,7 @@ export function VotacaoEleicaoPage() {
 
           <div className="space-y-4">
             {eleicoesDisponiveis.map(eleicao => {
-              const timeRemaining = getTimeRemaining(eleicao.dataFim)
+              const timeRemaining = getTimeRemaining(eleicao.dataFimVotacao)
               const config = statusConfig[eleicao.status]
               const StatusIcon = config.icon
 
@@ -221,17 +234,21 @@ export function VotacaoEleicaoPage() {
                         </div>
 
                         <h3 className="text-xl font-bold text-gray-900">{eleicao.nome}</h3>
-                        <p className="text-gray-600 mt-1">{eleicao.descricao}</p>
+                        {eleicao.descricao && (
+                          <p className="text-gray-600 mt-1">{eleicao.descricao}</p>
+                        )}
 
                         <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-500">
                           <span className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
-                            Ate {new Date(eleicao.dataFim).toLocaleDateString('pt-BR')} as {new Date(eleicao.dataFim).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                            Ate {new Date(eleicao.dataFimVotacao).toLocaleDateString('pt-BR')} as {new Date(eleicao.dataFimVotacao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                           </span>
-                          <span className="flex items-center gap-1">
-                            <Users className="h-4 w-4" />
-                            {eleicao.totalChapas} chapas
-                          </span>
+                          {eleicao.totalChapas > 0 && (
+                            <span className="flex items-center gap-1">
+                              <Users className="h-4 w-4" />
+                              {eleicao.totalChapas} chapas
+                            </span>
+                          )}
                         </div>
                       </div>
 
@@ -253,7 +270,7 @@ export function VotacaoEleicaoPage() {
       )}
 
       {/* Alert for no available elections */}
-      {eleicoesDisponiveis.length === 0 && (
+      {eleicoesDisponiveis.length === 0 && eleicoesVotadas.length === 0 && outrasEleicoes.length === 0 && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-6 w-6 text-yellow-600 flex-shrink-0" />
@@ -305,15 +322,6 @@ export function VotacaoEleicaoPage() {
                         </div>
 
                         <h3 className="text-xl font-bold text-gray-900">{eleicao.nome}</h3>
-
-                        <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-500">
-                          {eleicao.votadoEm && (
-                            <span className="flex items-center gap-1">
-                              <CheckCircle className="h-4 w-4 text-green-500" />
-                              Votado em {new Date(eleicao.votadoEm).toLocaleDateString('pt-BR')} as {new Date(eleicao.votadoEm).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                          )}
-                        </div>
                       </div>
 
                       <button
@@ -367,7 +375,7 @@ export function VotacaoEleicaoPage() {
                         <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-500">
                           <span className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
-                            Inicio: {new Date(eleicao.dataInicio).toLocaleDateString('pt-BR')}
+                            Inicio: {new Date(eleicao.dataInicioVotacao).toLocaleDateString('pt-BR')}
                           </span>
                         </div>
                       </div>

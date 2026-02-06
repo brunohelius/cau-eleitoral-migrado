@@ -150,6 +150,50 @@ public class VotacaoController : BaseController
     }
 
     /// <summary>
+    /// Obtem as chapas de uma eleicao para votacao (formato simplificado)
+    /// </summary>
+    /// <param name="eleicaoId">ID da eleicao</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Lista de chapas</returns>
+    [HttpGet("eleicao/{eleicaoId:guid}/chapas")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetChapasEleicao(Guid eleicaoId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var cedula = await _votacaoService.ObterCedulaAsync(eleicaoId, userId, cancellationToken);
+
+            // Map to simplified format expected by frontend
+            var chapas = cedula.Opcoes.Select(o => new
+            {
+                id = o.ChapaId.ToString(),
+                numero = o.Numero,
+                nome = o.Nome,
+                sigla = o.Sigla,
+                slogan = o.Lema,
+                presidente = o.Membros.FirstOrDefault(m => m.Cargo == "Presidente")?.Nome ?? o.Membros.FirstOrDefault()?.Nome ?? "",
+                vicePresidente = o.Membros.FirstOrDefault(m => m.Cargo == "Vice-Presidente")?.Nome,
+                membros = o.Membros.Where(m => m.Cargo != "Presidente" && m.Cargo != "Vice-Presidente")
+                    .Select(m => new { nome = m.Nome, cargo = m.Cargo })
+                    .ToList()
+            });
+
+            return Ok(chapas);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao obter chapas para eleicao {EleicaoId}", eleicaoId);
+            return StatusCode(500, new { message = "Erro ao obter chapas" });
+        }
+    }
+
+    /// <summary>
     /// Lista eleicoes disponiveis para votacao
     /// </summary>
     /// <param name="cancellationToken">Token de cancelamento</param>

@@ -383,10 +383,12 @@ public class VotacaoService : IVotacaoService
 
         return new ComprovanteVotoDto
         {
+            Id = voto.Id,
+            Protocolo = voto.Comprovante ?? $"COMP-{voto.DataVoto:yyyyMMdd}-{hashVoto[..8]}",
             EleicaoId = dto.EleicaoId,
             EleicaoNome = eleicao.Nome,
-            DataVoto = voto.DataVoto,
-            HashComprovante = voto.Comprovante ?? hashVoto,
+            DataHoraVoto = voto.DataVoto,
+            HashComprovante = hashVoto,
             Mensagem = "Voto registrado com sucesso. Guarde seu comprovante."
         };
     }
@@ -414,9 +416,11 @@ public class VotacaoService : IVotacaoService
 
         return new ComprovanteVotoDto
         {
+            Id = eleitor.Id,
+            Protocolo = eleitor.ComprovanteVotacao ?? "",
             EleicaoId = eleicaoId,
             EleicaoNome = eleitor.Eleicao?.Nome ?? "",
-            DataVoto = eleitor.DataVoto ?? DateTime.MinValue,
+            DataHoraVoto = eleitor.DataVoto ?? DateTime.MinValue,
             HashComprovante = eleitor.ComprovanteVotacao ?? "",
             Mensagem = "Comprovante de voto"
         };
