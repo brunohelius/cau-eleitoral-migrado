@@ -33,6 +33,284 @@ public class CalendarioService : ICalendarioService
         _logger = logger;
     }
 
+    #region Period Validation Methods
+
+    public async Task<bool> IsWithinPeriodAsync(Guid eleicaoId, TipoCalendario tipo, CancellationToken cancellationToken = default)
+    {
+        var agora = DateTime.UtcNow;
+
+        var periodo = await _calendarioRepository.Query()
+            .Where(c => c.EleicaoId == eleicaoId &&
+                       c.Tipo == tipo &&
+                       c.Status != StatusCalendario.Cancelado)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (periodo == null)
+        {
+            _logger.LogWarning("Periodo {Tipo} nao encontrado para eleicao {EleicaoId}", tipo, eleicaoId);
+            return false;
+        }
+
+        // Consider time if specified
+        var dataInicio = periodo.DataInicio;
+        var dataFim = periodo.DataFim;
+
+        if (periodo.HoraInicio.HasValue)
+            dataInicio = dataInicio.Date.Add(periodo.HoraInicio.Value);
+
+        if (periodo.HoraFim.HasValue)
+            dataFim = dataFim.Date.Add(periodo.HoraFim.Value);
+
+        return agora >= dataInicio && agora <= dataFim;
+    }
+
+    public async Task<bool> IsWithinAnyPeriodAsync(Guid eleicaoId, TipoCalendario[] tipos, CancellationToken cancellationToken = default)
+    {
+        foreach (var tipo in tipos)
+        {
+            if (await IsWithinPeriodAsync(eleicaoId, tipo, cancellationToken))
+                return true;
+        }
+        return false;
+    }
+
+    public async Task<CalendarioDto?> GetPeriodoAtualAsync(Guid eleicaoId, CancellationToken cancellationToken = default)
+    {
+        var agora = DateTime.UtcNow;
+
+        var periodos = await _calendarioRepository.Query()
+            .Include(c => c.Eleicao)
+            .Where(c => c.EleicaoId == eleicaoId &&
+                       c.Status != StatusCalendario.Cancelado)
+            .OrderBy(c => c.Ordem)
+            .ToListAsync(cancellationToken);
+
+        foreach (var periodo in periodos)
+        {
+            var dataInicio = periodo.DataInicio;
+            var dataFim = periodo.DataFim;
+
+            if (periodo.HoraInicio.HasValue)
+                dataInicio = dataInicio.Date.Add(periodo.HoraInicio.Value);
+
+            if (periodo.HoraFim.HasValue)
+                dataFim = dataFim.Date.Add(periodo.HoraFim.Value);
+
+            if (agora >= dataInicio && agora <= dataFim)
+                return MapToDto(periodo);
+        }
+
+        return null;
+    }
+
+    public async Task<CalendarioDto?> GetProximoPeriodoAsync(Guid eleicaoId, CancellationToken cancellationToken = default)
+    {
+        var agora = DateTime.UtcNow;
+
+        var proximoPeriodo = await _calendarioRepository.Query()
+            .Include(c => c.Eleicao)
+            .Where(c => c.EleicaoId == eleicaoId &&
+                       c.Status != StatusCalendario.Cancelado &&
+                       c.DataInicio > agora)
+            .OrderBy(c => c.DataInicio)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return proximoPeriodo == null ? null : MapToDto(proximoPeriodo);
+    }
+
+    public async Task<PeriodoValidacaoResult> ValidarPeriodoAsync(Guid eleicaoId, TipoCalendario[] tiposPermitidos, string nomeAcao, CancellationToken cancellationToken = default)
+    {
+        var agora = DateTime.UtcNow;
+
+        // Get all periods for this election
+        var periodos = await _calendarioRepository.Query()
+            .Where(c => c.EleicaoId == eleicaoId &&
+                       c.Status != StatusCalendario.Cancelado)
+            .OrderBy(c => c.Ordem)
+            .ToListAsync(cancellationToken);
+
+        if (!periodos.Any())
+        {
+            return new PeriodoValidacaoResult
+            {
+                IsValid = false,
+                Message = $"Calendario da eleicao nao foi configurado. Nao e possivel {nomeAcao}."
+            };
+        }
+
+        // Check if current time is within any permitted period
+        Calendario? periodoAtualEncontrado = null;
+
+        foreach (var tipo in tiposPermitidos)
+        {
+            var periodo = periodos.FirstOrDefault(p => p.Tipo == tipo);
+            if (periodo == null) continue;
+
+            var dataInicio = periodo.DataInicio;
+            var dataFim = periodo.DataFim;
+
+            if (periodo.HoraInicio.HasValue)
+                dataInicio = dataInicio.Date.Add(periodo.HoraInicio.Value);
+
+            if (periodo.HoraFim.HasValue)
+                dataFim = dataFim.Date.Add(periodo.HoraFim.Value);
+
+            if (agora >= dataInicio && agora <= dataFim)
+            {
+                periodoAtualEncontrado = periodo;
+                break;
+            }
+        }
+
+        if (periodoAtualEncontrado != null)
+        {
+            return new PeriodoValidacaoResult
+            {
+                IsValid = true,
+                PeriodoAtual = periodoAtualEncontrado.Tipo,
+                DataInicioPeriodo = periodoAtualEncontrado.DataInicio,
+                DataFimPeriodo = periodoAtualEncontrado.DataFim
+            };
+        }
+
+        // If not within permitted period, build informative error message
+        var tiposPermitidosStr = string.Join(", ", tiposPermitidos.Select(t => t.ToString()));
+
+        // Find the actual current period (if any)
+        var periodoAtualReal = periodos.FirstOrDefault(p =>
+        {
+            var dataInicio = p.DataInicio;
+            var dataFim = p.DataFim;
+
+            if (p.HoraInicio.HasValue)
+                dataInicio = dataInicio.Date.Add(p.HoraInicio.Value);
+
+            if (p.HoraFim.HasValue)
+                dataFim = dataFim.Date.Add(p.HoraFim.Value);
+
+            return agora >= dataInicio && agora <= dataFim;
+        });
+
+        // Find the nearest permitted period
+        var proximoPeriodoPermitido = periodos
+            .Where(p => tiposPermitidos.Contains(p.Tipo) && p.DataInicio > agora)
+            .OrderBy(p => p.DataInicio)
+            .FirstOrDefault();
+
+        string mensagem;
+        if (periodoAtualReal != null)
+        {
+            mensagem = $"Acao '{nomeAcao}' nao permitida. Periodo atual: {periodoAtualReal.Tipo}. " +
+                      $"Esta acao so e permitida durante: {tiposPermitidosStr}.";
+        }
+        else if (proximoPeriodoPermitido != null)
+        {
+            mensagem = $"Acao '{nomeAcao}' nao permitida no momento. " +
+                      $"O proximo periodo permitido ({proximoPeriodoPermitido.Tipo}) inicia em {proximoPeriodoPermitido.DataInicio:dd/MM/yyyy}.";
+        }
+        else
+        {
+            var ultimoPeriodoPermitido = periodos
+                .Where(p => tiposPermitidos.Contains(p.Tipo))
+                .OrderByDescending(p => p.DataFim)
+                .FirstOrDefault();
+
+            if (ultimoPeriodoPermitido != null && ultimoPeriodoPermitido.DataFim < agora)
+            {
+                mensagem = $"Acao '{nomeAcao}' nao permitida. O periodo de {ultimoPeriodoPermitido.Tipo} " +
+                          $"encerrou em {ultimoPeriodoPermitido.DataFim:dd/MM/yyyy}.";
+            }
+            else
+            {
+                mensagem = $"Acao '{nomeAcao}' nao permitida. Periodos permitidos: {tiposPermitidosStr}.";
+            }
+        }
+
+        _logger.LogWarning("Validacao de periodo falhou para eleicao {EleicaoId}: {Mensagem}", eleicaoId, mensagem);
+
+        return new PeriodoValidacaoResult
+        {
+            IsValid = false,
+            Message = mensagem,
+            PeriodoAtual = periodoAtualReal?.Tipo
+        };
+    }
+
+    public async Task<bool> PeriodoJaPassouAsync(Guid eleicaoId, TipoCalendario tipo, CancellationToken cancellationToken = default)
+    {
+        var agora = DateTime.UtcNow;
+
+        var periodo = await _calendarioRepository.Query()
+            .Where(c => c.EleicaoId == eleicaoId &&
+                       c.Tipo == tipo &&
+                       c.Status != StatusCalendario.Cancelado)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (periodo == null)
+            return false;
+
+        var dataFim = periodo.DataFim;
+        if (periodo.HoraFim.HasValue)
+            dataFim = dataFim.Date.Add(periodo.HoraFim.Value);
+
+        return agora > dataFim;
+    }
+
+    public async Task<bool> PeriodoAindaNaoIniciouAsync(Guid eleicaoId, TipoCalendario tipo, CancellationToken cancellationToken = default)
+    {
+        var agora = DateTime.UtcNow;
+
+        var periodo = await _calendarioRepository.Query()
+            .Where(c => c.EleicaoId == eleicaoId &&
+                       c.Tipo == tipo &&
+                       c.Status != StatusCalendario.Cancelado)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (periodo == null)
+            return true;
+
+        var dataInicio = periodo.DataInicio;
+        if (periodo.HoraInicio.HasValue)
+            dataInicio = dataInicio.Date.Add(periodo.HoraInicio.Value);
+
+        return agora < dataInicio;
+    }
+
+    public async Task<IEnumerable<CalendarioDto>> GetPeriodosAtivosAsync(Guid eleicaoId, CancellationToken cancellationToken = default)
+    {
+        var agora = DateTime.UtcNow;
+
+        var periodos = await _calendarioRepository.Query()
+            .Include(c => c.Eleicao)
+            .Where(c => c.EleicaoId == eleicaoId &&
+                       c.Status != StatusCalendario.Cancelado)
+            .OrderBy(c => c.Ordem)
+            .ToListAsync(cancellationToken);
+
+        var periodosAtivos = new List<CalendarioDto>();
+
+        foreach (var periodo in periodos)
+        {
+            var dataInicio = periodo.DataInicio;
+            var dataFim = periodo.DataFim;
+
+            if (periodo.HoraInicio.HasValue)
+                dataInicio = dataInicio.Date.Add(periodo.HoraInicio.Value);
+
+            if (periodo.HoraFim.HasValue)
+                dataFim = dataFim.Date.Add(periodo.HoraFim.Value);
+
+            if (agora >= dataInicio && agora <= dataFim)
+                periodosAtivos.Add(MapToDto(periodo));
+        }
+
+        return periodosAtivos;
+    }
+
+    #endregion
+
+    #region CRUD Operations
+
     public async Task<CalendarioDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var calendario = await _calendarioRepository.Query()
@@ -662,4 +940,6 @@ public class CalendarioService : ICalendarioService
             CreatedAt = calendario.CreatedAt
         };
     }
+
+    #endregion
 }

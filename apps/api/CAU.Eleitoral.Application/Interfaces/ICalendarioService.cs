@@ -3,9 +3,67 @@ using CAU.Eleitoral.Domain.Enums;
 
 namespace CAU.Eleitoral.Application.Interfaces;
 
+/// <summary>
+/// Result of period validation
+/// </summary>
+public class PeriodoValidacaoResult
+{
+    public bool IsValid { get; set; }
+    public string? Message { get; set; }
+    public TipoCalendario? PeriodoAtual { get; set; }
+    public DateTime? DataInicioPeriodo { get; set; }
+    public DateTime? DataFimPeriodo { get; set; }
+}
+
 public interface ICalendarioService
 {
-    // CRUD Operations
+    #region Period Validation Methods
+
+    /// <summary>
+    /// Checks if the current date is within a specific calendar period for an election
+    /// </summary>
+    Task<bool> IsWithinPeriodAsync(Guid eleicaoId, TipoCalendario tipo, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Checks if the current date is within any of the specified calendar periods
+    /// </summary>
+    Task<bool> IsWithinAnyPeriodAsync(Guid eleicaoId, TipoCalendario[] tipos, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets the current active period for an election
+    /// </summary>
+    Task<CalendarioDto?> GetPeriodoAtualAsync(Guid eleicaoId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets the next upcoming period for an election
+    /// </summary>
+    Task<CalendarioDto?> GetProximoPeriodoAsync(Guid eleicaoId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Validates if an action is allowed based on permitted calendar periods.
+    /// Throws InvalidOperationException if validation fails.
+    /// </summary>
+    Task<PeriodoValidacaoResult> ValidarPeriodoAsync(Guid eleicaoId, TipoCalendario[] tiposPermitidos, string nomeAcao, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Checks if a specific period has already passed (completed)
+    /// </summary>
+    Task<bool> PeriodoJaPassouAsync(Guid eleicaoId, TipoCalendario tipo, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Checks if a specific period has not started yet
+    /// </summary>
+    Task<bool> PeriodoAindaNaoIniciouAsync(Guid eleicaoId, TipoCalendario tipo, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets all active periods for an election at the current moment
+    /// </summary>
+    Task<IEnumerable<CalendarioDto>> GetPeriodosAtivosAsync(Guid eleicaoId, CancellationToken cancellationToken = default);
+
+    #endregion
+
+    #region CRUD Operations
+
     Task<CalendarioDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<IEnumerable<CalendarioDto>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<IEnumerable<CalendarioDto>> GetByEleicaoAsync(Guid eleicaoId, CancellationToken cancellationToken = default);
@@ -15,6 +73,8 @@ public interface ICalendarioService
     Task<CalendarioDto> CreateAsync(CreateCalendarioDto dto, CancellationToken cancellationToken = default);
     Task<CalendarioDto> UpdateAsync(Guid id, UpdateCalendarioDto dto, CancellationToken cancellationToken = default);
     Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+
+    #endregion
 
     // Status Operations
     Task<CalendarioDto> IniciarAsync(Guid id, CancellationToken cancellationToken = default);

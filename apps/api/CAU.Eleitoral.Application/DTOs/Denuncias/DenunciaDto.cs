@@ -455,6 +455,360 @@ public record ReabrirDenunciaDto
 
 #endregion
 
+#region Workflow DTOs
+
+/// <summary>
+/// DTO completo para registro de admissibilidade com validacoes
+/// </summary>
+public record RegistrarAdmissibilidadeCompletoDto
+{
+    public bool Admissivel { get; init; }
+
+    [Required(ErrorMessage = "Parecer eh obrigatorio")]
+    [StringLength(5000, MinimumLength = 20, ErrorMessage = "Parecer deve ter entre 20 e 5000 caracteres")]
+    public string Parecer { get; init; } = string.Empty;
+
+    [StringLength(10000, ErrorMessage = "Fundamentacao deve ter no maximo 10000 caracteres")]
+    public string? Fundamentacao { get; init; }
+
+    /// <summary>
+    /// Requisitos formais verificados
+    /// </summary>
+    public RequisitosFormaisDto? RequisitosFormais { get; init; }
+}
+
+/// <summary>
+/// DTO para verificacao de requisitos formais da denuncia
+/// </summary>
+public record RequisitosFormaisDto
+{
+    public bool TemTitulo { get; init; }
+    public bool TemDescricao { get; init; }
+    public bool TemFundamentacao { get; init; }
+    public bool TemProvas { get; init; }
+    public bool IdentificacaoDenunciado { get; init; }
+    public bool DentroPrazo { get; init; }
+    public bool EleicaoValida { get; init; }
+    public string? Observacoes { get; init; }
+}
+
+/// <summary>
+/// DTO para registro de defesa com documentos
+/// </summary>
+public record RegistrarDefesaDto
+{
+    [Required(ErrorMessage = "Conteudo eh obrigatorio")]
+    [StringLength(50000, MinimumLength = 50, ErrorMessage = "Conteudo deve ter entre 50 e 50000 caracteres")]
+    public string Conteudo { get; init; } = string.Empty;
+
+    [StringLength(20000, ErrorMessage = "Fundamentacao deve ter no maximo 20000 caracteres")]
+    public string? Fundamentacao { get; init; }
+
+    public Guid? ChapaId { get; init; }
+    public Guid? MembroId { get; init; }
+
+    public List<CreateArquivoDefesaDto>? Arquivos { get; init; }
+}
+
+/// <summary>
+/// DTO para atribuicao de relator
+/// </summary>
+public record AtribuirRelatorDto
+{
+    [Required(ErrorMessage = "RelatorId eh obrigatorio")]
+    public Guid RelatorId { get; init; }
+
+    [StringLength(1000, ErrorMessage = "Justificativa deve ter no maximo 1000 caracteres")]
+    public string? Justificativa { get; init; }
+}
+
+/// <summary>
+/// DTO para registro de parecer do relator
+/// </summary>
+public record RegistrarParecerDto
+{
+    [Required(ErrorMessage = "Tipo eh obrigatorio")]
+    public TipoParecerDenuncia Tipo { get; init; }
+
+    [Required(ErrorMessage = "Ementa eh obrigatoria")]
+    [StringLength(2000, MinimumLength = 20, ErrorMessage = "Ementa deve ter entre 20 e 2000 caracteres")]
+    public string Ementa { get; init; } = string.Empty;
+
+    [Required(ErrorMessage = "Conteudo eh obrigatorio")]
+    [StringLength(50000, MinimumLength = 100, ErrorMessage = "Conteudo deve ter entre 100 e 50000 caracteres")]
+    public string Conteudo { get; init; } = string.Empty;
+
+    [StringLength(20000, ErrorMessage = "Fundamentacao deve ter no maximo 20000 caracteres")]
+    public string? Fundamentacao { get; init; }
+
+    [StringLength(10000, ErrorMessage = "Conclusao deve ter no maximo 10000 caracteres")]
+    public string? Conclusao { get; init; }
+
+    /// <summary>
+    /// Recomendacao do parecer: Procedente, Improcedente, ParcialmenteProcedente
+    /// </summary>
+    public TipoVotoJulgamento Recomendacao { get; init; }
+
+    [StringLength(5000, ErrorMessage = "Recomendacao texto deve ter no maximo 5000 caracteres")]
+    public string? RecomendacaoTexto { get; init; }
+}
+
+/// <summary>
+/// DTO para resultado do parecer
+/// </summary>
+public record ParecerResultadoDto
+{
+    public Guid Id { get; init; }
+    public Guid DenunciaId { get; init; }
+    public TipoParecerDenuncia Tipo { get; init; }
+    public string TipoNome { get; init; } = string.Empty;
+    public StatusParecerDenuncia Status { get; init; }
+    public string StatusNome { get; init; } = string.Empty;
+    public string Numero { get; init; } = string.Empty;
+    public string Ementa { get; init; } = string.Empty;
+    public string Conteudo { get; init; } = string.Empty;
+    public string? Fundamentacao { get; init; }
+    public string? Conclusao { get; init; }
+    public bool? Favoravel { get; init; }
+    public string? Recomendacao { get; init; }
+    public Guid? PareceristaId { get; init; }
+    public string? PareceristaName { get; init; }
+    public DateTime DataElaboracao { get; init; }
+    public DateTime? DataAprovacao { get; init; }
+}
+
+/// <summary>
+/// DTO completo para julgamento com votos
+/// </summary>
+public record JulgarDenunciaCompletoDto
+{
+    [Required(ErrorMessage = "Resultado eh obrigatorio")]
+    public StatusDenuncia Resultado { get; init; }
+
+    [Required(ErrorMessage = "Decisao eh obrigatoria")]
+    [StringLength(10000, MinimumLength = 50, ErrorMessage = "Decisao deve ter entre 50 e 10000 caracteres")]
+    public string Decisao { get; init; } = string.Empty;
+
+    [StringLength(30000, ErrorMessage = "Fundamentacao deve ter no maximo 30000 caracteres")]
+    public string? Fundamentacao { get; init; }
+
+    [StringLength(5000, ErrorMessage = "Ementa deve ter no maximo 5000 caracteres")]
+    public string? Ementa { get; init; }
+
+    [StringLength(10000, ErrorMessage = "Dispositivo deve ter no maximo 10000 caracteres")]
+    public string? Dispositivo { get; init; }
+
+    [StringLength(5000, ErrorMessage = "Penalidade deve ter no maximo 5000 caracteres")]
+    public string? Penalidade { get; init; }
+
+    public TipoDecisao? TipoDecisao { get; init; }
+    public Guid? SessaoId { get; init; }
+    public Guid? ComissaoId { get; init; }
+
+    /// <summary>
+    /// Votos dos membros da comissao
+    /// </summary>
+    public List<RegistrarVotoDenunciaDto>? Votos { get; init; }
+
+    /// <summary>
+    /// Abrir prazo de recurso automaticamente
+    /// </summary>
+    public bool AbrirPrazoRecurso { get; init; } = true;
+
+    /// <summary>
+    /// Dias para prazo de recurso (padrao 5 dias)
+    /// </summary>
+    [Range(1, 30, ErrorMessage = "PrazoDiasRecurso deve ser entre 1 e 30")]
+    public int PrazoDiasRecurso { get; init; } = 5;
+}
+
+/// <summary>
+/// DTO para interposicao de recurso
+/// </summary>
+public record InterporRecursoDto
+{
+    [Required(ErrorMessage = "Tipo eh obrigatorio")]
+    public TipoRecurso Tipo { get; init; }
+
+    [Required(ErrorMessage = "Fundamentacao eh obrigatoria")]
+    [StringLength(30000, MinimumLength = 100, ErrorMessage = "Fundamentacao deve ter entre 100 e 30000 caracteres")]
+    public string Fundamentacao { get; init; } = string.Empty;
+
+    [StringLength(10000, ErrorMessage = "Pedido deve ter no maximo 10000 caracteres")]
+    public string? Pedido { get; init; }
+
+    public Guid? RecorrenteId { get; init; }
+    public Guid? ChapaId { get; init; }
+
+    public List<CreateArquivoRecursoDto>? Arquivos { get; init; }
+}
+
+/// <summary>
+/// DTO para arquivo de recurso
+/// </summary>
+public record CreateArquivoRecursoDto
+{
+    [Required(ErrorMessage = "Nome eh obrigatorio")]
+    [StringLength(200, MinimumLength = 3, ErrorMessage = "Nome deve ter entre 3 e 200 caracteres")]
+    public string Nome { get; init; } = string.Empty;
+
+    [StringLength(500, ErrorMessage = "Descricao deve ter no maximo 500 caracteres")]
+    public string? Descricao { get; init; }
+
+    [Url(ErrorMessage = "Url deve ser uma URL valida")]
+    public string? Url { get; init; }
+
+    public long? Tamanho { get; init; }
+
+    [StringLength(100, ErrorMessage = "Tipo deve ter no maximo 100 caracteres")]
+    public string? Tipo { get; init; }
+}
+
+/// <summary>
+/// DTO para contra-razoes de recurso
+/// </summary>
+public record ContraRazoesDto
+{
+    [Required(ErrorMessage = "Conteudo eh obrigatorio")]
+    [StringLength(30000, MinimumLength = 100, ErrorMessage = "Conteudo deve ter entre 100 e 30000 caracteres")]
+    public string Conteudo { get; init; } = string.Empty;
+
+    [StringLength(20000, ErrorMessage = "Fundamentacao deve ter no maximo 20000 caracteres")]
+    public string? Fundamentacao { get; init; }
+
+    public Guid? ProfissionalId { get; init; }
+
+    public List<CreateArquivoRecursoDto>? Arquivos { get; init; }
+}
+
+/// <summary>
+/// DTO para julgamento de recurso
+/// </summary>
+public record JulgarRecursoDto
+{
+    [Required(ErrorMessage = "Resultado eh obrigatorio")]
+    public StatusRecurso Resultado { get; init; }
+
+    [Required(ErrorMessage = "Decisao eh obrigatoria")]
+    [StringLength(15000, MinimumLength = 100, ErrorMessage = "Decisao deve ter entre 100 e 15000 caracteres")]
+    public string Decisao { get; init; } = string.Empty;
+
+    [StringLength(30000, ErrorMessage = "Fundamentacao deve ter no maximo 30000 caracteres")]
+    public string? Fundamentacao { get; init; }
+
+    [StringLength(5000, ErrorMessage = "Ementa deve ter no maximo 5000 caracteres")]
+    public string? Ementa { get; init; }
+
+    [StringLength(10000, ErrorMessage = "Dispositivo deve ter no maximo 10000 caracteres")]
+    public string? Dispositivo { get; init; }
+
+    public TipoDecisao? TipoDecisao { get; init; }
+    public Guid? SessaoId { get; init; }
+}
+
+/// <summary>
+/// DTO de resultado do recurso
+/// </summary>
+public record RecursoResultadoDto
+{
+    public Guid Id { get; init; }
+    public Guid DenunciaId { get; init; }
+    public string Protocolo { get; init; } = string.Empty;
+    public TipoRecurso Tipo { get; init; }
+    public string TipoNome { get; init; } = string.Empty;
+    public StatusRecurso Status { get; init; }
+    public string StatusNome { get; init; } = string.Empty;
+    public string Fundamentacao { get; init; } = string.Empty;
+    public string? Pedido { get; init; }
+    public DateTime DataApresentacao { get; init; }
+    public DateTime PrazoLimite { get; init; }
+    public bool Tempestivo { get; init; }
+    public Guid? ChapaId { get; init; }
+    public string? ChapaNome { get; init; }
+    public List<ContraRazoesResultadoDto> Contrarrazoes { get; init; } = new();
+    public JulgamentoRecursoResultadoDto? Julgamento { get; init; }
+}
+
+/// <summary>
+/// DTO de resultado das contra-razoes
+/// </summary>
+public record ContraRazoesResultadoDto
+{
+    public Guid Id { get; init; }
+    public Guid RecursoId { get; init; }
+    public string Conteudo { get; init; } = string.Empty;
+    public string? Fundamentacao { get; init; }
+    public DateTime DataApresentacao { get; init; }
+    public DateTime PrazoLimite { get; init; }
+    public bool Tempestiva { get; init; }
+    public Guid? ProfissionalId { get; init; }
+    public string? ProfissionalNome { get; init; }
+}
+
+/// <summary>
+/// DTO de resultado do julgamento de recurso
+/// </summary>
+public record JulgamentoRecursoResultadoDto
+{
+    public Guid Id { get; init; }
+    public Guid RecursoId { get; init; }
+    public StatusJulgamento Status { get; init; }
+    public string StatusNome { get; init; } = string.Empty;
+    public TipoDecisao? TipoDecisao { get; init; }
+    public string? TipoDecisaoNome { get; init; }
+    public bool? Provido { get; init; }
+    public bool? Desprovido { get; init; }
+    public bool? ParcialmenteProvido { get; init; }
+    public string? Ementa { get; init; }
+    public string? Fundamentacao { get; init; }
+    public string? Dispositivo { get; init; }
+    public DateTime? DataJulgamento { get; init; }
+    public DateTime? DataPublicacao { get; init; }
+}
+
+/// <summary>
+/// DTO para verificar impedimento de relator
+/// </summary>
+public record VerificarImpedimentoDto
+{
+    public Guid RelatorId { get; init; }
+    public Guid DenunciaId { get; init; }
+}
+
+/// <summary>
+/// DTO de resultado da verificacao de impedimento
+/// </summary>
+public record ImpedimentoResultadoDto
+{
+    public bool TemImpedimento { get; init; }
+    public List<string> Motivos { get; init; } = new();
+    public bool PodeSerRelator { get; init; }
+}
+
+/// <summary>
+/// DTO para solicitar defesa com configuracoes
+/// </summary>
+public record SolicitarDefesaCompletoDto
+{
+    [Range(1, 30, ErrorMessage = "PrazoEmDias deve ser entre 1 e 30")]
+    public int PrazoEmDias { get; init; } = 5;
+
+    [StringLength(2000, ErrorMessage = "Observacoes deve ter no maximo 2000 caracteres")]
+    public string? Observacoes { get; init; }
+
+    /// <summary>
+    /// Notificar denunciado por email
+    /// </summary>
+    public bool NotificarPorEmail { get; init; } = true;
+
+    /// <summary>
+    /// Notificar denunciado no sistema
+    /// </summary>
+    public bool NotificarNoSistema { get; init; } = true;
+}
+
+#endregion
+
 #region Recurso DTOs
 
 /// <summary>

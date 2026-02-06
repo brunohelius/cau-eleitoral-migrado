@@ -340,7 +340,7 @@ public class ImpugnacaoController : BaseController
     {
         try
         {
-            var impugnacao = await _impugnacaoService.IniciarAnaliseAsync(id, cancellationToken);
+            var impugnacao = await _impugnacaoService.IniciarAnaliseAsync(id, null, cancellationToken);
             return Ok(impugnacao);
         }
         catch (KeyNotFoundException)
@@ -908,6 +908,468 @@ public class ImpugnacaoController : BaseController
             return InternalError("Erro ao obter estatisticas");
         }
     }
+
+    #region New Workflow Endpoints
+
+    /// <summary>
+    /// Solicita alegacoes do impugnante (novo workflow)
+    /// </summary>
+    /// <param name="id">ID da impugnacao</param>
+    /// <param name="dto">Dados do prazo</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Impugnacao atualizada</returns>
+    [HttpPost("{id:guid}/solicitar-alegacoes")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral")]
+    [ProducesResponseType(typeof(ImpugnacaoDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ImpugnacaoDto>> SolicitarAlegacoes(
+        Guid id,
+        [FromBody] AbrirPrazoAlegacoesDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var impugnacao = await _impugnacaoService.SolicitarAlegacoesAsync(id, dto.PrazoEmDias, dto.Observacoes, cancellationToken);
+            return Ok(impugnacao);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Impugnacao nao encontrada" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao solicitar alegacoes da impugnacao {Id}", id);
+            return InternalError("Erro ao solicitar alegacoes");
+        }
+    }
+
+    /// <summary>
+    /// Apresenta alegacoes do impugnante (novo workflow)
+    /// </summary>
+    /// <param name="id">ID da impugnacao</param>
+    /// <param name="dto">Dados da alegacao</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Impugnacao atualizada</returns>
+    [HttpPost("{id:guid}/apresentar-alegacoes")]
+    [ProducesResponseType(typeof(ImpugnacaoDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ImpugnacaoDto>> ApresentarAlegacoes(
+        Guid id,
+        [FromBody] CreateAlegacaoDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var impugnacao = await _impugnacaoService.ApresentarAlegacoesAsync(id, dto, cancellationToken);
+            return Ok(impugnacao);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Impugnacao nao encontrada" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao apresentar alegacoes da impugnacao {Id}", id);
+            return InternalError("Erro ao apresentar alegacoes");
+        }
+    }
+
+    /// <summary>
+    /// Solicita contra-alegacoes do impugnado (novo workflow)
+    /// </summary>
+    /// <param name="id">ID da impugnacao</param>
+    /// <param name="dto">Dados do prazo</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Impugnacao atualizada</returns>
+    [HttpPost("{id:guid}/solicitar-contra-alegacoes")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral")]
+    [ProducesResponseType(typeof(ImpugnacaoDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ImpugnacaoDto>> SolicitarContraAlegacoes(
+        Guid id,
+        [FromBody] AbrirPrazoAlegacoesDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var impugnacao = await _impugnacaoService.SolicitarContraAlegacoesAsync(id, dto.PrazoEmDias, dto.Observacoes, cancellationToken);
+            return Ok(impugnacao);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Impugnacao nao encontrada" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao solicitar contra-alegacoes da impugnacao {Id}", id);
+            return InternalError("Erro ao solicitar contra-alegacoes");
+        }
+    }
+
+    /// <summary>
+    /// Apresenta contra-alegacoes do impugnado (novo workflow)
+    /// </summary>
+    /// <param name="id">ID da impugnacao</param>
+    /// <param name="dto">Dados da contra-alegacao</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Impugnacao atualizada</returns>
+    [HttpPost("{id:guid}/apresentar-contra-alegacoes")]
+    [ProducesResponseType(typeof(ImpugnacaoDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ImpugnacaoDto>> ApresentarContraAlegacoes(
+        Guid id,
+        [FromBody] CreateContraAlegacaoDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var impugnacao = await _impugnacaoService.ApresentarContraAlegacoesAsync(id, dto, userId, cancellationToken);
+            return Ok(impugnacao);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Impugnacao nao encontrada" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao apresentar contra-alegacoes da impugnacao {Id}", id);
+            return InternalError("Erro ao apresentar contra-alegacoes");
+        }
+    }
+
+    /// <summary>
+    /// Lista contra-alegacoes de uma impugnacao
+    /// </summary>
+    /// <param name="id">ID da impugnacao</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Lista de contra-alegacoes</returns>
+    [HttpGet("{id:guid}/contra-alegacoes")]
+    [ProducesResponseType(typeof(IEnumerable<ContraAlegacaoDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<ContraAlegacaoDto>>> GetContraAlegacoes(Guid id, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var contraAlegacoes = await _impugnacaoService.GetContraAlegacoesAsync(id, cancellationToken);
+            return Ok(contraAlegacoes);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao listar contra-alegacoes da impugnacao {Id}", id);
+            return InternalError("Erro ao listar contra-alegacoes");
+        }
+    }
+
+    /// <summary>
+    /// Encaminha impugnacao para julgamento (novo workflow)
+    /// </summary>
+    /// <param name="id">ID da impugnacao</param>
+    /// <param name="dto">Dados do encaminhamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Impugnacao atualizada</returns>
+    [HttpPost("{id:guid}/encaminhar-julgamento")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral")]
+    [ProducesResponseType(typeof(ImpugnacaoDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ImpugnacaoDto>> EncaminharJulgamento(
+        Guid id,
+        [FromBody] EncaminharJulgamentoRequest? dto = null,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var impugnacao = await _impugnacaoService.EncaminharJulgamentoAsync(id, dto?.ComissaoId, cancellationToken);
+            return Ok(impugnacao);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Impugnacao nao encontrada" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao encaminhar impugnacao para julgamento {Id}", id);
+            return InternalError("Erro ao encaminhar para julgamento");
+        }
+    }
+
+    /// <summary>
+    /// Julga a impugnacao (novo workflow com DTO completo)
+    /// </summary>
+    /// <param name="id">ID da impugnacao</param>
+    /// <param name="dto">Dados do julgamento</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Impugnacao julgada</returns>
+    [HttpPost("{id:guid}/julgar-completo")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral")]
+    [ProducesResponseType(typeof(ImpugnacaoDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ImpugnacaoDto>> JulgarCompleto(
+        Guid id,
+        [FromBody] JulgarImpugnacaoDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var impugnacao = await _impugnacaoService.JulgarAsync(id, dto, cancellationToken);
+            return Ok(impugnacao);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Impugnacao nao encontrada" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao julgar impugnacao {Id}", id);
+            return InternalError("Erro ao julgar impugnacao");
+        }
+    }
+
+    /// <summary>
+    /// Interpoe recurso contra decisao (novo workflow)
+    /// </summary>
+    /// <param name="id">ID da impugnacao</param>
+    /// <param name="dto">Dados do recurso</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Impugnacao atualizada</returns>
+    [HttpPost("{id:guid}/interpor-recurso")]
+    [ProducesResponseType(typeof(ImpugnacaoDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ImpugnacaoDto>> InterporRecurso(
+        Guid id,
+        [FromBody] CreateRecursoImpugnacaoDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var impugnacao = await _impugnacaoService.InterporRecursoAsync(id, dto, userId, cancellationToken);
+            return Ok(impugnacao);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Impugnacao nao encontrada" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao interpor recurso da impugnacao {Id}", id);
+            return InternalError("Erro ao interpor recurso");
+        }
+    }
+
+    /// <summary>
+    /// Lista recursos de uma impugnacao
+    /// </summary>
+    /// <param name="id">ID da impugnacao</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Lista de recursos</returns>
+    [HttpGet("{id:guid}/recursos")]
+    [ProducesResponseType(typeof(IEnumerable<RecursoImpugnacaoDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<RecursoImpugnacaoDto>>> GetRecursos(Guid id, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var recursos = await _impugnacaoService.GetRecursosAsync(id, cancellationToken);
+            return Ok(recursos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao listar recursos da impugnacao {Id}", id);
+            return InternalError("Erro ao listar recursos");
+        }
+    }
+
+    /// <summary>
+    /// Julga recurso de uma impugnacao
+    /// </summary>
+    /// <param name="id">ID da impugnacao</param>
+    /// <param name="recursoId">ID do recurso</param>
+    /// <param name="dto">Dados do julgamento do recurso</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Impugnacao atualizada</returns>
+    [HttpPost("{id:guid}/recursos/{recursoId:guid}/julgar")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral")]
+    [ProducesResponseType(typeof(ImpugnacaoDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ImpugnacaoDto>> JulgarRecurso(
+        Guid id,
+        Guid recursoId,
+        [FromBody] JulgarRecursoImpugnacaoDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var impugnacao = await _impugnacaoService.JulgarRecursoAsync(id, recursoId, dto, cancellationToken);
+            return Ok(impugnacao);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Impugnacao ou recurso nao encontrado" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao julgar recurso {RecursoId} da impugnacao {Id}", recursoId, id);
+            return InternalError("Erro ao julgar recurso");
+        }
+    }
+
+    /// <summary>
+    /// Apresenta defesa na impugnacao
+    /// </summary>
+    /// <param name="id">ID da impugnacao</param>
+    /// <param name="dto">Dados da defesa</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Defesa criada</returns>
+    [HttpPost("{id:guid}/defesas")]
+    [ProducesResponseType(typeof(DefesaImpugnacaoDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<DefesaImpugnacaoDto>> ApresentarDefesa(
+        Guid id,
+        [FromBody] CreateDefesaImpugnacaoDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var defesa = await _impugnacaoService.ApresentarDefesaAsync(id, dto, userId, cancellationToken);
+            return CreatedAtAction(nameof(GetById), new { id }, defesa);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Impugnacao nao encontrada" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao apresentar defesa na impugnacao {Id}", id);
+            return InternalError("Erro ao apresentar defesa");
+        }
+    }
+
+    /// <summary>
+    /// Lista defesas de uma impugnacao
+    /// </summary>
+    /// <param name="id">ID da impugnacao</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Lista de defesas</returns>
+    [HttpGet("{id:guid}/defesas")]
+    [ProducesResponseType(typeof(IEnumerable<DefesaImpugnacaoDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<DefesaImpugnacaoDto>>> GetDefesas(Guid id, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var defesas = await _impugnacaoService.GetDefesasAsync(id, cancellationToken);
+            return Ok(defesas);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao listar defesas da impugnacao {Id}", id);
+            return InternalError("Erro ao listar defesas");
+        }
+    }
+
+    /// <summary>
+    /// Obtem historico de uma impugnacao
+    /// </summary>
+    /// <param name="id">ID da impugnacao</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Lista de eventos do historico</returns>
+    [HttpGet("{id:guid}/historico")]
+    [ProducesResponseType(typeof(IEnumerable<HistoricoImpugnacaoDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<HistoricoImpugnacaoDto>>> GetHistorico(Guid id, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var historico = await _impugnacaoService.GetHistoricoAsync(id, cancellationToken);
+            return Ok(historico);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao listar historico da impugnacao {Id}", id);
+            return InternalError("Erro ao listar historico");
+        }
+    }
+
+    /// <summary>
+    /// Obtem estatisticas detalhadas de impugnacoes
+    /// </summary>
+    /// <param name="eleicaoId">ID da eleicao</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Estatisticas detalhadas</returns>
+    [HttpGet("estatisticas/eleicao/{eleicaoId:guid}/detalhado")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral,Analista")]
+    [ProducesResponseType(typeof(ImpugnacaoEstatisticasDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ImpugnacaoEstatisticasDto>> GetEstatisticasDetalhadas(Guid eleicaoId, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var estatisticas = await _impugnacaoService.GetEstatisticasAsync(eleicaoId, cancellationToken);
+            return Ok(estatisticas);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao obter estatisticas detalhadas de impugnacoes da eleicao {EleicaoId}", eleicaoId);
+            return InternalError("Erro ao obter estatisticas");
+        }
+    }
+
+    /// <summary>
+    /// Valida se esta dentro do periodo de impugnacao
+    /// </summary>
+    /// <param name="eleicaoId">ID da eleicao</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>True se pode impugnar</returns>
+    [HttpGet("validar-periodo/{eleicaoId:guid}")]
+    [ProducesResponseType(typeof(ValidacaoPeriodoResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ValidacaoPeriodoResponse>> ValidarPeriodo(Guid eleicaoId, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var podeImpugnar = await _impugnacaoService.ValidarPeriodoImpugnacaoAsync(eleicaoId, cancellationToken);
+            return Ok(new ValidacaoPeriodoResponse { PodeImpugnar = podeImpugnar });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao validar periodo de impugnacao da eleicao {EleicaoId}", eleicaoId);
+            return InternalError("Erro ao validar periodo");
+        }
+    }
+
+    #endregion
 }
 
 // Request/Response DTOs
@@ -951,4 +1413,14 @@ public record EstatisticasImpugnacaoResponse
     public int Julgadas { get; init; }
     public int Procedentes { get; init; }
     public int Improcedentes { get; init; }
+}
+
+public record EncaminharJulgamentoRequest
+{
+    public Guid? ComissaoId { get; init; }
+}
+
+public record ValidacaoPeriodoResponse
+{
+    public bool PodeImpugnar { get; init; }
 }

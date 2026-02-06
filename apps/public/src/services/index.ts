@@ -56,6 +56,7 @@ export {
 } from './votacao'
 export type {
   CedulaVotacao,
+  ChapaVotacao,
   VotoRequest,
   ComprovanteVoto,
   StatusVotacao,

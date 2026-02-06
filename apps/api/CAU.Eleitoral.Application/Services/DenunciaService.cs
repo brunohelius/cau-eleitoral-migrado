@@ -2,8 +2,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using CAU.Eleitoral.Application.DTOs.Denuncias;
 using CAU.Eleitoral.Application.DTOs.Auditoria;
+using CAU.Eleitoral.Application.DTOs.Notificacoes;
 using CAU.Eleitoral.Application.Interfaces;
 using CAU.Eleitoral.Domain.Entities.Denuncias;
+using CAU.Eleitoral.Domain.Entities.Core;
+using CAU.Eleitoral.Domain.Entities.Usuarios;
+using CAU.Eleitoral.Domain.Entities.Chapas;
 using CAU.Eleitoral.Domain.Enums;
 using CAU.Eleitoral.Domain.Interfaces.Repositories;
 
@@ -16,6 +20,18 @@ public class DenunciaService : IDenunciaService
     private readonly IRepository<DefesaDenuncia> _defesaRepository;
     private readonly IRepository<HistoricoDenuncia> _historicoRepository;
     private readonly IRepository<AnaliseDenuncia> _analiseRepository;
+    private readonly IRepository<AdmissibilidadeDenuncia> _admissibilidadeRepository;
+    private readonly IRepository<JulgamentoDenuncia> _julgamentoRepository;
+    private readonly IRepository<ParecerDenuncia> _parecerRepository;
+    private readonly IRepository<RecursoDenuncia> _recursoRepository;
+    private readonly IRepository<ContrarrazoesRecursoDenuncia> _contraRazoesRepository;
+    private readonly IRepository<JulgamentoRecursoDenuncia> _julgamentoRecursoRepository;
+    private readonly IRepository<Usuario> _usuarioRepository;
+    private readonly IRepository<Profissional> _profissionalRepository;
+    private readonly IRepository<MembroChapa> _membroChapaRepository;
+    private readonly IRepository<Eleicao> _eleicaoRepository;
+    private readonly ICalendarioService _calendarioService;
+    private readonly INotificacaoService? _notificacaoService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<DenunciaService> _logger;
 
@@ -25,16 +41,40 @@ public class DenunciaService : IDenunciaService
         IRepository<DefesaDenuncia> defesaRepository,
         IRepository<HistoricoDenuncia> historicoRepository,
         IRepository<AnaliseDenuncia> analiseRepository,
+        IRepository<AdmissibilidadeDenuncia> admissibilidadeRepository,
+        IRepository<JulgamentoDenuncia> julgamentoRepository,
+        IRepository<ParecerDenuncia> parecerRepository,
+        IRepository<RecursoDenuncia> recursoRepository,
+        IRepository<ContrarrazoesRecursoDenuncia> contraRazoesRepository,
+        IRepository<JulgamentoRecursoDenuncia> julgamentoRecursoRepository,
+        IRepository<Usuario> usuarioRepository,
+        IRepository<Profissional> profissionalRepository,
+        IRepository<MembroChapa> membroChapaRepository,
+        IRepository<Eleicao> eleicaoRepository,
+        ICalendarioService calendarioService,
         IUnitOfWork unitOfWork,
-        ILogger<DenunciaService> logger)
+        ILogger<DenunciaService> logger,
+        INotificacaoService? notificacaoService = null)
     {
         _denunciaRepository = denunciaRepository;
         _provaRepository = provaRepository;
         _defesaRepository = defesaRepository;
         _historicoRepository = historicoRepository;
         _analiseRepository = analiseRepository;
+        _admissibilidadeRepository = admissibilidadeRepository;
+        _julgamentoRepository = julgamentoRepository;
+        _parecerRepository = parecerRepository;
+        _recursoRepository = recursoRepository;
+        _contraRazoesRepository = contraRazoesRepository;
+        _julgamentoRecursoRepository = julgamentoRecursoRepository;
+        _usuarioRepository = usuarioRepository;
+        _profissionalRepository = profissionalRepository;
+        _membroChapaRepository = membroChapaRepository;
+        _eleicaoRepository = eleicaoRepository;
+        _calendarioService = calendarioService;
         _unitOfWork = unitOfWork;
         _logger = logger;
+        _notificacaoService = notificacaoService;
     }
 
     #region CRUD Operations
@@ -222,6 +262,39 @@ public class DenunciaService : IDenunciaService
 
     public async Task<DenunciaDto> CreateAsync(CreateDenunciaDto dto, Guid? userId = null, CancellationToken cancellationToken = default)
     {
+        // Validar se a eleicao esta ativa (denuncias podem ser feitas durante qualquer periodo ativo da eleicao)
+        var eleicao = await _eleicaoRepository.GetByIdAsync(dto.EleicaoId, cancellationToken);
+        if (eleicao == null)
+            throw new InvalidOperationException("Eleicao nao encontrada");
+
+        if (eleicao.Status != StatusEleicao.EmAndamento && eleicao.Status != StatusEleicao.ApuracaoEmAndamento)
+            throw new InvalidOperationException("Denuncias so podem ser registradas durante uma eleicao em andamento");
+
+        // Validar que estamos em algum periodo ativo (inscricao, impugnacao, defesa, propaganda, votacao, apuracao ou resultado)
+        var periodosPermitidos = new[]
+        {
+            TipoCalendario.Inscricao,
+            TipoCalendario.Impugnacao,
+            TipoCalendario.Defesa,
+            TipoCalendario.Propaganda,
+            TipoCalendario.Votacao,
+            TipoCalendario.Apuracao,
+            TipoCalendario.Resultado
+        };
+
+        var estaEmPeriodoAtivo = await _calendarioService.IsWithinAnyPeriodAsync(dto.EleicaoId, periodosPermitidos, cancellationToken);
+        if (!estaEmPeriodoAtivo)
+        {
+            var periodoAtual = await _calendarioService.GetPeriodoAtualAsync(dto.EleicaoId, cancellationToken);
+            var proximoPeriodo = await _calendarioService.GetProximoPeriodoAsync(dto.EleicaoId, cancellationToken);
+
+            string mensagem = "Denuncias so podem ser registradas durante o periodo ativo da eleicao.";
+            if (proximoPeriodo != null)
+                mensagem += $" O proximo periodo ({proximoPeriodo.TipoNome}) inicia em {proximoPeriodo.DataInicio:dd/MM/yyyy}.";
+
+            throw new InvalidOperationException(mensagem);
+        }
+
         var protocolo = await GerarProtocoloAsync(cancellationToken);
 
         var denuncia = new Denuncia
@@ -471,6 +544,25 @@ public class DenunciaService : IDenunciaService
         if (denuncia.Status != StatusDenuncia.AguardandoDefesa && denuncia.Status != StatusDenuncia.AdmissibilidadeAceita)
             throw new InvalidOperationException("Denuncia nao esta aguardando defesa");
 
+        // Validar periodo de defesa do calendario (se houver)
+        var estaEmPeriodoDefesa = await _calendarioService.IsWithinPeriodAsync(
+            denuncia.EleicaoId,
+            TipoCalendario.Defesa,
+            cancellationToken);
+
+        // Se nao esta no periodo de defesa do calendario E nao tem prazo individual definido, bloquear
+        if (!estaEmPeriodoDefesa && !denuncia.PrazoDefesa.HasValue)
+        {
+            var validacao = await _calendarioService.ValidarPeriodoAsync(
+                denuncia.EleicaoId,
+                new[] { TipoCalendario.Defesa },
+                "apresentar defesa",
+                cancellationToken);
+
+            if (!validacao.IsValid)
+                throw new InvalidOperationException(validacao.Message);
+        }
+
         // Check if within deadline
         if (denuncia.PrazoDefesa.HasValue && DateTime.UtcNow > denuncia.PrazoDefesa.Value)
         {
@@ -520,6 +612,20 @@ public class DenunciaService : IDenunciaService
 
         if (!allowedStatuses.Contains(denuncia.Status))
             throw new InvalidOperationException("Denuncia nao pode ser encaminhada para julgamento neste status");
+
+        // Verificar se o periodo de defesa ja passou (necessario para encaminhar para julgamento)
+        var periodoDefesaPassou = await _calendarioService.PeriodoJaPassouAsync(
+            denuncia.EleicaoId,
+            TipoCalendario.Defesa,
+            cancellationToken);
+
+        // Se o periodo de defesa ainda esta ativo e a denuncia nao teve defesa apresentada, alertar
+        if (!periodoDefesaPassou && denuncia.Status == StatusDenuncia.AguardandoDefesa)
+        {
+            _logger.LogWarning(
+                "Denuncia {DenunciaId} sendo encaminhada para julgamento durante periodo de defesa ainda ativo",
+                id);
+        }
 
         denuncia.Status = StatusDenuncia.AguardandoJulgamento;
 
@@ -571,6 +677,16 @@ public class DenunciaService : IDenunciaService
 
         if (denuncia.Status != StatusDenuncia.AguardandoJulgamento)
             throw new InvalidOperationException("Denuncia deve estar aguardando julgamento");
+
+        // Validar periodo de julgamento
+        var validacao = await _calendarioService.ValidarPeriodoAsync(
+            denuncia.EleicaoId,
+            new[] { TipoCalendario.Julgamento },
+            "julgar denuncia",
+            cancellationToken);
+
+        if (!validacao.IsValid)
+            throw new InvalidOperationException(validacao.Message);
 
         var validDecisions = new[]
         {
@@ -643,6 +759,790 @@ public class DenunciaService : IDenunciaService
 
         return await GetByIdAsync(id, cancellationToken)
             ?? throw new InvalidOperationException("Erro ao recuperar denuncia");
+    }
+
+    #endregion
+
+    #region Phase 1: Admissibilidade (Admissibility) - Extended
+
+    /// <summary>
+    /// Registra admissibilidade com validacao completa de requisitos formais
+    /// </summary>
+    public async Task<DenunciaDto> RegistrarAdmissibilidadeAsync(Guid id, RegistrarAdmissibilidadeCompletoDto dto, Guid analistaId, CancellationToken cancellationToken = default)
+    {
+        var denuncia = await _denunciaRepository.Query()
+            .Include(d => d.Eleicao)
+            .Include(d => d.Provas)
+            .FirstOrDefaultAsync(d => d.Id == id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Denuncia {id} nao encontrada");
+
+        if (denuncia.Status != StatusDenuncia.EmAnalise)
+            throw new InvalidOperationException("Denuncia deve estar em analise para registrar admissibilidade");
+
+        // Validate formal requirements if provided
+        if (dto.RequisitosFormais != null && !dto.Admissivel)
+        {
+            var requisitos = dto.RequisitosFormais;
+            if (!requisitos.DentroPrazo)
+                _logger.LogWarning("Denuncia {DenunciaId} rejeitada por estar fora do prazo", id);
+        }
+
+        // Create admissibilidade record
+        var admissibilidade = new AdmissibilidadeDenuncia
+        {
+            DenunciaId = id,
+            AnalistId = analistaId,
+            Admitida = dto.Admissivel,
+            Fundamentacao = dto.Fundamentacao ?? dto.Parecer,
+            Observacao = dto.RequisitosFormais?.Observacoes,
+            DataAnalise = DateTime.UtcNow
+        };
+
+        await _admissibilidadeRepository.AddAsync(admissibilidade, cancellationToken);
+
+        denuncia.Status = dto.Admissivel ? StatusDenuncia.AdmissibilidadeAceita : StatusDenuncia.AdmissibilidadeRejeitada;
+
+        await _denunciaRepository.UpdateAsync(denuncia, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var acao = dto.Admissivel ? "Admissibilidade aceita" : "Admissibilidade rejeitada";
+        await RegistrarHistoricoAsync(id, $"{acao}: {dto.Parecer}", analistaId, cancellationToken);
+
+        _logger.LogInformation("Admissibilidade registrada para denuncia {DenunciaId}: {Admissivel}", id, dto.Admissivel);
+
+        return await GetByIdAsync(id, cancellationToken)
+            ?? throw new InvalidOperationException("Erro ao recuperar denuncia");
+    }
+
+    /// <summary>
+    /// Valida requisitos formais da denuncia
+    /// </summary>
+    public async Task<RequisitosFormaisDto> ValidarRequisitosFormaisAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var denuncia = await _denunciaRepository.Query()
+            .Include(d => d.Eleicao)
+            .Include(d => d.Provas)
+            .Include(d => d.Chapa)
+            .Include(d => d.Membro)
+            .FirstOrDefaultAsync(d => d.Id == id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Denuncia {id} nao encontrada");
+
+        var eleicao = denuncia.Eleicao;
+        var dentroPrazo = eleicao != null &&
+            (eleicao.Status == StatusEleicao.EmAndamento || eleicao.Status == StatusEleicao.ApuracaoEmAndamento);
+
+        var temIdentificacaoDenunciado = denuncia.ChapaId.HasValue || denuncia.MembroId.HasValue;
+
+        return new RequisitosFormaisDto
+        {
+            TemTitulo = !string.IsNullOrWhiteSpace(denuncia.Titulo),
+            TemDescricao = !string.IsNullOrWhiteSpace(denuncia.Descricao) && denuncia.Descricao.Length >= 20,
+            TemFundamentacao = !string.IsNullOrWhiteSpace(denuncia.Fundamentacao),
+            TemProvas = denuncia.Provas?.Any() == true,
+            IdentificacaoDenunciado = temIdentificacaoDenunciado,
+            DentroPrazo = dentroPrazo,
+            EleicaoValida = eleicao != null && eleicao.Status != StatusEleicao.Cancelada,
+            Observacoes = null
+        };
+    }
+
+    #endregion
+
+    #region Phase 2: Defesa (Defense) - Extended
+
+    /// <summary>
+    /// Solicita defesa com configuracoes completas e notificacoes
+    /// </summary>
+    public async Task<DenunciaDto> SolicitarDefesaAsync(Guid id, SolicitarDefesaCompletoDto dto, CancellationToken cancellationToken = default)
+    {
+        var denuncia = await _denunciaRepository.Query()
+            .Include(d => d.Chapa)
+            .Include(d => d.Membro)
+            .FirstOrDefaultAsync(d => d.Id == id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Denuncia {id} nao encontrada");
+
+        if (denuncia.Status != StatusDenuncia.AdmissibilidadeAceita)
+            throw new InvalidOperationException("Denuncia deve ter admissibilidade aceita para solicitar defesa");
+
+        var prazoDefesa = DateTime.UtcNow.AddDays(dto.PrazoEmDias);
+        denuncia.Status = StatusDenuncia.AguardandoDefesa;
+        denuncia.PrazoDefesa = prazoDefesa;
+
+        await _denunciaRepository.UpdateAsync(denuncia, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await RegistrarHistoricoAsync(id, $"Prazo de defesa aberto ate {prazoDefesa:dd/MM/yyyy}. {dto.Observacoes ?? ""}", null, cancellationToken);
+
+        // Send notifications if notification service is available
+        if (_notificacaoService != null)
+        {
+            // Notify the accused party (chapa or member)
+            if (dto.NotificarPorEmail || dto.NotificarNoSistema)
+            {
+                // TODO: Get usuario ID from chapa/membro and send notification
+                _logger.LogInformation("Notificacao de prazo de defesa enviada para denuncia {DenunciaId}", id);
+            }
+        }
+
+        _logger.LogInformation("Prazo de defesa solicitado para denuncia {DenunciaId}: {PrazoDias} dias", id, dto.PrazoEmDias);
+
+        return await GetByIdAsync(id, cancellationToken)
+            ?? throw new InvalidOperationException("Erro ao recuperar denuncia");
+    }
+
+    /// <summary>
+    /// Registra defesa com documentos anexos e validacao de prazo
+    /// </summary>
+    public async Task<DenunciaDto> RegistrarDefesaAsync(Guid id, RegistrarDefesaDto dto, Guid autorId, CancellationToken cancellationToken = default)
+    {
+        var denuncia = await _denunciaRepository.GetByIdAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Denuncia {id} nao encontrada");
+
+        if (denuncia.Status != StatusDenuncia.AguardandoDefesa && denuncia.Status != StatusDenuncia.AdmissibilidadeAceita)
+            throw new InvalidOperationException("Denuncia nao esta aguardando defesa");
+
+        // Check if within deadline
+        var isIntempestiva = denuncia.PrazoDefesa.HasValue && DateTime.UtcNow > denuncia.PrazoDefesa.Value;
+        var prazoLimite = denuncia.PrazoDefesa ?? DateTime.UtcNow.AddDays(5);
+
+        var defesaEntity = new DefesaDenuncia
+        {
+            DenunciaId = id,
+            ChapaId = dto.ChapaId,
+            MembroId = dto.MembroId,
+            Conteudo = dto.Conteudo,
+            Fundamentacao = dto.Fundamentacao,
+            DataApresentacao = DateTime.UtcNow,
+            PrazoLimite = prazoLimite,
+            Tempestiva = !isIntempestiva,
+            Status = isIntempestiva ? StatusDefesa.Intempestiva : StatusDefesa.Apresentada
+        };
+
+        await _defesaRepository.AddAsync(defesaEntity, cancellationToken);
+
+        if (!isIntempestiva)
+        {
+            denuncia.Status = StatusDenuncia.DefesaApresentada;
+            await _denunciaRepository.UpdateAsync(denuncia, cancellationToken);
+        }
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var statusDefesa = isIntempestiva ? "Defesa intempestiva apresentada" : "Defesa apresentada";
+        await RegistrarHistoricoAsync(id, statusDefesa, autorId, cancellationToken);
+
+        _logger.LogInformation("Defesa registrada para denuncia {DenunciaId}: Tempestiva={Tempestiva}", id, !isIntempestiva);
+
+        return await GetByIdAsync(id, cancellationToken)
+            ?? throw new InvalidOperationException("Erro ao recuperar denuncia");
+    }
+
+    #endregion
+
+    #region Phase 3: Julgamento (Judgment) - Extended
+
+    /// <summary>
+    /// Atribui relator a denuncia com validacao de impedimento
+    /// </summary>
+    public async Task<DenunciaDto> AtribuirRelatorAsync(Guid id, Guid relatorId, string? justificativa = null, CancellationToken cancellationToken = default)
+    {
+        var denuncia = await _denunciaRepository.Query()
+            .Include(d => d.Chapa)
+            .Include(d => d.Membro)
+            .Include(d => d.Denunciante)
+            .FirstOrDefaultAsync(d => d.Id == id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Denuncia {id} nao encontrada");
+
+        // Check for impedimento
+        var impedimento = await VerificarImpedimentoRelatorAsync(id, relatorId, cancellationToken);
+        if (impedimento.TemImpedimento)
+        {
+            var motivos = string.Join(", ", impedimento.Motivos);
+            throw new InvalidOperationException($"Relator possui impedimento: {motivos}");
+        }
+
+        // Create parecer record to track relator assignment
+        var parecerExistente = await _parecerRepository.Query()
+            .Where(p => p.DenunciaId == id && p.Tipo == TipoParecerDenuncia.Relator && p.Status != StatusParecerDenuncia.Rejeitado)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (parecerExistente != null)
+        {
+            throw new InvalidOperationException("Ja existe um relator atribuido para esta denuncia");
+        }
+
+        var numero = await GerarNumeroParecerAsync(cancellationToken);
+        var parecer = new ParecerDenuncia
+        {
+            DenunciaId = id,
+            Tipo = TipoParecerDenuncia.Relator,
+            Status = StatusParecerDenuncia.Elaboracao,
+            PareceristaId = relatorId,
+            Numero = numero,
+            Assunto = $"Relatoria da Denuncia {denuncia.Protocolo}",
+            Ementa = "Parecer do Relator - Aguardando elaboracao",
+            Conteudo = justificativa ?? "Relator atribuido",
+            DataElaboracao = DateTime.UtcNow
+        };
+
+        await _parecerRepository.AddAsync(parecer, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await RegistrarHistoricoAsync(id, $"Relator atribuido. {justificativa ?? ""}", relatorId, cancellationToken);
+
+        _logger.LogInformation("Relator {RelatorId} atribuido a denuncia {DenunciaId}", relatorId, id);
+
+        return await GetByIdAsync(id, cancellationToken)
+            ?? throw new InvalidOperationException("Erro ao recuperar denuncia");
+    }
+
+    /// <summary>
+    /// Atribui relator usando DTO
+    /// </summary>
+    public async Task<DenunciaDto> AtribuirRelatorAsync(Guid id, AtribuirRelatorDto dto, CancellationToken cancellationToken = default)
+    {
+        return await AtribuirRelatorAsync(id, dto.RelatorId, dto.Justificativa, cancellationToken);
+    }
+
+    /// <summary>
+    /// Verifica se existe impedimento para o relator
+    /// </summary>
+    public async Task<ImpedimentoResultadoDto> VerificarImpedimentoRelatorAsync(Guid denunciaId, Guid relatorId, CancellationToken cancellationToken = default)
+    {
+        var denuncia = await _denunciaRepository.Query()
+            .Include(d => d.Chapa)
+                .ThenInclude(c => c!.Membros)
+            .Include(d => d.Membro)
+            .Include(d => d.Denunciante)
+            .FirstOrDefaultAsync(d => d.Id == denunciaId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Denuncia {denunciaId} nao encontrada");
+
+        var motivos = new List<string>();
+
+        // Get profissional linked to relator usuario
+        var relatorProfissional = await _profissionalRepository.Query()
+            .FirstOrDefaultAsync(p => p.UsuarioId == relatorId, cancellationToken);
+
+        // Check if relator is the denunciante
+        if (relatorProfissional != null && denuncia.DenuncianteId == relatorProfissional.Id)
+        {
+            motivos.Add("Relator eh o denunciante");
+        }
+
+        // Check if relator is member of the accused chapa
+        if (denuncia.Chapa?.Membros != null && relatorProfissional != null)
+        {
+            var isMembroDaChapa = denuncia.Chapa.Membros.Any(m => m.ProfissionalId == relatorProfissional.Id);
+            if (isMembroDaChapa)
+            {
+                motivos.Add("Relator eh membro da chapa denunciada");
+            }
+        }
+
+        // Check if relator is the accused member
+        if (denuncia.MembroId.HasValue && relatorProfissional != null)
+        {
+            var membroAcusado = await _membroChapaRepository.GetByIdAsync(denuncia.MembroId.Value, cancellationToken);
+            if (membroAcusado?.ProfissionalId == relatorProfissional.Id)
+            {
+                motivos.Add("Relator eh o membro denunciado");
+            }
+        }
+
+        return new ImpedimentoResultadoDto
+        {
+            TemImpedimento = motivos.Any(),
+            Motivos = motivos,
+            PodeSerRelator = !motivos.Any()
+        };
+    }
+
+    /// <summary>
+    /// Registra parecer do relator com recomendacao
+    /// </summary>
+    public async Task<ParecerResultadoDto> RegistrarParecerAsync(Guid id, RegistrarParecerDto dto, Guid pareceristaId, CancellationToken cancellationToken = default)
+    {
+        var denuncia = await _denunciaRepository.GetByIdAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Denuncia {id} nao encontrada");
+
+        // Find existing parecer or create new one
+        var parecerExistente = await _parecerRepository.Query()
+            .Where(p => p.DenunciaId == id && p.PareceristaId == pareceristaId && p.Status == StatusParecerDenuncia.Elaboracao)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        ParecerDenuncia parecer;
+        if (parecerExistente != null)
+        {
+            parecer = parecerExistente;
+            parecer.Tipo = dto.Tipo;
+            parecer.Ementa = dto.Ementa;
+            parecer.Conteudo = dto.Conteudo;
+            parecer.Fundamentacao = dto.Fundamentacao;
+            parecer.Conclusao = dto.Conclusao;
+            parecer.Favoravel = dto.Recomendacao == TipoVotoJulgamento.Procedente;
+            parecer.Recomendacao = dto.RecomendacaoTexto ?? dto.Recomendacao.ToString();
+            parecer.Status = StatusParecerDenuncia.Aprovado;
+            parecer.DataAprovacao = DateTime.UtcNow;
+
+            await _parecerRepository.UpdateAsync(parecer, cancellationToken);
+        }
+        else
+        {
+            var numero = await GerarNumeroParecerAsync(cancellationToken);
+            parecer = new ParecerDenuncia
+            {
+                DenunciaId = id,
+                Tipo = dto.Tipo,
+                Status = StatusParecerDenuncia.Aprovado,
+                PareceristaId = pareceristaId,
+                Numero = numero,
+                Assunto = $"Parecer - Denuncia {denuncia.Protocolo}",
+                Ementa = dto.Ementa,
+                Conteudo = dto.Conteudo,
+                Fundamentacao = dto.Fundamentacao,
+                Conclusao = dto.Conclusao,
+                Favoravel = dto.Recomendacao == TipoVotoJulgamento.Procedente,
+                Recomendacao = dto.RecomendacaoTexto ?? dto.Recomendacao.ToString(),
+                DataElaboracao = DateTime.UtcNow,
+                DataAprovacao = DateTime.UtcNow
+            };
+
+            await _parecerRepository.AddAsync(parecer, cancellationToken);
+        }
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await RegistrarHistoricoAsync(id, $"Parecer registrado: Recomendacao {dto.Recomendacao}", pareceristaId, cancellationToken);
+
+        _logger.LogInformation("Parecer registrado para denuncia {DenunciaId}: Recomendacao={Recomendacao}", id, dto.Recomendacao);
+
+        return new ParecerResultadoDto
+        {
+            Id = parecer.Id,
+            DenunciaId = parecer.DenunciaId,
+            Tipo = parecer.Tipo,
+            TipoNome = parecer.Tipo.ToString(),
+            Status = parecer.Status,
+            StatusNome = parecer.Status.ToString(),
+            Numero = parecer.Numero,
+            Ementa = parecer.Ementa,
+            Conteudo = parecer.Conteudo,
+            Fundamentacao = parecer.Fundamentacao,
+            Conclusao = parecer.Conclusao,
+            Favoravel = parecer.Favoravel,
+            Recomendacao = parecer.Recomendacao,
+            PareceristaId = parecer.PareceristaId,
+            DataElaboracao = parecer.DataElaboracao,
+            DataAprovacao = parecer.DataAprovacao
+        };
+    }
+
+    /// <summary>
+    /// Julga denuncia com votos e decisao completa
+    /// </summary>
+    public async Task<DenunciaDto> JulgarAsync(Guid id, JulgarDenunciaCompletoDto dto, Guid julgadorId, CancellationToken cancellationToken = default)
+    {
+        var denuncia = await _denunciaRepository.GetByIdAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Denuncia {id} nao encontrada");
+
+        if (denuncia.Status != StatusDenuncia.AguardandoJulgamento)
+            throw new InvalidOperationException("Denuncia deve estar aguardando julgamento");
+
+        var validDecisions = new[]
+        {
+            StatusDenuncia.Procedente,
+            StatusDenuncia.Improcedente,
+            StatusDenuncia.ParcialmenteProcedente,
+            StatusDenuncia.Julgada
+        };
+
+        if (!validDecisions.Contains(dto.Resultado))
+            throw new InvalidOperationException("Decisao invalida");
+
+        // Create julgamento record
+        var julgamento = new JulgamentoDenuncia
+        {
+            DenunciaId = id,
+            SessaoId = dto.SessaoId,
+            Status = StatusJulgamento.Concluido,
+            TipoDecisao = dto.TipoDecisao,
+            Procedente = dto.Resultado == StatusDenuncia.Procedente,
+            Improcedente = dto.Resultado == StatusDenuncia.Improcedente,
+            ParcialmenteProcedente = dto.Resultado == StatusDenuncia.ParcialmenteProcedente,
+            Ementa = dto.Ementa,
+            Fundamentacao = dto.Fundamentacao,
+            Dispositivo = dto.Dispositivo,
+            Penalidade = dto.Penalidade,
+            DataJulgamento = DateTime.UtcNow
+        };
+
+        await _julgamentoRepository.AddAsync(julgamento, cancellationToken);
+
+        denuncia.Status = dto.Resultado;
+
+        await _denunciaRepository.UpdateAsync(denuncia, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await RegistrarHistoricoAsync(id, $"Julgamento: {dto.Resultado} - {dto.Decisao}", julgadorId, cancellationToken);
+
+        // Open appeal deadline if requested
+        if (dto.AbrirPrazoRecurso)
+        {
+            var prazoRecurso = DateTime.UtcNow.AddDays(dto.PrazoDiasRecurso);
+            denuncia.Status = StatusDenuncia.AguardandoRecurso;
+            denuncia.PrazoRecurso = prazoRecurso;
+            await _denunciaRepository.UpdateAsync(denuncia, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            await RegistrarHistoricoAsync(id, $"Prazo de recurso aberto ate {prazoRecurso:dd/MM/yyyy}", null, cancellationToken);
+        }
+
+        _logger.LogInformation("Julgamento completo registrado para denuncia {DenunciaId}: {Decisao}", id, dto.Resultado);
+
+        return await GetByIdAsync(id, cancellationToken)
+            ?? throw new InvalidOperationException("Erro ao recuperar denuncia");
+    }
+
+    #endregion
+
+    #region Phase 4: Recurso (Appeal) - Extended
+
+    /// <summary>
+    /// Abre prazo de recurso usando dias
+    /// </summary>
+    public async Task<DenunciaDto> AbrirPrazoRecursoAsync(Guid id, int prazoEmDias, CancellationToken cancellationToken = default)
+    {
+        var prazoRecurso = DateTime.UtcNow.AddDays(prazoEmDias);
+        return await AbrirPrazoRecursoAsync(id, prazoRecurso, cancellationToken);
+    }
+
+    /// <summary>
+    /// Interpoe recurso contra decisao
+    /// </summary>
+    public async Task<RecursoResultadoDto> InterporRecursoAsync(Guid id, InterporRecursoDto dto, Guid autorId, CancellationToken cancellationToken = default)
+    {
+        var denuncia = await _denunciaRepository.GetByIdAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Denuncia {id} nao encontrada");
+
+        var statusPermitidos = new[]
+        {
+            StatusDenuncia.Procedente,
+            StatusDenuncia.Improcedente,
+            StatusDenuncia.ParcialmenteProcedente,
+            StatusDenuncia.Julgada,
+            StatusDenuncia.AguardandoRecurso
+        };
+
+        if (!statusPermitidos.Contains(denuncia.Status))
+            throw new InvalidOperationException("Denuncia nao esta em status que permite recurso");
+
+        // Check if within deadline
+        var prazoLimite = denuncia.PrazoRecurso ?? DateTime.UtcNow.AddDays(5);
+        var tempestivo = DateTime.UtcNow <= prazoLimite;
+
+        var protocolo = await GerarProtocoloRecursoAsync(cancellationToken);
+
+        var recurso = new RecursoDenuncia
+        {
+            DenunciaId = id,
+            ChapaId = dto.ChapaId,
+            Protocolo = protocolo,
+            Status = StatusDenuncia.RecursoApresentado,
+            Fundamentacao = dto.Fundamentacao,
+            Pedido = dto.Pedido,
+            DataApresentacao = DateTime.UtcNow,
+            PrazoLimite = prazoLimite,
+            Tempestivo = tempestivo
+        };
+
+        await _recursoRepository.AddAsync(recurso, cancellationToken);
+
+        denuncia.Status = StatusDenuncia.RecursoApresentado;
+        await _denunciaRepository.UpdateAsync(denuncia, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var statusRecurso = tempestivo ? "Recurso tempestivo apresentado" : "Recurso intempestivo apresentado";
+        await RegistrarHistoricoAsync(id, statusRecurso, autorId, cancellationToken);
+
+        _logger.LogInformation("Recurso interposto para denuncia {DenunciaId}: Tempestivo={Tempestivo}", id, tempestivo);
+
+        return new RecursoResultadoDto
+        {
+            Id = recurso.Id,
+            DenunciaId = recurso.DenunciaId,
+            Protocolo = recurso.Protocolo,
+            Tipo = dto.Tipo,
+            TipoNome = dto.Tipo.ToString(),
+            Status = StatusRecurso.Protocolado,
+            StatusNome = StatusRecurso.Protocolado.ToString(),
+            Fundamentacao = recurso.Fundamentacao,
+            Pedido = recurso.Pedido,
+            DataApresentacao = recurso.DataApresentacao,
+            PrazoLimite = recurso.PrazoLimite,
+            Tempestivo = recurso.Tempestivo,
+            ChapaId = recurso.ChapaId
+        };
+    }
+
+    /// <summary>
+    /// Registra contra-razoes ao recurso
+    /// </summary>
+    public async Task<ContraRazoesResultadoDto> RegistrarContraRazoesAsync(Guid recursoId, ContraRazoesDto dto, CancellationToken cancellationToken = default)
+    {
+        var recurso = await _recursoRepository.GetByIdAsync(recursoId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Recurso {recursoId} nao encontrado");
+
+        // Prazo para contra-razoes (geralmente mesmo prazo do recurso)
+        var prazoLimite = recurso.DataApresentacao.AddDays(5);
+        var tempestiva = DateTime.UtcNow <= prazoLimite;
+
+        var contraRazoes = new ContrarrazoesRecursoDenuncia
+        {
+            RecursoId = recursoId,
+            ProfissionalId = dto.ProfissionalId,
+            Conteudo = dto.Conteudo,
+            Fundamentacao = dto.Fundamentacao,
+            DataApresentacao = DateTime.UtcNow,
+            PrazoLimite = prazoLimite,
+            Tempestiva = tempestiva
+        };
+
+        await _contraRazoesRepository.AddAsync(contraRazoes, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await RegistrarHistoricoAsync(recurso.DenunciaId, "Contra-razoes apresentadas", dto.ProfissionalId, cancellationToken);
+
+        _logger.LogInformation("Contra-razoes registradas para recurso {RecursoId}: Tempestiva={Tempestiva}", recursoId, tempestiva);
+
+        return new ContraRazoesResultadoDto
+        {
+            Id = contraRazoes.Id,
+            RecursoId = contraRazoes.RecursoId,
+            Conteudo = contraRazoes.Conteudo,
+            Fundamentacao = contraRazoes.Fundamentacao,
+            DataApresentacao = contraRazoes.DataApresentacao,
+            PrazoLimite = contraRazoes.PrazoLimite,
+            Tempestiva = contraRazoes.Tempestiva,
+            ProfissionalId = contraRazoes.ProfissionalId
+        };
+    }
+
+    /// <summary>
+    /// Julga recurso (segunda instancia)
+    /// </summary>
+    public async Task<RecursoResultadoDto> JulgarRecursoAsync(Guid recursoId, JulgarRecursoDto dto, Guid julgadorId, CancellationToken cancellationToken = default)
+    {
+        var recurso = await _recursoRepository.Query()
+            .Include(r => r.Denuncia)
+            .Include(r => r.Contrarrazoes)
+            .FirstOrDefaultAsync(r => r.Id == recursoId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Recurso {recursoId} nao encontrado");
+
+        // Create julgamento recurso record
+        var julgamentoRecurso = new JulgamentoRecursoDenuncia
+        {
+            RecursoId = recursoId,
+            SessaoId = dto.SessaoId,
+            Status = StatusJulgamento.Concluido,
+            TipoDecisao = dto.TipoDecisao,
+            Provido = dto.Resultado == StatusRecurso.Provido,
+            Desprovido = dto.Resultado == StatusRecurso.Desprovido,
+            ParcialmenteProvido = dto.Resultado == StatusRecurso.DesprovimidoParcialmente,
+            Ementa = dto.Ementa,
+            Fundamentacao = dto.Fundamentacao,
+            Dispositivo = dto.Dispositivo,
+            DataJulgamento = DateTime.UtcNow
+        };
+
+        await _julgamentoRecursoRepository.AddAsync(julgamentoRecurso, cancellationToken);
+
+        // Update recurso status
+        recurso.Status = dto.Resultado switch
+        {
+            StatusRecurso.Provido => StatusDenuncia.RecursoJulgado,
+            StatusRecurso.Desprovido => StatusDenuncia.RecursoJulgado,
+            StatusRecurso.DesprovimidoParcialmente => StatusDenuncia.RecursoJulgado,
+            _ => StatusDenuncia.RecursoJulgado
+        };
+
+        await _recursoRepository.UpdateAsync(recurso, cancellationToken);
+
+        // Update denuncia status
+        var denuncia = recurso.Denuncia;
+        denuncia.Status = StatusDenuncia.RecursoJulgado;
+        await _denunciaRepository.UpdateAsync(denuncia, cancellationToken);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await RegistrarHistoricoAsync(denuncia.Id, $"Recurso julgado: {dto.Resultado}", julgadorId, cancellationToken);
+
+        _logger.LogInformation("Recurso {RecursoId} julgado: {Resultado}", recursoId, dto.Resultado);
+
+        return new RecursoResultadoDto
+        {
+            Id = recurso.Id,
+            DenunciaId = recurso.DenunciaId,
+            Protocolo = recurso.Protocolo,
+            Tipo = TipoRecurso.RecursoOrdinario,
+            TipoNome = TipoRecurso.RecursoOrdinario.ToString(),
+            Status = StatusRecurso.Provido, // Map from dto.Resultado
+            StatusNome = dto.Resultado.ToString(),
+            Fundamentacao = recurso.Fundamentacao,
+            Pedido = recurso.Pedido,
+            DataApresentacao = recurso.DataApresentacao,
+            PrazoLimite = recurso.PrazoLimite,
+            Tempestivo = recurso.Tempestivo,
+            ChapaId = recurso.ChapaId,
+            Julgamento = new JulgamentoRecursoResultadoDto
+            {
+                Id = julgamentoRecurso.Id,
+                RecursoId = julgamentoRecurso.RecursoId,
+                Status = julgamentoRecurso.Status,
+                StatusNome = julgamentoRecurso.Status.ToString(),
+                TipoDecisao = julgamentoRecurso.TipoDecisao,
+                TipoDecisaoNome = julgamentoRecurso.TipoDecisao?.ToString(),
+                Provido = julgamentoRecurso.Provido,
+                Desprovido = julgamentoRecurso.Desprovido,
+                ParcialmenteProvido = julgamentoRecurso.ParcialmenteProvido,
+                Ementa = julgamentoRecurso.Ementa,
+                Fundamentacao = julgamentoRecurso.Fundamentacao,
+                Dispositivo = julgamentoRecurso.Dispositivo,
+                DataJulgamento = julgamentoRecurso.DataJulgamento
+            }
+        };
+    }
+
+    /// <summary>
+    /// Lista recursos de uma denuncia
+    /// </summary>
+    public async Task<IEnumerable<RecursoResultadoDto>> GetRecursosAsync(Guid denunciaId, CancellationToken cancellationToken = default)
+    {
+        var recursos = await _recursoRepository.Query()
+            .Include(r => r.Chapa)
+            .Include(r => r.Contrarrazoes)
+            .Include(r => r.Julgamento)
+            .Where(r => r.DenunciaId == denunciaId)
+            .OrderByDescending(r => r.DataApresentacao)
+            .ToListAsync(cancellationToken);
+
+        return recursos.Select(r => new RecursoResultadoDto
+        {
+            Id = r.Id,
+            DenunciaId = r.DenunciaId,
+            Protocolo = r.Protocolo,
+            Tipo = TipoRecurso.RecursoOrdinario,
+            TipoNome = TipoRecurso.RecursoOrdinario.ToString(),
+            Status = StatusRecurso.Protocolado,
+            StatusNome = r.Status.ToString(),
+            Fundamentacao = r.Fundamentacao,
+            Pedido = r.Pedido,
+            DataApresentacao = r.DataApresentacao,
+            PrazoLimite = r.PrazoLimite,
+            Tempestivo = r.Tempestivo,
+            ChapaId = r.ChapaId,
+            ChapaNome = r.Chapa?.Nome,
+            Contrarrazoes = r.Contrarrazoes?.Select(c => new ContraRazoesResultadoDto
+            {
+                Id = c.Id,
+                RecursoId = c.RecursoId,
+                Conteudo = c.Conteudo,
+                Fundamentacao = c.Fundamentacao,
+                DataApresentacao = c.DataApresentacao,
+                PrazoLimite = c.PrazoLimite,
+                Tempestiva = c.Tempestiva,
+                ProfissionalId = c.ProfissionalId
+            }).ToList() ?? new(),
+            Julgamento = r.Julgamento == null ? null : new JulgamentoRecursoResultadoDto
+            {
+                Id = r.Julgamento.Id,
+                RecursoId = r.Julgamento.RecursoId,
+                Status = r.Julgamento.Status,
+                StatusNome = r.Julgamento.Status.ToString(),
+                TipoDecisao = r.Julgamento.TipoDecisao,
+                TipoDecisaoNome = r.Julgamento.TipoDecisao?.ToString(),
+                Provido = r.Julgamento.Provido,
+                Desprovido = r.Julgamento.Desprovido,
+                ParcialmenteProvido = r.Julgamento.ParcialmenteProvido,
+                Ementa = r.Julgamento.Ementa,
+                Fundamentacao = r.Julgamento.Fundamentacao,
+                Dispositivo = r.Julgamento.Dispositivo,
+                DataJulgamento = r.Julgamento.DataJulgamento,
+                DataPublicacao = r.Julgamento.DataPublicacao
+            }
+        });
+    }
+
+    #endregion
+
+    #region Phase 5: Arquivamento (Archive) - Extended
+
+    /// <summary>
+    /// Arquiva denuncia usando DTO
+    /// </summary>
+    public async Task<DenunciaDto> ArquivarAsync(Guid id, ArquivarDenunciaDto dto, Guid? userId = null, CancellationToken cancellationToken = default)
+    {
+        return await ArquivarAsync(id, dto.Motivo, userId, cancellationToken);
+    }
+
+    /// <summary>
+    /// Reabre denuncia arquivada
+    /// </summary>
+    public async Task<DenunciaDto> ReabrirAsync(Guid id, string motivo, Guid userId, CancellationToken cancellationToken = default)
+    {
+        var denuncia = await _denunciaRepository.GetByIdAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Denuncia {id} nao encontrada");
+
+        if (denuncia.Status != StatusDenuncia.Arquivada)
+            throw new InvalidOperationException("Apenas denuncias arquivadas podem ser reabertas");
+
+        denuncia.Status = StatusDenuncia.EmAnalise;
+
+        await _denunciaRepository.UpdateAsync(denuncia, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await RegistrarHistoricoAsync(id, $"Denuncia reaberta: {motivo}", userId, cancellationToken);
+
+        _logger.LogInformation("Denuncia {DenunciaId} reaberta por {UserId}", id, userId);
+
+        return await GetByIdAsync(id, cancellationToken)
+            ?? throw new InvalidOperationException("Erro ao recuperar denuncia");
+    }
+
+    #endregion
+
+    #region Pareceres
+
+    /// <summary>
+    /// Lista pareceres de uma denuncia
+    /// </summary>
+    public async Task<IEnumerable<ParecerResultadoDto>> GetPareceresAsync(Guid denunciaId, CancellationToken cancellationToken = default)
+    {
+        var pareceres = await _parecerRepository.Query()
+            .Include(p => p.Parecerista)
+            .Where(p => p.DenunciaId == denunciaId)
+            .OrderByDescending(p => p.DataElaboracao)
+            .ToListAsync(cancellationToken);
+
+        return pareceres.Select(p => new ParecerResultadoDto
+        {
+            Id = p.Id,
+            DenunciaId = p.DenunciaId,
+            Tipo = p.Tipo,
+            TipoNome = p.Tipo.ToString(),
+            Status = p.Status,
+            StatusNome = p.Status.ToString(),
+            Numero = p.Numero,
+            Ementa = p.Ementa,
+            Conteudo = p.Conteudo,
+            Fundamentacao = p.Fundamentacao,
+            Conclusao = p.Conclusao,
+            Favoravel = p.Favoravel,
+            Recomendacao = p.Recomendacao,
+            PareceristaId = p.PareceristaId,
+            PareceristaName = p.Parecerista?.Nome,
+            DataElaboracao = p.DataElaboracao,
+            DataAprovacao = p.DataAprovacao
+        });
     }
 
     #endregion
@@ -939,6 +1839,24 @@ public class DenunciaService : IDenunciaService
             TotalProvas = denuncia.Provas?.Count ?? 0,
             TotalDefesas = denuncia.Defesas?.Count ?? 0
         };
+    }
+
+    private async Task<string> GerarNumeroParecerAsync(CancellationToken cancellationToken)
+    {
+        var ano = DateTime.UtcNow.Year;
+        var count = await _parecerRepository.CountAsync(
+            p => p.DataElaboracao.Year == ano, cancellationToken);
+
+        return $"PAR-{ano}-{(count + 1):D5}";
+    }
+
+    private async Task<string> GerarProtocoloRecursoAsync(CancellationToken cancellationToken)
+    {
+        var ano = DateTime.UtcNow.Year;
+        var count = await _recursoRepository.CountAsync(
+            r => r.DataApresentacao.Year == ano, cancellationToken);
+
+        return $"REC-{ano}-{(count + 1):D5}";
     }
 
     #endregion

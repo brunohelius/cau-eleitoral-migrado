@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CAU.Eleitoral.Application.Interfaces;
-using CAU.Eleitoral.Domain.Enums;
+using CAU.Eleitoral.Application.DTOs.Votacao;
 
 namespace CAU.Eleitoral.Api.Controllers;
 
@@ -200,7 +200,7 @@ public class VotacaoController : BaseController
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Estatisticas de votacao</returns>
     [HttpGet("estatisticas/{eleicaoId:guid}")]
-    [Authorize(Roles = "Admin,ComissaoEleitoral")]
+    [Authorize(Roles = "Administrador,ComissaoEleitoral")]
     [ProducesResponseType(typeof(EstatisticasVotacaoDto), StatusCodes.Status200OK)]
     public async Task<ActionResult<EstatisticasVotacaoDto>> GetEstatisticas(Guid eleicaoId, CancellationToken cancellationToken)
     {
@@ -225,9 +225,9 @@ public class VotacaoController : BaseController
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista de eleitores que votaram</returns>
     [HttpGet("eleitores-votaram/{eleicaoId:guid}")]
-    [Authorize(Roles = "Admin,ComissaoEleitoral")]
-    [ProducesResponseType(typeof(PagedResult<EleitorVotouDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<PagedResult<EleitorVotouDto>>> GetEleitoresQueVotaram(
+    [Authorize(Roles = "Administrador,ComissaoEleitoral")]
+    [ProducesResponseType(typeof(PagedResultDto<EleitorVotouDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResultDto<EleitorVotouDto>>> GetEleitoresQueVotaram(
         Guid eleicaoId,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 50,
@@ -253,7 +253,7 @@ public class VotacaoController : BaseController
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Resultado da anulacao</returns>
     [HttpPost("{id:guid}/anular")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Administrador")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AnularVoto(
@@ -271,142 +271,81 @@ public class VotacaoController : BaseController
         {
             return BadRequest(new { message = ex.Message });
         }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro ao anular voto {Id}", id);
             return InternalError("Erro ao anular voto");
         }
     }
+
+    /// <summary>
+    /// Abre a votacao de uma eleicao (Admin)
+    /// </summary>
+    /// <param name="eleicaoId">ID da eleicao</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Resultado da operacao</returns>
+    [HttpPost("abrir/{eleicaoId:guid}")]
+    [Authorize(Roles = "Administrador,ComissaoEleitoral")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> AbrirVotacao(Guid eleicaoId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _votacaoService.AbrirVotacaoAsync(eleicaoId, cancellationToken);
+            return Ok(new { message = "Votacao aberta com sucesso" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao abrir votacao da eleicao {EleicaoId}", eleicaoId);
+            return InternalError("Erro ao abrir votacao");
+        }
+    }
+
+    /// <summary>
+    /// Fecha a votacao de uma eleicao (Admin)
+    /// </summary>
+    /// <param name="eleicaoId">ID da eleicao</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Resultado da operacao</returns>
+    [HttpPost("fechar/{eleicaoId:guid}")]
+    [Authorize(Roles = "Administrador,ComissaoEleitoral")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> FecharVotacao(Guid eleicaoId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _votacaoService.FecharVotacaoAsync(eleicaoId, cancellationToken);
+            return Ok(new { message = "Votacao fechada com sucesso" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao fechar votacao da eleicao {EleicaoId}", eleicaoId);
+            return InternalError("Erro ao fechar votacao");
+        }
+    }
 }
 
-// DTOs para Votacao
-public record ElegibilidadeVotoDto
-{
-    public bool PodeVotar { get; init; }
-    public bool JaVotou { get; init; }
-    public string? MotivoInelegibilidade { get; init; }
-    public bool EleicaoEmAndamento { get; init; }
-    public DateTime? DataInicioVotacao { get; init; }
-    public DateTime? DataFimVotacao { get; init; }
-}
-
-public record StatusVotoDto
-{
-    public bool Votou { get; init; }
-    public DateTime? DataVoto { get; init; }
-    public string? HashComprovante { get; init; }
-}
-
-public record CedulaVotacaoDto
-{
-    public Guid EleicaoId { get; init; }
-    public string EleicaoNome { get; init; } = string.Empty;
-    public string? Instrucoes { get; init; }
-    public List<OpcaoVotoDto> Opcoes { get; init; } = new();
-    public bool PermiteBranco { get; init; }
-    public bool PermiteNulo { get; init; }
-}
-
-public record OpcaoVotoDto
-{
-    public Guid ChapaId { get; init; }
-    public int Numero { get; init; }
-    public string Nome { get; init; } = string.Empty;
-    public string? Sigla { get; init; }
-    public string? Lema { get; init; }
-    public List<MembroChapaResumoDto> Membros { get; init; } = new();
-}
-
-public record MembroChapaResumoDto
-{
-    public string Nome { get; init; } = string.Empty;
-    public string Cargo { get; init; } = string.Empty;
-}
-
-public record RegistrarVotoDto
-{
-    public Guid EleicaoId { get; init; }
-    public Guid? ChapaId { get; init; }
-    public TipoVoto TipoVoto { get; init; }
-}
-
-public record ComprovanteVotoDto
-{
-    public Guid EleicaoId { get; init; }
-    public string EleicaoNome { get; init; } = string.Empty;
-    public DateTime DataVoto { get; init; }
-    public string HashComprovante { get; init; } = string.Empty;
-    public string? Mensagem { get; init; }
-}
-
-public record EleicaoVotacaoDto
-{
-    public Guid Id { get; init; }
-    public string Nome { get; init; } = string.Empty;
-    public string? Descricao { get; init; }
-    public DateTime DataInicioVotacao { get; init; }
-    public DateTime DataFimVotacao { get; init; }
-    public bool EmAndamento { get; init; }
-    public bool JaVotou { get; init; }
-    public int TotalChapas { get; init; }
-}
-
-public record HistoricoVotoDto
-{
-    public Guid EleicaoId { get; init; }
-    public string EleicaoNome { get; init; } = string.Empty;
-    public int AnoEleicao { get; init; }
-    public DateTime DataVoto { get; init; }
-    public string HashComprovante { get; init; } = string.Empty;
-}
-
-public record EstatisticasVotacaoDto
-{
-    public Guid EleicaoId { get; init; }
-    public string EleicaoNome { get; init; } = string.Empty;
-    public int TotalEleitores { get; init; }
-    public int TotalVotos { get; init; }
-    public int VotosValidos { get; init; }
-    public int VotosBrancos { get; init; }
-    public int VotosNulos { get; init; }
-    public int VotosAnulados { get; init; }
-    public decimal PercentualParticipacao { get; init; }
-    public decimal PercentualAbstencao { get; init; }
-    public DateTime? UltimaAtualizacao { get; init; }
-}
-
-public record EleitorVotouDto
-{
-    public Guid EleitorId { get; init; }
-    public string Nome { get; init; } = string.Empty;
-    public string? RegistroCAU { get; init; }
-    public DateTime DataVoto { get; init; }
-}
-
-public record PagedResult<T>
-{
-    public IEnumerable<T> Items { get; init; } = new List<T>();
-    public int TotalCount { get; init; }
-    public int Page { get; init; }
-    public int PageSize { get; init; }
-    public int TotalPages => (int)Math.Ceiling(TotalCount / (double)PageSize);
-    public bool HasNextPage => Page < TotalPages;
-    public bool HasPreviousPage => Page > 1;
-}
-
+// Request DTOs (simple records for request bodies)
 public record AnularVotoRequest(string Motivo);
-
-// Interface do servico (a ser implementada)
-public interface IVotacaoService
-{
-    Task<ElegibilidadeVotoDto> VerificarElegibilidadeAsync(Guid eleicaoId, Guid userId, CancellationToken cancellationToken = default);
-    Task<StatusVotoDto> VerificarStatusVotoAsync(Guid eleicaoId, Guid userId, CancellationToken cancellationToken = default);
-    Task<CedulaVotacaoDto> ObterCedulaAsync(Guid eleicaoId, Guid userId, CancellationToken cancellationToken = default);
-    Task<ComprovanteVotoDto> RegistrarVotoAsync(RegistrarVotoDto dto, Guid userId, CancellationToken cancellationToken = default);
-    Task<ComprovanteVotoDto?> ObterComprovanteAsync(Guid eleicaoId, Guid userId, CancellationToken cancellationToken = default);
-    Task<IEnumerable<EleicaoVotacaoDto>> GetEleicoesDisponiveisAsync(Guid userId, CancellationToken cancellationToken = default);
-    Task<IEnumerable<HistoricoVotoDto>> GetHistoricoAsync(Guid userId, CancellationToken cancellationToken = default);
-    Task<EstatisticasVotacaoDto> GetEstatisticasAsync(Guid eleicaoId, CancellationToken cancellationToken = default);
-    Task<PagedResult<EleitorVotouDto>> GetEleitoresQueVotaramAsync(Guid eleicaoId, int page, int pageSize, CancellationToken cancellationToken = default);
-    Task AnularVotoAsync(Guid id, string motivo, Guid userId, CancellationToken cancellationToken = default);
-}

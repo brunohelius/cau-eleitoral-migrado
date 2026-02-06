@@ -112,6 +112,31 @@ public interface IChapaService
     /// </summary>
     Task RemoveMembroAsync(Guid chapaId, Guid membroId, Guid userId, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Valida membro antes de adicionar
+    /// </summary>
+    Task<ValidacaoMembroResultDto> ValidarMembroAsync(Guid chapaId, CreateMembroChapaDto dto, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Envia convite de confirmacao para o membro
+    /// </summary>
+    Task<MembroChapaDto> EnviarConfirmacaoMembroAsync(Guid chapaId, EnviarConfirmacaoMembroDto dto, Guid userId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Confirma participacao do membro na chapa
+    /// </summary>
+    Task<MembroChapaDto> ConfirmarMembroAsync(ConfirmacaoMembroChapaDto dto, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Substitui um membro da chapa por outro
+    /// </summary>
+    Task<MembroChapaDto> SubstituirMembroAsync(Guid chapaId, SubstituicaoMembroChapaDto dto, Guid userId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Inabilita um membro da chapa
+    /// </summary>
+    Task<MembroChapaDto> InabilitarMembroAsync(Guid chapaId, InabilitarMembroChapaDto dto, Guid userId, CancellationToken cancellationToken = default);
+
     #endregion
 
     #region Documentos

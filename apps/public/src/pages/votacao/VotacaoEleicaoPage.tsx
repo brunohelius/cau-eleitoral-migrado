@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   Vote,
@@ -11,6 +11,8 @@ import {
   Loader2,
   Info,
 } from 'lucide-react'
+import { useVoterStore } from '@/stores/voter'
+import { useVotacaoStore } from '@/stores/votacao'
 
 // Types
 interface EleicaoDisponivel {
@@ -91,10 +93,26 @@ export function VotacaoEleicaoPage() {
   const navigate = useNavigate()
   const [isLoading] = useState(false)
 
-  // Mock user
+  // Get voter from store
+  const { voter, isAuthenticated } = useVoterStore()
+  const { resetVotacao } = useVotacaoStore()
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/votacao')
+    }
+  }, [isAuthenticated, navigate])
+
+  // Reset voting state when viewing election list
+  useEffect(() => {
+    resetVotacao()
+  }, [resetVotacao])
+
+  // Get user info from voter store
   const user = {
-    nome: 'Joao Silva',
-    cau: 'A12345-6',
+    nome: voter?.nome || 'Eleitor',
+    cau: voter?.registroCAU || 'A*****-*',
   }
 
   const handleVotar = (eleicao: EleicaoDisponivel) => {

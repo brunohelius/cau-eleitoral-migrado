@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using CAU.Eleitoral.Application.DTOs.Apuracao;
 using CAU.Eleitoral.Application.Interfaces;
-using CAU.Eleitoral.Domain.Enums;
 
 namespace CAU.Eleitoral.Api.Controllers;
 
 /// <summary>
-/// Controller para gerenciamento de apuracao de votos
+/// Controller for vote tallying and election results management
 /// </summary>
 [Authorize]
 public class ApuracaoController : BaseController
@@ -21,11 +21,11 @@ public class ApuracaoController : BaseController
     }
 
     /// <summary>
-    /// Obtem resultado da apuracao de uma eleicao
+    /// Get election results
     /// </summary>
-    /// <param name="eleicaoId">ID da eleicao</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Resultado da apuracao</returns>
+    /// <param name="eleicaoId">Election ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Election results</returns>
     [HttpGet("{eleicaoId:guid}")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(ResultadoApuracaoDto), StatusCodes.Status200OK)]
@@ -48,11 +48,11 @@ public class ApuracaoController : BaseController
     }
 
     /// <summary>
-    /// Obtem resultado parcial da apuracao (em tempo real)
+    /// Get partial/real-time results
     /// </summary>
-    /// <param name="eleicaoId">ID da eleicao</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Resultado parcial</returns>
+    /// <param name="eleicaoId">Election ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Partial results</returns>
     [HttpGet("{eleicaoId:guid}/parcial")]
     [Authorize(Roles = "Admin,ComissaoEleitoral")]
     [ProducesResponseType(typeof(ResultadoParcialDto), StatusCodes.Status200OK)]
@@ -71,11 +71,39 @@ public class ApuracaoController : BaseController
     }
 
     /// <summary>
-    /// Inicia o processo de apuracao
+    /// Get final official results
     /// </summary>
-    /// <param name="eleicaoId">ID da eleicao</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Status da apuracao</returns>
+    /// <param name="eleicaoId">Election ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Final results</returns>
+    [HttpGet("{eleicaoId:guid}/final")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ResultadoFinalDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ResultadoFinalDto>> GetResultadoFinal(Guid eleicaoId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var resultado = await _apuracaoService.GetResultadoFinalAsync(eleicaoId, cancellationToken);
+            return Ok(resultado);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Resultado final nao encontrado" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao obter resultado final da eleicao {EleicaoId}", eleicaoId);
+            return InternalError("Erro ao obter resultado final");
+        }
+    }
+
+    /// <summary>
+    /// Start the vote tallying process
+    /// </summary>
+    /// <param name="eleicaoId">Election ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Tallying status</returns>
     [HttpPost("{eleicaoId:guid}/iniciar")]
     [Authorize(Roles = "Admin,ComissaoEleitoral")]
     [ProducesResponseType(typeof(StatusApuracaoDto), StatusCodes.Status200OK)]
@@ -100,12 +128,12 @@ public class ApuracaoController : BaseController
     }
 
     /// <summary>
-    /// Pausa o processo de apuracao
+    /// Pause the vote tallying process
     /// </summary>
-    /// <param name="eleicaoId">ID da eleicao</param>
-    /// <param name="request">Dados da pausa</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Status da apuracao</returns>
+    /// <param name="eleicaoId">Election ID</param>
+    /// <param name="request">Pause reason</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Tallying status</returns>
     [HttpPost("{eleicaoId:guid}/pausar")]
     [Authorize(Roles = "Admin,ComissaoEleitoral")]
     [ProducesResponseType(typeof(StatusApuracaoDto), StatusCodes.Status200OK)]
@@ -133,11 +161,11 @@ public class ApuracaoController : BaseController
     }
 
     /// <summary>
-    /// Retoma o processo de apuracao
+    /// Resume the vote tallying process
     /// </summary>
-    /// <param name="eleicaoId">ID da eleicao</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Status da apuracao</returns>
+    /// <param name="eleicaoId">Election ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Tallying status</returns>
     [HttpPost("{eleicaoId:guid}/retomar")]
     [Authorize(Roles = "Admin,ComissaoEleitoral")]
     [ProducesResponseType(typeof(StatusApuracaoDto), StatusCodes.Status200OK)]
@@ -162,11 +190,11 @@ public class ApuracaoController : BaseController
     }
 
     /// <summary>
-    /// Finaliza o processo de apuracao
+    /// Finalize the vote tallying process
     /// </summary>
-    /// <param name="eleicaoId">ID da eleicao</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Resultado final</returns>
+    /// <param name="eleicaoId">Election ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Final results</returns>
     [HttpPost("{eleicaoId:guid}/finalizar")]
     [Authorize(Roles = "Admin,ComissaoEleitoral")]
     [ProducesResponseType(typeof(ResultadoApuracaoDto), StatusCodes.Status200OK)]
@@ -191,11 +219,11 @@ public class ApuracaoController : BaseController
     }
 
     /// <summary>
-    /// Homologa o resultado da eleicao
+    /// Homologate (officially validate) the results
     /// </summary>
-    /// <param name="eleicaoId">ID da eleicao</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Resultado homologado</returns>
+    /// <param name="eleicaoId">Election ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Homologated results</returns>
     [HttpPost("{eleicaoId:guid}/homologar")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(ResultadoApuracaoDto), StatusCodes.Status200OK)]
@@ -220,11 +248,11 @@ public class ApuracaoController : BaseController
     }
 
     /// <summary>
-    /// Publica o resultado da eleicao
+    /// Publish the results officially
     /// </summary>
-    /// <param name="eleicaoId">ID da eleicao</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Resultado publicado</returns>
+    /// <param name="eleicaoId">Election ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Published results</returns>
     [HttpPost("{eleicaoId:guid}/publicar")]
     [Authorize(Roles = "Admin,ComissaoEleitoral")]
     [ProducesResponseType(typeof(ResultadoApuracaoDto), StatusCodes.Status200OK)]
@@ -249,11 +277,11 @@ public class ApuracaoController : BaseController
     }
 
     /// <summary>
-    /// Obtem status da apuracao
+    /// Get tallying status
     /// </summary>
-    /// <param name="eleicaoId">ID da eleicao</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Status da apuracao</returns>
+    /// <param name="eleicaoId">Election ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Tallying status</returns>
     [HttpGet("{eleicaoId:guid}/status")]
     [Authorize(Roles = "Admin,ComissaoEleitoral")]
     [ProducesResponseType(typeof(StatusApuracaoDto), StatusCodes.Status200OK)]
@@ -272,11 +300,11 @@ public class ApuracaoController : BaseController
     }
 
     /// <summary>
-    /// Gera ata de apuracao
+    /// Get vote tallying minutes (ata)
     /// </summary>
-    /// <param name="eleicaoId">ID da eleicao</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Ata de apuracao</returns>
+    /// <param name="eleicaoId">Election ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Ata document</returns>
     [HttpGet("{eleicaoId:guid}/ata")]
     [Authorize(Roles = "Admin,ComissaoEleitoral")]
     [ProducesResponseType(typeof(AtaApuracaoDto), StatusCodes.Status200OK)]
@@ -287,6 +315,10 @@ public class ApuracaoController : BaseController
             var ata = await _apuracaoService.GetAtaAsync(eleicaoId, cancellationToken);
             return Ok(ata);
         }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Ata nao encontrada" });
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro ao gerar ata de apuracao da eleicao {EleicaoId}", eleicaoId);
@@ -295,10 +327,10 @@ public class ApuracaoController : BaseController
     }
 
     /// <summary>
-    /// Gera boletim de urna
+    /// Get ballot box bulletin
     /// </summary>
-    /// <param name="eleicaoId">ID da eleicao</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <param name="eleicaoId">Election ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Boletim de urna</returns>
     [HttpGet("{eleicaoId:guid}/boletim")]
     [AllowAnonymous]
@@ -310,6 +342,10 @@ public class ApuracaoController : BaseController
             var boletim = await _apuracaoService.GetBoletimUrnaAsync(eleicaoId, cancellationToken);
             return Ok(boletim);
         }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Boletim nao encontrado" });
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro ao gerar boletim de urna da eleicao {EleicaoId}", eleicaoId);
@@ -318,11 +354,11 @@ public class ApuracaoController : BaseController
     }
 
     /// <summary>
-    /// Lista eleitos de uma eleicao
+    /// Get list of elected officials
     /// </summary>
-    /// <param name="eleicaoId">ID da eleicao</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Lista de eleitos</returns>
+    /// <param name="eleicaoId">Election ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>List of elected officials</returns>
     [HttpGet("{eleicaoId:guid}/eleitos")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(IEnumerable<EleitoDto>), StatusCodes.Status200OK)]
@@ -341,11 +377,11 @@ public class ApuracaoController : BaseController
     }
 
     /// <summary>
-    /// Reprocessa a apuracao (em caso de erro)
+    /// Reprocess the vote tallying (in case of errors)
     /// </summary>
-    /// <param name="eleicaoId">ID da eleicao</param>
-    /// <param name="cancellationToken">Token de cancelamento</param>
-    /// <returns>Status da apuracao</returns>
+    /// <param name="eleicaoId">Election ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Tallying status</returns>
     [HttpPost("{eleicaoId:guid}/reprocessar")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(StatusApuracaoDto), StatusCodes.Status200OK)]
@@ -368,135 +404,137 @@ public class ApuracaoController : BaseController
             return InternalError("Erro ao reprocessar apuracao");
         }
     }
-}
 
-// DTOs para Apuracao
-public record ResultadoApuracaoDto
-{
-    public Guid EleicaoId { get; init; }
-    public string EleicaoNome { get; init; } = string.Empty;
-    public StatusApuracao StatusApuracao { get; init; }
-    public bool Homologado { get; init; }
-    public bool Publicado { get; init; }
-    public DateTime? DataApuracao { get; init; }
-    public DateTime? DataHomologacao { get; init; }
-    public DateTime? DataPublicacao { get; init; }
-    public int TotalEleitores { get; init; }
-    public int TotalVotos { get; init; }
-    public int VotosValidos { get; init; }
-    public int VotosBrancos { get; init; }
-    public int VotosNulos { get; init; }
-    public int VotosAnulados { get; init; }
-    public decimal PercentualParticipacao { get; init; }
-    public List<ResultadoChapaDto> ResultadosChapas { get; init; } = new();
-    public Guid? ChapaVencedoraId { get; init; }
-    public string? ChapaVencedoraNome { get; init; }
-}
+    /// <summary>
+    /// Determine the winning chapa
+    /// </summary>
+    /// <param name="eleicaoId">Election ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Winning chapa details</returns>
+    [HttpGet("{eleicaoId:guid}/vencedor")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ChapaVencedoraDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ChapaVencedoraDto>> GetVencedor(Guid eleicaoId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var vencedor = await _apuracaoService.DeterminarVencedorAsync(eleicaoId, cancellationToken);
+            return Ok(vencedor);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Vencedor nao determinado" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao determinar vencedor da eleicao {EleicaoId}", eleicaoId);
+            return InternalError("Erro ao determinar vencedor");
+        }
+    }
 
-public record ResultadoParcialDto
-{
-    public Guid EleicaoId { get; init; }
-    public string EleicaoNome { get; init; } = string.Empty;
-    public int VotosApurados { get; init; }
-    public int TotalVotos { get; init; }
-    public decimal PercentualApurado { get; init; }
-    public DateTime UltimaAtualizacao { get; init; }
-    public List<ResultadoChapaDto> ResultadosChapas { get; init; } = new();
-}
+    /// <summary>
+    /// Get voting statistics
+    /// </summary>
+    /// <param name="eleicaoId">Election ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Voting statistics</returns>
+    [HttpGet("{eleicaoId:guid}/estatisticas")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral")]
+    [ProducesResponseType(typeof(EstatisticasVotacaoDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<EstatisticasVotacaoDto>> GetEstatisticas(Guid eleicaoId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var estatisticas = await _apuracaoService.GetEstatisticasAsync(eleicaoId, cancellationToken);
+            return Ok(estatisticas);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao obter estatisticas da eleicao {EleicaoId}", eleicaoId);
+            return InternalError("Erro ao obter estatisticas");
+        }
+    }
 
-public record ResultadoChapaDto
-{
-    public Guid ChapaId { get; init; }
-    public int Numero { get; init; }
-    public string Nome { get; init; } = string.Empty;
-    public string? Sigla { get; init; }
-    public int TotalVotos { get; init; }
-    public decimal Percentual { get; init; }
-    public int Posicao { get; init; }
-    public bool Vencedora { get; init; }
-}
+    /// <summary>
+    /// Get votes per region/UF
+    /// </summary>
+    /// <param name="eleicaoId">Election ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Votes per region</returns>
+    [HttpGet("{eleicaoId:guid}/votos-por-regiao")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral")]
+    [ProducesResponseType(typeof(IEnumerable<VotosPorRegiaoDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<VotosPorRegiaoDto>>> GetVotosPorRegiao(Guid eleicaoId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var votos = await _apuracaoService.GetVotosPorRegiaoAsync(eleicaoId, cancellationToken);
+            return Ok(votos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao obter votos por regiao da eleicao {EleicaoId}", eleicaoId);
+            return InternalError("Erro ao obter votos por regiao");
+        }
+    }
 
-public record StatusApuracaoDto
-{
-    public Guid EleicaoId { get; init; }
-    public StatusApuracao Status { get; init; }
-    public DateTime? DataInicio { get; init; }
-    public DateTime? DataFim { get; init; }
-    public DateTime? DataPausa { get; init; }
-    public string? MotivoPausa { get; init; }
-    public int VotosApurados { get; init; }
-    public int TotalVotos { get; init; }
-    public decimal PercentualApurado { get; init; }
-    public Guid? ResponsavelId { get; init; }
-    public string? ResponsavelNome { get; init; }
-}
+    /// <summary>
+    /// Get votes per chapa
+    /// </summary>
+    /// <param name="eleicaoId">Election ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Votes per chapa</returns>
+    [HttpGet("{eleicaoId:guid}/votos-por-chapa")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(IEnumerable<VotosPorChapaDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<VotosPorChapaDto>>> GetVotosPorChapa(Guid eleicaoId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var votos = await _apuracaoService.GetVotosPorChapaAsync(eleicaoId, cancellationToken);
+            return Ok(votos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao obter votos por chapa da eleicao {EleicaoId}", eleicaoId);
+            return InternalError("Erro ao obter votos por chapa");
+        }
+    }
 
-public record AtaApuracaoDto
-{
-    public Guid EleicaoId { get; init; }
-    public string EleicaoNome { get; init; } = string.Empty;
-    public DateTime DataApuracao { get; init; }
-    public string Numero { get; init; } = string.Empty;
-    public string Conteudo { get; init; } = string.Empty;
-    public List<MembroComissaoDto> MembrosComissao { get; init; } = new();
-    public ResultadoApuracaoDto Resultado { get; init; } = new();
-}
-
-public record MembroComissaoDto
-{
-    public Guid Id { get; init; }
-    public string Nome { get; init; } = string.Empty;
-    public string Cargo { get; init; } = string.Empty;
-}
-
-public record BoletimUrnaDto
-{
-    public Guid EleicaoId { get; init; }
-    public string EleicaoNome { get; init; } = string.Empty;
-    public DateTime DataEmissao { get; init; }
-    public string HashIntegridade { get; init; } = string.Empty;
-    public int TotalVotos { get; init; }
-    public int VotosValidos { get; init; }
-    public int VotosBrancos { get; init; }
-    public int VotosNulos { get; init; }
-    public List<ResultadoChapaDto> ResultadosChapas { get; init; } = new();
-}
-
-public record EleitoDto
-{
-    public Guid Id { get; init; }
-    public Guid ChapaId { get; init; }
-    public string ChapaNome { get; init; } = string.Empty;
-    public string Nome { get; init; } = string.Empty;
-    public string Cargo { get; init; } = string.Empty;
-    public bool Titular { get; init; }
-    public int Ordem { get; init; }
-}
-
-public enum StatusApuracao
-{
-    NaoIniciada = 0,
-    EmAndamento = 1,
-    Pausada = 2,
-    Finalizada = 3,
-    Homologada = 4,
-    Publicada = 5
-}
-
-// Interface do servico (a ser implementada)
-public interface IApuracaoService
-{
-    Task<ResultadoApuracaoDto?> GetResultadoAsync(Guid eleicaoId, CancellationToken cancellationToken = default);
-    Task<ResultadoParcialDto> GetResultadoParcialAsync(Guid eleicaoId, CancellationToken cancellationToken = default);
-    Task<StatusApuracaoDto> IniciarAsync(Guid eleicaoId, Guid userId, CancellationToken cancellationToken = default);
-    Task<StatusApuracaoDto> PausarAsync(Guid eleicaoId, string motivo, Guid userId, CancellationToken cancellationToken = default);
-    Task<StatusApuracaoDto> RetomarAsync(Guid eleicaoId, Guid userId, CancellationToken cancellationToken = default);
-    Task<ResultadoApuracaoDto> FinalizarAsync(Guid eleicaoId, Guid userId, CancellationToken cancellationToken = default);
-    Task<ResultadoApuracaoDto> HomologarAsync(Guid eleicaoId, Guid userId, CancellationToken cancellationToken = default);
-    Task<ResultadoApuracaoDto> PublicarAsync(Guid eleicaoId, Guid userId, CancellationToken cancellationToken = default);
-    Task<StatusApuracaoDto> GetStatusAsync(Guid eleicaoId, CancellationToken cancellationToken = default);
-    Task<AtaApuracaoDto> GetAtaAsync(Guid eleicaoId, CancellationToken cancellationToken = default);
-    Task<BoletimUrnaDto> GetBoletimUrnaAsync(Guid eleicaoId, CancellationToken cancellationToken = default);
-    Task<IEnumerable<EleitoDto>> GetEleitosAsync(Guid eleicaoId, CancellationToken cancellationToken = default);
-    Task<StatusApuracaoDto> ReprocessarAsync(Guid eleicaoId, Guid userId, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// Execute full vote tallying (apurar votos)
+    /// </summary>
+    /// <param name="eleicaoId">Election ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Tallying results</returns>
+    [HttpPost("{eleicaoId:guid}/apurar")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral")]
+    [ProducesResponseType(typeof(ResultadoApuracaoDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ResultadoApuracaoDto>> ApurarVotos(Guid eleicaoId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var resultado = await _apuracaoService.ApurarVotosAsync(eleicaoId, cancellationToken);
+            return Ok(resultado);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao apurar votos da eleicao {EleicaoId}", eleicaoId);
+            return InternalError("Erro ao apurar votos");
+        }
+    }
 }

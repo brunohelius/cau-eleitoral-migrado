@@ -15,6 +15,7 @@ import {
   BarChart3,
   Shield,
   UserCog,
+  CheckSquare,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -23,6 +24,7 @@ import { useAuthStore } from '@/stores/auth'
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'Eleicoes', href: '/eleicoes', icon: Vote },
+  { name: 'Votacao', href: '/votacao', icon: CheckSquare },
   { name: 'Chapas', href: '/chapas', icon: Users },
   { name: 'Denuncias', href: '/denuncias', icon: AlertTriangle },
   { name: 'Impugnacoes', href: '/impugnacoes', icon: Flag },

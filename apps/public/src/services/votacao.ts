@@ -8,18 +8,28 @@ export enum TipoVoto {
 }
 
 // Interfaces
+export interface ChapaVotacao {
+  id: string
+  numero: number
+  nome: string
+  sigla?: string
+  slogan?: string
+  logoUrl?: string
+  cor?: string
+  presidente: string
+  vicePresidente?: string
+  membros?: {
+    nome: string
+    cargo: string
+  }[]
+}
+
 export interface CedulaVotacao {
   eleicaoId: string
   eleicaoNome: string
   eleitorId: string
   eleitorNome: string
-  chapas: {
-    id: string
-    numero: number
-    nome: string
-    sigla?: string
-    logoUrl?: string
-  }[]
+  chapas: ChapaVotacao[]
   instrucoes: string[]
   tempoMaximoMinutos: number
   iniciadaEm: string
@@ -210,6 +220,62 @@ export const votacaoService = {
     progressoPorHora?: { hora: string; votos: number }[]
   }> => {
     const response = await api.get(`/votacao/${eleicaoId}/estatisticas`)
+    return response.data
+  },
+
+  // Check voter eligibility for a specific election
+  verificarElegibilidade: async (eleicaoId?: string): Promise<{
+    elegivel: boolean
+    jaVotou: boolean
+    eleicaoId?: string
+    eleicaoNome?: string
+    motivo?: string
+    restricoes?: string[]
+    comprovante?: ComprovanteVoto
+  }> => {
+    setTokenType('voter')
+    const url = eleicaoId
+      ? `/votacao/elegibilidade?eleicaoId=${eleicaoId}`
+      : '/votacao/elegibilidade'
+    const response = await api.get(url)
+    return response.data
+  },
+
+  // Get all chapas available for voting in an election
+  getChapasVotacao: async (eleicaoId: string): Promise<ChapaVotacao[]> => {
+    setTokenType('voter')
+    const response = await api.get<ChapaVotacao[]>(`/votacao/eleicao/${eleicaoId}/chapas`)
+    return response.data
+  },
+
+  // Simplified vote registration
+  registrarVoto: async (dto: {
+    eleicaoId: string
+    chapaId?: string
+    tipoVoto: 'chapa' | 'branco' | 'nulo'
+  }): Promise<ComprovanteVoto> => {
+    setTokenType('voter')
+    const tipoVotoMap = {
+      'chapa': TipoVoto.CHAPA,
+      'branco': TipoVoto.BRANCO,
+      'nulo': TipoVoto.NULO,
+    }
+    const response = await api.post<ComprovanteVoto>('/votacao/votar', {
+      eleicaoId: dto.eleicaoId,
+      chapaId: dto.chapaId,
+      tipoVoto: tipoVotoMap[dto.tipoVoto],
+    })
+    return response.data
+  },
+
+  // Verify vote by hash
+  verificarVotoHash: async (hash: string): Promise<{
+    valido: boolean
+    dataVoto?: string
+    eleicaoNome?: string
+    mensagem: string
+  }> => {
+    const response = await api.get(`/votacao/verificar/${hash}`)
     return response.data
   },
 }

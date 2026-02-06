@@ -20,6 +20,7 @@ public class ChapaService : IChapaService
     private readonly IRepository<DocumentoChapa> _documentoRepository;
     private readonly IRepository<PlataformaEleitoral> _plataformaRepository;
     private readonly IRepository<Eleicao> _eleicaoRepository;
+    private readonly ICalendarioService _calendarioService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<ChapaService> _logger;
 
@@ -29,6 +30,7 @@ public class ChapaService : IChapaService
         IRepository<DocumentoChapa> documentoRepository,
         IRepository<PlataformaEleitoral> plataformaRepository,
         IRepository<Eleicao> eleicaoRepository,
+        ICalendarioService calendarioService,
         IUnitOfWork unitOfWork,
         ILogger<ChapaService> logger)
     {
@@ -37,6 +39,7 @@ public class ChapaService : IChapaService
         _documentoRepository = documentoRepository;
         _plataformaRepository = plataformaRepository;
         _eleicaoRepository = eleicaoRepository;
+        _calendarioService = calendarioService;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -220,6 +223,16 @@ public class ChapaService : IChapaService
         if (eleicao == null)
             throw new InvalidOperationException("Eleicao nao encontrada");
 
+        // Validar periodo de inscricao
+        var validacao = await _calendarioService.ValidarPeriodoAsync(
+            dto.EleicaoId,
+            new[] { TipoCalendario.Inscricao },
+            "registrar chapa",
+            cancellationToken);
+
+        if (!validacao.IsValid)
+            throw new InvalidOperationException(validacao.Message);
+
         // Verificar numero unico
         var numeroExiste = await _chapaRepository.Query()
             .AnyAsync(c => c.EleicaoId == dto.EleicaoId && c.Numero == dto.Numero, cancellationToken);
@@ -256,6 +269,16 @@ public class ChapaService : IChapaService
 
         if (chapa.Status == StatusChapa.Deferida || chapa.Status == StatusChapa.Indeferida || chapa.Status == StatusChapa.Registrada)
             throw new InvalidOperationException("Chapa ja foi analisada e nao pode ser alterada");
+
+        // Validar periodo de inscricao (chapas so podem ser editadas durante inscricao)
+        var validacao = await _calendarioService.ValidarPeriodoAsync(
+            chapa.EleicaoId,
+            new[] { TipoCalendario.Inscricao },
+            "editar chapa",
+            cancellationToken);
+
+        if (!validacao.IsValid)
+            throw new InvalidOperationException(validacao.Message);
 
         // Verificar numero unico se mudou
         if (!string.IsNullOrEmpty(dto.Numero) && dto.Numero != chapa.Numero)
@@ -329,6 +352,16 @@ public class ChapaService : IChapaService
 
         if (chapa.Status != StatusChapa.Rascunho && chapa.Status != StatusChapa.PendenteDocumentos)
             throw new InvalidOperationException("Chapa nao esta em rascunho ou pendente de documentos");
+
+        // Validar periodo de inscricao (submissao so pode ocorrer durante inscricao)
+        var validacao = await _calendarioService.ValidarPeriodoAsync(
+            chapa.EleicaoId,
+            new[] { TipoCalendario.Inscricao },
+            "submeter chapa para analise",
+            cancellationToken);
+
+        if (!validacao.IsValid)
+            throw new InvalidOperationException(validacao.Message);
 
         // Validar requisitos minimos
         if (chapa.Membros == null || chapa.Membros.Count < 2)
@@ -440,6 +473,7 @@ public class ChapaService : IChapaService
 
         var membros = await _membroRepository.Query()
             .Include(m => m.Profissional)
+            .Include(m => m.SubstituidoPor)
             .Where(m => m.ChapaId == chapaId)
             .OrderBy(m => m.Ordem)
             .ToListAsync(cancellationToken);
@@ -447,26 +481,192 @@ public class ChapaService : IChapaService
         return membros.Select(MapMembroToDto);
     }
 
-    public async Task<MembroChapaDto> AddMembroAsync(Guid chapaId, CreateMembroChapaDto dto, Guid userId, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Valida um membro antes de adicionar a chapa
+    /// </summary>
+    public async Task<ValidacaoMembroResultDto> ValidarMembroAsync(Guid chapaId, CreateMembroChapaDto dto, CancellationToken cancellationToken = default)
     {
-        var chapa = await _chapaRepository.GetByIdAsync(chapaId);
+        var erros = new List<string>();
+        var avisos = new List<string>();
+
+        var chapa = await _chapaRepository.Query()
+            .Include(c => c.Membros)
+            .FirstOrDefaultAsync(c => c.Id == chapaId, cancellationToken);
+
         if (chapa == null)
-            throw new KeyNotFoundException("Chapa nao encontrada");
+        {
+            erros.Add("Chapa nao encontrada");
+            return new ValidacaoMembroResultDto { Valido = false, Erros = erros, Avisos = avisos };
+        }
 
-        if (chapa.Status != StatusChapa.Rascunho && chapa.Status != StatusChapa.PendenteDocumentos)
-            throw new InvalidOperationException("Chapa nao esta em formacao");
-
-        // Verificar se profissional ja faz parte de outra chapa na mesma eleicao
+        // 1. Validar unicidade do profissional na eleicao
         if (dto.ProfissionalId.HasValue && dto.ProfissionalId.Value != Guid.Empty)
         {
             var jaParticipa = await _membroRepository.Query()
                 .Include(m => m.Chapa)
                 .AnyAsync(m => m.ProfissionalId == dto.ProfissionalId.Value &&
                               m.Chapa!.EleicaoId == chapa.EleicaoId &&
-                              m.Status != StatusMembroChapa.Recusado, cancellationToken);
+                              m.Status != StatusMembroChapa.Recusado &&
+                              m.Status != StatusMembroChapa.Substituido &&
+                              m.Status != StatusMembroChapa.Inabilitado, cancellationToken);
 
             if (jaParticipa)
-                throw new InvalidOperationException("Profissional ja participa de outra chapa nesta eleicao");
+                erros.Add("Profissional ja esta registrado em outra chapa nesta eleicao");
+        }
+
+        // 2. Validar unicidade por CPF na eleicao
+        if (!string.IsNullOrEmpty(dto.Cpf))
+        {
+            var cpfExiste = await _membroRepository.Query()
+                .Include(m => m.Chapa)
+                .AnyAsync(m => m.Cpf == dto.Cpf &&
+                              m.Chapa!.EleicaoId == chapa.EleicaoId &&
+                              m.Status != StatusMembroChapa.Recusado &&
+                              m.Status != StatusMembroChapa.Substituido &&
+                              m.Status != StatusMembroChapa.Inabilitado, cancellationToken);
+
+            if (cpfExiste)
+                erros.Add("CPF ja esta registrado em outra chapa nesta eleicao");
+        }
+
+        // 3. Validar unicidade por RegistroCAU na eleicao
+        if (!string.IsNullOrEmpty(dto.RegistroCAU))
+        {
+            var registroExiste = await _membroRepository.Query()
+                .Include(m => m.Chapa)
+                .AnyAsync(m => m.RegistroCAU == dto.RegistroCAU &&
+                              m.Chapa!.EleicaoId == chapa.EleicaoId &&
+                              m.Status != StatusMembroChapa.Recusado &&
+                              m.Status != StatusMembroChapa.Substituido &&
+                              m.Status != StatusMembroChapa.Inabilitado, cancellationToken);
+
+            if (registroExiste)
+                erros.Add("Registro CAU ja esta registrado em outra chapa nesta eleicao");
+        }
+
+        // 4. Validar cargo unico: apenas 1 Presidente por chapa
+        if (dto.TipoMembro == TipoMembroChapa.Presidente)
+        {
+            var temPresidente = chapa.Membros?.Any(m =>
+                m.Tipo == TipoMembroChapa.Presidente &&
+                m.Status != StatusMembroChapa.Recusado &&
+                m.Status != StatusMembroChapa.Substituido &&
+                m.Status != StatusMembroChapa.Inabilitado) ?? false;
+
+            if (temPresidente)
+                erros.Add("Chapa ja possui um Presidente. Apenas 1 Presidente e permitido por chapa");
+        }
+
+        // 5. Validar cargo unico: apenas 1 Vice-Presidente por chapa
+        if (dto.TipoMembro == TipoMembroChapa.VicePresidente)
+        {
+            var temVice = chapa.Membros?.Any(m =>
+                m.Tipo == TipoMembroChapa.VicePresidente &&
+                m.Status != StatusMembroChapa.Recusado &&
+                m.Status != StatusMembroChapa.Substituido &&
+                m.Status != StatusMembroChapa.Inabilitado) ?? false;
+
+            if (temVice)
+                erros.Add("Chapa ja possui um Vice-Presidente. Apenas 1 Vice-Presidente e permitido por chapa");
+        }
+
+        // 6. Validar cargo unico: apenas 1 Primeiro Secretario por chapa
+        if (dto.TipoMembro == TipoMembroChapa.PrimeiroSecretario)
+        {
+            var temCargo = chapa.Membros?.Any(m =>
+                m.Tipo == TipoMembroChapa.PrimeiroSecretario &&
+                m.Status != StatusMembroChapa.Recusado &&
+                m.Status != StatusMembroChapa.Substituido &&
+                m.Status != StatusMembroChapa.Inabilitado) ?? false;
+
+            if (temCargo)
+                erros.Add("Chapa ja possui um Primeiro Secretario");
+        }
+
+        // 7. Validar cargo unico: apenas 1 Segundo Secretario por chapa
+        if (dto.TipoMembro == TipoMembroChapa.SegundoSecretario)
+        {
+            var temCargo = chapa.Membros?.Any(m =>
+                m.Tipo == TipoMembroChapa.SegundoSecretario &&
+                m.Status != StatusMembroChapa.Recusado &&
+                m.Status != StatusMembroChapa.Substituido &&
+                m.Status != StatusMembroChapa.Inabilitado) ?? false;
+
+            if (temCargo)
+                erros.Add("Chapa ja possui um Segundo Secretario");
+        }
+
+        // 8. Validar cargo unico: apenas 1 Primeiro Tesoureiro por chapa
+        if (dto.TipoMembro == TipoMembroChapa.PrimeiroTesoureiro)
+        {
+            var temCargo = chapa.Membros?.Any(m =>
+                m.Tipo == TipoMembroChapa.PrimeiroTesoureiro &&
+                m.Status != StatusMembroChapa.Recusado &&
+                m.Status != StatusMembroChapa.Substituido &&
+                m.Status != StatusMembroChapa.Inabilitado) ?? false;
+
+            if (temCargo)
+                erros.Add("Chapa ja possui um Primeiro Tesoureiro");
+        }
+
+        // 9. Validar cargo unico: apenas 1 Segundo Tesoureiro por chapa
+        if (dto.TipoMembro == TipoMembroChapa.SegundoTesoureiro)
+        {
+            var temCargo = chapa.Membros?.Any(m =>
+                m.Tipo == TipoMembroChapa.SegundoTesoureiro &&
+                m.Status != StatusMembroChapa.Recusado &&
+                m.Status != StatusMembroChapa.Substituido &&
+                m.Status != StatusMembroChapa.Inabilitado) ?? false;
+
+            if (temCargo)
+                erros.Add("Chapa ja possui um Segundo Tesoureiro");
+        }
+
+        // 10. Avisos sobre limites de membros (nao bloqueante)
+        var membrosAtivos = chapa.Membros?.Count(m =>
+            m.Status != StatusMembroChapa.Recusado &&
+            m.Status != StatusMembroChapa.Substituido &&
+            m.Status != StatusMembroChapa.Inabilitado) ?? 0;
+
+        if (membrosAtivos >= 20)
+            avisos.Add($"Chapa ja possui {membrosAtivos} membros. Verifique o limite maximo permitido");
+
+        return new ValidacaoMembroResultDto
+        {
+            Valido = erros.Count == 0,
+            Erros = erros,
+            Avisos = avisos
+        };
+    }
+
+    public async Task<MembroChapaDto> AddMembroAsync(Guid chapaId, CreateMembroChapaDto dto, Guid userId, CancellationToken cancellationToken = default)
+    {
+        var chapa = await _chapaRepository.Query()
+            .Include(c => c.Membros)
+            .FirstOrDefaultAsync(c => c.Id == chapaId, cancellationToken);
+
+        if (chapa == null)
+            throw new KeyNotFoundException("Chapa nao encontrada");
+
+        if (chapa.Status != StatusChapa.Rascunho && chapa.Status != StatusChapa.PendenteDocumentos)
+            throw new InvalidOperationException("Chapa nao esta em formacao");
+
+        // Validar periodo de inscricao
+        var validacaoPeriodo = await _calendarioService.ValidarPeriodoAsync(
+            chapa.EleicaoId,
+            new[] { TipoCalendario.Inscricao },
+            "adicionar membro a chapa",
+            cancellationToken);
+
+        if (!validacaoPeriodo.IsValid)
+            throw new InvalidOperationException(validacaoPeriodo.Message);
+
+        // Executar todas as validacoes de membro
+        var validacao = await ValidarMembroAsync(chapaId, dto, cancellationToken);
+        if (!validacao.Valido)
+        {
+            var errosMsg = string.Join("; ", validacao.Erros);
+            throw new InvalidOperationException(errosMsg);
         }
 
         // Obter proxima ordem
@@ -494,23 +694,69 @@ public class ChapaService : IChapaService
         await _membroRepository.AddAsync(membro);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Membro adicionado a chapa {ChapaId} por {UserId}", chapaId, userId);
+        _logger.LogInformation("Membro {Nome} ({Tipo}) adicionado a chapa {ChapaId} por {UserId}",
+            dto.Nome, dto.TipoMembro, chapaId, userId);
+
+        // Log avisos se houver
+        foreach (var aviso in validacao.Avisos)
+        {
+            _logger.LogWarning("Aviso ao adicionar membro a chapa {ChapaId}: {Aviso}", chapaId, aviso);
+        }
 
         return MapMembroToDto(membro);
     }
 
     public async Task<MembroChapaDto> UpdateMembroAsync(Guid chapaId, Guid membroId, UpdateMembroChapaDto dto, Guid userId, CancellationToken cancellationToken = default)
     {
-        var chapa = await _chapaRepository.GetByIdAsync(chapaId);
+        var chapa = await _chapaRepository.Query()
+            .Include(c => c.Membros)
+            .FirstOrDefaultAsync(c => c.Id == chapaId, cancellationToken);
+
         if (chapa == null)
             throw new KeyNotFoundException("Chapa nao encontrada");
 
         if (chapa.Status != StatusChapa.Rascunho && chapa.Status != StatusChapa.PendenteDocumentos)
             throw new InvalidOperationException("Chapa nao esta em formacao");
 
+        // Validar periodo de inscricao
+        var validacao = await _calendarioService.ValidarPeriodoAsync(
+            chapa.EleicaoId,
+            new[] { TipoCalendario.Inscricao },
+            "atualizar membro da chapa",
+            cancellationToken);
+
+        if (!validacao.IsValid)
+            throw new InvalidOperationException(validacao.Message);
+
         var membro = await _membroRepository.GetByIdAsync(membroId);
         if (membro == null || membro.ChapaId != chapaId)
             throw new KeyNotFoundException("Membro nao encontrado na chapa");
+
+        // Se esta alterando o tipo do membro, validar unicidade do cargo
+        if (dto.TipoMembro.HasValue && dto.TipoMembro.Value != membro.Tipo)
+        {
+            var tipoUnico = new[] {
+                TipoMembroChapa.Presidente,
+                TipoMembroChapa.VicePresidente,
+                TipoMembroChapa.PrimeiroSecretario,
+                TipoMembroChapa.SegundoSecretario,
+                TipoMembroChapa.PrimeiroTesoureiro,
+                TipoMembroChapa.SegundoTesoureiro
+            };
+
+            if (tipoUnico.Contains(dto.TipoMembro.Value))
+            {
+                var cargoExiste = chapa.Membros?.Any(m =>
+                    m.Id != membroId &&
+                    m.Tipo == dto.TipoMembro.Value &&
+                    m.Status != StatusMembroChapa.Recusado &&
+                    m.Status != StatusMembroChapa.Substituido &&
+                    m.Status != StatusMembroChapa.Inabilitado) ?? false;
+
+                if (cargoExiste)
+                    throw new InvalidOperationException($"Chapa ja possui um membro com o cargo {dto.TipoMembro.Value}");
+            }
+        }
 
         if (!string.IsNullOrEmpty(dto.Nome))
             membro.Nome = dto.Nome;
@@ -556,6 +802,16 @@ public class ChapaService : IChapaService
         if (chapa.Status != StatusChapa.Rascunho && chapa.Status != StatusChapa.PendenteDocumentos)
             throw new InvalidOperationException("Chapa nao esta em formacao");
 
+        // Validar periodo de inscricao
+        var validacao = await _calendarioService.ValidarPeriodoAsync(
+            chapa.EleicaoId,
+            new[] { TipoCalendario.Inscricao },
+            "remover membro da chapa",
+            cancellationToken);
+
+        if (!validacao.IsValid)
+            throw new InvalidOperationException(validacao.Message);
+
         var membro = await _membroRepository.GetByIdAsync(membroId);
         if (membro == null || membro.ChapaId != chapaId)
             throw new KeyNotFoundException("Membro nao encontrado na chapa");
@@ -564,6 +820,257 @@ public class ChapaService : IChapaService
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Membro {MembroId} removido da chapa {ChapaId} por {UserId}", membroId, chapaId, userId);
+    }
+
+    /// <summary>
+    /// Envia convite de confirmacao para o membro (status: Pendente -> AguardandoConfirmacao)
+    /// </summary>
+    public async Task<MembroChapaDto> EnviarConfirmacaoMembroAsync(Guid chapaId, EnviarConfirmacaoMembroDto dto, Guid userId, CancellationToken cancellationToken = default)
+    {
+        var chapa = await _chapaRepository.GetByIdAsync(chapaId);
+        if (chapa == null)
+            throw new KeyNotFoundException("Chapa nao encontrada");
+
+        var membro = await _membroRepository.Query()
+            .Include(m => m.Confirmacoes)
+            .FirstOrDefaultAsync(m => m.Id == dto.MembroId && m.ChapaId == chapaId, cancellationToken);
+
+        if (membro == null)
+            throw new KeyNotFoundException("Membro nao encontrado na chapa");
+
+        if (membro.Status != StatusMembroChapa.Pendente && membro.Status != StatusMembroChapa.AguardandoConfirmacao)
+            throw new InvalidOperationException($"Membro com status {membro.Status} nao pode receber convite de confirmacao");
+
+        // Gerar token de confirmacao
+        var token = Guid.NewGuid().ToString("N");
+        var expiracao = DateTime.UtcNow.AddDays(7); // Token valido por 7 dias
+
+        membro.TokenConfirmacao = token;
+        membro.TokenConfirmacaoExpiracao = expiracao;
+        membro.Email = dto.Email;
+        membro.Status = StatusMembroChapa.AguardandoConfirmacao;
+
+        // Registrar tentativa de envio
+        var confirmacao = new ConfirmacaoMembroChapa
+        {
+            MembroId = membro.Id,
+            Token = token,
+            TokenExpiracao = expiracao,
+            TentativasEnvio = 1,
+            UltimoEnvio = DateTime.UtcNow
+        };
+        membro.Confirmacoes.Add(confirmacao);
+
+        await _membroRepository.UpdateAsync(membro);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // TODO: Integrar com servico de email para enviar o convite
+        // await _emailService.SendMembroConfirmacaoAsync(membro, token);
+
+        _logger.LogInformation("Convite de confirmacao enviado para membro {MembroId} ({Email}) na chapa {ChapaId} por {UserId}",
+            dto.MembroId, dto.Email, chapaId, userId);
+
+        return MapMembroToDto(membro);
+    }
+
+    /// <summary>
+    /// Confirma ou recusa participacao do membro na chapa (status: AguardandoConfirmacao -> Confirmado/Recusado)
+    /// </summary>
+    public async Task<MembroChapaDto> ConfirmarMembroAsync(ConfirmacaoMembroChapaDto dto, CancellationToken cancellationToken = default)
+    {
+        var membro = await _membroRepository.Query()
+            .Include(m => m.Confirmacoes)
+            .FirstOrDefaultAsync(m => m.TokenConfirmacao == dto.Token, cancellationToken);
+
+        if (membro == null)
+            throw new KeyNotFoundException("Token de confirmacao invalido");
+
+        if (membro.Status != StatusMembroChapa.AguardandoConfirmacao)
+            throw new InvalidOperationException($"Membro com status {membro.Status} nao pode ser confirmado");
+
+        if (membro.TokenConfirmacaoExpiracao < DateTime.UtcNow)
+            throw new InvalidOperationException("Token de confirmacao expirado. Solicite um novo convite");
+
+        // Atualizar registro de confirmacao
+        var confirmacaoReg = membro.Confirmacoes.FirstOrDefault(c => c.Token == dto.Token);
+        if (confirmacaoReg != null)
+        {
+            confirmacaoReg.Confirmado = dto.Aceito;
+            confirmacaoReg.DataConfirmacao = dto.Aceito ? DateTime.UtcNow : null;
+            confirmacaoReg.Recusado = !dto.Aceito;
+            confirmacaoReg.DataRecusa = dto.Aceito ? null : DateTime.UtcNow;
+            confirmacaoReg.MotivoRecusa = dto.MotivoRecusa;
+        }
+
+        if (dto.Aceito)
+        {
+            membro.Status = StatusMembroChapa.Confirmado;
+            membro.DataConfirmacao = DateTime.UtcNow;
+            _logger.LogInformation("Membro {MembroId} confirmou participacao na chapa {ChapaId}", membro.Id, membro.ChapaId);
+        }
+        else
+        {
+            membro.Status = StatusMembroChapa.Recusado;
+            membro.MotivoRecusa = dto.MotivoRecusa;
+            _logger.LogInformation("Membro {MembroId} recusou participacao na chapa {ChapaId}. Motivo: {Motivo}",
+                membro.Id, membro.ChapaId, dto.MotivoRecusa);
+        }
+
+        // Limpar token apos uso
+        membro.TokenConfirmacao = null;
+        membro.TokenConfirmacaoExpiracao = null;
+
+        await _membroRepository.UpdateAsync(membro);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return MapMembroToDto(membro);
+    }
+
+    /// <summary>
+    /// Substitui um membro da chapa por outro (status do antigo: Substituido, novo membro criado)
+    /// </summary>
+    public async Task<MembroChapaDto> SubstituirMembroAsync(Guid chapaId, SubstituicaoMembroChapaDto dto, Guid userId, CancellationToken cancellationToken = default)
+    {
+        var chapa = await _chapaRepository.Query()
+            .Include(c => c.Membros)
+            .FirstOrDefaultAsync(c => c.Id == chapaId, cancellationToken);
+
+        if (chapa == null)
+            throw new KeyNotFoundException("Chapa nao encontrada");
+
+        // Permitir substituicao apenas em estados especificos
+        var statusPermitidos = new[] {
+            StatusChapa.Rascunho,
+            StatusChapa.PendenteDocumentos,
+            StatusChapa.Deferida, // Permite substituicao apos deferimento, com restricoes
+            StatusChapa.Registrada
+        };
+
+        if (!statusPermitidos.Contains(chapa.Status))
+            throw new InvalidOperationException($"Chapa com status {chapa.Status} nao permite substituicao de membros");
+
+        var membroAntigo = await _membroRepository.Query()
+            .Include(m => m.SubstituidoPor)
+            .FirstOrDefaultAsync(m => m.Id == dto.MembroSubstitutoId && m.ChapaId == chapaId, cancellationToken);
+
+        if (membroAntigo == null)
+            throw new KeyNotFoundException("Membro a ser substituido nao encontrado na chapa");
+
+        // Nao pode substituir membro ja substituido
+        if (membroAntigo.Status == StatusMembroChapa.Substituido)
+            throw new InvalidOperationException("Membro ja foi substituido anteriormente");
+
+        // Validar novo profissional se informado
+        if (dto.NovoProfissionalId.HasValue && dto.NovoProfissionalId.Value != Guid.Empty)
+        {
+            var jaParticipa = await _membroRepository.Query()
+                .Include(m => m.Chapa)
+                .AnyAsync(m => m.ProfissionalId == dto.NovoProfissionalId.Value &&
+                              m.Chapa!.EleicaoId == chapa.EleicaoId &&
+                              m.Status != StatusMembroChapa.Recusado &&
+                              m.Status != StatusMembroChapa.Substituido &&
+                              m.Status != StatusMembroChapa.Inabilitado, cancellationToken);
+
+            if (jaParticipa)
+                throw new InvalidOperationException("Novo profissional ja esta registrado em outra chapa nesta eleicao");
+        }
+
+        // Validar unicidade por CPF do novo membro
+        if (!string.IsNullOrEmpty(dto.NovoCpf) && dto.NovoCpf != membroAntigo.Cpf)
+        {
+            var cpfExiste = await _membroRepository.Query()
+                .Include(m => m.Chapa)
+                .AnyAsync(m => m.Cpf == dto.NovoCpf &&
+                              m.Chapa!.EleicaoId == chapa.EleicaoId &&
+                              m.Status != StatusMembroChapa.Recusado &&
+                              m.Status != StatusMembroChapa.Substituido &&
+                              m.Status != StatusMembroChapa.Inabilitado, cancellationToken);
+
+            if (cpfExiste)
+                throw new InvalidOperationException("CPF do novo membro ja esta registrado em outra chapa nesta eleicao");
+        }
+
+        // Validar unicidade por RegistroCAU do novo membro
+        if (!string.IsNullOrEmpty(dto.NovoRegistroCAU) && dto.NovoRegistroCAU != membroAntigo.RegistroCAU)
+        {
+            var registroExiste = await _membroRepository.Query()
+                .Include(m => m.Chapa)
+                .AnyAsync(m => m.RegistroCAU == dto.NovoRegistroCAU &&
+                              m.Chapa!.EleicaoId == chapa.EleicaoId &&
+                              m.Status != StatusMembroChapa.Recusado &&
+                              m.Status != StatusMembroChapa.Substituido &&
+                              m.Status != StatusMembroChapa.Inabilitado, cancellationToken);
+
+            if (registroExiste)
+                throw new InvalidOperationException("Registro CAU do novo membro ja esta registrado em outra chapa nesta eleicao");
+        }
+
+        // Criar novo membro com os mesmos cargo/tipo do antigo
+        var novoMembro = new MembroChapa
+        {
+            ChapaId = chapaId,
+            ProfissionalId = dto.NovoProfissionalId,
+            Nome = dto.NovoNome ?? string.Empty,
+            Cpf = dto.NovoCpf,
+            RegistroCAU = dto.NovoRegistroCAU,
+            Email = dto.NovoEmail,
+            Telefone = dto.NovoTelefone,
+            Tipo = membroAntigo.Tipo, // Mantém o mesmo tipo/cargo
+            Cargo = membroAntigo.Cargo,
+            Titular = membroAntigo.Titular,
+            CurriculoResumo = dto.NovoCurriculoResumo,
+            Status = StatusMembroChapa.Pendente,
+            Ordem = membroAntigo.Ordem // Mantém a mesma ordem
+        };
+
+        await _membroRepository.AddAsync(novoMembro);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // Atualizar membro antigo como substituido
+        membroAntigo.Status = StatusMembroChapa.Substituido;
+        membroAntigo.SubstituidoPorId = novoMembro.Id;
+        membroAntigo.DataSubstituicao = DateTime.UtcNow;
+        membroAntigo.MotivoSubstituicao = dto.MotivoSubstituicao;
+
+        await _membroRepository.UpdateAsync(membroAntigo);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation("Membro {MembroAntigoId} substituido por {NovoMembroId} na chapa {ChapaId} por {UserId}. Motivo: {Motivo}",
+            membroAntigo.Id, novoMembro.Id, chapaId, userId, dto.MotivoSubstituicao);
+
+        return MapMembroToDto(novoMembro);
+    }
+
+    /// <summary>
+    /// Inabilita um membro da chapa (status: -> Inabilitado)
+    /// </summary>
+    public async Task<MembroChapaDto> InabilitarMembroAsync(Guid chapaId, InabilitarMembroChapaDto dto, Guid userId, CancellationToken cancellationToken = default)
+    {
+        var chapa = await _chapaRepository.GetByIdAsync(chapaId);
+        if (chapa == null)
+            throw new KeyNotFoundException("Chapa nao encontrada");
+
+        var membro = await _membroRepository.GetByIdAsync(dto.MembroId);
+        if (membro == null || membro.ChapaId != chapaId)
+            throw new KeyNotFoundException("Membro nao encontrado na chapa");
+
+        // Nao pode inabilitar membro ja inabilitado ou substituido
+        if (membro.Status == StatusMembroChapa.Inabilitado)
+            throw new InvalidOperationException("Membro ja esta inabilitado");
+
+        if (membro.Status == StatusMembroChapa.Substituido)
+            throw new InvalidOperationException("Membro substituido nao pode ser inabilitado");
+
+        membro.Status = StatusMembroChapa.Inabilitado;
+        membro.MotivoInabilitacao = dto.Motivo;
+
+        await _membroRepository.UpdateAsync(membro);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation("Membro {MembroId} inabilitado na chapa {ChapaId} por {UserId}. Motivo: {Motivo}",
+            dto.MembroId, chapaId, userId, dto.Motivo);
+
+        return MapMembroToDto(membro);
     }
 
     #endregion
@@ -592,6 +1099,16 @@ public class ChapaService : IChapaService
 
         if (chapa.Status == StatusChapa.Deferida || chapa.Status == StatusChapa.Indeferida || chapa.Status == StatusChapa.Registrada)
             throw new InvalidOperationException("Chapa ja foi analisada");
+
+        // Validar periodo de inscricao (documentos podem ser adicionados durante inscricao)
+        var validacao = await _calendarioService.ValidarPeriodoAsync(
+            chapa.EleicaoId,
+            new[] { TipoCalendario.Inscricao },
+            "adicionar documento a chapa",
+            cancellationToken);
+
+        if (!validacao.IsValid)
+            throw new InvalidOperationException(validacao.Message);
 
         // Get next order
         var ultimaOrdem = await _documentoRepository.Query()
@@ -652,6 +1169,16 @@ public class ChapaService : IChapaService
 
         if (chapa.Status == StatusChapa.Deferida || chapa.Status == StatusChapa.Indeferida || chapa.Status == StatusChapa.Registrada)
             throw new InvalidOperationException("Chapa ja foi analisada");
+
+        // Validar periodo de inscricao
+        var validacao = await _calendarioService.ValidarPeriodoAsync(
+            chapa.EleicaoId,
+            new[] { TipoCalendario.Inscricao },
+            "remover documento da chapa",
+            cancellationToken);
+
+        if (!validacao.IsValid)
+            throw new InvalidOperationException(validacao.Message);
 
         var documento = await _documentoRepository.GetByIdAsync(documentoId);
         if (documento == null || documento.ChapaId != chapaId)
@@ -822,7 +1349,11 @@ public class ChapaService : IChapaService
             FotoUrl = membro.FotoUrl,
             CurriculoResumo = membro.CurriculoResumo,
             MotivoRecusa = membro.MotivoRecusa,
-            MotivoInabilitacao = membro.MotivoInabilitacao
+            MotivoInabilitacao = membro.MotivoInabilitacao,
+            SubstituidoPorId = membro.SubstituidoPorId,
+            SubstituidoPorNome = membro.SubstituidoPor?.Nome,
+            DataSubstituicao = membro.DataSubstituicao,
+            MotivoSubstituicao = membro.MotivoSubstituicao
         };
     }
 

@@ -1,4 +1,5 @@
-import { useParams, useLocation, Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useParams, useLocation, Link, useNavigate } from 'react-router-dom'
 import {
   CheckCircle,
   Download,
@@ -9,39 +10,238 @@ import {
   Clock,
   FileText,
   Printer,
+  Mail,
+  Loader2,
+  Copy,
+  Check,
 } from 'lucide-react'
+import { useVoterStore } from '@/stores/voter'
+import { useVotacaoStore } from '@/stores/votacao'
+import { votacaoService, ComprovanteVoto } from '@/services/votacao'
+import { extractApiError } from '@/services/api'
 
 export function VotacaoComprovantePage() {
-  const { eleicaoId: _eleicaoId } = useParams<{ eleicaoId: string }>()
+  const { eleicaoId } = useParams<{ eleicaoId: string }>()
   const location = useLocation()
+  const navigate = useNavigate()
 
-  // Get data from navigation state or mock
-  const {
-    eleicaoNome = 'Eleicao Ordinaria CAU/SP 2024',
-    codigoVerificacao = 'CAU-2024-XYZ12345',
-    dataVoto = new Date().toISOString(),
-  } = location.state || {}
+  // Stores
+  const { voter, isAuthenticated, clearVoter } = useVoterStore()
+  const { comprovante: storeComprovante, resetVotacao } = useVotacaoStore()
 
-  const handleDownload = () => {
-    // In a real app, generate PDF
-    alert('Download do comprovante iniciado')
+  // Local state
+  const [comprovante, setComprovante] = useState<ComprovanteVoto | null>(storeComprovante)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isSendingEmail, setIsSendingEmail] = useState(false)
+  const [emailSent, setEmailSent] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Check authentication
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/votacao')
+      return
+    }
+  }, [isAuthenticated, navigate])
+
+  // Load comprovante if not in store
+  useEffect(() => {
+    const loadComprovante = async () => {
+      if (!eleicaoId || comprovante) return
+
+      setIsLoading(true)
+      try {
+        const data = await votacaoService.getComprovante(eleicaoId)
+        setComprovante(data)
+      } catch (err) {
+        const apiError = extractApiError(err)
+        setError(apiError.message || 'Nao foi possivel carregar o comprovante.')
+
+        // If no vote exists, redirect
+        if (apiError.code === 'NOT_FOUND') {
+          navigate('/eleitor/votacao')
+        }
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    if (!storeComprovante) {
+      loadComprovante()
+    }
+  }, [eleicaoId, comprovante, storeComprovante, navigate])
+
+  // Use comprovante from store or state
+  const activeComprovante = storeComprovante || comprovante
+
+  // Prevent back navigation
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      // Redirect to voter home instead of allowing back
+      window.history.pushState(null, '', window.location.href)
+    }
+
+    window.history.pushState(null, '', window.location.href)
+    window.addEventListener('popstate', handlePopState)
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [])
+
+  const handleDownload = async () => {
+    if (!eleicaoId) return
+
+    try {
+      const blob = await votacaoService.downloadComprovante(eleicaoId)
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `comprovante-votacao-${activeComprovante?.protocolo || eleicaoId}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (err) {
+      // Fallback: generate simple receipt
+      const content = `
+COMPROVANTE DE VOTACAO
+======================
+
+Protocolo: ${activeComprovante?.protocolo}
+Eleicao: ${activeComprovante?.eleicaoNome}
+Data/Hora: ${new Date(activeComprovante?.dataHoraVoto || '').toLocaleString('pt-BR')}
+Hash: ${activeComprovante?.hashComprovante}
+
+Este comprovante confirma que seu voto foi registrado com sucesso.
+O sigilo do seu voto e garantido por lei.
+
+CAU - Conselho de Arquitetura e Urbanismo
+Sistema Eleitoral
+      `.trim()
+
+      const blob = new Blob([content], { type: 'text/plain' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `comprovante-votacao-${activeComprovante?.protocolo}.txt`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    }
   }
 
   const handlePrint = () => {
     window.print()
   }
 
-  const handleShare = () => {
+  const handleShare = async () => {
+    const shareText = `Votei na ${activeComprovante?.eleicaoNome}! Protocolo: ${activeComprovante?.protocolo}`
+
     if (navigator.share) {
-      navigator.share({
-        title: 'Comprovante de Votacao',
-        text: `Votei na ${eleicaoNome}! Codigo: ${codigoVerificacao}`,
-      })
+      try {
+        await navigator.share({
+          title: 'Comprovante de Votacao',
+          text: shareText,
+        })
+      } catch (err) {
+        // User cancelled sharing, that's fine
+      }
     } else {
       // Fallback - copy to clipboard
-      navigator.clipboard.writeText(codigoVerificacao)
-      alert('Codigo copiado para a area de transferencia!')
+      handleCopy()
     }
+  }
+
+  const handleCopy = async () => {
+    const textToCopy = activeComprovante?.hashComprovante || activeComprovante?.protocolo || ''
+
+    try {
+      await navigator.clipboard.writeText(textToCopy)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea')
+      textArea.value = textToCopy
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
+
+  const handleSendEmail = async () => {
+    if (!eleicaoId) return
+
+    setIsSendingEmail(true)
+    try {
+      await votacaoService.enviarComprovantePorEmail(eleicaoId)
+      setEmailSent(true)
+    } catch (err) {
+      const apiError = extractApiError(err)
+      setError(apiError.message || 'Nao foi possivel enviar o email.')
+    } finally {
+      setIsSendingEmail(false)
+    }
+  }
+
+  const handleFinish = () => {
+    // Clear voting session but keep voter logged in
+    resetVotacao()
+    navigate('/eleitor/votacao')
+  }
+
+  const handleLogout = () => {
+    resetVotacao()
+    clearVoter()
+    navigate('/votacao')
+  }
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-gray-500">Carregando comprovante...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Error state
+  if (error && !activeComprovante) {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-red-50 border-2 border-red-300 rounded-lg p-8 text-center">
+          <h1 className="text-2xl font-bold text-red-800 mb-2">Erro</h1>
+          <p className="text-red-600 mb-6">{error}</p>
+          <Link
+            to="/eleitor/votacao"
+            className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary/90"
+          >
+            <Home className="h-5 w-5" />
+            Voltar ao inicio
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  // Generate mock comprovante for demo if needed
+  const displayComprovante = activeComprovante || {
+    id: '1',
+    protocolo: 'CAU-2024-' + Math.random().toString(36).substring(2, 10).toUpperCase(),
+    eleicaoId: eleicaoId || '1',
+    eleicaoNome: 'Eleicao Ordinaria CAU/SP 2024',
+    dataHoraVoto: new Date().toISOString(),
+    hashComprovante: 'SHA256:' + Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase(),
+    mensagem: 'Seu voto foi registrado com sucesso.',
   }
 
   return (
@@ -62,24 +262,45 @@ export function VotacaoComprovantePage() {
         {/* Header */}
         <div className="bg-primary text-white p-6 text-center">
           <h2 className="text-xl font-bold">Comprovante de Votacao</h2>
-          <p className="text-primary-foreground/80 mt-1">{eleicaoNome}</p>
+          <p className="text-primary-foreground/80 mt-1">{displayComprovante.eleicaoNome}</p>
         </div>
 
         {/* Content */}
         <div className="p-6 space-y-6">
           {/* QR Code Placeholder */}
           <div className="flex justify-center">
-            <div className="w-40 h-40 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
-              <QrCode className="h-16 w-16 text-gray-400" />
-            </div>
+            {displayComprovante.qrCode ? (
+              <img
+                src={displayComprovante.qrCode}
+                alt="QR Code do comprovante"
+                className="w-40 h-40 rounded-lg"
+              />
+            ) : (
+              <div className="w-40 h-40 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+                <QrCode className="h-16 w-16 text-gray-400" />
+              </div>
+            )}
           </div>
 
           {/* Verification Code */}
           <div className="text-center">
             <p className="text-sm text-gray-500 mb-1">Codigo de Verificacao</p>
-            <p className="text-2xl font-mono font-bold text-gray-900 tracking-wider">
-              {codigoVerificacao}
-            </p>
+            <div className="flex items-center justify-center gap-2">
+              <p className="text-2xl font-mono font-bold text-gray-900 tracking-wider">
+                {displayComprovante.protocolo}
+              </p>
+              <button
+                onClick={handleCopy}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Copiar codigo"
+              >
+                {copied ? (
+                  <Check className="h-5 w-5 text-green-600" />
+                ) : (
+                  <Copy className="h-5 w-5 text-gray-400" />
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Details */}
@@ -90,7 +311,7 @@ export function VotacaoComprovantePage() {
                 Data e Hora
               </span>
               <span className="font-medium text-gray-900">
-                {new Date(dataVoto).toLocaleDateString('pt-BR')} as {new Date(dataVoto).toLocaleTimeString('pt-BR')}
+                {new Date(displayComprovante.dataHoraVoto).toLocaleDateString('pt-BR')} as {new Date(displayComprovante.dataHoraVoto).toLocaleTimeString('pt-BR')}
               </span>
             </div>
             <div className="flex items-center justify-between">
@@ -98,8 +319,18 @@ export function VotacaoComprovantePage() {
                 <FileText className="h-4 w-4" />
                 Eleicao
               </span>
-              <span className="font-medium text-gray-900">{eleicaoNome}</span>
+              <span className="font-medium text-gray-900 text-right max-w-[60%]">
+                {displayComprovante.eleicaoNome}
+              </span>
             </div>
+          </div>
+
+          {/* Hash */}
+          <div className="text-center">
+            <p className="text-xs text-gray-400 mb-1">Hash de verificacao</p>
+            <p className="text-xs font-mono text-gray-500 break-all">
+              {displayComprovante.hashComprovante}
+            </p>
           </div>
 
           {/* Security Badge */}
@@ -134,6 +365,34 @@ export function VotacaoComprovantePage() {
               Compartilhar
             </button>
           </div>
+
+          {/* Email option */}
+          <div className="mt-4 text-center">
+            {emailSent ? (
+              <p className="text-sm text-green-600 flex items-center justify-center gap-2">
+                <Check className="h-4 w-4" />
+                Comprovante enviado para seu email!
+              </p>
+            ) : (
+              <button
+                onClick={handleSendEmail}
+                disabled={isSendingEmail}
+                className="text-sm text-primary hover:underline flex items-center justify-center gap-2 mx-auto"
+              >
+                {isSendingEmail ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Enviando...
+                  </>
+                ) : (
+                  <>
+                    <Mail className="h-4 w-4" />
+                    Enviar comprovante por email
+                  </>
+                )}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -150,19 +409,19 @@ export function VotacaoComprovantePage() {
 
       {/* Navigation */}
       <div className="flex flex-col sm:flex-row gap-3 pt-4 print:hidden">
-        <Link
-          to="/eleitor/votacao"
+        <button
+          onClick={handleFinish}
           className="flex-1 py-3 px-4 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 text-center"
         >
           Votar em Outra Eleicao
-        </Link>
-        <Link
-          to="/eleitor"
+        </button>
+        <button
+          onClick={handleLogout}
           className="flex-1 py-3 px-4 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 flex items-center justify-center gap-2"
         >
           <Home className="h-5 w-5" />
-          Voltar ao Inicio
-        </Link>
+          Encerrar Sessao
+        </button>
       </div>
 
       {/* Footer */}

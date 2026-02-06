@@ -162,6 +162,10 @@ public record MembroChapaDto
     public string? CurriculoResumo { get; init; }
     public string? MotivoRecusa { get; init; }
     public string? MotivoInabilitacao { get; init; }
+    public Guid? SubstituidoPorId { get; init; }
+    public string? SubstituidoPorNome { get; init; }
+    public DateTime? DataSubstituicao { get; init; }
+    public string? MotivoSubstituicao { get; init; }
 }
 
 /// <summary>
@@ -257,6 +261,76 @@ public record ConfirmacaoMembroChapaDto
 
     [StringLength(500, ErrorMessage = "MotivoRecusa deve ter no maximo 500 caracteres")]
     public string? MotivoRecusa { get; init; }
+}
+
+/// <summary>
+/// DTO para substituicao de membro
+/// </summary>
+public record SubstituicaoMembroChapaDto
+{
+    [Required(ErrorMessage = "MembroSubstitutoId eh obrigatorio")]
+    public Guid MembroSubstitutoId { get; init; }
+
+    public Guid? NovoProfissionalId { get; init; }
+
+    [StringLength(200, MinimumLength = 3, ErrorMessage = "Nome deve ter entre 3 e 200 caracteres")]
+    public string? NovoNome { get; init; }
+
+    [StringLength(11, MinimumLength = 11, ErrorMessage = "CPF deve ter 11 digitos")]
+    [RegularExpression(@"^\d{11}$", ErrorMessage = "CPF deve conter apenas numeros")]
+    public string? NovoCpf { get; init; }
+
+    [StringLength(20, ErrorMessage = "RegistroCAU deve ter no maximo 20 caracteres")]
+    public string? NovoRegistroCAU { get; init; }
+
+    [EmailAddress(ErrorMessage = "Email invalido")]
+    public string? NovoEmail { get; init; }
+
+    [Phone(ErrorMessage = "Telefone invalido")]
+    public string? NovoTelefone { get; init; }
+
+    [StringLength(2000, ErrorMessage = "CurriculoResumo deve ter no maximo 2000 caracteres")]
+    public string? NovoCurriculoResumo { get; init; }
+
+    [Required(ErrorMessage = "MotivoSubstituicao eh obrigatorio")]
+    [StringLength(500, MinimumLength = 10, ErrorMessage = "MotivoSubstituicao deve ter entre 10 e 500 caracteres")]
+    public string MotivoSubstituicao { get; init; } = string.Empty;
+}
+
+/// <summary>
+/// DTO para enviar convite de confirmacao
+/// </summary>
+public record EnviarConfirmacaoMembroDto
+{
+    [Required(ErrorMessage = "MembroId eh obrigatorio")]
+    public Guid MembroId { get; init; }
+
+    [Required(ErrorMessage = "Email eh obrigatorio")]
+    [EmailAddress(ErrorMessage = "Email invalido")]
+    public string Email { get; init; } = string.Empty;
+}
+
+/// <summary>
+/// DTO para inabilitar membro
+/// </summary>
+public record InabilitarMembroChapaDto
+{
+    [Required(ErrorMessage = "MembroId eh obrigatorio")]
+    public Guid MembroId { get; init; }
+
+    [Required(ErrorMessage = "Motivo eh obrigatorio")]
+    [StringLength(500, MinimumLength = 10, ErrorMessage = "Motivo deve ter entre 10 e 500 caracteres")]
+    public string Motivo { get; init; } = string.Empty;
+}
+
+/// <summary>
+/// Resultado de validacao de membro
+/// </summary>
+public record ValidacaoMembroResultDto
+{
+    public bool Valido { get; init; }
+    public List<string> Erros { get; init; } = new();
+    public List<string> Avisos { get; init; } = new();
 }
 
 #endregion

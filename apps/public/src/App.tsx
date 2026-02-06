@@ -28,6 +28,7 @@ import { VotacaoEleicaoPage } from '@/pages/votacao/VotacaoEleicaoPage'
 import { VotacaoCedulaPage } from '@/pages/votacao/VotacaoCedulaPage'
 import { VotacaoConfirmacaoPage } from '@/pages/votacao/VotacaoConfirmacaoPage'
 import { VotacaoComprovantePage } from '@/pages/votacao/VotacaoComprovantePage'
+import { JaVotouPage } from '@/pages/votacao/JaVotouPage'
 import { PerfilPage } from '@/pages/perfil/PerfilPage'
 import { MeusVotosPage } from '@/pages/perfil/MeusVotosPage'
 import { NotificacoesPage } from '@/pages/notificacoes/NotificacoesPage'
@@ -89,6 +90,8 @@ function App() {
         <Route path="votacao/:eleicaoId/cedula" element={<VotacaoCedulaPage />} />
         <Route path="votacao/:eleicaoId/confirmacao" element={<VotacaoConfirmacaoPage />} />
         <Route path="votacao/:eleicaoId/comprovante" element={<VotacaoComprovantePage />} />
+        <Route path="votacao/:eleicaoId/ja-votou" element={<JaVotouPage />} />
+        <Route path="ja-votou" element={<JaVotouPage />} />
         <Route path="meus-votos" element={<MeusVotosPage />} />
         <Route path="notificacoes" element={<NotificacoesPage />} />
         <Route path="perfil" element={<PerfilPage />} />

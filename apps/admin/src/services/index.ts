@@ -45,3 +45,14 @@ export { dashboardService } from './dashboard'
 
 // Configuracoes
 export { configuracoesService } from './configuracoes'
+
+// Votacao
+export { votacaoService } from './votacao'
+export type {
+  EleicaoVotacao,
+  EstatisticasVotacao,
+  VotosPorRegiao,
+  VotosPorHora,
+  ResultadoChapa,
+  ResultadoApuracao,
+} from './votacao'

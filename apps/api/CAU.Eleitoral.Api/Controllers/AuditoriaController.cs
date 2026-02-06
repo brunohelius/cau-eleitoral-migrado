@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using CAU.Eleitoral.Application.DTOs;
+using CAU.Eleitoral.Application.DTOs.Auditoria;
 using CAU.Eleitoral.Application.Interfaces;
 
 namespace CAU.Eleitoral.Api.Controllers;

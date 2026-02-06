@@ -35,7 +35,12 @@ public class MembroChapa : BaseEntity
     public string? FotoUrl { get; set; }
     public string? CurriculoResumo { get; set; }
 
-    public virtual ICollection<ConfirmacaoMembroChapa> Confirmacoes { get; set; } = new List<ConfirmacaoMembroChapa>();
+    // Substituicao
+    public Guid? SubstituidoPorId { get; set; }
     public virtual MembroChapa? SubstituidoPor { get; set; }
     public virtual ICollection<MembroChapa> SubstituidosDe { get; set; } = new List<MembroChapa>();
+    public DateTime? DataSubstituicao { get; set; }
+    public string? MotivoSubstituicao { get; set; }
+
+    public virtual ICollection<ConfirmacaoMembroChapa> Confirmacoes { get; set; } = new List<ConfirmacaoMembroChapa>();
 }

@@ -1,4 +1,5 @@
 using CAU.Eleitoral.Application.DTOs;
+using CAU.Eleitoral.Domain.Enums;
 
 namespace CAU.Eleitoral.Application.Interfaces;
 
@@ -15,6 +16,21 @@ public interface IEleicaoService
     Task<EleicaoDto> EncerrarAsync(Guid id, CancellationToken cancellationToken = default);
     Task<EleicaoDto> SuspenderAsync(Guid id, string motivo, CancellationToken cancellationToken = default);
     Task<EleicaoDto> CancelarAsync(Guid id, string motivo, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Advances the election to the next phase based on calendar
+    /// </summary>
+    Task<EleicaoDto> AvancarFaseAsync(Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Sets the election to a specific phase (admin only)
+    /// </summary>
+    Task<EleicaoDto> DefinirFaseAsync(Guid id, FaseEleicao fase, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Validates if the election can transition to a specific phase
+    /// </summary>
+    Task<EleicaoValidationResult> CanTransitionToPhaseAsync(Guid id, FaseEleicao fase, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Checks if an election can be deleted and returns validation info

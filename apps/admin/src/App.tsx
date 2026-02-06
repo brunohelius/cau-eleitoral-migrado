@@ -54,6 +54,9 @@ import { RelatoriosPage } from '@/pages/relatorios/RelatoriosPage'
 import { RelatorioEleicaoPage } from '@/pages/relatorios/RelatorioEleicaoPage'
 import { RelatorioVotacaoPage } from '@/pages/relatorios/RelatorioVotacaoPage'
 
+// Votacao
+import { VotacaoPage, VotacaoMonitorPage, ApuracaoPage } from '@/pages/votacao'
+
 // Auditoria
 import { AuditoriaPage } from '@/pages/auditoria/AuditoriaPage'
 
@@ -132,6 +135,11 @@ function App() {
           <Route path="/usuarios/novo" element={<UsuarioFormPage />} />
           <Route path="/usuarios/:id" element={<UsuarioDetailPage />} />
           <Route path="/usuarios/:id/editar" element={<UsuarioFormPage />} />
+
+          {/* Votacao */}
+          <Route path="/votacao" element={<VotacaoPage />} />
+          <Route path="/votacao/:eleicaoId" element={<VotacaoMonitorPage />} />
+          <Route path="/votacao/:eleicaoId/apuracao" element={<ApuracaoPage />} />
 
           {/* Relatorios */}
           <Route path="/relatorios" element={<RelatoriosPage />} />

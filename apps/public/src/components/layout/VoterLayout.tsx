@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   Home,
@@ -12,6 +12,8 @@ import {
   ChevronDown,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useVoterStore } from '@/stores/voter'
+import { useVotacaoStore } from '@/stores/votacao'
 
 const navigation = [
   { name: 'Inicio', href: '/eleitor', icon: Home },
@@ -27,15 +29,27 @@ export function VoterLayout() {
   const location = useLocation()
   const navigate = useNavigate()
 
-  // Mock user data - replace with actual auth store
+  // Get voter from store
+  const { voter, isAuthenticated, clearVoter } = useVoterStore()
+  const { resetVotacao } = useVotacaoStore()
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/votacao')
+    }
+  }, [isAuthenticated, navigate])
+
+  // Get user display info from voter store or use defaults
   const user = {
-    nome: 'Joao Silva',
-    cpf: '***.***.***-00',
-    cau: 'A12345-6',
+    nome: voter?.nome || 'Eleitor',
+    cpf: voter?.cpf ? `***.***.***-${voter.cpf.slice(-2)}` : '***.***.***-**',
+    cau: voter?.registroCAU || 'A*****-*',
   }
 
   const handleLogout = () => {
-    // TODO: Implement actual logout
+    resetVotacao()
+    clearVoter()
     navigate('/votacao')
   }
 

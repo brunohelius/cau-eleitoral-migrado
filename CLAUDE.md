@@ -1,16 +1,16 @@
 # CAU Sistema Eleitoral - Migrado
 
 ## Visão Geral
-Sistema eleitoral migrado de PHP/Java para .NET 10 + React 18 + shadcn/ui.
+Sistema eleitoral migrado de PHP/Java para .NET 8 + React 18 + shadcn/ui.
 
-**Status:** Em Produção (AWS ECS Fargate)
+**Status:** Em Produção (AWS ECS Fargate) ✅ Verificado em 2026-02-05
 
 ## Estrutura do Projeto
 
 ```
 cau-eleitoral-migrado/
 ├── apps/
-│   ├── api/                    # .NET 10 Web API (Clean Architecture)
+│   ├── api/                    # .NET 8 Web API (Clean Architecture)
 │   │   ├── CAU.Eleitoral.Api/        # Controllers, Program.cs
 │   │   ├── CAU.Eleitoral.Application/ # Services, DTOs, Interfaces
 │   │   ├── CAU.Eleitoral.Domain/     # Entities (~71), Enums, Interfaces
@@ -27,8 +27,8 @@ cau-eleitoral-migrado/
 ## Stack Tecnológica
 
 ### Backend
-- **.NET 10** + ASP.NET Core Web API
-- **Entity Framework Core 10.0.2** + PostgreSQL
+- **.NET 8** + ASP.NET Core Web API
+- **Entity Framework Core 8.0** + PostgreSQL
 - **JWT Authentication** (PBKDF2 100000 iterations)
 - **Serilog** para logging
 - **Swashbuckle** para Swagger/OpenAPI
@@ -94,7 +94,7 @@ VITE_APP_ENV=development
 
 ### Produção (.env.production)
 ```env
-VITE_API_URL=https://api.cau-eleitoral.migrai.com.br/api
+VITE_API_URL=https://cau-api.migrai.com.br/api
 VITE_APP_ENV=production
 ```
 
@@ -148,10 +148,48 @@ pnpm dev
 
 ## AWS Deployment
 
+### AWS Account Info
+- **Account ID:** 801232946361
+- **Region:** us-east-1
+- **Profile:** default
+
 ### URLs de Produção
 - Admin: https://cau-admin.migrai.com.br
 - Public: https://cau-public.migrai.com.br
 - API: https://cau-api.migrai.com.br
+
+### CloudFront Distributions
+| Service | CloudFront ID | Domain |
+|---------|--------------|--------|
+| Admin | d39vg8qyop1yti | cau-admin.migrai.com.br |
+| Public | d3nfqhdxqrdzp5 | cau-public.migrai.com.br |
+| API | d3izzjw5tijtoz | cau-api.migrai.com.br |
+
+### ECS Resources
+- **Cluster:** cau-eleitoral-cluster
+- **Services:** cau-eleitoral-api, cau-eleitoral-admin, cau-eleitoral-public
+- **ECR Repos:** cau-eleitoral-api, cau-eleitoral-admin, cau-eleitoral-public
+
+### RDS Database (Production)
+- **Host:** cau-eleitoral-db.c5caeiwsk43h.us-east-1.rds.amazonaws.com
+- **Port:** 5432
+- **Database:** cau_eleitoral
+- **Username:** postgres
+- **Note:** Password stored in AWS Secrets Manager
+
+## Cloudflare DNS
+
+### Zone Info
+- **Domain:** migrai.com.br
+- **Zone ID:** b51c069304dc586a4f8c96cc6efe40cc
+- **API Token Location:** `/Users/brunosouza/Development/migrai-agentic-coder/.env` (CLOUDFLARE_API_TOKEN)
+
+### CNAME Records (Proxy OFF for CloudFront SSL)
+| Record | Target |
+|--------|--------|
+| cau-admin | d39vg8qyop1yti.cloudfront.net |
+| cau-public | d3nfqhdxqrdzp5.cloudfront.net |
+| cau-api | d3izzjw5tijtoz.cloudfront.net |
 
 ### Deploy com AWS CodeBuild (Recomendado)
 
@@ -247,9 +285,9 @@ dotnet ef database update -p CAU.Eleitoral.Infrastructure -s CAU.Eleitoral.Api
 
 ## Problemas Conhecidos / Fixes
 
-### .NET 10 Specific
-1. **Swashbuckle**: Usar versão 6.5.0 (não 7.x) para compatibilidade com OpenApi 1.x
-2. **Npgsql**: Usar versão 10.0.0 (não 10.0.2)
+### .NET 8 Specific
+1. **Swashbuckle**: Usar versão 6.5.0 para compatibilidade
+2. **Docker Build**: Usar `--platform linux/amd64` para Fargate
 
 ### TypeScript/Vite
 - Adicionar `"types": ["vite/client"]` no tsconfig.json para `import.meta.env`
@@ -259,7 +297,7 @@ dotnet ef database update -p CAU.Eleitoral.Infrastructure -s CAU.Eleitoral.Api
 
 ## Testes E2E com Playwright
 
-### Executar Testes
+### Executar Testes (Local)
 ```bash
 # Admin App (12 testes)
 cd apps/admin
@@ -268,6 +306,12 @@ pnpm exec playwright test
 # Public App (9 testes)
 cd apps/public
 pnpm exec playwright test
+```
+
+### Executar Testes contra Produção
+```bash
+cd apps/admin
+npx playwright test --config=playwright.production.config.ts
 ```
 
 ### Fluxos Testados
@@ -283,6 +327,27 @@ pnpm exec playwright test
 - Páginas públicas: Eleições, Calendário, Documentos, FAQ
 - Portal do Candidato
 
+## Monitoramento e Health Checks
+
+### Verificar API
+```bash
+curl https://cau-api.migrai.com.br/health
+# Expected: "Healthy"
+```
+
+### Verificar Login
+```bash
+curl -X POST https://cau-api.migrai.com.br/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@cau.org.br","password":"Admin@123"}'
+```
+
+### Seed Database (se necessário)
+```bash
+curl -X POST https://cau-api.migrai.com.br/api/admin/seed \
+  -H "X-Seed-Key: CAU-SEED-2026-SECRET"
+```
+
 ## Contato
-- Suporte: suporte@cau.org.br
-- Deploy Domain: cau-eleitoral.migrai.com.br
+- Deploy Domain: migrai.com.br
+- Admin URL: https://cau-admin.migrai.com.br

@@ -14,6 +14,7 @@ public class EleicaoService : IEleicaoService
     private readonly IRepository<Eleicao> _eleicaoRepository;
     private readonly IRepository<Voto> _votoRepository;
     private readonly IRepository<ChapaEleicao> _chapaRepository;
+    private readonly IRepository<Calendario> _calendarioRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<EleicaoService> _logger;
 
@@ -21,12 +22,14 @@ public class EleicaoService : IEleicaoService
         IRepository<Eleicao> eleicaoRepository,
         IRepository<Voto> votoRepository,
         IRepository<ChapaEleicao> chapaRepository,
+        IRepository<Calendario> calendarioRepository,
         IUnitOfWork unitOfWork,
         ILogger<EleicaoService> logger)
     {
         _eleicaoRepository = eleicaoRepository;
         _votoRepository = votoRepository;
         _chapaRepository = chapaRepository;
+        _calendarioRepository = calendarioRepository;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -277,7 +280,33 @@ public class EleicaoService : IEleicaoService
         var eleicao = await _eleicaoRepository.GetByIdAsync(id, cancellationToken)
             ?? throw new KeyNotFoundException($"Eleição {id} não encontrada");
 
+        // Verificar se todas as fases obrigatorias do calendario foram concluidas
+        var calendarios = await _calendarioRepository.Query()
+            .Where(c => c.EleicaoId == id && c.Obrigatorio && c.Status != StatusCalendario.Cancelado)
+            .ToListAsync(cancellationToken);
+
+        var fasesNaoConcluidas = calendarios
+            .Where(c => c.Status != StatusCalendario.Concluido && c.DataFim < DateTime.UtcNow)
+            .ToList();
+
+        if (fasesNaoConcluidas.Any())
+        {
+            var fasesStr = string.Join(", ", fasesNaoConcluidas.Select(f => f.Tipo.ToString()));
+            _logger.LogWarning(
+                "Eleicao {EleicaoId} sendo encerrada com fases nao concluidas: {Fases}",
+                id, fasesStr);
+        }
+
+        // Verificar se periodo de resultado ja passou ou esta ativo
+        var periodoResultado = calendarios.FirstOrDefault(c => c.Tipo == TipoCalendario.Resultado);
+        if (periodoResultado != null && DateTime.UtcNow < periodoResultado.DataFim)
+        {
+            throw new InvalidOperationException(
+                $"A eleicao nao pode ser encerrada antes do fim do periodo de resultado ({periodoResultado.DataFim:dd/MM/yyyy})");
+        }
+
         eleicao.Status = StatusEleicao.Finalizada;
+        eleicao.FaseAtual = FaseEleicao.Diplomacao;
 
         await _eleicaoRepository.UpdateAsync(eleicao, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -489,6 +518,183 @@ public class EleicaoService : IEleicaoService
             HasChapas = chapaCount > 0,
             TotalVotes = voteCount,
             TotalChapas = chapaCount
+        };
+    }
+
+    public async Task<EleicaoDto> AvancarFaseAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var eleicao = await _eleicaoRepository.GetByIdAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Eleicao {id} nao encontrada");
+
+        if (eleicao.Status != StatusEleicao.EmAndamento && eleicao.Status != StatusEleicao.ApuracaoEmAndamento)
+            throw new InvalidOperationException("Apenas eleicoes em andamento podem ter a fase avancada");
+
+        // Verificar se o periodo atual do calendario ja terminou
+        var calendarioAtual = await _calendarioRepository.Query()
+            .Where(c => c.EleicaoId == id &&
+                       c.Status != StatusCalendario.Cancelado &&
+                       c.DataFim < DateTime.UtcNow)
+            .OrderByDescending(c => c.DataFim)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        // Definir a proxima fase baseado na fase atual
+        var proximaFase = eleicao.FaseAtual switch
+        {
+            FaseEleicao.Preparatoria => FaseEleicao.Inscricao,
+            FaseEleicao.Inscricao => FaseEleicao.Impugnacao,
+            FaseEleicao.Impugnacao => FaseEleicao.Propaganda,
+            FaseEleicao.Propaganda => FaseEleicao.Votacao,
+            FaseEleicao.Votacao => FaseEleicao.Apuracao,
+            FaseEleicao.Apuracao => FaseEleicao.Resultado,
+            FaseEleicao.Resultado => FaseEleicao.Diplomacao,
+            _ => throw new InvalidOperationException($"Fase {eleicao.FaseAtual} nao pode ser avancada")
+        };
+
+        // Validar a transicao
+        var validacao = await CanTransitionToPhaseAsync(id, proximaFase, cancellationToken);
+        if (!validacao.IsValid)
+            throw new InvalidOperationException(validacao.Message);
+
+        eleicao.FaseAtual = proximaFase;
+
+        // Atualizar status se necessario
+        if (proximaFase == FaseEleicao.Apuracao)
+            eleicao.Status = StatusEleicao.ApuracaoEmAndamento;
+        else if (proximaFase == FaseEleicao.Diplomacao)
+            eleicao.Status = StatusEleicao.Finalizada;
+
+        await _eleicaoRepository.UpdateAsync(eleicao, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation("Eleicao {EleicaoId} avancou para fase {Fase}", id, proximaFase);
+
+        return MapToDto(eleicao);
+    }
+
+    public async Task<EleicaoDto> DefinirFaseAsync(Guid id, FaseEleicao fase, CancellationToken cancellationToken = default)
+    {
+        var eleicao = await _eleicaoRepository.GetByIdAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"Eleicao {id} nao encontrada");
+
+        if (eleicao.Status == StatusEleicao.Finalizada || eleicao.Status == StatusEleicao.Cancelada)
+            throw new InvalidOperationException("Eleicao finalizada ou cancelada nao pode ter a fase alterada");
+
+        eleicao.FaseAtual = fase;
+
+        // Atualizar status conforme a fase
+        if (fase == FaseEleicao.Preparatoria && eleicao.Status != StatusEleicao.Rascunho)
+            eleicao.Status = StatusEleicao.Agendada;
+        else if (fase == FaseEleicao.Apuracao)
+            eleicao.Status = StatusEleicao.ApuracaoEmAndamento;
+        else if (fase == FaseEleicao.Diplomacao)
+            eleicao.Status = StatusEleicao.Finalizada;
+        else if (fase != FaseEleicao.Preparatoria && eleicao.Status == StatusEleicao.Rascunho)
+            eleicao.Status = StatusEleicao.EmAndamento;
+
+        await _eleicaoRepository.UpdateAsync(eleicao, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation("Eleicao {EleicaoId} definida para fase {Fase}", id, fase);
+
+        return MapToDto(eleicao);
+    }
+
+    public async Task<EleicaoValidationResult> CanTransitionToPhaseAsync(Guid id, FaseEleicao fase, CancellationToken cancellationToken = default)
+    {
+        var eleicao = await _eleicaoRepository.GetByIdAsync(id, cancellationToken);
+        if (eleicao == null)
+        {
+            return new EleicaoValidationResult
+            {
+                IsValid = false,
+                Message = "Eleicao nao encontrada"
+            };
+        }
+
+        var warnings = new List<string>();
+
+        // Verificar se o calendario permite a transicao
+        var calendarioDaFase = await _calendarioRepository.Query()
+            .Where(c => c.EleicaoId == id &&
+                       c.Fase == fase &&
+                       c.Status != StatusCalendario.Cancelado)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (calendarioDaFase == null)
+        {
+            return new EleicaoValidationResult
+            {
+                IsValid = false,
+                Message = $"Nenhum evento do calendario encontrado para a fase {fase}"
+            };
+        }
+
+        // Verificar se a data de inicio do calendario ja passou
+        if (DateTime.UtcNow < calendarioDaFase.DataInicio)
+        {
+            return new EleicaoValidationResult
+            {
+                IsValid = false,
+                Message = $"O periodo de {fase} ainda nao iniciou. Inicio previsto: {calendarioDaFase.DataInicio:dd/MM/yyyy}",
+                Warnings = warnings
+            };
+        }
+
+        // Verificar se a fase anterior foi concluida
+        var faseAnterior = fase switch
+        {
+            FaseEleicao.Inscricao => FaseEleicao.Preparatoria,
+            FaseEleicao.Impugnacao => FaseEleicao.Inscricao,
+            FaseEleicao.Propaganda => FaseEleicao.Impugnacao,
+            FaseEleicao.Votacao => FaseEleicao.Propaganda,
+            FaseEleicao.Apuracao => FaseEleicao.Votacao,
+            FaseEleicao.Resultado => FaseEleicao.Apuracao,
+            FaseEleicao.Diplomacao => FaseEleicao.Resultado,
+            _ => (FaseEleicao?)null
+        };
+
+        if (faseAnterior.HasValue)
+        {
+            var calendarioAnterior = await _calendarioRepository.Query()
+                .Where(c => c.EleicaoId == id &&
+                           c.Fase == faseAnterior.Value &&
+                           c.Status != StatusCalendario.Cancelado)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (calendarioAnterior != null && calendarioAnterior.Status != StatusCalendario.Concluido)
+            {
+                if (DateTime.UtcNow < calendarioAnterior.DataFim)
+                {
+                    warnings.Add($"O periodo de {faseAnterior.Value} ainda nao terminou (termina em {calendarioAnterior.DataFim:dd/MM/yyyy})");
+                }
+            }
+        }
+
+        // Validacoes especificas por fase
+        if (fase == FaseEleicao.Votacao)
+        {
+            var chapasAptas = await _chapaRepository.CountAsync(
+                c => c.EleicaoId == id &&
+                    !c.IsDeleted &&
+                    (c.Status == StatusChapa.Deferida || c.Status == StatusChapa.Registrada),
+                cancellationToken);
+
+            if (chapasAptas < 1)
+            {
+                return new EleicaoValidationResult
+                {
+                    IsValid = false,
+                    Message = "Nenhuma chapa apta para votacao. E necessario pelo menos 1 chapa deferida/registrada.",
+                    Warnings = warnings
+                };
+            }
+        }
+
+        return new EleicaoValidationResult
+        {
+            IsValid = true,
+            Message = null,
+            Warnings = warnings
         };
     }
 
