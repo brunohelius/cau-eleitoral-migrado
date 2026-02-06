@@ -1,4 +1,4 @@
-import api from './api'
+import api, { mapPagedResponse } from './api'
 
 // Enums
 export enum StatusImpugnacao {
@@ -167,8 +167,8 @@ export interface PaginatedResponse<T> {
 export const impugnacoesService = {
   // CRUD Operations
   getAll: async (params?: ImpugnacaoListParams): Promise<PaginatedResponse<Impugnacao>> => {
-    const response = await api.get<PaginatedResponse<Impugnacao>>('/impugnacao', { params })
-    return response.data
+    const response = await api.get('/impugnacao', { params })
+    return mapPagedResponse<Impugnacao>(response.data)
   },
 
   getById: async (id: string): Promise<Impugnacao> => {
@@ -182,8 +182,8 @@ export const impugnacoesService = {
   },
 
   getByEleicao: async (eleicaoId: string, params?: Omit<ImpugnacaoListParams, 'eleicaoId'>): Promise<PaginatedResponse<Impugnacao>> => {
-    const response = await api.get<PaginatedResponse<Impugnacao>>(`/impugnacao/eleicao/${eleicaoId}`, { params })
-    return response.data
+    const response = await api.get(`/impugnacao/eleicao/${eleicaoId}`, { params })
+    return mapPagedResponse<Impugnacao>(response.data)
   },
 
   getByChapa: async (chapaId: string): Promise<Impugnacao[]> => {

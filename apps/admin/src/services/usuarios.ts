@@ -1,4 +1,4 @@
-import api from './api'
+import api, { mapPagedResponse } from './api'
 
 // Enums
 export enum StatusUsuario {
@@ -125,8 +125,8 @@ export interface LogAtividade {
 export const usuariosService = {
   // CRUD Operations
   getAll: async (params?: UsuarioListParams): Promise<PaginatedResponse<Usuario>> => {
-    const response = await api.get<PaginatedResponse<Usuario>>('/usuario', { params })
-    return response.data
+    const response = await api.get('/usuario', { params })
+    return mapPagedResponse<Usuario>(response.data)
   },
 
   getById: async (id: string): Promise<Usuario> => {

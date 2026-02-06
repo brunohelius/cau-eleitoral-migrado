@@ -1,4 +1,4 @@
-import api from './api'
+import api, { mapPagedResponse } from './api'
 
 // Enums matching backend
 export enum StatusDenuncia {
@@ -188,8 +188,8 @@ export interface PaginatedResponse<T> {
 export const denunciasService = {
   // CRUD Operations
   getAll: async (params?: DenunciaListParams): Promise<PaginatedResponse<Denuncia>> => {
-    const response = await api.get<PaginatedResponse<Denuncia>>('/denuncia', { params })
-    return response.data
+    const response = await api.get('/denuncia', { params })
+    return mapPagedResponse<Denuncia>(response.data)
   },
 
   getById: async (id: string): Promise<Denuncia> => {
@@ -203,8 +203,8 @@ export const denunciasService = {
   },
 
   getByEleicao: async (eleicaoId: string, params?: Omit<DenunciaListParams, 'eleicaoId'>): Promise<PaginatedResponse<Denuncia>> => {
-    const response = await api.get<PaginatedResponse<Denuncia>>(`/denuncia/eleicao/${eleicaoId}`, { params })
-    return response.data
+    const response = await api.get(`/denuncia/eleicao/${eleicaoId}`, { params })
+    return mapPagedResponse<Denuncia>(response.data)
   },
 
   getByChapa: async (chapaId: string): Promise<Denuncia[]> => {

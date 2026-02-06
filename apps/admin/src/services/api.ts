@@ -53,4 +53,21 @@ api.interceptors.response.use(
   }
 )
 
+// Helper to map API paginated response (items/totalCount) to frontend format (data/total)
+export function mapPagedResponse<T>(apiResponse: Record<string, unknown>): {
+  data: T[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+} {
+  return {
+    data: (apiResponse.items as T[]) || [],
+    total: (apiResponse.totalCount as number) || 0,
+    page: (apiResponse.page as number) || 1,
+    pageSize: (apiResponse.pageSize as number) || 10,
+    totalPages: (apiResponse.totalPages as number) || 1,
+  }
+}
+
 export default api

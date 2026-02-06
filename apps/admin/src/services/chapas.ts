@@ -1,4 +1,4 @@
-import api from './api'
+import api, { mapPagedResponse } from './api'
 
 // Enums
 export enum StatusChapa {
@@ -126,8 +126,8 @@ export interface PaginatedResponse<T> {
 export const chapasService = {
   // CRUD Operations
   getAll: async (params?: ChapaListParams): Promise<PaginatedResponse<Chapa>> => {
-    const response = await api.get<PaginatedResponse<Chapa>>('/chapa', { params })
-    return response.data
+    const response = await api.get('/chapa', { params })
+    return mapPagedResponse<Chapa>(response.data)
   },
 
   getById: async (id: string): Promise<Chapa> => {
