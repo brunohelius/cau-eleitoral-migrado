@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CAU.Eleitoral.Application.Interfaces;
 using CAU.Eleitoral.Application.DTOs.Votacao;
+using CAU.Eleitoral.Domain.Enums;
 
 namespace CAU.Eleitoral.Api.Controllers;
 
@@ -12,12 +13,74 @@ namespace CAU.Eleitoral.Api.Controllers;
 public class VotacaoController : BaseController
 {
     private readonly IVotacaoService _votacaoService;
+    private readonly IEleicaoService _eleicaoService;
     private readonly ILogger<VotacaoController> _logger;
 
-    public VotacaoController(IVotacaoService votacaoService, ILogger<VotacaoController> logger)
+    public VotacaoController(IVotacaoService votacaoService, IEleicaoService eleicaoService, ILogger<VotacaoController> logger)
     {
         _votacaoService = votacaoService;
+        _eleicaoService = eleicaoService;
         _logger = logger;
+    }
+
+    /// <summary>
+    /// Lista todas as eleicoes com estatisticas de votacao (Admin)
+    /// </summary>
+    [HttpGet("")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var eleicoes = await _eleicaoService.GetAllAsync(cancellationToken);
+            var result = new List<object>();
+
+            foreach (var e in eleicoes)
+            {
+                int totalEleitores = 0, totalVotos = 0;
+                double participacao = 0;
+                try
+                {
+                    totalEleitores = await _votacaoService.CountEleitoresAptosAsync(e.Id, cancellationToken);
+                    totalVotos = await _votacaoService.CountVotosAsync(e.Id, cancellationToken);
+                    participacao = totalEleitores > 0 ? Math.Round((double)totalVotos / totalEleitores * 100, 1) : 0;
+                }
+                catch { /* election may not have voting data yet */ }
+
+                string statusVotacao = e.Status switch
+                {
+                    StatusEleicao.EmAndamento => "em_andamento",
+                    StatusEleicao.Encerrada or StatusEleicao.Suspensa or StatusEleicao.Cancelada => "encerrada",
+                    StatusEleicao.ApuracaoEmAndamento or StatusEleicao.Finalizada => "apurada",
+                    _ => "preparada"
+                };
+
+                result.Add(new
+                {
+                    id = e.Id,
+                    nome = e.Nome,
+                    ano = e.DataVotacaoInicio?.Year ?? e.Ano,
+                    status = e.Status,
+                    statusVotacao,
+                    totalEleitores,
+                    totalVotos,
+                    participacao,
+                    votosBrancos = 0,
+                    votosNulos = 0,
+                    dataVotacaoInicio = e.DataVotacaoInicio,
+                    dataVotacaoFim = e.DataVotacaoFim,
+                    dataApuracao = (DateTime?)null
+                });
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao listar eleicoes para votacao admin");
+            return InternalError("Erro ao listar eleicoes");
+        }
     }
 
     /// <summary>

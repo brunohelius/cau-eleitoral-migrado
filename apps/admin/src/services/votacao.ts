@@ -88,18 +88,18 @@ export const votacaoService = {
 
   // Get voting statistics for a specific election
   getEstatisticas: async (eleicaoId: string): Promise<EstatisticasVotacao> => {
-    const response = await api.get<EstatisticasVotacao>(`/votacao/eleicao/${eleicaoId}/estatisticas`)
+    const response = await api.get<EstatisticasVotacao>(`/votacao/estatisticas/${eleicaoId}`)
     return response.data
   },
 
   // Start voting for an election
   iniciarVotacao: async (eleicaoId: string): Promise<void> => {
-    await api.post(`/eleicao/${eleicaoId}/iniciar-votacao`)
+    await api.post(`/votacao/abrir/${eleicaoId}`)
   },
 
   // End voting for an election
   encerrarVotacao: async (eleicaoId: string): Promise<void> => {
-    await api.post(`/eleicao/${eleicaoId}/encerrar-votacao`)
+    await api.post(`/votacao/fechar/${eleicaoId}`)
   },
 
   // Get election results (apuracao)
