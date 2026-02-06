@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CAU.Eleitoral.Api.Controllers;
@@ -9,7 +10,9 @@ public abstract class BaseController : ControllerBase
 {
     protected Guid GetUserId()
     {
-        var userIdClaim = User.FindFirst("sub") ?? User.FindFirst("userId");
+        var userIdClaim = User.FindFirst("sub")
+            ?? User.FindFirst("userId")
+            ?? User.FindFirst(ClaimTypes.NameIdentifier);
         return userIdClaim != null ? Guid.Parse(userIdClaim.Value) : Guid.Empty;
     }
 

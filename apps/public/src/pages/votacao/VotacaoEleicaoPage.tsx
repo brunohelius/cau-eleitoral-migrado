@@ -95,7 +95,23 @@ export function VotacaoEleicaoPage() {
           ...e,
           status: statusFromApi(e),
         }))
-        setEleicoes(mapped)
+
+        // If API returns empty but voter store has election data, use fallback
+        if (mapped.length === 0 && voter?.eleicaoId && voter.eleicaoId !== '00000000-0000-0000-0000-000000000000') {
+          setEleicoes([{
+            id: voter.eleicaoId,
+            nome: voter.eleicaoNome || 'Eleicao CAU',
+            descricao: '',
+            dataInicioVotacao: new Date().toISOString(),
+            dataFimVotacao: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+            totalChapas: 0,
+            emAndamento: !voter.jaVotou,
+            jaVotou: voter.jaVotou,
+            status: voter.jaVotou ? 'votado' : 'disponivel',
+          }])
+        } else {
+          setEleicoes(mapped)
+        }
       } catch (err) {
         console.warn('Failed to load elections from API, using voter store data:', err)
         // Fallback: use election data from voter store
