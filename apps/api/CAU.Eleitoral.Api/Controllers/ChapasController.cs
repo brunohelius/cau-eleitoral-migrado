@@ -9,7 +9,7 @@ namespace CAU.Eleitoral.Api.Controllers;
 /// Controller para gerenciamento de chapas eleitorais
 /// </summary>
 [ApiController]
-[Route("api/chapas")]
+[Route("api/chapa")]
 [Authorize]
 [Produces("application/json")]
 public class ChapasController : BaseController
