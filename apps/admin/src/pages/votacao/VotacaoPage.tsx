@@ -36,7 +36,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { useToast } from '@/hooks/use-toast'
-import { votacaoService, EleicaoVotacao } from '@/services/votacao'
+import { votacaoService, type EleicaoVotacao } from '@/services/votacao'
 
 const statusVotacaoLabels: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   preparada: { label: 'Preparada', color: 'bg-blue-100 text-blue-800', icon: Clock },
@@ -44,67 +44,6 @@ const statusVotacaoLabels: Record<string, { label: string; color: string; icon: 
   encerrada: { label: 'Encerrada', color: 'bg-yellow-100 text-yellow-800', icon: Square },
   apurada: { label: 'Apurada', color: 'bg-purple-100 text-purple-800', icon: CheckCircle },
 }
-
-// Mock data for development - will be replaced by API calls
-const mockEleicoes: EleicaoVotacao[] = [
-  {
-    id: '1',
-    nome: 'Eleicao CAU/BR 2024',
-    ano: 2024,
-    status: 2,
-    statusVotacao: 'em_andamento',
-    totalEleitores: 150000,
-    totalVotos: 45678,
-    participacao: 30.45,
-    votosBrancos: 1234,
-    votosNulos: 567,
-    dataVotacaoInicio: '2024-10-15T08:00:00',
-    dataVotacaoFim: '2024-10-15T18:00:00',
-  },
-  {
-    id: '2',
-    nome: 'Eleicao CAU/SP 2024',
-    ano: 2024,
-    status: 3,
-    statusVotacao: 'encerrada',
-    totalEleitores: 35000,
-    totalVotos: 28750,
-    participacao: 82.14,
-    votosBrancos: 890,
-    votosNulos: 345,
-    dataVotacaoInicio: '2024-09-20T08:00:00',
-    dataVotacaoFim: '2024-09-20T18:00:00',
-  },
-  {
-    id: '3',
-    nome: 'Eleicao CAU/RJ 2024',
-    ano: 2024,
-    status: 7,
-    statusVotacao: 'apurada',
-    totalEleitores: 22000,
-    totalVotos: 18590,
-    participacao: 84.5,
-    votosBrancos: 456,
-    votosNulos: 234,
-    dataVotacaoInicio: '2024-08-15T08:00:00',
-    dataVotacaoFim: '2024-08-15T18:00:00',
-    dataApuracao: '2024-08-16T10:00:00',
-  },
-  {
-    id: '4',
-    nome: 'Eleicao CAU/MG 2024',
-    ano: 2024,
-    status: 1,
-    statusVotacao: 'preparada',
-    totalEleitores: 28000,
-    totalVotos: 0,
-    participacao: 0,
-    votosBrancos: 0,
-    votosNulos: 0,
-    dataVotacaoInicio: '2024-11-20T08:00:00',
-    dataVotacaoFim: '2024-11-20T18:00:00',
-  },
-]
 
 export function VotacaoPage() {
   const [search, setSearch] = useState('')
@@ -122,8 +61,6 @@ export function VotacaoPage() {
   const { data: eleicoes, isLoading } = useQuery({
     queryKey: ['votacao-eleicoes'],
     queryFn: votacaoService.getAll,
-    // Use mock data if API fails
-    placeholderData: mockEleicoes,
   })
 
   const iniciarMutation = useMutation({

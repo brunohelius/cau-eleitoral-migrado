@@ -53,6 +53,8 @@ public class AppDbContext : DbContext
     public DbSet<Conselheiro> Conselheiros { get; set; }
     public DbSet<HistoricoExtratoConselheiro> HistoricosExtratoConselheiro { get; set; }
     public DbSet<LogAcesso> LogsAcesso { get; set; }
+    public DbSet<AuditoriaLog> AuditoriaLogs { get; set; }
+    public DbSet<Notificacao> Notificacoes { get; set; }
 
     // Chapas
     public DbSet<ChapaEleicao> Chapas { get; set; }

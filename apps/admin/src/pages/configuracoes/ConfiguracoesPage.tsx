@@ -23,20 +23,41 @@ export function ConfiguracoesPage() {
   const { data: configGeral, isLoading: isLoadingGeral } = useQuery({
     queryKey: ['configuracoes', 'geral'],
     queryFn: async () => {
-      // Mock data - em producao viria da API
-      return {
-        nomeSistema: 'CAU Sistema Eleitoral',
-        sigla: 'CAU-SE',
-        descricao: 'Sistema de votacao eletronica do Conselho de Arquitetura e Urbanismo',
-        logoUrl: '',
-        faviconUrl: '',
-        emailContato: 'contato@cau.org.br',
-        telefoneContato: '(61) 3555-0000',
-        enderecoContato: 'SRTVS Quadra 702, Bloco E, Asa Sul, Brasilia - DF',
-        siteInstitucional: 'https://www.cau.org.br',
-        cnpj: '14.702.767/0001-00',
-        textoRodape: '2024 CAU - Todos os direitos reservados',
-        versao: '1.0.0',
+      try {
+        const configs = await configuracoesService.getAll(0) // TipoConfiguracao.SISTEMA = 0
+        // Map key-value configs to flat object
+        const map: Record<string, string> = {}
+        configs.forEach((c) => { map[c.chave] = c.valor })
+        return {
+          nomeSistema: map['sistema.nome'] || 'CAU Sistema Eleitoral',
+          sigla: map['sistema.sigla'] || 'CAU-SE',
+          descricao: map['sistema.descricao'] || 'Sistema de votacao eletronica do Conselho de Arquitetura e Urbanismo',
+          logoUrl: map['sistema.logoUrl'] || '',
+          faviconUrl: map['sistema.faviconUrl'] || '',
+          emailContato: map['sistema.emailContato'] || 'contato@cau.org.br',
+          telefoneContato: map['sistema.telefoneContato'] || '(61) 3555-0000',
+          enderecoContato: map['sistema.enderecoContato'] || 'SRTVS Quadra 702, Bloco E, Asa Sul, Brasilia - DF',
+          siteInstitucional: map['sistema.siteInstitucional'] || 'https://www.cau.org.br',
+          cnpj: map['sistema.cnpj'] || '14.702.767/0001-00',
+          textoRodape: map['sistema.textoRodape'] || '2024 CAU - Todos os direitos reservados',
+          versao: map['sistema.versao'] || '1.0.0',
+        }
+      } catch {
+        // Fallback to defaults if API unavailable
+        return {
+          nomeSistema: 'CAU Sistema Eleitoral',
+          sigla: 'CAU-SE',
+          descricao: 'Sistema de votacao eletronica do Conselho de Arquitetura e Urbanismo',
+          logoUrl: '',
+          faviconUrl: '',
+          emailContato: 'contato@cau.org.br',
+          telefoneContato: '(61) 3555-0000',
+          enderecoContato: 'SRTVS Quadra 702, Bloco E, Asa Sul, Brasilia - DF',
+          siteInstitucional: 'https://www.cau.org.br',
+          cnpj: '14.702.767/0001-00',
+          textoRodape: '2024 CAU - Todos os direitos reservados',
+          versao: '1.0.0',
+        }
       }
     },
     enabled: activeTab === 'geral',
@@ -63,8 +84,10 @@ export function ConfiguracoesPage() {
   // Mutations para salvar
   const saveGeralMutation = useMutation({
     mutationFn: async (data: any) => {
-      // Em producao seria uma chamada real a API
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const configs = Object.entries(data)
+        .filter(([key]) => key !== 'versao')
+        .map(([key, value]) => ({ chave: `sistema.${key}`, valor: String(value || '') }))
+      await configuracoesService.updateMultiplas(configs)
       return data
     },
     onSuccess: () => {

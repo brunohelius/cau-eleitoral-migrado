@@ -18,48 +18,8 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
-import { votacaoService, EstatisticasVotacao, VotosPorRegiao, VotosPorHora } from '@/services/votacao'
+import { votacaoService } from '@/services/votacao'
 import { eleicoesService } from '@/services/eleicoes'
-
-// Mock data for development
-const mockEstatisticas: EstatisticasVotacao = {
-  eleicaoId: '1',
-  eleicaoNome: 'Eleicao CAU/BR 2024',
-  totalEleitores: 150000,
-  totalVotos: 45678,
-  participacao: 30.45,
-  votosBrancos: 1234,
-  votosNulos: 567,
-  votosValidos: 43877,
-  status: 'em_andamento',
-  dataInicio: '2024-10-15T08:00:00',
-  dataFim: '2024-10-15T18:00:00',
-  votosPorRegiao: [
-    { uf: 'SP', regional: 'CAU/SP', totalEleitores: 35000, totalVotos: 12500, participacao: 35.7 },
-    { uf: 'RJ', regional: 'CAU/RJ', totalEleitores: 22000, totalVotos: 7500, participacao: 34.1 },
-    { uf: 'MG', regional: 'CAU/MG', totalEleitores: 28000, totalVotos: 8200, participacao: 29.3 },
-    { uf: 'RS', regional: 'CAU/RS', totalEleitores: 15000, totalVotos: 5100, participacao: 34.0 },
-    { uf: 'PR', regional: 'CAU/PR', totalEleitores: 12000, totalVotos: 3800, participacao: 31.7 },
-    { uf: 'BA', regional: 'CAU/BA', totalEleitores: 10000, totalVotos: 2900, participacao: 29.0 },
-    { uf: 'SC', regional: 'CAU/SC', totalEleitores: 8000, totalVotos: 2400, participacao: 30.0 },
-    { uf: 'GO', regional: 'CAU/GO', totalEleitores: 7000, totalVotos: 1978, participacao: 28.3 },
-    { uf: 'DF', regional: 'CAU/DF', totalEleitores: 6000, totalVotos: 1300, participacao: 21.7 },
-    { uf: 'CE', regional: 'CAU/CE', totalEleitores: 7000, totalVotos: 0, participacao: 0 },
-  ],
-  votosPorHora: [
-    { hora: '08:00', quantidade: 3500 },
-    { hora: '09:00', quantidade: 5200 },
-    { hora: '10:00', quantidade: 6800 },
-    { hora: '11:00', quantidade: 7200 },
-    { hora: '12:00', quantidade: 4100 },
-    { hora: '13:00', quantidade: 5500 },
-    { hora: '14:00', quantidade: 6900 },
-    { hora: '15:00', quantidade: 6478 },
-    { hora: '16:00', quantidade: 0 },
-    { hora: '17:00', quantidade: 0 },
-    { hora: '18:00', quantidade: 0 },
-  ],
-}
 
 export function VotacaoMonitorPage() {
   const { eleicaoId } = useParams<{ eleicaoId: string }>()
@@ -83,7 +43,6 @@ export function VotacaoMonitorPage() {
     queryFn: () => votacaoService.getEstatisticas(eleicaoId!),
     enabled: !!eleicaoId,
     refetchInterval: autoRefresh ? 30000 : false, // Refresh every 30 seconds if auto-refresh enabled
-    placeholderData: mockEstatisticas,
   })
 
   // Update last update time when data changes

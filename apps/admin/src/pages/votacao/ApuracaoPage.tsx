@@ -38,31 +38,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
-import { votacaoService, ResultadoApuracao, ResultadoChapa } from '@/services/votacao'
+import { votacaoService } from '@/services/votacao'
 import { eleicoesService } from '@/services/eleicoes'
-
-// Mock data for development
-const mockResultado: ResultadoApuracao = {
-  eleicaoId: '1',
-  eleicaoNome: 'Eleicao CAU/BR 2024',
-  status: 'finalizada',
-  totalEleitores: 150000,
-  totalVotos: 125000,
-  votosValidos: 118750,
-  votosBrancos: 3750,
-  votosNulos: 2500,
-  participacao: 83.33,
-  percentualApurado: 100,
-  dataApuracao: '2024-10-16T10:00:00',
-  ultimaAtualizacao: new Date().toISOString(),
-  chapas: [
-    { id: '1', numero: 1, nome: 'Chapa Renovacao', votos: 52500, percentual: 44.21, posicao: 1, eleita: true },
-    { id: '2', numero: 2, nome: 'Chapa Unidade', votos: 38000, percentual: 32.00, posicao: 2, eleita: false },
-    { id: '3', numero: 3, nome: 'Chapa Mudanca', votos: 21000, percentual: 17.68, posicao: 3, eleita: false },
-    { id: '4', numero: 4, nome: 'Chapa Progresso', votos: 7250, percentual: 6.11, posicao: 4, eleita: false },
-  ],
-  vencedora: { id: '1', numero: 1, nome: 'Chapa Renovacao', votos: 52500, percentual: 44.21, posicao: 1, eleita: true },
-}
 
 export function ApuracaoPage() {
   const { eleicaoId } = useParams<{ eleicaoId: string }>()
@@ -89,7 +66,6 @@ export function ApuracaoPage() {
     queryKey: ['apuracao', eleicaoId],
     queryFn: () => votacaoService.getResultados(eleicaoId!),
     enabled: !!eleicaoId,
-    placeholderData: mockResultado,
   })
 
   const apurarMutation = useMutation({

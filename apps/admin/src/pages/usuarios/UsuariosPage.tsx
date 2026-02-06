@@ -203,80 +203,9 @@ export function UsuariosPage() {
     setActionMenuOpen(actionMenuOpen === id ? null : id)
   }
 
-  // Mock data for development - remove when API is ready
-  const mockUsuarios: Usuario[] = [
-    {
-      id: '1',
-      nome: 'Carlos Alberto Silva',
-      email: 'carlos.silva@cau.org.br',
-      cpf: '12345678900',
-      telefone: '11987654321',
-      tipo: TipoUsuario.ADMINISTRADOR,
-      status: StatusUsuario.ATIVO,
-      roles: [{ id: '1', nome: 'Admin', codigo: 'admin' }],
-      ultimoAcesso: '2024-02-20T15:30:00',
-      emailVerificado: true,
-      doisFatoresAtivo: true,
-      createdAt: '2023-01-15T10:00:00',
-    },
-    {
-      id: '2',
-      nome: 'Maria Santos',
-      email: 'maria.santos@cau.org.br',
-      cpf: '98765432100',
-      telefone: '11912345678',
-      tipo: TipoUsuario.COMISSAO,
-      status: StatusUsuario.ATIVO,
-      roles: [{ id: '2', nome: 'Comissao', codigo: 'comissao' }],
-      ultimoAcesso: '2024-02-19T10:00:00',
-      emailVerificado: true,
-      doisFatoresAtivo: false,
-      createdAt: '2023-03-20T14:00:00',
-    },
-    {
-      id: '3',
-      nome: 'Jose Oliveira',
-      email: 'jose.oliveira@cau.org.br',
-      cpf: '45678912300',
-      tipo: TipoUsuario.FISCAL,
-      status: StatusUsuario.PENDENTE,
-      roles: [{ id: '3', nome: 'Fiscal', codigo: 'fiscal' }],
-      emailVerificado: false,
-      doisFatoresAtivo: false,
-      createdAt: '2024-01-10T09:00:00',
-    },
-    {
-      id: '4',
-      nome: 'Ana Paula Mendes',
-      email: 'ana.mendes@cau.org.br',
-      cpf: '78912345600',
-      tipo: TipoUsuario.OPERADOR,
-      status: StatusUsuario.INATIVO,
-      roles: [{ id: '4', nome: 'Operador', codigo: 'operador' }],
-      ultimoAcesso: '2023-12-15T16:00:00',
-      emailVerificado: true,
-      doisFatoresAtivo: false,
-      createdAt: '2023-06-01T11:00:00',
-    },
-    {
-      id: '5',
-      nome: 'Pedro Henrique Costa',
-      email: 'pedro.costa@cau.org.br',
-      cpf: '32165498700',
-      tipo: TipoUsuario.AUDITOR,
-      status: StatusUsuario.BLOQUEADO,
-      roles: [{ id: '5', nome: 'Auditor', codigo: 'auditor' }],
-      ultimoAcesso: '2024-01-05T08:00:00',
-      emailVerificado: true,
-      doisFatoresAtivo: true,
-      createdAt: '2023-08-15T13:00:00',
-    },
-  ]
-
-  // Use mock data if API fails or returns empty
-  const usuarios = data?.data || mockUsuarios
-  const total = data?.total || mockUsuarios.length
-  const totalPages = data?.totalPages || Math.ceil(mockUsuarios.length / pageSize)
+  const usuarios = data?.data || []
+  const total = data?.total || 0
+  const totalPages = data?.totalPages || 1
 
   return (
     <div className="space-y-6">

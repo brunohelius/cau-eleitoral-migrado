@@ -47,6 +47,9 @@ public class DatabaseSeeder
             await SeedDocumentosAsync();
             await SeedDocumentosTableAsync();
             await SeedImpugnacoesAsync();
+            await SeedJulgamentosFinaisAsync();
+            await SeedAuditoriaAsync();
+            await SeedNotificacoesAsync();
 
             // Always run: fixes missing roles and user-role assignments
             await PatchUserRolesAsync();
@@ -1461,6 +1464,362 @@ public class DatabaseSeeder
         }
 
         await _context.SaveChangesAsync();
+    }
+
+    private async Task SeedJulgamentosFinaisAsync()
+    {
+        if (await _context.JulgamentosFinais.AnyAsync()) return;
+
+        _logger.LogInformation("Criando julgamentos finais...");
+
+        var eleicoes = await _context.Eleicoes.ToListAsync();
+        var sessoes = await _context.SessoesJulgamento.ToListAsync();
+        var membrosComissao = await _context.MembrosComissaoJulgadora.ToListAsync();
+        var denuncias = await _context.Denuncias.Take(5).ToListAsync();
+
+        int protocolo = 1;
+        foreach (var eleicao in eleicoes)
+        {
+            var sessoesEleicao = sessoes
+                .Where(s => {
+                    var comissao = _context.ComissoesJulgadoras.FirstOrDefault(c => c.Id == s.ComissaoId);
+                    return comissao != null && comissao.EleicaoId == eleicao.Id;
+                })
+                .Take(2).ToList();
+
+            if (!sessoesEleicao.Any()) continue;
+
+            var membros = membrosComissao
+                .Where(m => {
+                    var comissao = _context.ComissoesJulgadoras.FirstOrDefault(c => c.Id == m.ComissaoId);
+                    return comissao != null && comissao.EleicaoId == eleicao.Id;
+                })
+                .ToList();
+
+            // 2 julgamentos por eleição
+            for (int i = 0; i < Math.Min(2, sessoesEleicao.Count); i++)
+            {
+                var sessao = sessoesEleicao[i];
+                var isConcluido = i == 0;
+                var denunciaRef = denuncias.Count > protocolo - 1 ? denuncias[protocolo - 1] : null;
+
+                var julgamento = new JulgamentoFinal
+                {
+                    EleicaoId = eleicao.Id,
+                    SessaoId = sessao.Id,
+                    Protocolo = $"JULG-{eleicao.Ano}-{protocolo++:D5}",
+                    Tipo = i == 0 ? TipoJulgamento.Denuncia : TipoJulgamento.Impugnacao,
+                    Status = isConcluido ? StatusJulgamento.Concluido : StatusJulgamento.Agendado,
+                    NumeroProcessoOrigem = denunciaRef?.Protocolo,
+                    Partes = $"Comissão Eleitoral vs Chapa",
+                    Assunto = i == 0 ? "Julgamento de denúncia de propaganda irregular" : "Julgamento de impugnação de chapa",
+                    Ementa = isConcluido ? "Denúncia julgada procedente. Irregularidade comprovada na propaganda eleitoral." : null,
+                    Relatorio = isConcluido ? "Após análise dos autos e das provas apresentadas, o relator concluiu pela procedência da denúncia." : null,
+                    Fundamentacao = isConcluido ? "Com base no art. 15 da Resolução Normativa e nas provas documentais acostadas aos autos." : null,
+                    Dispositivo = isConcluido ? "ACORDAM os membros da Comissão Julgadora, por maioria, julgar PROCEDENTE a denúncia." : null,
+                    TipoDecisao = isConcluido ? TipoDecisao.Maioria : null,
+                    DataJulgamento = isConcluido ? eleicao.DataInicio.AddDays(10) : null,
+                    DataPublicacao = isConcluido ? eleicao.DataInicio.AddDays(12) : null
+                };
+
+                await _context.JulgamentosFinais.AddAsync(julgamento);
+                await _context.SaveChangesAsync();
+
+                // Votos dos membros da comissão para julgamentos concluídos
+                if (isConcluido && membros.Any())
+                {
+                    for (int m = 0; m < Math.Min(3, membros.Count); m++)
+                    {
+                        var membro = membros[m];
+                        await _context.VotosJulgamentoFinal.AddAsync(new VotoJulgamentoFinal
+                        {
+                            JulgamentoId = julgamento.Id,
+                            MembroComissaoId = membro.Id,
+                            Voto = m < 2 ? TipoVotoJulgamento.Procedente : TipoVotoJulgamento.Improcedente,
+                            Fundamentacao = m == 0 ? "Acompanho o relator pelos seus fundamentos." : (m == 1 ? "Concordo com o voto do relator." : "Divirjo do relator, entendendo não haver provas suficientes."),
+                            DataVoto = eleicao.DataInicio.AddDays(10),
+                            VotoVencedor = m < 2,
+                            VotoRelator = m == 0
+                        });
+                    }
+                }
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        _logger.LogInformation("Julgamentos finais criados com sucesso.");
+    }
+
+    private async Task SeedAuditoriaAsync()
+    {
+        if (await _context.AuditoriaLogs.IgnoreQueryFilters().AnyAsync()) return;
+
+        _logger.LogInformation("Criando logs de auditoria...");
+
+        var usuarios = await _context.Usuarios.Take(10).ToListAsync();
+        var eleicoes = await _context.Eleicoes.Take(3).ToListAsync();
+
+        if (!usuarios.Any()) return;
+
+        var admin = usuarios.First(u => u.Email == "admin@cau.org.br");
+        var logs = new List<AuditoriaLog>();
+
+        // Login logs
+        foreach (var u in usuarios.Take(5))
+        {
+            logs.Add(new AuditoriaLog
+            {
+                UsuarioId = u.Id,
+                UsuarioNome = u.Nome,
+                UsuarioEmail = u.Email,
+                Acao = "Login",
+                EntidadeTipo = "Usuario",
+                EntidadeId = u.Id,
+                EntidadeNome = u.Nome,
+                Detalhes = "Login realizado com sucesso",
+                IpAddress = $"189.{Random.Shared.Next(1, 254)}.{Random.Shared.Next(1, 254)}.{Random.Shared.Next(1, 254)}",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0",
+                Recurso = "/api/auth/login",
+                Metodo = "POST",
+                StatusCode = 200,
+                Sucesso = true,
+                Nivel = "info",
+                DataAcao = DateTime.UtcNow.AddDays(-Random.Shared.Next(1, 30))
+            });
+        }
+
+        // Election management logs
+        foreach (var e in eleicoes)
+        {
+            logs.Add(new AuditoriaLog
+            {
+                UsuarioId = admin.Id,
+                UsuarioNome = admin.Nome,
+                UsuarioEmail = admin.Email,
+                Acao = "CriarEleicao",
+                EntidadeTipo = "Eleicao",
+                EntidadeId = e.Id,
+                EntidadeNome = e.Nome,
+                Detalhes = $"Eleição '{e.Nome}' criada",
+                IpAddress = "10.0.1.50",
+                UserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15",
+                Recurso = "/api/eleicoes",
+                Metodo = "POST",
+                StatusCode = 201,
+                Sucesso = true,
+                Nivel = "success",
+                DataAcao = e.DataInicio.AddDays(-90)
+            });
+
+            logs.Add(new AuditoriaLog
+            {
+                UsuarioId = admin.Id,
+                UsuarioNome = admin.Nome,
+                UsuarioEmail = admin.Email,
+                Acao = "AtualizarEleicao",
+                EntidadeTipo = "Eleicao",
+                EntidadeId = e.Id,
+                EntidadeNome = e.Nome,
+                Detalhes = $"Status da eleição alterado para {e.Status}",
+                IpAddress = "10.0.1.50",
+                UserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15",
+                Recurso = $"/api/eleicoes/{e.Id}",
+                Metodo = "PUT",
+                StatusCode = 200,
+                Sucesso = true,
+                Nivel = "info",
+                DataAcao = e.DataInicio.AddDays(-30)
+            });
+        }
+
+        // Voting logs
+        for (int i = 0; i < 5; i++)
+        {
+            var u = usuarios[i % usuarios.Count];
+            logs.Add(new AuditoriaLog
+            {
+                UsuarioId = u.Id,
+                UsuarioNome = u.Nome,
+                UsuarioEmail = u.Email,
+                Acao = "RegistrarVoto",
+                EntidadeTipo = "Voto",
+                Detalhes = "Voto registrado com sucesso",
+                IpAddress = $"189.{Random.Shared.Next(1, 254)}.{Random.Shared.Next(1, 254)}.{Random.Shared.Next(1, 254)}",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0",
+                Recurso = "/api/votacao/votar",
+                Metodo = "POST",
+                StatusCode = 200,
+                Sucesso = true,
+                Nivel = "success",
+                DataAcao = DateTime.UtcNow.AddDays(-Random.Shared.Next(1, 15))
+            });
+        }
+
+        // Failed login attempt
+        logs.Add(new AuditoriaLog
+        {
+            UsuarioNome = "Desconhecido",
+            UsuarioEmail = "hacker@evil.com",
+            Acao = "LoginFalha",
+            EntidadeTipo = "Usuario",
+            Detalhes = "Tentativa de login com credenciais inválidas",
+            IpAddress = "45.33.32.156",
+            UserAgent = "curl/7.68.0",
+            Recurso = "/api/auth/login",
+            Metodo = "POST",
+            StatusCode = 401,
+            Sucesso = false,
+            Nivel = "warning",
+            DataAcao = DateTime.UtcNow.AddDays(-3)
+        });
+
+        // Seed operation
+        logs.Add(new AuditoriaLog
+        {
+            UsuarioId = admin.Id,
+            UsuarioNome = admin.Nome,
+            UsuarioEmail = admin.Email,
+            Acao = "SeedDatabase",
+            EntidadeTipo = "Sistema",
+            Detalhes = "Seed do banco de dados executado",
+            IpAddress = "10.0.1.1",
+            Recurso = "/api/admin/seed",
+            Metodo = "POST",
+            StatusCode = 200,
+            Sucesso = true,
+            Nivel = "info",
+            DataAcao = DateTime.UtcNow.AddDays(-7)
+        });
+
+        await _context.AuditoriaLogs.AddRangeAsync(logs);
+        await _context.SaveChangesAsync();
+        _logger.LogInformation("Logs de auditoria criados: {Count}", logs.Count);
+    }
+
+    private async Task SeedNotificacoesAsync()
+    {
+        if (await _context.Notificacoes.IgnoreQueryFilters().AnyAsync()) return;
+
+        _logger.LogInformation("Criando notificações...");
+
+        var eleitores = await _context.Usuarios
+            .Where(u => u.Tipo == TipoUsuario.Eleitor)
+            .Take(10)
+            .ToListAsync();
+
+        var admins = await _context.Usuarios
+            .Where(u => u.Tipo == TipoUsuario.Administrador)
+            .Take(2)
+            .ToListAsync();
+
+        var eleicoes = await _context.Eleicoes.Take(2).ToListAsync();
+        var notificacoes = new List<Notificacao>();
+
+        // Notificações para eleitores
+        foreach (var eleitor in eleitores)
+        {
+            notificacoes.Add(new Notificacao
+            {
+                UsuarioId = eleitor.Id,
+                Titulo = "Eleição em andamento",
+                Mensagem = eleicoes.Any() ? $"A {eleicoes[0].Nome} está em andamento. Acesse o sistema para votar." : "Uma eleição está em andamento.",
+                Tipo = "Eleicao",
+                Canal = "InApp",
+                Status = "Enviada",
+                Lida = false,
+                DataEnvio = DateTime.UtcNow.AddDays(-5),
+                Link = "/votacao"
+            });
+
+            notificacoes.Add(new Notificacao
+            {
+                UsuarioId = eleitor.Id,
+                Titulo = "Bem-vindo ao Sistema Eleitoral",
+                Mensagem = "Seu cadastro foi realizado com sucesso. Acesse seu perfil para conferir suas informações.",
+                Tipo = "Sistema",
+                Canal = "InApp",
+                Status = "Enviada",
+                Lida = true,
+                DataLeitura = DateTime.UtcNow.AddDays(-20),
+                DataEnvio = DateTime.UtcNow.AddDays(-25),
+                Link = "/eleitor/perfil"
+            });
+
+            notificacoes.Add(new Notificacao
+            {
+                UsuarioId = eleitor.Id,
+                Titulo = "Calendário Eleitoral Atualizado",
+                Mensagem = "O calendário eleitoral foi atualizado com novas datas. Consulte o cronograma.",
+                Tipo = "Eleicao",
+                Canal = "InApp",
+                Status = "Enviada",
+                Lida = false,
+                DataEnvio = DateTime.UtcNow.AddDays(-3),
+                Link = "/calendario"
+            });
+
+            notificacoes.Add(new Notificacao
+            {
+                UsuarioId = eleitor.Id,
+                Titulo = "Novo Documento Publicado",
+                Mensagem = "Um novo edital foi publicado. Acesse a seção de documentos para mais informações.",
+                Tipo = "Sistema",
+                Canal = "InApp",
+                Status = "Enviada",
+                Lida = true,
+                DataLeitura = DateTime.UtcNow.AddDays(-1),
+                DataEnvio = DateTime.UtcNow.AddDays(-2),
+                Link = "/documentos"
+            });
+
+            notificacoes.Add(new Notificacao
+            {
+                UsuarioId = eleitor.Id,
+                Titulo = "Lembrete: Prazo de Votação",
+                Mensagem = "O prazo para votação encerra em breve. Não deixe de exercer seu direito de voto.",
+                Tipo = "Votacao",
+                Canal = "InApp",
+                Status = "Enviada",
+                Lida = false,
+                DataEnvio = DateTime.UtcNow.AddDays(-1),
+                Link = "/votacao"
+            });
+        }
+
+        // Notificações para admins
+        foreach (var admin in admins)
+        {
+            notificacoes.Add(new Notificacao
+            {
+                UsuarioId = admin.Id,
+                Titulo = "Nova Denúncia Registrada",
+                Mensagem = "Uma nova denúncia foi registrada e aguarda análise.",
+                Tipo = "Denuncia",
+                Canal = "InApp",
+                Status = "Enviada",
+                Lida = false,
+                DataEnvio = DateTime.UtcNow.AddDays(-2),
+                Link = "/denuncias"
+            });
+
+            notificacoes.Add(new Notificacao
+            {
+                UsuarioId = admin.Id,
+                Titulo = "Relatório de Participação Disponível",
+                Mensagem = "O relatório de participação da eleição já está disponível para consulta.",
+                Tipo = "Sistema",
+                Canal = "InApp",
+                Status = "Enviada",
+                Lida = true,
+                DataLeitura = DateTime.UtcNow.AddHours(-6),
+                DataEnvio = DateTime.UtcNow.AddDays(-1),
+                Link = "/relatorios"
+            });
+        }
+
+        await _context.Notificacoes.AddRangeAsync(notificacoes);
+        await _context.SaveChangesAsync();
+        _logger.LogInformation("Notificações criadas: {Count}", notificacoes.Count);
     }
 
     /// <summary>

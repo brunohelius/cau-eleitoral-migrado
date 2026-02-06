@@ -1,5 +1,5 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import {
   User,
   CheckCircle,
@@ -11,68 +11,31 @@ import {
   ExternalLink,
   Loader2,
 } from 'lucide-react'
+import { candidatoService, type ChapaInfoCandidato } from '@/services/candidato'
 
-// Types
-interface MembroChapa {
-  id: string
-  nome: string
-  cargo: string
-  cau: string
-  status: 'aprovado' | 'pendente' | 'reprovado'
-  isCurrentUser?: boolean
+const statusConfig: Record<number, { label: string; color: string; icon: React.ElementType }> = {
+  0: { label: 'Rascunho', color: 'bg-gray-100 text-gray-800', icon: Clock },
+  1: { label: 'Pendente', color: 'bg-yellow-100 text-yellow-800', icon: Clock },
+  2: { label: 'Aguardando Analise', color: 'bg-blue-100 text-blue-800', icon: Clock },
+  3: { label: 'Em Analise', color: 'bg-blue-100 text-blue-800', icon: Clock },
+  4: { label: 'Aprovada', color: 'bg-green-100 text-green-800', icon: CheckCircle },
+  5: { label: 'Reprovada', color: 'bg-red-100 text-red-800', icon: AlertTriangle },
+  6: { label: 'Impugnada', color: 'bg-red-100 text-red-800', icon: AlertTriangle },
+  8: { label: 'Registrada', color: 'bg-green-100 text-green-800', icon: CheckCircle },
+  9: { label: 'Cancelada', color: 'bg-gray-100 text-gray-800', icon: AlertTriangle },
 }
 
-interface Chapa {
-  id: string
-  numero: number
-  nome: string
-  slogan: string
-  status: 'inscrita' | 'em_analise' | 'aprovada' | 'reprovada' | 'impugnada'
-  eleicaoId: string
-  eleicaoNome: string
-  regional: string
-  dataInscricao: string
-  membros: MembroChapa[]
-}
-
-// Mock data
-const mockChapa: Chapa = {
-  id: '1',
-  numero: 1,
-  nome: 'Chapa Renovacao',
-  slogan: 'Por uma arquitetura mais inclusiva',
-  status: 'aprovada',
-  eleicaoId: '1',
-  eleicaoNome: 'Eleicao Ordinaria CAU/SP 2024',
-  regional: 'CAU/SP',
-  dataInscricao: '2024-02-15',
-  membros: [
-    { id: '1', nome: 'Joao Silva', cargo: 'Presidente', cau: 'A12345-6', status: 'aprovado' },
-    { id: '2', nome: 'Maria Santos', cargo: 'Vice-Presidente', cau: 'A54321-0', status: 'aprovado', isCurrentUser: true },
-    { id: '3', nome: 'Carlos Oliveira', cargo: 'Diretor Financeiro', cau: 'A34567-8', status: 'aprovado' },
-    { id: '4', nome: 'Ana Costa', cargo: 'Diretora Tecnica', cau: 'A45678-9', status: 'aprovado' },
-    { id: '5', nome: 'Pedro Lima', cargo: 'Conselheiro', cau: 'A56789-0', status: 'pendente' },
-    { id: '6', nome: 'Julia Ferreira', cargo: 'Conselheira', cau: 'A67890-1', status: 'aprovado' },
-  ],
-}
-
-const statusConfig = {
-  inscrita: { label: 'Inscrita', color: 'bg-blue-100 text-blue-800', icon: Clock },
-  em_analise: { label: 'Em Analise', color: 'bg-yellow-100 text-yellow-800', icon: Clock },
-  aprovada: { label: 'Aprovada', color: 'bg-green-100 text-green-800', icon: CheckCircle },
-  reprovada: { label: 'Reprovada', color: 'bg-red-100 text-red-800', icon: AlertTriangle },
-  impugnada: { label: 'Impugnada', color: 'bg-red-100 text-red-800', icon: AlertTriangle },
-}
-
-const membroStatusConfig = {
+const membroStatusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   aprovado: { label: 'Aprovado', color: 'text-green-600', icon: CheckCircle },
   pendente: { label: 'Pendente', color: 'text-yellow-600', icon: Clock },
   reprovado: { label: 'Reprovado', color: 'text-red-600', icon: AlertTriangle },
 }
 
 export function CandidatoChapaPage() {
-  const [isLoading] = useState(false)
-  const chapa = mockChapa
+  const { data: chapa, isLoading, error } = useQuery({
+    queryKey: ['candidato-chapa'],
+    queryFn: candidatoService.getChapa,
+  })
 
   if (isLoading) {
     return (
@@ -83,7 +46,17 @@ export function CandidatoChapaPage() {
     )
   }
 
-  const status = statusConfig[chapa.status]
+  if (error || !chapa) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64">
+        <AlertTriangle className="h-12 w-12 text-gray-400 mb-4" />
+        <p className="text-gray-700 font-medium">Nenhuma chapa encontrada</p>
+        <p className="text-gray-500 text-sm mt-1">Voce ainda nao esta vinculado a nenhuma chapa.</p>
+      </div>
+    )
+  }
+
+  const status = statusConfig[chapa.status] || statusConfig[0]
   const StatusIcon = status.icon
 
   return (
@@ -110,35 +83,28 @@ export function CandidatoChapaPage() {
                   {status.label}
                 </span>
               </div>
-              <p className="text-white/80 italic mt-1">"{chapa.slogan}"</p>
+              {chapa.lema && <p className="text-white/80 italic mt-1">"{chapa.lema}"</p>}
             </div>
           </div>
         </div>
 
         {/* Info */}
         <div className="p-6 border-b">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="flex items-center gap-3">
-              <Calendar className="h-5 w-5 text-gray-400" />
-              <div>
-                <p className="text-xs text-gray-500">Eleicao</p>
-                <p className="font-medium text-gray-900">{chapa.eleicaoNome}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {chapa.sigla && (
+              <div className="flex items-center gap-3">
+                <FileText className="h-5 w-5 text-gray-400" />
+                <div>
+                  <p className="text-xs text-gray-500">Sigla</p>
+                  <p className="font-medium text-gray-900">{chapa.sigla}</p>
+                </div>
               </div>
-            </div>
+            )}
             <div className="flex items-center gap-3">
-              <MapPin className="h-5 w-5 text-gray-400" />
+              <User className="h-5 w-5 text-gray-400" />
               <div>
-                <p className="text-xs text-gray-500">Regional</p>
-                <p className="font-medium text-gray-900">{chapa.regional}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <FileText className="h-5 w-5 text-gray-400" />
-              <div>
-                <p className="text-xs text-gray-500">Data de Inscricao</p>
-                <p className="font-medium text-gray-900">
-                  {new Date(chapa.dataInscricao).toLocaleDateString('pt-BR')}
-                </p>
+                <p className="text-xs text-gray-500">Membros</p>
+                <p className="font-medium text-gray-900">{chapa.membros.length} integrantes</p>
               </div>
             </div>
           </div>
@@ -149,9 +115,6 @@ export function CandidatoChapaPage() {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Composicao da Chapa</h3>
           <div className="space-y-3">
             {chapa.membros.map(membro => {
-              const membroStatus = membroStatusConfig[membro.status]
-              const MembroIcon = membroStatus.icon
-
               return (
                 <div
                   key={membro.id}
@@ -163,7 +126,11 @@ export function CandidatoChapaPage() {
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                       membro.isCurrentUser ? 'bg-blue-200' : 'bg-gray-200'
                     }`}>
-                      <User className={`h-5 w-5 ${membro.isCurrentUser ? 'text-blue-600' : 'text-gray-600'}`} />
+                      {membro.fotoUrl ? (
+                        <img src={membro.fotoUrl} alt={membro.nome} className="w-10 h-10 rounded-full object-cover" />
+                      ) : (
+                        <User className={`h-5 w-5 ${membro.isCurrentUser ? 'text-blue-600' : 'text-gray-600'}`} />
+                      )}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
@@ -174,12 +141,8 @@ export function CandidatoChapaPage() {
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-500">{membro.cargo} - CAU: {membro.cau}</p>
+                      <p className="text-sm text-gray-500">{membro.cargo} - {membro.tipo}</p>
                     </div>
-                  </div>
-                  <div className={`flex items-center gap-1 ${membroStatus.color}`}>
-                    <MembroIcon className="h-4 w-4" />
-                    <span className="text-sm font-medium">{membroStatus.label}</span>
                   </div>
                 </div>
               )
@@ -209,7 +172,7 @@ export function CandidatoChapaPage() {
       </div>
 
       {/* Status Info */}
-      {chapa.status === 'aprovada' && (
+      {(chapa.status === 4 || chapa.status === 8) && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <div className="flex items-start gap-3">
             <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
@@ -223,7 +186,7 @@ export function CandidatoChapaPage() {
         </div>
       )}
 
-      {chapa.status === 'em_analise' && (
+      {chapa.status === 3 && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <div className="flex items-start gap-3">
             <Clock className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
@@ -237,7 +200,7 @@ export function CandidatoChapaPage() {
         </div>
       )}
 
-      {chapa.status === 'impugnada' && (
+      {chapa.status === 6 && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
