@@ -29,15 +29,14 @@ export interface ApiResponse<T> {
 // ============================================
 
 export enum StatusEleicao {
-  CRIADA = 0,
-  ABERTA_INSCRICOES = 1,
-  INSCRICOES_ENCERRADAS = 2,
-  EM_VOTACAO = 3,
-  VOTACAO_ENCERRADA = 4,
-  EM_APURACAO = 5,
-  CONCLUIDA = 6,
-  SUSPENSA = 7,
-  CANCELADA = 8,
+  RASCUNHO = 0,
+  AGENDADA = 1,
+  EM_ANDAMENTO = 2,
+  ENCERRADA = 3,
+  SUSPENSA = 4,
+  CANCELADA = 5,
+  APURACAO_EM_ANDAMENTO = 6,
+  FINALIZADA = 7,
 }
 
 export enum TipoEleicao {

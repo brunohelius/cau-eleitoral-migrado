@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   History,
   Calendar,
@@ -13,7 +13,11 @@ import {
   ChevronUp,
   Loader2,
   Filter,
+  RefreshCw,
 } from 'lucide-react'
+import { useCandidatoStore } from '../../stores/candidato'
+import api, { extractApiError, setTokenType } from '../../services/api'
+import { type Impugnacao, StatusImpugnacao } from '../../services/impugnacaoService'
 
 // Types
 interface EventoHistorico {
@@ -25,69 +29,13 @@ interface EventoHistorico {
   resultado?: 'aprovado' | 'rejeitado' | 'pendente'
 }
 
-// Mock data
-const mockHistorico: EventoHistorico[] = [
-  {
-    id: '1',
-    tipo: 'status',
-    titulo: 'Chapa Aprovada',
-    descricao: 'A chapa foi aprovada pela Comissao Eleitoral e esta apta a participar da eleicao.',
-    data: '2024-02-28T16:00:00',
-    resultado: 'aprovado',
-  },
-  {
-    id: '2',
-    tipo: 'recurso',
-    titulo: 'Recurso Provido',
-    descricao: 'O recurso contra a impugnacao foi provido. A candidatura foi mantida.',
-    data: '2024-02-25T14:30:00',
-    resultado: 'aprovado',
-  },
-  {
-    id: '3',
-    tipo: 'defesa',
-    titulo: 'Defesa Enviada',
-    descricao: 'Defesa contra a impugnacao de candidatura foi protocolada.',
-    data: '2024-02-20T10:00:00',
-  },
-  {
-    id: '4',
-    tipo: 'denuncia',
-    titulo: 'Impugnacao Recebida',
-    descricao: 'Impugnacao de candidatura registrada contra o membro Joao Silva.',
-    data: '2024-02-18T09:00:00',
-  },
-  {
-    id: '5',
-    tipo: 'documento',
-    titulo: 'Documentos Aprovados',
-    descricao: 'Todos os documentos obrigatorios foram aprovados pela Comissao.',
-    data: '2024-02-17T15:00:00',
-    resultado: 'aprovado',
-  },
-  {
-    id: '6',
-    tipo: 'documento',
-    titulo: 'Foto Rejeitada',
-    descricao: 'A foto 3x4 foi rejeitada por estar fora do padrao. Necessario reenvio.',
-    data: '2024-02-15T11:00:00',
-    resultado: 'rejeitado',
-  },
-  {
-    id: '7',
-    tipo: 'documento',
-    titulo: 'Documentos Enviados',
-    descricao: 'Documentos da candidatura foram enviados para analise.',
-    data: '2024-02-10T14:00:00',
-  },
-  {
-    id: '8',
-    tipo: 'status',
-    titulo: 'Inscricao Realizada',
-    descricao: 'A chapa foi inscrita na Eleicao Ordinaria CAU/SP 2024.',
-    data: '2024-02-08T10:30:00',
-  },
-]
+interface HistoricoItem {
+  id: string
+  tipo: string
+  descricao: string
+  data: string
+  usuario?: string
+}
 
 const tipoConfig = {
   documento: { icon: FileText, color: 'bg-blue-100 text-blue-600' },
@@ -104,12 +52,144 @@ const resultadoConfig = {
   pendente: { icon: Clock, color: 'text-yellow-600' },
 }
 
+// Map impugnacao status to event tipo
+function mapImpugnacaoToEvento(imp: Impugnacao): EventoHistorico {
+  let tipo: EventoHistorico['tipo'] = 'denuncia'
+  let resultado: EventoHistorico['resultado'] | undefined
+
+  if (imp.status === StatusImpugnacao.IMPROCEDENTE) {
+    resultado = 'aprovado' // good for the candidate
+  } else if (imp.status === StatusImpugnacao.PROCEDENTE) {
+    resultado = 'rejeitado' // bad for the candidate
+  } else if (imp.status === StatusImpugnacao.ARQUIVADA) {
+    resultado = 'aprovado'
+  }
+
+  return {
+    id: imp.id,
+    tipo,
+    titulo: imp.tipoNome || 'Impugnacao',
+    descricao: imp.descricao,
+    data: imp.createdAt,
+    resultado,
+  }
+}
+
+function mapHistoricoItem(item: HistoricoItem, impId: string): EventoHistorico {
+  // Try to map based on tipo string
+  let tipo: EventoHistorico['tipo'] = 'outro'
+  const tipoLower = (item.tipo || '').toLowerCase()
+  if (tipoLower.includes('defesa')) tipo = 'defesa'
+  else if (tipoLower.includes('recurso')) tipo = 'recurso'
+  else if (tipoLower.includes('denuncia') || tipoLower.includes('impugna')) tipo = 'denuncia'
+  else if (tipoLower.includes('documento')) tipo = 'documento'
+  else if (tipoLower.includes('status') || tipoLower.includes('julg')) tipo = 'status'
+
+  return {
+    id: `${impId}-${item.id}`,
+    tipo,
+    titulo: item.tipo || 'Evento',
+    descricao: item.descricao,
+    data: item.data,
+  }
+}
+
 export function CandidatoHistoricoPage() {
-  const [isLoading] = useState(false)
+  const candidato = useCandidatoStore((s) => s.candidato)
+  const [historico, setHistorico] = useState<EventoHistorico[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<string | null>(null)
   const [showAll, setShowAll] = useState(false)
 
-  const historico = mockHistorico
+  const fetchHistorico = useCallback(async () => {
+    if (!candidato?.chapaId) {
+      setHistorico([])
+      setIsLoading(false)
+      return
+    }
+
+    setIsLoading(true)
+    setError(null)
+    try {
+      setTokenType('candidate')
+      const eventos: EventoHistorico[] = []
+
+      // 1. Fetch impugnacoes against this chapa
+      try {
+        const impResponse = await api.get<Impugnacao[]>(`/impugnacao/chapa/${candidato.chapaId}`)
+        const impugnacoes = impResponse.data || []
+
+        // Add each impugnacao as an event
+        for (const imp of impugnacoes) {
+          eventos.push(mapImpugnacaoToEvento(imp))
+
+          // Try to get historico for each impugnacao
+          try {
+            const histResponse = await api.get<HistoricoItem[]>(`/impugnacao/${imp.id}/historico`)
+            const items = histResponse.data || []
+            for (const item of items) {
+              eventos.push(mapHistoricoItem(item, imp.id))
+            }
+          } catch {
+            // Historico endpoint may not have data, that's ok
+          }
+        }
+      } catch {
+        // No impugnacoes, ok
+      }
+
+      // 2. Try to get denuncias against chapa
+      try {
+        const denResponse = await api.get<Array<{
+          id: string
+          descricao: string
+          createdAt: string
+          tipoNome?: string
+          statusNome?: string
+          protocolo?: string
+        }>>(`/denuncia/chapa/${candidato.chapaId}`)
+        const denuncias = denResponse.data || []
+        for (const den of denuncias) {
+          eventos.push({
+            id: `den-${den.id}`,
+            tipo: 'denuncia',
+            titulo: den.tipoNome || 'Denuncia',
+            descricao: den.descricao,
+            data: den.createdAt,
+          })
+        }
+      } catch {
+        // No denuncias, ok
+      }
+
+      // Sort by date descending
+      eventos.sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime())
+
+      // Deduplicate by id
+      const seen = new Set<string>()
+      const unique = eventos.filter(e => {
+        if (seen.has(e.id)) return false
+        seen.add(e.id)
+        return true
+      })
+
+      setHistorico(unique)
+    } catch (err) {
+      const apiErr = extractApiError(err)
+      if (apiErr.message.includes('404') || apiErr.message.includes('403')) {
+        setHistorico([])
+      } else {
+        setError(apiErr.message)
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }, [candidato?.chapaId])
+
+  useEffect(() => {
+    fetchHistorico()
+  }, [fetchHistorico])
 
   const filteredHistorico = filter
     ? historico.filter(e => e.tipo === filter)
@@ -124,6 +204,22 @@ export function CandidatoHistoricoPage() {
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <span className="ml-2 text-gray-500">Carregando historico...</span>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <AlertTriangle className="h-12 w-12 text-red-500" />
+        <p className="text-gray-700">{error}</p>
+        <button
+          onClick={fetchHistorico}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+        >
+          <RefreshCw className="h-4 w-4" />
+          Tentar novamente
+        </button>
       </div>
     )
   }
@@ -172,13 +268,16 @@ export function CandidatoHistoricoPage() {
       {filteredHistorico.length === 0 ? (
         <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
           <History className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">Nenhum evento encontrado</p>
+          <p className="text-gray-500">Nenhum evento registrado</p>
+          <p className="text-sm text-gray-400 mt-2">
+            O historico da sua candidatura aparecera aqui conforme eventos forem registrados.
+          </p>
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <div className="space-y-0">
             {displayedHistorico.map((evento, index) => {
-              const tipo = tipoConfig[evento.tipo]
+              const tipo = tipoConfig[evento.tipo] || tipoConfig.outro
               const Icon = tipo.icon
               const isLast = index === displayedHistorico.length - 1
               const resultado = evento.resultado ? resultadoConfig[evento.resultado] : null
@@ -197,7 +296,7 @@ export function CandidatoHistoricoPage() {
                   </div>
 
                   {/* Content */}
-                  <div className={`flex-1 pb-6 ${isLast ? '' : ''}`}>
+                  <div className={`flex-1 pb-6`}>
                     <div className="flex flex-wrap items-center gap-2 mb-1">
                       <h3 className="font-semibold text-gray-900">{evento.titulo}</h3>
                       {resultado && ResultadoIcon && (

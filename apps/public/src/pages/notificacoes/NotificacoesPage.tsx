@@ -1,128 +1,192 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Bell,
   Vote,
-  Calendar,
   AlertTriangle,
   Info,
   CheckCircle,
   Trash2,
   Check,
   ChevronRight,
+  ChevronLeft,
   Filter,
   Loader2,
+  AlertCircle,
+  RefreshCw,
+  Settings,
 } from 'lucide-react'
+import api, { extractApiError } from '../../services/api'
 
-// Types
-interface Notificacao {
+// Backend enums
+enum TipoNotificacao {
+  Info = 0,
+  Sucesso = 1,
+  Alerta = 2,
+  Erro = 3,
+  Sistema = 4,
+}
+
+// Types matching the backend DTOs
+interface NotificacaoDto {
   id: string
-  tipo: 'eleicao' | 'prazo' | 'alerta' | 'info' | 'sucesso'
+  usuarioId: string
   titulo: string
   mensagem: string
-  data: string
+  tipo: TipoNotificacao
+  prioridade: number
   lida: boolean
-  link?: string
-  linkText?: string
+  dataLeitura: string | null
+  link: string | null
+  icone: string | null
+  dados: Record<string, string> | null
+  createdAt: string
 }
 
-// Mock data
-const mockNotificacoes: Notificacao[] = [
-  {
-    id: '1',
-    tipo: 'eleicao',
-    titulo: 'Eleicao em andamento',
-    mensagem: 'A votacao para a Eleicao Ordinaria CAU/SP 2024 esta aberta. Participe!',
-    data: '2024-03-16T08:00:00',
-    lida: false,
-    link: '/eleitor/votacao',
-    linkText: 'Votar agora',
-  },
-  {
-    id: '2',
-    tipo: 'prazo',
-    titulo: 'Ultimo dia para votar',
-    mensagem: 'Amanha e o ultimo dia para votar na Eleicao Ordinaria CAU/BR 2024. Nao deixe para depois!',
-    data: '2024-03-15T10:00:00',
-    lida: false,
-    link: '/eleitor/votacao',
-    linkText: 'Votar agora',
-  },
-  {
-    id: '3',
-    tipo: 'sucesso',
-    titulo: 'Voto registrado com sucesso',
-    mensagem: 'Seu voto na Eleicao Ordinaria CAU/BR 2024 foi registrado. Codigo de verificacao: CAU-2024-ABC67890',
-    data: '2024-03-16T11:45:00',
-    lida: true,
-    link: '/eleitor/meus-votos',
-    linkText: 'Ver meus votos',
-  },
-  {
-    id: '4',
-    tipo: 'info',
-    titulo: 'Nova eleicao disponivel',
-    mensagem: 'A Eleicao Suplementar CAU/RJ 2024 esta agendada para abril. Fique atento ao calendario.',
-    data: '2024-03-10T09:00:00',
-    lida: true,
-    link: '/calendario',
-    linkText: 'Ver calendario',
-  },
-  {
-    id: '5',
-    tipo: 'alerta',
-    titulo: 'Atualizacao de dados necessaria',
-    mensagem: 'Por favor, verifique se seus dados cadastrais estao atualizados para garantir seu direito ao voto.',
-    data: '2024-03-05T14:30:00',
-    lida: true,
-    link: '/eleitor/perfil',
-    linkText: 'Atualizar dados',
-  },
-  {
-    id: '6',
-    tipo: 'eleicao',
-    titulo: 'Resultado divulgado',
-    mensagem: 'O resultado da Eleicao Ordinaria CAU/SP 2021 foi divulgado. Confira os eleitos.',
-    data: '2021-03-26T10:00:00',
-    lida: true,
-    link: '/eleicoes/3/resultados',
-    linkText: 'Ver resultados',
-  },
-]
-
-const tipoConfig = {
-  eleicao: { icon: Vote, color: 'text-primary', bg: 'bg-primary/10' },
-  prazo: { icon: Calendar, color: 'text-yellow-600', bg: 'bg-yellow-100' },
-  alerta: { icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-100' },
-  info: { icon: Info, color: 'text-blue-600', bg: 'bg-blue-100' },
-  sucesso: { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-100' },
+interface PagedResult<T> {
+  items: T[]
+  totalCount: number
+  page: number
+  pageSize: number
+  totalPages: number
+  hasNextPage: boolean
+  hasPreviousPage: boolean
 }
+
+interface ContagemNotificacoesDto {
+  total: number
+  naoLidas: number
+  altaPrioridade: number
+}
+
+const tipoConfig: Record<number, { icon: typeof Bell; color: string; bg: string }> = {
+  [TipoNotificacao.Info]: { icon: Info, color: 'text-blue-600', bg: 'bg-blue-100' },
+  [TipoNotificacao.Sucesso]: { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-100' },
+  [TipoNotificacao.Alerta]: { icon: AlertTriangle, color: 'text-yellow-600', bg: 'bg-yellow-100' },
+  [TipoNotificacao.Erro]: { icon: AlertCircle, color: 'text-red-600', bg: 'bg-red-100' },
+  [TipoNotificacao.Sistema]: { icon: Settings, color: 'text-gray-600', bg: 'bg-gray-100' },
+}
+
+const defaultTipoConfig = { icon: Vote, color: 'text-primary', bg: 'bg-primary/10' }
+
+const PAGE_SIZE = 20
 
 export function NotificacoesPage() {
-  const [notificacoes, setNotificacoes] = useState<Notificacao[]>(mockNotificacoes)
+  const [notificacoes, setNotificacoes] = useState<NotificacaoDto[]>([])
   const [filter, setFilter] = useState<'todas' | 'nao_lidas'>('todas')
-  const [isLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(0)
+  const [totalCount, setTotalCount] = useState(0)
+  const [hasNextPage, setHasNextPage] = useState(false)
+  const [hasPreviousPage, setHasPreviousPage] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
 
-  const filteredNotificacoes = notificacoes.filter(n =>
-    filter === 'todas' ? true : !n.lida
-  )
+  const fetchNotificacoes = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const params: Record<string, string | number | boolean> = {
+        page,
+        pageSize: PAGE_SIZE,
+      }
+      if (filter === 'nao_lidas') {
+        params.apenasNaoLidas = true
+      }
+      const response = await api.get<PagedResult<NotificacaoDto>>('/notificacao', { params })
+      const data = response.data
+      setNotificacoes(data.items ?? [])
+      setTotalPages(data.totalPages)
+      setTotalCount(data.totalCount)
+      setHasNextPage(data.hasNextPage)
+      setHasPreviousPage(data.hasPreviousPage)
+    } catch (err) {
+      const apiError = extractApiError(err)
+      setError(apiError.message)
+      setNotificacoes([])
+    } finally {
+      setIsLoading(false)
+    }
+  }, [page, filter])
 
-  const unreadCount = notificacoes.filter(n => !n.lida).length
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const response = await api.get<ContagemNotificacoesDto>('/notificacao/nao-lidas/count')
+      setUnreadCount(response.data.naoLidas)
+    } catch {
+      // Silently fail for unread count - not critical
+    }
+  }, [])
 
-  const markAsRead = (id: string) => {
-    setNotificacoes(prev =>
-      prev.map(n => n.id === id ? { ...n, lida: true } : n)
-    )
+  useEffect(() => {
+    fetchNotificacoes()
+  }, [fetchNotificacoes])
+
+  useEffect(() => {
+    fetchUnreadCount()
+  }, [fetchUnreadCount])
+
+  // Reset to page 1 when filter changes
+  useEffect(() => {
+    setPage(1)
+  }, [filter])
+
+  const markAsRead = async (id: string) => {
+    setActionLoading(id)
+    try {
+      await api.post(`/notificacao/${id}/marcar-lida`)
+      setNotificacoes(prev =>
+        prev.map(n => n.id === id ? { ...n, lida: true, dataLeitura: new Date().toISOString() } : n)
+      )
+      setUnreadCount(prev => Math.max(0, prev - 1))
+    } catch (err) {
+      const apiError = extractApiError(err)
+      setError(apiError.message)
+    } finally {
+      setActionLoading(null)
+    }
   }
 
-  const markAllAsRead = () => {
-    setNotificacoes(prev =>
-      prev.map(n => ({ ...n, lida: true }))
-    )
+  const markAllAsRead = async () => {
+    setActionLoading('all')
+    try {
+      await api.post('/notificacao/marcar-todas-lidas')
+      setNotificacoes(prev =>
+        prev.map(n => ({ ...n, lida: true, dataLeitura: n.dataLeitura ?? new Date().toISOString() }))
+      )
+      setUnreadCount(0)
+    } catch (err) {
+      const apiError = extractApiError(err)
+      setError(apiError.message)
+    } finally {
+      setActionLoading(null)
+    }
   }
 
-  const deleteNotification = (id: string) => {
-    setNotificacoes(prev => prev.filter(n => n.id !== id))
+  const deleteNotification = async (id: string) => {
+    setActionLoading(id)
+    try {
+      await api.delete(`/notificacao/${id}`)
+      const deleted = notificacoes.find(n => n.id === id)
+      setNotificacoes(prev => prev.filter(n => n.id !== id))
+      if (deleted && !deleted.lida) {
+        setUnreadCount(prev => Math.max(0, prev - 1))
+      }
+      // If the page is now empty and we're not on page 1, go back one page
+      if (notificacoes.length === 1 && page > 1) {
+        setPage(prev => prev - 1)
+      } else {
+        // Refresh to fill in from next page
+        fetchNotificacoes()
+      }
+    } catch (err) {
+      const apiError = extractApiError(err)
+      setError(apiError.message)
+    } finally {
+      setActionLoading(null)
+    }
   }
 
   const formatDate = (dateString: string) => {
@@ -142,6 +206,10 @@ export function NotificacoesPage() {
     }
   }
 
+  const getConfig = (tipo: TipoNotificacao) => {
+    return tipoConfig[tipo] ?? defaultTipoConfig
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -156,9 +224,14 @@ export function NotificacoesPage() {
         {unreadCount > 0 && (
           <button
             onClick={markAllAsRead}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm text-primary hover:bg-primary/10 rounded-lg"
+            disabled={actionLoading === 'all'}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm text-primary hover:bg-primary/10 rounded-lg disabled:opacity-50"
           >
-            <Check className="h-4 w-4" />
+            {actionLoading === 'all' ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Check className="h-4 w-4" />
+            )}
             Marcar todas como lidas
           </button>
         )}
@@ -189,12 +262,35 @@ export function NotificacoesPage() {
         </button>
       </div>
 
+      {/* Error State */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm text-red-800">{error}</p>
+            </div>
+            <button
+              onClick={() => {
+                setError(null)
+                fetchNotificacoes()
+                fetchUnreadCount()
+              }}
+              className="inline-flex items-center gap-1 text-sm text-red-700 hover:text-red-900 font-medium"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Tentar novamente
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Notifications List */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-      ) : filteredNotificacoes.length === 0 ? (
+      ) : notificacoes.length === 0 ? (
         <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
           <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-500">
@@ -205,9 +301,10 @@ export function NotificacoesPage() {
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow-sm border divide-y overflow-hidden">
-          {filteredNotificacoes.map(notificacao => {
-            const config = tipoConfig[notificacao.tipo]
+          {notificacoes.map(notificacao => {
+            const config = getConfig(notificacao.tipo)
             const Icon = config.icon
+            const isActionLoading = actionLoading === notificacao.id
 
             return (
               <div
@@ -235,7 +332,7 @@ export function NotificacoesPage() {
                           )}
                         </div>
                         <p className="text-gray-600 text-sm mt-1">{notificacao.mensagem}</p>
-                        <p className="text-gray-400 text-xs mt-2">{formatDate(notificacao.data)}</p>
+                        <p className="text-gray-400 text-xs mt-2">{formatDate(notificacao.createdAt)}</p>
                       </div>
 
                       {/* Actions */}
@@ -243,18 +340,28 @@ export function NotificacoesPage() {
                         {!notificacao.lida && (
                           <button
                             onClick={() => markAsRead(notificacao.id)}
-                            className="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg"
+                            disabled={isActionLoading}
+                            className="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg disabled:opacity-50"
                             title="Marcar como lida"
                           >
-                            <Check className="h-4 w-4" />
+                            {isActionLoading ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Check className="h-4 w-4" />
+                            )}
                           </button>
                         )}
                         <button
                           onClick={() => deleteNotification(notificacao.id)}
-                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                          disabled={isActionLoading}
+                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50"
                           title="Excluir"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          {isActionLoading && notificacao.lida ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -263,10 +370,14 @@ export function NotificacoesPage() {
                     {notificacao.link && (
                       <Link
                         to={notificacao.link}
-                        onClick={() => markAsRead(notificacao.id)}
+                        onClick={() => {
+                          if (!notificacao.lida) {
+                            markAsRead(notificacao.id)
+                          }
+                        }}
                         className="inline-flex items-center gap-1 mt-3 text-sm text-primary font-medium hover:underline"
                       >
-                        {notificacao.linkText}
+                        Ver detalhes
                         <ChevronRight className="h-4 w-4" />
                       </Link>
                     )}
@@ -275,6 +386,33 @@ export function NotificacoesPage() {
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-600">
+            Pagina {page} de {totalPages} ({totalCount} notificacoes)
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage(prev => prev - 1)}
+              disabled={!hasPreviousPage || isLoading}
+              className="inline-flex items-center gap-1 px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Anterior
+            </button>
+            <button
+              onClick={() => setPage(prev => prev + 1)}
+              disabled={!hasNextPage || isLoading}
+              className="inline-flex items-center gap-1 px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Proxima
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       )}
 

@@ -725,21 +725,19 @@ export interface BackupConfiguracao {
 export enum StatusEleicao {
   RASCUNHO = 0,
   AGENDADA = 1,
-  INSCRICOES_ABERTAS = 2,
-  INSCRICOES_ENCERRADAS = 3,
-  VOTACAO_ABERTA = 4,
-  VOTACAO_ENCERRADA = 5,
-  APURACAO = 6,
+  EM_ANDAMENTO = 2,
+  ENCERRADA = 3,
+  SUSPENSA = 4,
+  CANCELADA = 5,
+  APURACAO_EM_ANDAMENTO = 6,
   FINALIZADA = 7,
-  SUSPENSA = 8,
-  CANCELADA = 9,
 }
 
 export enum TipoEleicao {
-  CONSELHEIRO_FEDERAL = 0,
-  CONSELHEIRO_ESTADUAL = 1,
-  DIRETORIA = 2,
-  COMISSAO = 3,
+  CAU_BR = 0,
+  CAU_UF = 1,
+  CONSELHEIRO_FEDERAL = 2,
+  CONSELHEIRO_ESTADUAL = 3,
 }
 
 export enum ModoVotacao {

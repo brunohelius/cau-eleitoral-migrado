@@ -7,8 +7,12 @@ import {
   Loader2,
   CheckCircle,
   Info,
+  AlertTriangle,
   Link as LinkIcon,
 } from 'lucide-react'
+import api, { extractApiError } from '../../services/api'
+import { setTokenType } from '../../services/api'
+import { useCandidatoStore } from '../../stores/candidato'
 
 // Types
 interface Plataforma {
@@ -21,41 +25,55 @@ interface Plataforma {
   ultimaAtualizacao: string
 }
 
-// Mock data
-const mockPlataforma: Plataforma = {
-  titulo: 'Por uma arquitetura mais inclusiva e sustentavel',
-  descricao: 'Nossa chapa traz uma proposta de modernizacao e inclusao para o CAU, com foco em tecnologia, sustentabilidade e valorizacao profissional. Acreditamos que a arquitetura deve ser acessivel a todos e comprometida com o meio ambiente.',
-  propostas: [
-    'Modernizacao dos sistemas digitais do CAU para facilitar o atendimento aos profissionais',
-    'Criacao de programas de capacitacao em sustentabilidade e novas tecnologias',
-    'Estabelecimento de parcerias com universidades para promover a pesquisa em arquitetura',
-    'Implementacao de politicas de inclusao e acessibilidade nos projetos',
-    'Valorizacao profissional atraves de campanha de conscientizacao junto a sociedade',
-  ],
-  video: 'https://www.youtube.com/watch?v=example',
-  publicada: true,
-  ultimaAtualizacao: '2024-02-20T15:30:00',
+const emptyPlataforma: Plataforma = {
+  titulo: '',
+  descricao: '',
+  propostas: [],
+  video: '',
+  publicada: false,
+  ultimaAtualizacao: new Date().toISOString(),
 }
 
 export function CandidatoPlataformaPage() {
-  const [plataforma, setPlataforma] = useState<Plataforma>(mockPlataforma)
+  const candidato = useCandidatoStore((s) => s.candidato)
+  const [plataforma, setPlataforma] = useState<Plataforma>(emptyPlataforma)
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [saveSuccess, setSaveSuccess] = useState(false)
   const [editedPlataforma, setEditedPlataforma] = useState<Plataforma>(plataforma)
   const [newProposta, setNewProposta] = useState('')
 
+  const hasContent = plataforma.titulo.trim() !== '' || plataforma.propostas.length > 0
+
   const handleSave = async () => {
     setIsSaving(true)
+    setSaveError(null)
+    setSaveSuccess(false)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      // Try to persist to backend
+      setTokenType('candidate')
+      await api.put(`/candidato/plataforma`, {
+        ...editedPlataforma,
+        chapaId: candidato?.chapaId,
+      })
+      setSaveSuccess(true)
+    } catch (err) {
+      const apiErr = extractApiError(err)
+      // Even if the API fails (e.g., endpoint not yet implemented),
+      // we save locally and show a warning
+      console.warn('Plataforma API save failed, saving locally:', apiErr.message)
+      setSaveError('Dados salvos localmente. O servidor ainda nao suporta esta operacao.')
+    } finally {
+      // Always update local state
       setPlataforma({
         ...editedPlataforma,
         ultimaAtualizacao: new Date().toISOString(),
       })
       setIsEditing(false)
-    } finally {
       setIsSaving(false)
+      // Clear success message after 3 seconds
+      setTimeout(() => setSaveSuccess(false), 3000)
     }
   }
 
@@ -79,6 +97,14 @@ export function CandidatoPlataformaPage() {
   const handleCancel = () => {
     setEditedPlataforma(plataforma)
     setIsEditing(false)
+    setSaveError(null)
+  }
+
+  const handleStartEditing = () => {
+    setEditedPlataforma(plataforma)
+    setIsEditing(true)
+    setSaveError(null)
+    setSaveSuccess(false)
   }
 
   return (
@@ -91,33 +117,55 @@ export function CandidatoPlataformaPage() {
         </div>
         {!isEditing && (
           <button
-            onClick={() => setIsEditing(true)}
+            onClick={handleStartEditing}
             className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
           >
             <Edit2 className="h-4 w-4" />
-            Editar Plataforma
+            {hasContent ? 'Editar Plataforma' : 'Criar Plataforma'}
           </button>
         )}
       </div>
 
-      {/* Status */}
-      <div className={`p-4 rounded-lg border ${plataforma.publicada ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'}`}>
-        <div className="flex items-center gap-3">
-          {plataforma.publicada ? (
+      {/* Save success */}
+      {saveSuccess && (
+        <div className="p-4 rounded-lg border bg-green-50 border-green-200">
+          <div className="flex items-center gap-3">
             <CheckCircle className="h-5 w-5 text-green-600" />
-          ) : (
-            <Info className="h-5 w-5 text-yellow-600" />
-          )}
-          <div>
-            <p className={`font-medium ${plataforma.publicada ? 'text-green-800' : 'text-yellow-800'}`}>
-              {plataforma.publicada ? 'Plataforma Publicada' : 'Rascunho'}
-            </p>
-            <p className={`text-sm ${plataforma.publicada ? 'text-green-700' : 'text-yellow-700'}`}>
-              Ultima atualizacao: {new Date(plataforma.ultimaAtualizacao).toLocaleString('pt-BR')}
-            </p>
+            <p className="font-medium text-green-800">Plataforma salva com sucesso!</p>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Save error (warning) */}
+      {saveError && (
+        <div className="p-4 rounded-lg border bg-yellow-50 border-yellow-200">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-yellow-600" />
+            <p className="text-sm text-yellow-800">{saveError}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Status */}
+      {hasContent && !isEditing && (
+        <div className={`p-4 rounded-lg border ${plataforma.publicada ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'}`}>
+          <div className="flex items-center gap-3">
+            {plataforma.publicada ? (
+              <CheckCircle className="h-5 w-5 text-green-600" />
+            ) : (
+              <Info className="h-5 w-5 text-yellow-600" />
+            )}
+            <div>
+              <p className={`font-medium ${plataforma.publicada ? 'text-green-800' : 'text-yellow-800'}`}>
+                {plataforma.publicada ? 'Plataforma Publicada' : 'Rascunho'}
+              </p>
+              <p className={`text-sm ${plataforma.publicada ? 'text-green-700' : 'text-yellow-700'}`}>
+                Ultima atualizacao: {new Date(plataforma.ultimaAtualizacao).toLocaleString('pt-BR')}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Content */}
       <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
@@ -244,7 +292,7 @@ export function CandidatoPlataformaPage() {
               </button>
             </div>
           </div>
-        ) : (
+        ) : hasContent ? (
           // View Mode
           <div className="p-6 space-y-6">
             {/* Titulo */}
@@ -257,19 +305,21 @@ export function CandidatoPlataformaPage() {
             </div>
 
             {/* Propostas */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Nossas Propostas</h3>
-              <div className="space-y-3">
-                {plataforma.propostas.map((proposta, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                    <span className="flex-shrink-0 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-sm font-medium">
-                      {index + 1}
-                    </span>
-                    <p className="text-gray-700">{proposta}</p>
-                  </div>
-                ))}
+            {plataforma.propostas.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Nossas Propostas</h3>
+                <div className="space-y-3">
+                  {plataforma.propostas.map((proposta, index) => (
+                    <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                      <span className="flex-shrink-0 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-sm font-medium">
+                        {index + 1}
+                      </span>
+                      <p className="text-gray-700">{proposta}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Video */}
             {plataforma.video && (
@@ -286,6 +336,15 @@ export function CandidatoPlataformaPage() {
                 </a>
               </div>
             )}
+          </div>
+        ) : (
+          // Empty State
+          <div className="p-12 text-center">
+            <Megaphone className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500 mb-2">Plataforma nao disponivel</p>
+            <p className="text-sm text-gray-400">
+              Clique em "Criar Plataforma" para cadastrar suas propostas eleitorais.
+            </p>
           </div>
         )}
       </div>

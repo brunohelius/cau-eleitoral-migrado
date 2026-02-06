@@ -58,12 +58,12 @@ export function EleicoesPublicPage() {
     )
   }
 
-  // Group elections by active (em votacao, aberta inscricoes, etc.) vs concluded
+  // Group elections by active vs finalized
   const eleicoesAtivas = eleicoes.filter(
-    e => e.status !== StatusEleicao.CONCLUIDA && e.status !== StatusEleicao.CANCELADA
+    e => e.status !== StatusEleicao.FINALIZADA && e.status !== StatusEleicao.CANCELADA
   )
   const eleicoesConcluidas = eleicoes.filter(
-    e => e.status === StatusEleicao.CONCLUIDA
+    e => e.status === StatusEleicao.FINALIZADA
   )
 
   const formatDate = (dateStr?: string) => {
@@ -133,7 +133,7 @@ export function EleicoesPublicPage() {
                   )}
                 </div>
                 <div className="flex gap-3 mt-4">
-                  {eleicao.status === StatusEleicao.EM_VOTACAO && (
+                  {eleicao.status === StatusEleicao.EM_ANDAMENTO && (
                     <button
                       onClick={() => navigate('/votacao')}
                       className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 text-sm font-medium"

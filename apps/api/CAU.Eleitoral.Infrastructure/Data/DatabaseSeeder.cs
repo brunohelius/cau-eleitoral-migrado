@@ -1289,7 +1289,7 @@ public class DatabaseSeeder
                 var titulos = new[] { "Irregularidade na contagem de votos", "Uso indevido de material de campanha", "Descumprimento de norma eleitoral" };
                 var status = i == 0 ? StatusImpugnacao.Julgada : StatusImpugnacao.EmAnalise;
 
-                await _context.Impugnacoes.AddAsync(new ImpugnacaoResultado
+                var impugnacao = new ImpugnacaoResultado
                 {
                     EleicaoId = eleicao.Id,
                     Protocolo = $"IMP-{eleicao.Ano}-{protocolo++:D5}",
@@ -1305,7 +1305,47 @@ public class DatabaseSeeder
                     DataRecebimento = (eleicao.DataApuracao ?? eleicao.DataVotacaoFim)?.AddDays(4),
                     PrazoAlegacoes = (eleicao.DataApuracao ?? eleicao.DataVotacaoFim)?.AddDays(14),
                     PrazoContraAlegacoes = (eleicao.DataApuracao ?? eleicao.DataVotacaoFim)?.AddDays(21),
+                };
+
+                await _context.Impugnacoes.AddAsync(impugnacao);
+                await _context.SaveChangesAsync();
+
+                // Add DefesaImpugnacao for each impugnacao
+                var prazoDefesa = (eleicao.DataApuracao ?? eleicao.DataVotacaoFim)?.AddDays(14) ?? DateTime.UtcNow.AddDays(14);
+                await _context.DefesasImpugnacao.AddAsync(new DefesaImpugnacao
+                {
+                    ImpugnacaoId = impugnacao.Id,
+                    ChapaId = chapaImpugnada.Id,
+                    Status = i == 0 ? StatusDefesa.Apresentada : StatusDefesa.AguardandoDefesa,
+                    Conteudo = i == 0
+                        ? "A chapa impugnada apresenta sua defesa alegando que todos os procedimentos foram realizados em conformidade com a Resolução Normativa. Não houve qualquer irregularidade na contagem de votos ou uso indevido de material de campanha."
+                        : string.Empty,
+                    Fundamentacao = i == 0
+                        ? "Fundamentação baseada nos artigos 10, 11 e 12 da Resolução Normativa, que estabelecem os procedimentos para propaganda eleitoral e fiscalização."
+                        : null,
+                    DataApresentacao = i == 0 ? prazoDefesa.AddDays(-3) : prazoDefesa,
+                    PrazoLimite = prazoDefesa,
+                    Tempestiva = true,
+                    ArquivoUrl = i == 0 ? $"/uploads/defesa_{impugnacao.Protocolo}.pdf" : null
                 });
+
+                // Add RecursoImpugnacao for the judged impugnacao
+                if (i == 0)
+                {
+                    var prazoRecurso = (eleicao.DataApuracao ?? eleicao.DataVotacaoFim)?.AddDays(25) ?? DateTime.UtcNow.AddDays(25);
+                    await _context.RecursosImpugnacao.AddAsync(new RecursoImpugnacao
+                    {
+                        ImpugnacaoId = impugnacao.Id,
+                        ChapaId = chapaImpugnante.Id,
+                        Protocolo = $"REC-{eleicao.Ano}-{protocolo:D5}",
+                        Status = StatusImpugnacao.Recebida,
+                        Fundamentacao = "Recurso interposto contra a decisão da Comissão Julgadora que indeferiu a impugnação. Novos elementos probatórios demonstram a procedência da impugnação original.",
+                        Pedido = "Requer a reforma da decisão de primeira instância, com o deferimento integral da impugnação e a anulação dos votos irregulares.",
+                        DataApresentacao = prazoRecurso.AddDays(-2),
+                        PrazoLimite = prazoRecurso,
+                        Tempestivo = true
+                    });
+                }
             }
         }
 

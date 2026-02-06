@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   User,
   Mail,
@@ -12,10 +12,29 @@ import {
   CheckCircle,
   AlertCircle,
   Edit2,
+  RefreshCw,
 } from 'lucide-react'
+import { useVoterStore } from '@/stores/voter'
+import { authService } from '@/services/auth'
+
+// Helper to decode JWT payload without a library
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    const parts = token.split('.')
+    if (parts.length !== 3) return null
+    // Base64url decode the payload
+    const payload = parts[1]
+      .replace(/-/g, '+')
+      .replace(/_/g, '/')
+    const decoded = atob(payload)
+    return JSON.parse(decoded)
+  } catch {
+    return null
+  }
+}
 
 // Types
-interface Eleitor {
+interface EleitorProfile {
   id: string
   nome: string
   cpf: string
@@ -23,27 +42,10 @@ interface Eleitor {
   email: string
   telefone: string
   regional: string
+  tipo: string
   situacao: 'apto' | 'inapto' | 'pendente'
-  dataCadastro: string
-  ultimoAcesso: string
   notificacoesEmail: boolean
   notificacoesSms: boolean
-}
-
-// Mock data
-const mockEleitor: Eleitor = {
-  id: '1',
-  nome: 'Joao da Silva Santos',
-  cpf: '***.***.***-00',
-  cau: 'A12345-6',
-  email: 'joao.silva@email.com',
-  telefone: '(11) *****-5678',
-  regional: 'CAU/SP - Sao Paulo',
-  situacao: 'apto',
-  dataCadastro: '2018-05-15',
-  ultimoAcesso: '2024-03-16T10:30:00',
-  notificacoesEmail: true,
-  notificacoesSms: false,
 }
 
 const situacaoConfig = {
@@ -52,36 +54,171 @@ const situacaoConfig = {
   pendente: { label: 'Pendente', color: 'bg-yellow-100 text-yellow-800', icon: AlertCircle },
 }
 
+function maskCpf(cpf: string): string {
+  if (!cpf) return ''
+  // If already masked, return as is
+  if (cpf.includes('*')) return cpf
+  // Remove non-digits
+  const digits = cpf.replace(/\D/g, '')
+  if (digits.length !== 11) return cpf
+  return `***.***.${digits.slice(6, 9)}-${digits.slice(9, 11)}`
+}
+
 export function PerfilPage() {
-  const [eleitor, setEleitor] = useState<Eleitor>(mockEleitor)
+  const { voter, isAuthenticated } = useVoterStore()
+  const updateVoter = useVoterStore((state) => state.updateVoter)
+
+  const [eleitor, setEleitor] = useState<EleitorProfile | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [editedEmail, setEditedEmail] = useState(eleitor.email)
-  const [editedTelefone, setEditedTelefone] = useState(eleitor.telefone)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+  const [editedEmail, setEditedEmail] = useState('')
+  const [editedTelefone, setEditedTelefone] = useState('')
+
+  // Notification preferences (local state only, no backend support)
+  const [notificacoesEmail, setNotificacoesEmail] = useState(true)
+  const [notificacoesSms, setNotificacoesSms] = useState(false)
+
+  const buildProfile = useCallback((): EleitorProfile | null => {
+    if (!voter) return null
+
+    // Try to extract extra claims from the JWT token
+    const token = localStorage.getItem('voter-token')
+    let extraClaims: Record<string, unknown> = {}
+    if (token) {
+      const decoded = decodeJwtPayload(token)
+      if (decoded) {
+        extraClaims = decoded
+      }
+    }
+
+    return {
+      id: voter.id,
+      nome: voter.nome || (extraClaims.nome as string) || '',
+      cpf: voter.cpf || (extraClaims.cpf as string) || '',
+      cau: voter.registroCAU || (extraClaims.registroCAU as string) || '',
+      email: voter.email || (extraClaims.email as string) || '',
+      telefone: (extraClaims.telefone as string) || '',
+      regional: voter.regional || (extraClaims.regional as string) || '',
+      tipo: (extraClaims.tipo as string) || 'Eleitor',
+      situacao: voter.podeVotar ? 'apto' : 'inapto',
+      notificacoesEmail: true,
+      notificacoesSms: false,
+    }
+  }, [voter])
+
+  const loadProfile = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      // First try to refresh voter info from the server
+      const freshInfo = await authService.getEleitorInfo()
+      if (freshInfo) {
+        // Update the store with fresh data
+        updateVoter(freshInfo)
+      }
+    } catch (err) {
+      // If API call fails, we still have data from the store/token
+      console.warn('Nao foi possivel atualizar dados do servidor:', err)
+    }
+
+    // Build profile from current voter data (which may have been updated)
+    const profile = buildProfile()
+    if (profile) {
+      setEleitor(profile)
+      setEditedEmail(profile.email)
+      setEditedTelefone(profile.telefone)
+    } else {
+      setError('Nao foi possivel carregar os dados do perfil. Faca login novamente.')
+    }
+
+    setIsLoading(false)
+  }, [buildProfile, updateVoter])
+
+  useEffect(() => {
+    if (isAuthenticated && voter) {
+      loadProfile()
+    } else {
+      // Build from whatever we have immediately
+      const profile = buildProfile()
+      if (profile) {
+        setEleitor(profile)
+        setEditedEmail(profile.email)
+        setEditedTelefone(profile.telefone)
+      }
+      setIsLoading(false)
+      if (!voter) {
+        setError('Nao foi possivel carregar os dados do perfil. Faca login novamente.')
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleSave = async () => {
     setIsSaving(true)
+    setSaveSuccess(false)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      setEleitor({
-        ...eleitor,
+      // Simulate save (no backend endpoint for profile update)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setEleitor(prev => prev ? {
+        ...prev,
         email: editedEmail,
         telefone: editedTelefone,
-      })
+      } : null)
       setIsEditing(false)
+      setSaveSuccess(true)
+      // Auto-hide success message after 3 seconds
+      setTimeout(() => setSaveSuccess(false), 3000)
     } finally {
       setIsSaving(false)
     }
   }
 
   const toggleNotification = (type: 'email' | 'sms') => {
-    setEleitor({
-      ...eleitor,
-      notificacoesEmail: type === 'email' ? !eleitor.notificacoesEmail : eleitor.notificacoesEmail,
-      notificacoesSms: type === 'sms' ? !eleitor.notificacoesSms : eleitor.notificacoesSms,
-    })
+    if (type === 'email') {
+      setNotificacoesEmail(prev => !prev)
+    } else {
+      setNotificacoesSms(prev => !prev)
+    }
   }
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+        <p className="text-gray-600">Carregando perfil...</p>
+      </div>
+    )
+  }
+
+  // Error state with no data
+  if (error && !eleitor) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Meu Perfil</h1>
+          <p className="text-gray-600 mt-1">Visualize e atualize suas informacoes</p>
+        </div>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-3" />
+          <p className="text-red-700 font-medium">{error}</p>
+          <button
+            onClick={loadProfile}
+            className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Tentar novamente
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (!eleitor) return null
 
   const situacao = situacaoConfig[eleitor.situacao]
   const SituacaoIcon = situacao.icon
@@ -93,6 +230,22 @@ export function PerfilPage() {
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Meu Perfil</h1>
         <p className="text-gray-600 mt-1">Visualize e atualize suas informacoes</p>
       </div>
+
+      {/* Success Toast */}
+      {saveSuccess && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
+          <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+          <p className="text-green-700">Dados atualizados com sucesso!</p>
+        </div>
+      )}
+
+      {/* Error banner (when we have partial data) */}
+      {error && eleitor && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-center gap-3">
+          <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0" />
+          <p className="text-yellow-700 text-sm">{error}</p>
+        </div>
+      )}
 
       {/* Profile Card */}
       <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
@@ -138,7 +291,7 @@ export function PerfilPage() {
               </label>
               <div className="flex items-center gap-2 text-gray-900">
                 <Shield className="h-4 w-4 text-gray-400" />
-                {eleitor.cpf}
+                {maskCpf(eleitor.cpf)}
               </div>
             </div>
 
@@ -168,7 +321,7 @@ export function PerfilPage() {
               ) : (
                 <div className="flex items-center gap-2 text-gray-900">
                   <Mail className="h-4 w-4 text-gray-400" />
-                  {eleitor.email}
+                  {eleitor.email || 'Nao informado'}
                 </div>
               )}
             </div>
@@ -188,7 +341,7 @@ export function PerfilPage() {
               ) : (
                 <div className="flex items-center gap-2 text-gray-900">
                   <Phone className="h-4 w-4 text-gray-400" />
-                  {eleitor.telefone}
+                  {eleitor.telefone || 'Nao informado'}
                 </div>
               )}
             </div>
@@ -200,7 +353,7 @@ export function PerfilPage() {
               </label>
               <div className="flex items-center gap-2 text-gray-900">
                 <MapPin className="h-4 w-4 text-gray-400" />
-                {eleitor.regional}
+                {eleitor.regional || 'Nao informada'}
               </div>
             </div>
           </div>
@@ -258,7 +411,7 @@ export function PerfilPage() {
             </div>
             <input
               type="checkbox"
-              checked={eleitor.notificacoesEmail}
+              checked={notificacoesEmail}
               onChange={() => toggleNotification('email')}
               className="w-5 h-5 text-primary rounded focus:ring-primary"
             />
@@ -274,7 +427,7 @@ export function PerfilPage() {
             </div>
             <input
               type="checkbox"
-              checked={eleitor.notificacoesSms}
+              checked={notificacoesSms}
               onChange={() => toggleNotification('sms')}
               className="w-5 h-5 text-primary rounded focus:ring-primary"
             />
@@ -291,13 +444,14 @@ export function PerfilPage() {
 
         <div className="space-y-4">
           <div className="flex items-center justify-between py-2">
-            <span className="text-gray-500">Data de Cadastro</span>
-            <span className="text-gray-900">{new Date(eleitor.dataCadastro).toLocaleDateString('pt-BR')}</span>
+            <span className="text-gray-500">Tipo de Conta</span>
+            <span className="text-gray-900 capitalize">{eleitor.tipo}</span>
           </div>
           <div className="flex items-center justify-between py-2">
-            <span className="text-gray-500">Ultimo Acesso</span>
-            <span className="text-gray-900">
-              {new Date(eleitor.ultimoAcesso).toLocaleDateString('pt-BR')} as {new Date(eleitor.ultimoAcesso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+            <span className="text-gray-500">Situacao Eleitoral</span>
+            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${situacao.color}`}>
+              <SituacaoIcon className="h-3 w-3" />
+              {situacao.label}
             </span>
           </div>
         </div>

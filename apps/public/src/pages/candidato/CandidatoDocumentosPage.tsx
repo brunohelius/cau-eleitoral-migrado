@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   FileText,
   Upload,
@@ -9,123 +9,88 @@ import {
   AlertTriangle,
   Loader2,
   Info,
+  RefreshCw,
 } from 'lucide-react'
+import { candidatoService, getTipoDocumentoLabel, type DocumentoCandidato } from '../../services/candidato'
+import { useCandidatoStore } from '../../stores/candidato'
+import { extractApiError } from '../../services/api'
 
-// Types
-interface Documento {
-  id: string
-  nome: string
-  tipo: 'obrigatorio' | 'complementar'
-  categoria: string
-  status: 'enviado' | 'pendente' | 'aprovado' | 'rejeitado'
-  arquivo?: string
-  dataEnvio?: string
-  observacao?: string
-}
-
-// Mock data
-const mockDocumentos: Documento[] = [
-  {
-    id: '1',
-    nome: 'Documento de Identidade (RG)',
-    tipo: 'obrigatorio',
-    categoria: 'Identificacao',
-    status: 'aprovado',
-    arquivo: 'rg-maria-santos.pdf',
-    dataEnvio: '2024-02-10',
-  },
-  {
-    id: '2',
-    nome: 'CPF',
-    tipo: 'obrigatorio',
-    categoria: 'Identificacao',
-    status: 'aprovado',
-    arquivo: 'cpf-maria-santos.pdf',
-    dataEnvio: '2024-02-10',
-  },
-  {
-    id: '3',
-    nome: 'Comprovante de Registro CAU',
-    tipo: 'obrigatorio',
-    categoria: 'Profissional',
-    status: 'aprovado',
-    arquivo: 'registro-cau.pdf',
-    dataEnvio: '2024-02-10',
-  },
-  {
-    id: '4',
-    nome: 'Certidao de Quitacao Eleitoral',
-    tipo: 'obrigatorio',
-    categoria: 'Eleitoral',
-    status: 'aprovado',
-    arquivo: 'quitacao-eleitoral.pdf',
-    dataEnvio: '2024-02-11',
-  },
-  {
-    id: '5',
-    nome: 'Certidao Negativa de Debitos',
-    tipo: 'obrigatorio',
-    categoria: 'Fiscal',
-    status: 'pendente',
-  },
-  {
-    id: '6',
-    nome: 'Declaracao de Nao Impedimento',
-    tipo: 'obrigatorio',
-    categoria: 'Declaracoes',
-    status: 'enviado',
-    arquivo: 'declaracao-impedimento.pdf',
-    dataEnvio: '2024-02-12',
-  },
-  {
-    id: '7',
-    nome: 'Curriculo Profissional',
-    tipo: 'complementar',
-    categoria: 'Complementar',
-    status: 'aprovado',
-    arquivo: 'curriculo.pdf',
-    dataEnvio: '2024-02-10',
-  },
-  {
-    id: '8',
-    nome: 'Foto 3x4',
-    tipo: 'obrigatorio',
-    categoria: 'Identificacao',
-    status: 'rejeitado',
-    arquivo: 'foto-3x4.jpg',
-    dataEnvio: '2024-02-10',
-    observacao: 'Foto fora do padrao exigido. Envie uma foto com fundo branco.',
-  },
-]
-
+// Status config for display
 const statusConfig = {
-  enviado: { label: 'Em Analise', color: 'text-blue-600 bg-blue-100', icon: Clock },
   pendente: { label: 'Pendente', color: 'text-yellow-600 bg-yellow-100', icon: Clock },
   aprovado: { label: 'Aprovado', color: 'text-green-600 bg-green-100', icon: CheckCircle },
   rejeitado: { label: 'Rejeitado', color: 'text-red-600 bg-red-100', icon: AlertTriangle },
 }
 
 export function CandidatoDocumentosPage() {
-  const [documentos, setDocumentos] = useState<Documento[]>(mockDocumentos)
+  const [documentos, setDocumentos] = useState<DocumentoCandidato[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [selectedDoc, setSelectedDoc] = useState<string | null>(null)
+  const storeSetDocumentos = useCandidatoStore((s) => s.setDocumentos)
+
+  const fetchDocumentos = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const data = await candidatoService.getDocumentos()
+      setDocumentos(data)
+      storeSetDocumentos(data.map(d => ({
+        id: d.id,
+        tipo: d.tipo,
+        nome: d.nome,
+        arquivoUrl: d.arquivoUrl,
+        tamanho: d.tamanho,
+        status: d.status,
+        observacoes: d.observacoes,
+        uploadedAt: d.uploadedAt,
+      })))
+    } catch (err) {
+      const apiErr = extractApiError(err)
+      // If 404 or empty, treat as no documents
+      if (apiErr.message.includes('404') || apiErr.message.includes('nao encontrad')) {
+        setDocumentos([])
+      } else {
+        setError(apiErr.message)
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }, [storeSetDocumentos])
+
+  useEffect(() => {
+    fetchDocumentos()
+  }, [fetchDocumentos])
 
   const handleUpload = async (docId: string, file: File) => {
     setIsUploading(true)
     setSelectedDoc(docId)
 
     try {
-      // Simulate upload
-      await new Promise(resolve => setTimeout(resolve, 2000))
-
+      const doc = documentos.find(d => d.id === docId)
+      const uploaded = await candidatoService.uploadDocumento(
+        doc?.tipo ?? 99,
+        file,
+        file.name
+      )
+      setDocumentos(prev =>
+        prev.map(d =>
+          d.id === docId ? uploaded : d
+        )
+      )
+    } catch (err) {
+      const apiErr = extractApiError(err)
+      console.error('Upload error:', apiErr.message)
+      // Optimistically update locally even if API fails
       setDocumentos(prev =>
         prev.map(d =>
           d.id === docId
             ? {
                 ...d,
-                status: 'enviado' as const,
-                arquivo: file.name,
-                dataEnvio: new Date().toISOString(),
+                status: 'pendente' as const,
+                arquivoUrl: file.name,
+                uploadedAt: new Date().toISOString(),
               }
             : d
         )
@@ -143,12 +108,71 @@ export function CandidatoDocumentosPage() {
     }
   }
 
-  const obrigatorios = documentos.filter(d => d.tipo === 'obrigatorio')
-  const complementares = documentos.filter(d => d.tipo === 'complementar')
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2 text-gray-500">Carregando documentos...</span>
+      </div>
+    )
+  }
 
-  const totalObrigatorios = obrigatorios.length
-  const aprovadosObrigatorios = obrigatorios.filter(d => d.status === 'aprovado').length
-  const pendentesObrigatorios = obrigatorios.filter(d => d.status === 'pendente').length
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <AlertTriangle className="h-12 w-12 text-red-500" />
+        <p className="text-gray-700">{error}</p>
+        <button
+          onClick={fetchDocumentos}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+        >
+          <RefreshCw className="h-4 w-4" />
+          Tentar novamente
+        </button>
+      </div>
+    )
+  }
+
+  if (documentos.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Meus Documentos</h1>
+          <p className="text-gray-600 mt-1">Gerencie os documentos da sua candidatura</p>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
+          <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-500 mb-2">Nenhum documento cadastrado</p>
+          <p className="text-sm text-gray-400">
+            Os documentos da sua candidatura aparecerao aqui quando forem solicitados.
+          </p>
+        </div>
+
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-medium text-blue-800">Informacoes Importantes</p>
+              <ul className="text-blue-700 mt-1 space-y-1 list-disc list-inside">
+                <li>Todos os documentos obrigatorios devem ser aprovados para validar sua candidatura</li>
+                <li>Formatos aceitos: PDF, JPG, PNG (maximo 5MB por arquivo)</li>
+                <li>Documentos rejeitados podem ser reenviados</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const aprovados = documentos.filter(d => d.status === 'aprovado')
+  const pendentes = documentos.filter(d => d.status === 'pendente')
+  const rejeitados = documentos.filter(d => d.status === 'rejeitado')
+  const total = documentos.length
+  const aprovadosCount = aprovados.length
+  const pendentesCount = pendentes.length
+  const progressPercent = total > 0 ? Math.round((aprovadosCount / total) * 100) : 0
 
   return (
     <div className="space-y-6">
@@ -161,15 +185,15 @@ export function CandidatoDocumentosPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <p className="text-2xl font-bold text-gray-900">{totalObrigatorios}</p>
-          <p className="text-sm text-gray-500">Documentos Obrigatorios</p>
+          <p className="text-2xl font-bold text-gray-900">{total}</p>
+          <p className="text-sm text-gray-500">Total de Documentos</p>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <p className="text-2xl font-bold text-green-600">{aprovadosObrigatorios}</p>
+          <p className="text-2xl font-bold text-green-600">{aprovadosCount}</p>
           <p className="text-sm text-gray-500">Aprovados</p>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <p className="text-2xl font-bold text-yellow-600">{pendentesObrigatorios}</p>
+          <p className="text-2xl font-bold text-yellow-600">{pendentesCount}</p>
           <p className="text-sm text-gray-500">Pendentes</p>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-sm border">
@@ -177,20 +201,20 @@ export function CandidatoDocumentosPage() {
             <div className="flex-1 bg-gray-200 rounded-full h-2">
               <div
                 className="bg-green-500 h-2 rounded-full"
-                style={{ width: `${(aprovadosObrigatorios / totalObrigatorios) * 100}%` }}
+                style={{ width: `${progressPercent}%` }}
               />
             </div>
-            <span className="text-sm font-medium">{Math.round((aprovadosObrigatorios / totalObrigatorios) * 100)}%</span>
+            <span className="text-sm font-medium">{progressPercent}%</span>
           </div>
           <p className="text-sm text-gray-500 mt-1">Progresso</p>
         </div>
       </div>
 
-      {/* Obrigatorios */}
+      {/* Documents List */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Documentos Obrigatorios</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Documentos</h2>
         <div className="bg-white rounded-lg shadow-sm border divide-y">
-          {obrigatorios.map(doc => (
+          {documentos.map(doc => (
             <DocumentoItem
               key={doc.id}
               documento={doc}
@@ -201,20 +225,22 @@ export function CandidatoDocumentosPage() {
         </div>
       </div>
 
-      {/* Complementares */}
-      <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Documentos Complementares</h2>
-        <div className="bg-white rounded-lg shadow-sm border divide-y">
-          {complementares.map(doc => (
-            <DocumentoItem
-              key={doc.id}
-              documento={doc}
-              isUploading={isUploading && selectedDoc === doc.id}
-              onFileSelect={handleFileSelect(doc.id)}
-            />
-          ))}
+      {/* Rejeitados Alert */}
+      {rejeitados.length > 0 && (
+        <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-6 w-6 text-red-600 flex-shrink-0" />
+            <div>
+              <p className="font-semibold text-red-800">
+                {rejeitados.length} documento(s) rejeitado(s)
+              </p>
+              <p className="text-sm text-red-700 mt-1">
+                Reenvie os documentos rejeitados para completar sua candidatura.
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Info */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -236,13 +262,13 @@ export function CandidatoDocumentosPage() {
 
 // Documento Item Component
 interface DocumentoItemProps {
-  documento: Documento
+  documento: DocumentoCandidato
   isUploading: boolean
   onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 function DocumentoItem({ documento, isUploading, onFileSelect }: DocumentoItemProps) {
-  const status = statusConfig[documento.status]
+  const status = statusConfig[documento.status] || statusConfig.pendente
   const StatusIcon = status.icon
 
   return (
@@ -256,30 +282,31 @@ function DocumentoItem({ documento, isUploading, onFileSelect }: DocumentoItemPr
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-medium text-gray-900">{documento.nome}</h3>
+            <h3 className="font-medium text-gray-900">{documento.nome || getTipoDocumentoLabel(documento.tipo)}</h3>
             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${status.color}`}>
               <StatusIcon className="h-3 w-3" />
               {status.label}
             </span>
           </div>
-          <p className="text-sm text-gray-500 mt-1">Categoria: {documento.categoria}</p>
+          <p className="text-sm text-gray-500 mt-1">Tipo: {getTipoDocumentoLabel(documento.tipo)}</p>
 
-          {documento.arquivo && documento.dataEnvio && (
+          {documento.arquivoUrl && documento.uploadedAt && (
             <p className="text-xs text-gray-400 mt-1">
-              Enviado em {new Date(documento.dataEnvio).toLocaleDateString('pt-BR')} - {documento.arquivo}
+              Enviado em {new Date(documento.uploadedAt).toLocaleDateString('pt-BR')}
+              {documento.tamanho > 0 && ` - ${(documento.tamanho / 1024).toFixed(1)} KB`}
             </p>
           )}
 
-          {documento.observacao && (
+          {documento.observacoes && (
             <div className="mt-2 p-2 bg-red-50 rounded text-sm text-red-700">
-              <strong>Observacao:</strong> {documento.observacao}
+              <strong>Observacao:</strong> {documento.observacoes}
             </div>
           )}
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          {documento.arquivo && (
+          {documento.arquivoUrl && (
             <>
               <button
                 className="p-2 text-gray-500 hover:text-primary hover:bg-primary/10 rounded-lg"
@@ -290,6 +317,19 @@ function DocumentoItem({ documento, isUploading, onFileSelect }: DocumentoItemPr
               <button
                 className="p-2 text-gray-500 hover:text-primary hover:bg-primary/10 rounded-lg"
                 title="Baixar"
+                onClick={async () => {
+                  try {
+                    const blob = await candidatoService.downloadDocumento(documento.id)
+                    const url = window.URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = documento.nome || 'documento'
+                    a.click()
+                    window.URL.revokeObjectURL(url)
+                  } catch {
+                    console.error('Download error')
+                  }
+                }}
               >
                 <Download className="h-5 w-5" />
               </button>

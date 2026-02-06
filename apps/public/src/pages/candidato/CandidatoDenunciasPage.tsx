@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import {
   AlertTriangle,
@@ -10,81 +10,100 @@ import {
   ChevronRight,
   Loader2,
   Info,
+  RefreshCw,
 } from 'lucide-react'
-
-// Types
-interface Denuncia {
-  id: string
-  protocolo: string
-  tipo: 'impugnacao' | 'irregularidade' | 'propaganda'
-  titulo: string
-  descricao: string
-  dataRegistro: string
-  status: 'pendente' | 'em_analise' | 'deferida' | 'indeferida'
-  prazoDefesa?: string
-  defesaEnviada: boolean
-}
-
-// Mock data
-const mockDenuncias: Denuncia[] = [
-  {
-    id: '1',
-    protocolo: 'DEN-2024-001',
-    tipo: 'impugnacao',
-    titulo: 'Impugnacao de Candidatura',
-    descricao: 'Alegacao de inelegibilidade do membro Joao Silva por suposta pendencia junto ao CAU.',
-    dataRegistro: '2024-03-01T10:00:00',
-    status: 'indeferida',
-    defesaEnviada: true,
-  },
-  {
-    id: '2',
-    protocolo: 'DEN-2024-015',
-    tipo: 'propaganda',
-    titulo: 'Propaganda Irregular',
-    descricao: 'Alegacao de uso de material de campanha em local proibido pelo regulamento eleitoral.',
-    dataRegistro: '2024-03-10T14:30:00',
-    status: 'em_analise',
-    prazoDefesa: '2024-03-17T23:59:59',
-    defesaEnviada: true,
-  },
-  {
-    id: '3',
-    protocolo: 'DEN-2024-022',
-    tipo: 'irregularidade',
-    titulo: 'Irregularidade em Documentacao',
-    descricao: 'Questionamento sobre a autenticidade de documento apresentado na inscricao da chapa.',
-    dataRegistro: '2024-03-12T09:00:00',
-    status: 'pendente',
-    prazoDefesa: '2024-03-19T23:59:59',
-    defesaEnviada: false,
-  },
-]
-
-const tipoConfig = {
-  impugnacao: { label: 'Impugnacao', color: 'bg-red-100 text-red-800' },
-  irregularidade: { label: 'Irregularidade', color: 'bg-yellow-100 text-yellow-800' },
-  propaganda: { label: 'Propaganda', color: 'bg-blue-100 text-blue-800' },
-}
-
-const statusConfig = {
-  pendente: { label: 'Aguardando Defesa', color: 'text-yellow-600 bg-yellow-100', icon: Clock },
-  em_analise: { label: 'Em Analise', color: 'text-blue-600 bg-blue-100', icon: Clock },
-  deferida: { label: 'Deferida', color: 'text-red-600 bg-red-100', icon: XCircle },
-  indeferida: { label: 'Indeferida', color: 'text-green-600 bg-green-100', icon: CheckCircle },
-}
+import { useCandidatoStore } from '../../stores/candidato'
+import api, { extractApiError } from '../../services/api'
+import { setTokenType } from '../../services/api'
+import {
+  type Denuncia,
+  getStatusDenunciaLabel,
+  getStatusDenunciaColor,
+  getTipoDenunciaLabel,
+  StatusDenuncia,
+  StatusDefesa,
+} from '../../services/denuncias'
 
 export function CandidatoDenunciasPage() {
-  const [isLoading] = useState(false)
-  const denuncias = mockDenuncias
+  const candidato = useCandidatoStore((s) => s.candidato)
+  const [denuncias, setDenuncias] = useState<Denuncia[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const pendentes = denuncias.filter(d => d.status === 'pendente' && !d.defesaEnviada)
-  const emAndamento = denuncias.filter(d => d.status === 'em_analise' || (d.status === 'pendente' && d.defesaEnviada))
-  const finalizadas = denuncias.filter(d => ['deferida', 'indeferida'].includes(d.status))
+  const fetchDenuncias = useCallback(async () => {
+    if (!candidato?.chapaId) {
+      setDenuncias([])
+      setIsLoading(false)
+      return
+    }
+
+    setIsLoading(true)
+    setError(null)
+    try {
+      setTokenType('candidate')
+      const response = await api.get<Denuncia[]>(`/denuncia/chapa/${candidato.chapaId}`)
+      setDenuncias(response.data || [])
+    } catch (err) {
+      const apiErr = extractApiError(err)
+      // 404 or 403 means no denuncias or endpoint not available for this role
+      if (apiErr.message.includes('404') || apiErr.message.includes('403') || apiErr.message.includes('nao encontrad')) {
+        setDenuncias([])
+      } else {
+        setError(apiErr.message)
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }, [candidato?.chapaId])
+
+  useEffect(() => {
+    fetchDenuncias()
+  }, [fetchDenuncias])
+
+  const pendentes = denuncias.filter(d =>
+    d.status === StatusDenuncia.AguardandoDefesa && d.statusDefesa === StatusDefesa.AguardandoDefesa
+  )
+  const emAndamento = denuncias.filter(d =>
+    d.status === StatusDenuncia.EmAnalise ||
+    d.status === StatusDenuncia.DefesaApresentada ||
+    d.status === StatusDenuncia.AguardandoJulgamento ||
+    d.status === StatusDenuncia.Recebida ||
+    (d.status === StatusDenuncia.AguardandoDefesa && d.statusDefesa === StatusDefesa.Apresentada)
+  )
+  const finalizadas = denuncias.filter(d =>
+    d.status === StatusDenuncia.Procedente ||
+    d.status === StatusDenuncia.Improcedente ||
+    d.status === StatusDenuncia.ParcialmenteProcedente ||
+    d.status === StatusDenuncia.Arquivada ||
+    d.status === StatusDenuncia.Julgada
+  )
 
   const getDaysRemaining = (prazo: string) => {
     const diff = new Date(prazo).getTime() - new Date().getTime()
     return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
+  }
+
+  const getStatusColor = (status: StatusDenuncia): string => {
+    const color = getStatusDenunciaColor(status)
+    const colorMap: Record<string, string> = {
+      blue: 'text-blue-600 bg-blue-100',
+      yellow: 'text-yellow-600 bg-yellow-100',
+      green: 'text-green-600 bg-green-100',
+      red: 'text-red-600 bg-red-100',
+      purple: 'text-purple-600 bg-purple-100',
+      orange: 'text-orange-600 bg-orange-100',
+      gray: 'text-gray-600 bg-gray-100',
+    }
+    return colorMap[color] || 'text-gray-600 bg-gray-100'
+  }
+
+  const getStatusIcon = (status: StatusDenuncia) => {
+    if (status === StatusDenuncia.Procedente || status === StatusDenuncia.Improcedente ||
+        status === StatusDenuncia.ParcialmenteProcedente || status === StatusDenuncia.Julgada ||
+        status === StatusDenuncia.Arquivada) {
+      return status === StatusDenuncia.Improcedente ? CheckCircle : XCircle
+    }
+    return Clock
   }
 
   if (isLoading) {
@@ -92,6 +111,22 @@ export function CandidatoDenunciasPage() {
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <span className="ml-2 text-gray-500">Carregando denuncias...</span>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <AlertTriangle className="h-12 w-12 text-red-500" />
+        <p className="text-gray-700">{error}</p>
+        <button
+          onClick={fetchDenuncias}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+        >
+          <RefreshCw className="h-4 w-4" />
+          Tentar novamente
+        </button>
       </div>
     )
   }
@@ -150,10 +185,14 @@ export function CandidatoDenunciasPage() {
       ) : (
         <div className="space-y-4">
           {denuncias.map(denuncia => {
-            const tipo = tipoConfig[denuncia.tipo]
-            const status = statusConfig[denuncia.status]
-            const StatusIcon = status.icon
+            const statusLabel = getStatusDenunciaLabel(denuncia.status)
+            const statusColor = getStatusColor(denuncia.status)
+            const StatusIcon = getStatusIcon(denuncia.status)
+            const tipoLabel = getTipoDenunciaLabel(denuncia.tipo)
             const daysRemaining = denuncia.prazoDefesa ? getDaysRemaining(denuncia.prazoDefesa) : null
+            const isAguardandoDefesa = denuncia.status === StatusDenuncia.AguardandoDefesa &&
+                                       denuncia.statusDefesa === StatusDefesa.AguardandoDefesa
+            const defesaEnviada = denuncia.statusDefesa === StatusDefesa.Apresentada
 
             return (
               <div key={denuncia.id} className="bg-white rounded-lg shadow-sm border overflow-hidden">
@@ -167,31 +206,36 @@ export function CandidatoDenunciasPage() {
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${tipo.color}`}>
-                          {tipo.label}
+                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                          {tipoLabel}
                         </span>
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${status.color}`}>
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusColor}`}>
                           <StatusIcon className="h-3 w-3" />
-                          {status.label}
+                          {statusLabel}
                         </span>
-                        <span className="text-xs text-gray-500">
-                          Protocolo: {denuncia.protocolo}
-                        </span>
+                        {denuncia.protocolo && (
+                          <span className="text-xs text-gray-500">
+                            Protocolo: {denuncia.protocolo}
+                          </span>
+                        )}
                       </div>
 
-                      <h3 className="font-semibold text-gray-900">{denuncia.titulo}</h3>
+                      <h3 className="font-semibold text-gray-900">
+                        {tipoLabel} - {denuncia.descricao.substring(0, 80)}
+                        {denuncia.descricao.length > 80 ? '...' : ''}
+                      </h3>
                       <p className="text-gray-600 text-sm mt-1 line-clamp-2">{denuncia.descricao}</p>
 
                       <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-500">
-                        <span>Registrada em: {new Date(denuncia.dataRegistro).toLocaleDateString('pt-BR')}</span>
+                        <span>Registrada em: {new Date(denuncia.createdAt).toLocaleDateString('pt-BR')}</span>
 
-                        {daysRemaining !== null && denuncia.status === 'pendente' && !denuncia.defesaEnviada && (
+                        {daysRemaining !== null && isAguardandoDefesa && (
                           <span className={`font-medium ${daysRemaining <= 2 ? 'text-red-600' : 'text-yellow-600'}`}>
                             {daysRemaining === 0 ? 'Ultimo dia!' : `${daysRemaining} dias restantes`}
                           </span>
                         )}
 
-                        {denuncia.defesaEnviada && (
+                        {defesaEnviada && (
                           <span className="flex items-center gap-1 text-green-600">
                             <CheckCircle className="h-4 w-4" />
                             Defesa enviada
@@ -210,7 +254,7 @@ export function CandidatoDenunciasPage() {
                         <Eye className="h-5 w-5" />
                       </Link>
 
-                      {denuncia.status === 'pendente' && !denuncia.defesaEnviada && (
+                      {isAguardandoDefesa && (
                         <Link
                           to={`/candidato/defesas/nova?denuncia=${denuncia.id}`}
                           className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 text-sm"
@@ -224,11 +268,11 @@ export function CandidatoDenunciasPage() {
                 </div>
 
                 {/* Result for finalized */}
-                {denuncia.status === 'deferida' && (
+                {denuncia.status === StatusDenuncia.Procedente && (
                   <div className="px-4 sm:px-6 py-3 bg-red-50 border-t">
                     <div className="flex items-center gap-2 text-sm text-red-800">
                       <XCircle className="h-4 w-4" />
-                      <span>Denuncia deferida. Voce pode interpor recurso.</span>
+                      <span>Denuncia procedente. Voce pode interpor recurso.</span>
                       <Link
                         to="/candidato/recursos/novo"
                         className="ml-auto text-red-700 font-medium hover:underline flex items-center gap-1"
@@ -240,11 +284,11 @@ export function CandidatoDenunciasPage() {
                   </div>
                 )}
 
-                {denuncia.status === 'indeferida' && (
+                {denuncia.status === StatusDenuncia.Improcedente && (
                   <div className="px-4 sm:px-6 py-3 bg-green-50 border-t">
                     <div className="flex items-center gap-2 text-sm text-green-800">
                       <CheckCircle className="h-4 w-4" />
-                      <span>Denuncia indeferida. Sua defesa foi aceita.</span>
+                      <span>Denuncia improcedente. Sua defesa foi aceita.</span>
                     </div>
                   </div>
                 )}

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Vote,
@@ -10,87 +10,162 @@ import {
   Shield,
   Loader2,
   History,
+  AlertCircle,
+  RefreshCw,
 } from 'lucide-react'
+import { votacaoService } from '../../services/votacao'
+import { extractApiError } from '../../services/api'
 
-// Types
-interface VotoHistorico {
-  id: string
+// Types matching HistoricoVotoDto from the backend
+interface HistoricoVoto {
   eleicaoId: string
   eleicaoNome: string
-  regional: string
+  anoEleicao: number
   dataVoto: string
-  codigoVerificacao: string
-  status: 'registrado' | 'verificado'
+  hashComprovante: string
 }
 
-// Mock data
-const mockVotos: VotoHistorico[] = [
-  {
-    id: '1',
-    eleicaoId: '1',
-    eleicaoNome: 'Eleicao Ordinaria CAU/SP 2024',
-    regional: 'CAU/SP',
-    dataVoto: '2024-03-16T10:30:00',
-    codigoVerificacao: 'CAU-2024-XYZ12345',
-    status: 'registrado',
-  },
-  {
-    id: '2',
-    eleicaoId: '2',
-    eleicaoNome: 'Eleicao Ordinaria CAU/BR 2024',
-    regional: 'CAU/BR',
-    dataVoto: '2024-03-16T11:45:00',
-    codigoVerificacao: 'CAU-2024-ABC67890',
-    status: 'registrado',
-  },
-  {
-    id: '3',
-    eleicaoId: '3',
-    eleicaoNome: 'Eleicao Ordinaria CAU/SP 2021',
-    regional: 'CAU/SP',
-    dataVoto: '2021-03-18T09:15:00',
-    codigoVerificacao: 'CAU-2021-DEF11223',
-    status: 'verificado',
-  },
-  {
-    id: '4',
-    eleicaoId: '4',
-    eleicaoNome: 'Eleicao Ordinaria CAU/BR 2021',
-    regional: 'CAU/BR',
-    dataVoto: '2021-03-18T14:20:00',
-    codigoVerificacao: 'CAU-2021-GHI44556',
-    status: 'verificado',
-  },
-]
-
 export function MeusVotosPage() {
-  const [isLoading, setIsLoading] = useState(false)
+  const [votos, setVotos] = useState<HistoricoVoto[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [isVerifying, setIsVerifying] = useState(false)
   const [verificationCode, setVerificationCode] = useState('')
   const [verificationResult, setVerificationResult] = useState<'success' | 'error' | null>(null)
+  const [verificationMessage, setVerificationMessage] = useState('')
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
+
+  const fetchHistorico = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const data = await votacaoService.getHistoricoVotos()
+      // Map the response to our interface (backend returns camelCase via JSON serialization)
+      const mapped: HistoricoVoto[] = (data as unknown as HistoricoVoto[]).map((item) => ({
+        eleicaoId: item.eleicaoId,
+        eleicaoNome: item.eleicaoNome,
+        anoEleicao: item.anoEleicao ?? new Date(item.dataVoto).getFullYear(),
+        dataVoto: item.dataVoto,
+        hashComprovante: item.hashComprovante,
+      }))
+      setVotos(mapped)
+    } catch (err) {
+      const apiError = extractApiError(err)
+      setError(apiError.message)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchHistorico()
+  }, [fetchHistorico])
 
   const handleVerify = async () => {
     if (!verificationCode.trim()) return
 
-    setIsLoading(true)
+    setIsVerifying(true)
+    setVerificationResult(null)
+    setVerificationMessage('')
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
-
-      // Check if code exists in our mock data
-      const found = mockVotos.some(v => v.codigoVerificacao === verificationCode.toUpperCase())
-      setVerificationResult(found ? 'success' : 'error')
+      const result = await votacaoService.validarComprovante(verificationCode, verificationCode)
+      if (result.valido) {
+        setVerificationResult('success')
+        setVerificationMessage(result.mensagem || 'Seu voto foi registrado com sucesso no sistema.')
+      } else {
+        setVerificationResult('error')
+        setVerificationMessage(result.mensagem || 'Codigo nao encontrado. Verifique se foi digitado corretamente.')
+      }
+    } catch {
+      // If API call fails, try matching locally against loaded history
+      const found = votos.some(v => v.hashComprovante === verificationCode.toUpperCase())
+      if (found) {
+        setVerificationResult('success')
+        setVerificationMessage('Seu voto foi registrado com sucesso no sistema.')
+      } else {
+        setVerificationResult('error')
+        setVerificationMessage('Codigo nao encontrado. Verifique se foi digitado corretamente.')
+      }
     } finally {
-      setIsLoading(false)
+      setIsVerifying(false)
     }
   }
 
-  const handleDownloadComprovante = (voto: VotoHistorico) => {
-    // In a real app, generate PDF
-    alert(`Baixando comprovante: ${voto.codigoVerificacao}`)
+  const handleDownloadComprovante = async (voto: HistoricoVoto) => {
+    setDownloadingId(voto.eleicaoId)
+    try {
+      const blob = await votacaoService.downloadComprovante(voto.eleicaoId)
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `comprovante-${voto.eleicaoNome.replace(/\s+/g, '-').toLowerCase()}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch {
+      // Fallback: open the comprovante view page
+      window.open(`/eleitor/votacao/${voto.eleicaoId}/comprovante`, '_blank')
+    } finally {
+      setDownloadingId(null)
+    }
   }
 
-  const currentYearVotes = mockVotos.filter(v => new Date(v.dataVoto).getFullYear() === 2024)
-  const previousVotes = mockVotos.filter(v => new Date(v.dataVoto).getFullYear() < 2024)
+  const currentYear = new Date().getFullYear()
+  const currentYearVotes = votos.filter(v => {
+    const voteYear = v.anoEleicao || new Date(v.dataVoto).getFullYear()
+    return voteYear === currentYear
+  })
+  const previousVotes = votos.filter(v => {
+    const voteYear = v.anoEleicao || new Date(v.dataVoto).getFullYear()
+    return voteYear < currentYear
+  })
+
+  const oldestYear = votos.length > 0
+    ? Math.min(...votos.map(v => v.anoEleicao || new Date(v.dataVoto).getFullYear()))
+    : null
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Meus Votos</h1>
+          <p className="text-gray-600 mt-1">Historico de participacao nas eleicoes</p>
+        </div>
+        <div className="flex items-center justify-center py-16">
+          <div className="flex flex-col items-center gap-3">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-gray-500">Carregando historico de votos...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Meus Votos</h1>
+          <p className="text-gray-600 mt-1">Historico de participacao nas eleicoes</p>
+        </div>
+        <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
+          <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+          <p className="text-gray-700 font-medium mb-2">Erro ao carregar historico</p>
+          <p className="text-gray-500 mb-6 text-sm">{error}</p>
+          <button
+            onClick={fetchHistorico}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Tentar Novamente
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -108,7 +183,7 @@ export function MeusVotosPage() {
               <Vote className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{mockVotos.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{votos.length}</p>
               <p className="text-sm text-gray-500">Total de Votos</p>
             </div>
           </div>
@@ -144,7 +219,7 @@ export function MeusVotosPage() {
               <Calendar className="h-5 w-5 text-purple-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">2018</p>
+              <p className="text-2xl font-bold text-gray-900">{oldestYear ?? '-'}</p>
               <p className="text-sm text-gray-500">Primeira Votacao</p>
             </div>
           </div>
@@ -174,10 +249,10 @@ export function MeusVotosPage() {
           />
           <button
             onClick={handleVerify}
-            disabled={isLoading || !verificationCode.trim()}
+            disabled={isVerifying || !verificationCode.trim()}
             className="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2"
           >
-            {isLoading ? (
+            {isVerifying ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Verificando...
@@ -193,7 +268,7 @@ export function MeusVotosPage() {
             <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
             <div>
               <p className="font-medium text-green-800">Voto verificado!</p>
-              <p className="text-sm text-green-700">Seu voto foi registrado com sucesso no sistema.</p>
+              <p className="text-sm text-green-700">{verificationMessage}</p>
             </div>
           </div>
         )}
@@ -203,7 +278,7 @@ export function MeusVotosPage() {
             <Shield className="h-5 w-5 text-red-600 flex-shrink-0" />
             <div>
               <p className="font-medium text-red-800">Codigo nao encontrado</p>
-              <p className="text-sm text-red-700">Verifique se o codigo foi digitado corretamente.</p>
+              <p className="text-sm text-red-700">{verificationMessage}</p>
             </div>
           </div>
         )}
@@ -212,10 +287,15 @@ export function MeusVotosPage() {
       {/* Current Year Votes */}
       {currentYearVotes.length > 0 && (
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Eleicoes 2024</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Eleicoes {currentYear}</h2>
           <div className="space-y-4">
             {currentYearVotes.map(voto => (
-              <VotoCard key={voto.id} voto={voto} onDownload={handleDownloadComprovante} />
+              <VotoCard
+                key={voto.eleicaoId}
+                voto={voto}
+                onDownload={handleDownloadComprovante}
+                isDownloading={downloadingId === voto.eleicaoId}
+              />
             ))}
           </div>
         </div>
@@ -227,14 +307,19 @@ export function MeusVotosPage() {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Eleicoes Anteriores</h2>
           <div className="space-y-4">
             {previousVotes.map(voto => (
-              <VotoCard key={voto.id} voto={voto} onDownload={handleDownloadComprovante} />
+              <VotoCard
+                key={voto.eleicaoId}
+                voto={voto}
+                onDownload={handleDownloadComprovante}
+                isDownloading={downloadingId === voto.eleicaoId}
+              />
             ))}
           </div>
         </div>
       )}
 
       {/* Empty State */}
-      {mockVotos.length === 0 && (
+      {votos.length === 0 && (
         <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
           <Vote className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-500 mb-4">Voce ainda nao participou de nenhuma eleicao</p>
@@ -252,11 +337,12 @@ export function MeusVotosPage() {
 
 // Voto Card Component
 interface VotoCardProps {
-  voto: VotoHistorico
-  onDownload: (voto: VotoHistorico) => void
+  voto: HistoricoVoto
+  onDownload: (voto: HistoricoVoto) => void
+  isDownloading: boolean
 }
 
-function VotoCard({ voto, onDownload }: VotoCardProps) {
+function VotoCard({ voto, onDownload, isDownloading }: VotoCardProps) {
   return (
     <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -278,10 +364,12 @@ function VotoCard({ voto, onDownload }: VotoCardProps) {
               {new Date(voto.dataVoto).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
             </span>
           </div>
-          <p className="mt-2 text-sm">
-            <span className="text-gray-500">Codigo: </span>
-            <span className="font-mono font-medium text-gray-900">{voto.codigoVerificacao}</span>
-          </p>
+          {voto.hashComprovante && (
+            <p className="mt-2 text-sm">
+              <span className="text-gray-500">Codigo: </span>
+              <span className="font-mono font-medium text-gray-900">{voto.hashComprovante}</span>
+            </p>
+          )}
         </div>
 
         {/* Actions */}
@@ -295,10 +383,15 @@ function VotoCard({ voto, onDownload }: VotoCardProps) {
           </Link>
           <button
             onClick={() => onDownload(voto)}
-            className="p-2 text-gray-500 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+            disabled={isDownloading}
+            className="p-2 text-gray-500 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors disabled:opacity-50"
             title="Baixar Comprovante"
           >
-            <Download className="h-5 w-5" />
+            {isDownloading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Download className="h-5 w-5" />
+            )}
           </button>
         </div>
       </div>

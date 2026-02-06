@@ -1,24 +1,7 @@
 import api, { extractApiError } from './api'
+import { StatusEleicao, TipoEleicao } from './types'
 
-// Enums
-export enum StatusEleicao {
-  CRIADA = 0,
-  ABERTA_INSCRICOES = 1,
-  INSCRICOES_ENCERRADAS = 2,
-  EM_VOTACAO = 3,
-  VOTACAO_ENCERRADA = 4,
-  EM_APURACAO = 5,
-  CONCLUIDA = 6,
-  SUSPENSA = 7,
-  CANCELADA = 8,
-}
-
-export enum TipoEleicao {
-  CAU_BR = 0,
-  CAU_UF = 1,
-  CONSELHEIRO_FEDERAL = 2,
-  CONSELHEIRO_ESTADUAL = 3,
-}
+export { StatusEleicao, TipoEleicao }
 
 // Interfaces
 export interface EleicaoPublica {
@@ -143,10 +126,10 @@ export const eleicoesPublicService = {
     }
   },
 
-  // Get elections in voting phase (status=3)
+  // Get elections in voting phase (EmAndamento=2)
   getEmVotacao: async (): Promise<EleicaoPublica[]> => {
     try {
-      const response = await api.get<EleicaoPublica[]>('/eleicao/status/3')
+      const response = await api.get<EleicaoPublica[]>('/eleicao/status/2')
       return response.data
     } catch (error) {
       const apiError = extractApiError(error)
@@ -154,10 +137,10 @@ export const eleicoesPublicService = {
     }
   },
 
-  // Get concluded elections (status=6)
+  // Get concluded elections (Finalizada=7)
   getConcluidas: async (): Promise<EleicaoPublica[]> => {
     try {
-      const response = await api.get<EleicaoPublica[]>('/eleicao/status/6')
+      const response = await api.get<EleicaoPublica[]>('/eleicao/status/7')
       return response.data
     } catch (error) {
       const apiError = extractApiError(error)
@@ -235,30 +218,28 @@ export const eleicoesPublicService = {
 // Status helpers
 export const getStatusLabel = (status: StatusEleicao): string => {
   const labels: Record<StatusEleicao, string> = {
-    [StatusEleicao.CRIADA]: 'Criada',
-    [StatusEleicao.ABERTA_INSCRICOES]: 'Inscricoes Abertas',
-    [StatusEleicao.INSCRICOES_ENCERRADAS]: 'Inscricoes Encerradas',
-    [StatusEleicao.EM_VOTACAO]: 'Em Votacao',
-    [StatusEleicao.VOTACAO_ENCERRADA]: 'Votacao Encerrada',
-    [StatusEleicao.EM_APURACAO]: 'Em Apuracao',
-    [StatusEleicao.CONCLUIDA]: 'Concluida',
+    [StatusEleicao.RASCUNHO]: 'Rascunho',
+    [StatusEleicao.AGENDADA]: 'Agendada',
+    [StatusEleicao.EM_ANDAMENTO]: 'Em Andamento',
+    [StatusEleicao.ENCERRADA]: 'Encerrada',
     [StatusEleicao.SUSPENSA]: 'Suspensa',
     [StatusEleicao.CANCELADA]: 'Cancelada',
+    [StatusEleicao.APURACAO_EM_ANDAMENTO]: 'Apuracao em Andamento',
+    [StatusEleicao.FINALIZADA]: 'Finalizada',
   }
   return labels[status] || 'Desconhecido'
 }
 
 export const getStatusColor = (status: StatusEleicao): string => {
   const colors: Record<StatusEleicao, string> = {
-    [StatusEleicao.CRIADA]: 'bg-gray-100 text-gray-800',
-    [StatusEleicao.ABERTA_INSCRICOES]: 'bg-blue-100 text-blue-800',
-    [StatusEleicao.INSCRICOES_ENCERRADAS]: 'bg-yellow-100 text-yellow-800',
-    [StatusEleicao.EM_VOTACAO]: 'bg-green-100 text-green-800',
-    [StatusEleicao.VOTACAO_ENCERRADA]: 'bg-orange-100 text-orange-800',
-    [StatusEleicao.EM_APURACAO]: 'bg-purple-100 text-purple-800',
-    [StatusEleicao.CONCLUIDA]: 'bg-gray-100 text-gray-800',
+    [StatusEleicao.RASCUNHO]: 'bg-gray-100 text-gray-800',
+    [StatusEleicao.AGENDADA]: 'bg-blue-100 text-blue-800',
+    [StatusEleicao.EM_ANDAMENTO]: 'bg-green-100 text-green-800',
+    [StatusEleicao.ENCERRADA]: 'bg-orange-100 text-orange-800',
     [StatusEleicao.SUSPENSA]: 'bg-red-100 text-red-800',
     [StatusEleicao.CANCELADA]: 'bg-red-100 text-red-800',
+    [StatusEleicao.APURACAO_EM_ANDAMENTO]: 'bg-purple-100 text-purple-800',
+    [StatusEleicao.FINALIZADA]: 'bg-gray-100 text-gray-800',
   }
   return colors[status] || 'bg-gray-100 text-gray-800'
 }

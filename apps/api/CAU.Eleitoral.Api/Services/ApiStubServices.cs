@@ -1,5 +1,6 @@
 using CAU.Eleitoral.Api.Controllers;
 using CAU.Eleitoral.Application.DTOs;
+using CAU.Eleitoral.Domain.Entities.Chapas;
 using CAU.Eleitoral.Domain.Entities.Core;
 using CAU.Eleitoral.Domain.Enums;
 using CAU.Eleitoral.Infrastructure.Data;
@@ -111,13 +112,62 @@ public class NotificacaoApiService : Controllers.INotificacaoService
 // ── DocumentoService ──
 public class DocumentoApiService : Controllers.IDocumentoService
 {
-    public Task<IEnumerable<Controllers.DocumentoDto>> GetAllAsync(Guid? eleicaoId, TipoDocumento? tipo, CategoriaDocumento? categoria, CancellationToken ct = default)
-        => Task.FromResult<IEnumerable<Controllers.DocumentoDto>>(new List<Controllers.DocumentoDto>());
-    public Task<Controllers.DocumentoDto?> GetByIdAsync(Guid id, CancellationToken ct = default) => Task.FromResult<Controllers.DocumentoDto?>(null);
-    public Task<IEnumerable<Controllers.DocumentoDto>> GetByEleicaoAsync(Guid eleicaoId, CancellationToken ct = default)
-        => Task.FromResult<IEnumerable<Controllers.DocumentoDto>>(new List<Controllers.DocumentoDto>());
-    public Task<IEnumerable<Controllers.DocumentoDto>> GetPublicadosAsync(Guid? eleicaoId, CancellationToken ct = default)
-        => Task.FromResult<IEnumerable<Controllers.DocumentoDto>>(new List<Controllers.DocumentoDto>());
+    private readonly AppDbContext _db;
+    public DocumentoApiService(AppDbContext db) => _db = db;
+
+    private static Controllers.DocumentoDto MapToDto(CAU.Eleitoral.Domain.Entities.Documentos.Documento d) => new()
+    {
+        Id = d.Id,
+        EleicaoId = d.EleicaoId,
+        EleicaoNome = d.Eleicao?.Nome ?? string.Empty,
+        Titulo = d.Titulo,
+        Descricao = d.Ementa,
+        Tipo = d.Tipo,
+        Categoria = d.Categoria,
+        Status = d.Status,
+        Numero = d.Numero,
+        DataDocumento = d.DataDocumento,
+        DataPublicacao = d.DataPublicacao,
+        DataRevogacao = d.DataRevogacao,
+        Url = d.ArquivoUrl,
+        NomeArquivo = d.ArquivoNome,
+        TipoArquivo = d.ArquivoTipo,
+        Tamanho = d.ArquivoTamanho,
+        CreatedAt = d.CreatedAt,
+        UpdatedAt = d.UpdatedAt
+    };
+
+    public async Task<IEnumerable<Controllers.DocumentoDto>> GetAllAsync(Guid? eleicaoId, TipoDocumento? tipo, CategoriaDocumento? categoria, CancellationToken ct = default)
+    {
+        var query = _db.Documentos.Include(d => d.Eleicao).AsQueryable();
+        if (eleicaoId.HasValue) query = query.Where(d => d.EleicaoId == eleicaoId.Value);
+        if (tipo.HasValue) query = query.Where(d => d.Tipo == tipo.Value);
+        if (categoria.HasValue) query = query.Where(d => d.Categoria == categoria.Value);
+        var items = await query.OrderByDescending(d => d.DataPublicacao ?? d.CreatedAt).ToListAsync(ct);
+        return items.Select(MapToDto);
+    }
+
+    public async Task<Controllers.DocumentoDto?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        var d = await _db.Documentos.Include(x => x.Eleicao).FirstOrDefaultAsync(x => x.Id == id, ct);
+        return d == null ? null : MapToDto(d);
+    }
+
+    public async Task<IEnumerable<Controllers.DocumentoDto>> GetByEleicaoAsync(Guid eleicaoId, CancellationToken ct = default)
+    {
+        var items = await _db.Documentos.Include(d => d.Eleicao)
+            .Where(d => d.EleicaoId == eleicaoId).OrderByDescending(d => d.DataPublicacao ?? d.CreatedAt).ToListAsync(ct);
+        return items.Select(MapToDto);
+    }
+
+    public async Task<IEnumerable<Controllers.DocumentoDto>> GetPublicadosAsync(Guid? eleicaoId, CancellationToken ct = default)
+    {
+        var query = _db.Documentos.Include(d => d.Eleicao).Where(d => d.Status == StatusDocumento.Publicado);
+        if (eleicaoId.HasValue) query = query.Where(d => d.EleicaoId == eleicaoId.Value);
+        var items = await query.OrderByDescending(d => d.DataPublicacao ?? d.CreatedAt).ToListAsync(ct);
+        return items.Select(MapToDto);
+    }
+
     public Task<Controllers.DocumentoDto> CreateAsync(Controllers.CreateDocumentoDto dto, Guid userId, CancellationToken ct = default) => throw new NotImplementedException();
     public Task<Controllers.DocumentoDto> UploadAsync(IFormFile file, Guid eleicaoId, TipoDocumento tipo, CategoriaDocumento categoria, Guid userId, CancellationToken ct = default) => throw new NotImplementedException();
     public Task<Controllers.DocumentoDto> UpdateAsync(Guid id, Controllers.UpdateDocumentoDto dto, CancellationToken ct = default) => throw new NotImplementedException();
@@ -191,12 +241,49 @@ public class RelatorioApiService : Controllers.IRelatorioService
 // ── MembroChapaService ──
 public class MembroChapaApiService : Controllers.IMembroChapaService
 {
-    public Task<IEnumerable<MembroChapaDetalheDto>> GetByChapaAsync(Guid chapaId, CancellationToken ct = default)
-        => Task.FromResult<IEnumerable<MembroChapaDetalheDto>>(new List<MembroChapaDetalheDto>());
-    public Task<MembroChapaDetalheDto?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => Task.FromResult<MembroChapaDetalheDto?>(null);
-    public Task<IEnumerable<MembroChapaDetalheDto>> GetByProfissionalAsync(Guid profissionalId, CancellationToken ct = default)
-        => Task.FromResult<IEnumerable<MembroChapaDetalheDto>>(new List<MembroChapaDetalheDto>());
+    private readonly AppDbContext _db;
+    public MembroChapaApiService(AppDbContext db) => _db = db;
+
+    private static MembroChapaDetalheDto MapToDto(MembroChapa m) => new()
+    {
+        Id = m.Id,
+        ChapaId = m.ChapaId,
+        ChapaNome = m.Chapa?.Nome ?? string.Empty,
+        ProfissionalId = m.ProfissionalId ?? Guid.Empty,
+        ProfissionalNome = m.Profissional?.NomeCompleto ?? m.Nome,
+        ProfissionalRegistroCAU = m.RegistroCAU ?? m.Profissional?.RegistroCAU,
+        ProfissionalCpf = m.Cpf ?? m.Profissional?.Cpf,
+        ProfissionalEmail = m.Email ?? m.Profissional?.Email,
+        TipoMembro = (int)m.Tipo,
+        TipoMembroNome = m.Tipo.ToString(),
+        Cargo = m.Cargo,
+        Status = (int)m.Status,
+        StatusNome = m.Status.ToString(),
+        Ordem = m.Ordem,
+        CreatedAt = m.CreatedAt,
+        UpdatedAt = m.UpdatedAt
+    };
+
+    public async Task<IEnumerable<MembroChapaDetalheDto>> GetByChapaAsync(Guid chapaId, CancellationToken ct = default)
+    {
+        var items = await _db.MembrosChapa.Include(m => m.Chapa).Include(m => m.Profissional)
+            .Where(m => m.ChapaId == chapaId).OrderBy(m => m.Ordem).ToListAsync(ct);
+        return items.Select(MapToDto);
+    }
+
+    public async Task<MembroChapaDetalheDto?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        var m = await _db.MembrosChapa.Include(x => x.Chapa).Include(x => x.Profissional).FirstOrDefaultAsync(x => x.Id == id, ct);
+        return m == null ? null : MapToDto(m);
+    }
+
+    public async Task<IEnumerable<MembroChapaDetalheDto>> GetByProfissionalAsync(Guid profissionalId, CancellationToken ct = default)
+    {
+        var items = await _db.MembrosChapa.Include(m => m.Chapa).Include(m => m.Profissional)
+            .Where(m => m.ProfissionalId == profissionalId).OrderBy(m => m.Ordem).ToListAsync(ct);
+        return items.Select(MapToDto);
+    }
+
     public Task<MembroChapaDetalheDto> CreateAsync(CreateMembroChapaDetalheDto dto, Guid userId, CancellationToken ct = default) => throw new NotImplementedException();
     public Task<MembroChapaDetalheDto> UpdateAsync(Guid id, UpdateMembroChapaRequestDto dto, CancellationToken ct = default) => throw new NotImplementedException();
     public Task DeleteAsync(Guid id, CancellationToken ct = default) => throw new NotImplementedException();

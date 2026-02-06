@@ -13,8 +13,6 @@ import {
   Users,
   Calendar,
   FileText,
-  Shield,
-  AlertTriangle,
 } from 'lucide-react'
 
 // Types
@@ -33,123 +31,77 @@ interface FaqCategoria {
 
 // Categories
 const categorias: FaqCategoria[] = [
+  { id: 'geral', nome: 'Geral', icon: HelpCircle },
   { id: 'votacao', nome: 'Votacao', icon: Vote },
-  { id: 'inscricao', nome: 'Inscricao', icon: Users },
-  { id: 'calendario', nome: 'Calendario', icon: Calendar },
-  { id: 'documentos', nome: 'Documentos', icon: FileText },
-  { id: 'seguranca', nome: 'Seguranca', icon: Shield },
-  { id: 'problemas', nome: 'Problemas', icon: AlertTriangle },
+  { id: 'candidatura', nome: 'Candidatura', icon: Users },
+  { id: 'processo', nome: 'Processo Eleitoral', icon: FileText },
 ]
 
-// Mock data
-const mockFaqs: FaqItem[] = [
-  // Votacao
+// FAQ data
+const faqs: FaqItem[] = [
+  // Geral
   {
     id: '1',
-    pergunta: 'Como faco para votar?',
-    resposta: 'Para votar, acesse a Area do Eleitor no site, identifique-se com seu CPF e numero de registro no CAU. Apos a autenticacao, selecione a eleicao desejada e escolha a chapa de sua preferencia. Confirme seu voto e guarde o comprovante gerado.',
-    categoria: 'votacao',
+    pergunta: 'O que e o Sistema Eleitoral do CAU?',
+    resposta: 'O Sistema Eleitoral do CAU (Conselho de Arquitetura e Urbanismo) e a plataforma oficial utilizada para conduzir as eleicoes dos orgaos de representacao do conselho profissional. Por meio deste sistema, sao realizadas as eleicoes para os Conselhos de Arquitetura e Urbanismo dos Estados e do Distrito Federal (CAU/UF) e para o Conselho de Arquitetura e Urbanismo do Brasil (CAU/BR). O sistema permite o registro de chapas, a votacao online, a apuracao dos resultados e o acompanhamento de todo o processo eleitoral de forma transparente e segura.',
+    categoria: 'geral',
   },
   {
     id: '2',
-    pergunta: 'Posso votar pelo celular?',
-    resposta: 'Sim! O sistema de votacao e responsivo e funciona em dispositivos moveis. Voce pode acessar pelo navegador do seu celular ou tablet e realizar a votacao normalmente.',
-    categoria: 'votacao',
+    pergunta: 'Quem pode votar nas eleicoes do CAU?',
+    resposta: 'Podem votar nas eleicoes do CAU todos os profissionais de Arquitetura e Urbanismo que possuam registro ativo e regular junto ao CAU/UF de sua jurisdicao. Para estar apto a votar, o profissional deve estar em dia com suas anuidades e obrigacoes junto ao conselho, nao possuir impedimentos legais ou disciplinares vigentes, e estar devidamente inscrito no cadastro eleitoral. O registro no CAU e o CPF sao utilizados como credenciais para acesso ao sistema de votacao.',
+    categoria: 'geral',
   },
+  // Votacao
   {
     id: '3',
-    pergunta: 'Meu voto e sigiloso?',
-    resposta: 'Sim, seu voto e totalmente sigiloso. O sistema utiliza criptografia de ponta a ponta e nao armazena nenhuma relacao entre o eleitor e o voto escolhido. Apenas e registrado que voce votou, mas nao em quem.',
+    pergunta: 'Como funciona o processo de votacao online?',
+    resposta: 'O processo de votacao online e realizado inteiramente pela internet, de forma segura e acessivel. O eleitor acessa a Area do Eleitor no portal publico do sistema, identifica-se com seu CPF e numero de registro no CAU, e informa sua senha. Apos a autenticacao, o eleitor visualiza as eleicoes disponiveis para o seu perfil e seleciona aquela em que deseja votar. Na cedula eletronica, sao apresentadas todas as chapas concorrentes, e o eleitor escolhe a chapa de sua preferencia ou opta pelo voto em branco. Antes da confirmacao, e exibido um resumo da escolha para revisao. Apos confirmar, o voto e registrado de forma anonima e um comprovante de votacao e gerado para o eleitor.',
     categoria: 'votacao',
   },
   {
     id: '4',
-    pergunta: 'Posso mudar meu voto apos confirmar?',
-    resposta: 'Nao. Apos a confirmacao, o voto e computado e nao pode ser alterado. Por isso, revise sua escolha com atencao antes de confirmar.',
+    pergunta: 'O voto e obrigatorio?',
+    resposta: 'Sim, o voto nas eleicoes do CAU e obrigatorio para todos os profissionais com registro ativo e regular. O profissional que nao exercer o voto e nao apresentar justificativa dentro do prazo previsto no calendario eleitoral podera estar sujeito a penalidades previstas no regulamento eleitoral e na legislacao do conselho. A justificativa de ausencia deve ser feita por meio do proprio sistema eleitoral ou pelos canais indicados no edital da eleicao. Recomenda-se que o eleitor fique atento ao periodo de votacao e exerca seu direito e dever de voto dentro do prazo estipulado.',
     categoria: 'votacao',
   },
+  // Candidatura
   {
     id: '5',
-    pergunta: 'O que e o voto em branco?',
-    resposta: 'O voto em branco e uma opcao para o eleitor que nao deseja escolher nenhuma das chapas. Este voto e contabilizado separadamente e nao e considerado como voto valido para fins de apuracao.',
-    categoria: 'votacao',
+    pergunta: 'O que e uma chapa eleitoral?',
+    resposta: 'Uma chapa eleitoral e o conjunto de candidatos que se apresentam de forma unificada para concorrer aos cargos eletivos do CAU. Cada chapa e composta por membros titulares e suplentes que ocuparao os cargos de conselheiros no CAU/UF ou no CAU/BR, conforme a eleicao em questao. A chapa deve atender aos requisitos estabelecidos no edital, incluindo o numero minimo e maximo de membros, a representatividade regional quando exigida, e a conformidade de todos os seus integrantes com os criterios de elegibilidade. As chapas sao registradas durante o periodo de inscricoes e, apos analise pela Comissao Eleitoral, sao homologadas ou indeferidas.',
+    categoria: 'candidatura',
   },
-  // Inscricao
   {
     id: '6',
-    pergunta: 'Como me inscrevo como candidato?',
-    resposta: 'Para se inscrever como candidato, voce deve fazer parte de uma chapa registrada. A inscricao de chapas e feita durante o periodo de inscricoes, conforme estabelecido no edital. E necessario preencher o formulario de inscricao e anexar todos os documentos exigidos.',
-    categoria: 'inscricao',
+    pergunta: 'Como posso me candidatar?',
+    resposta: 'Para se candidatar nas eleicoes do CAU, o profissional deve integrar uma chapa eleitoral. O primeiro passo e verificar os requisitos de elegibilidade estabelecidos no edital da eleicao, que geralmente incluem: possuir registro ativo e regular no CAU, estar em dia com as anuidades e obrigacoes financeiras, nao ter sofrido penalidades eticas ou disciplinares nos periodos definidos pelo regulamento, e ter exercicio profissional regular. O candidato deve reunir os demais membros da chapa, preencher o formulario de inscricao disponivel no sistema, anexar a documentacao exigida (como RG, CPF, comprovante de registro no CAU e declaracoes) e submeter a inscricao dentro do prazo previsto no calendario eleitoral. A Comissao Eleitoral analisara a documentacao e publicara a lista de chapas deferidas e indeferidas.',
+    categoria: 'candidatura',
   },
+  // Processo Eleitoral
   {
     id: '7',
-    pergunta: 'Quais sao os requisitos para ser candidato?',
-    resposta: 'Os requisitos basicos incluem: estar em dia com as obrigacoes junto ao CAU, nao ter sofrido penalidades eticas nos ultimos 5 anos, ter exercicio profissional regular, e demais requisitos estabelecidos no regulamento eleitoral.',
-    categoria: 'inscricao',
+    pergunta: 'O que e uma impugnacao?',
+    resposta: 'A impugnacao e um instrumento juridico e administrativo que permite a qualquer eleitor, candidato ou chapa registrada questionar a validade de um ato do processo eleitoral. Pode-se impugnar, por exemplo, o registro de uma chapa que nao atenda aos requisitos do edital, o resultado de uma votacao em caso de irregularidades comprovadas, ou qualquer decisao da Comissao Eleitoral que se entenda contraria ao regulamento. A impugnacao deve ser formalizada por escrito, com fundamentacao e provas, dentro do prazo estabelecido no calendario eleitoral. A Comissao Eleitoral ou a Comissao Julgadora, conforme o caso, analisara o pedido e emitira uma decisao. O resultado da analise e publicado oficialmente no sistema.',
+    categoria: 'processo',
   },
   {
     id: '8',
-    pergunta: 'Como formo uma chapa?',
-    resposta: 'Uma chapa deve ser composta pelo numero minimo de membros estabelecido no edital, incluindo presidente, vice-presidente e demais cargos. Todos os membros devem atender aos requisitos de elegibilidade.',
-    categoria: 'inscricao',
+    pergunta: 'Como acompanhar o calendario eleitoral?',
+    resposta: 'O calendario eleitoral contem todas as datas e prazos relevantes do processo eleitoral, como o periodo de inscricao de chapas, os prazos para impugnacoes, o periodo de campanha, as datas de votacao, a apuracao e a proclamacao dos resultados. Para acompanhar o calendario, acesse a secao "Calendario" no menu principal do portal publico. Todas as etapas sao listadas em ordem cronologica com suas respectivas datas de inicio e termino. E recomendavel que eleitores e candidatos consultem o calendario regularmente para nao perder prazos importantes. As datas sao definidas pela Comissao Eleitoral e publicadas no edital de cada eleicao.',
+    categoria: 'processo',
   },
-  // Calendario
   {
     id: '9',
-    pergunta: 'Quando sera a proxima eleicao?',
-    resposta: 'Consulte o Calendario Eleitoral para ver todas as datas importantes, incluindo periodos de inscricao, campanha e votacao. As datas sao definidas no edital de cada eleicao.',
-    categoria: 'calendario',
+    pergunta: 'Como posso fazer uma denuncia eleitoral?',
+    resposta: 'Se voce identificar qualquer irregularidade durante o processo eleitoral, como praticas vedadas de campanha, uso indevido de recursos do conselho, coacao de eleitores ou qualquer outra conduta contraria ao regulamento, voce pode registrar uma denuncia pelo sistema. Acesse a secao de denuncias no portal ou entre em contato com a Comissao Eleitoral responsavel. A denuncia deve conter a descricao detalhada dos fatos, indicacao de data e local (quando aplicavel) e, sempre que possivel, provas ou evidencias que sustentem a alegacao. A Comissao Eleitoral analisara o caso e adotara as providencias cabiveis conforme o regulamento. A identidade do denunciante sera tratada com sigilo.',
+    categoria: 'processo',
   },
   {
     id: '10',
-    pergunta: 'Qual o prazo para inscricao de chapas?',
-    resposta: 'O prazo para inscricao de chapas e definido no edital de cada eleicao. Geralmente, o periodo de inscricoes dura cerca de 30 dias. Consulte o calendario eleitoral para datas especificas.',
-    categoria: 'calendario',
-  },
-  // Documentos
-  {
-    id: '11',
-    pergunta: 'Onde encontro o edital da eleicao?',
-    resposta: 'O edital e todos os documentos oficiais estao disponiveis na secao Documentos do site. Voce pode baixar o edital, regulamento, formularios e outros documentos necessarios.',
-    categoria: 'documentos',
-  },
-  {
-    id: '12',
-    pergunta: 'Quais documentos preciso para me candidatar?',
-    resposta: 'Os documentos necessarios incluem: RG, CPF, comprovante de registro no CAU, declaracao de quitacao eleitoral, certidoes negativas, e demais documentos especificados no edital.',
-    categoria: 'documentos',
-  },
-  // Seguranca
-  {
-    id: '13',
-    pergunta: 'Como o sistema garante a seguranca do voto?',
-    resposta: 'O sistema utiliza multiplas camadas de seguranca: criptografia SSL/TLS, autenticacao de dois fatores, auditoria completa de acoes, servidores seguros e backup em tempo real. Todas as transacoes sao registradas em log imutavel.',
-    categoria: 'seguranca',
-  },
-  {
-    id: '14',
-    pergunta: 'Como sei que meu voto foi computado?',
-    resposta: 'Apos confirmar seu voto, voce recebera um comprovante com codigo unico de verificacao. Este codigo pode ser usado para verificar que seu voto foi registrado no sistema, sem revelar em quem voce votou.',
-    categoria: 'seguranca',
-  },
-  // Problemas
-  {
-    id: '15',
-    pergunta: 'Esqueci minha senha, o que faco?',
-    resposta: 'Na tela de login, clique em "Esqueci minha senha". Informe seu CPF e e-mail cadastrado. Voce recebera um link para redefinir sua senha. Se ainda tiver problemas, entre em contato com o suporte.',
-    categoria: 'problemas',
-  },
-  {
-    id: '16',
-    pergunta: 'O sistema esta fora do ar, o que faco?',
-    resposta: 'Em caso de indisponibilidade do sistema, aguarde alguns minutos e tente novamente. Se o problema persistir, entre em contato com o suporte tecnico. O periodo de votacao pode ser estendido em caso de problemas tecnicos significativos.',
-    categoria: 'problemas',
-  },
-  {
-    id: '17',
-    pergunta: 'Nao consigo acessar minha conta, como proceder?',
-    resposta: 'Verifique se seus dados (CPF e CAU) estao corretos. Certifique-se de que voce esta apto a votar nesta eleicao. Se o problema persistir, entre em contato com o suporte tecnico informando seus dados para verificacao.',
-    categoria: 'problemas',
+    pergunta: 'Onde posso obter os documentos oficiais?',
+    resposta: 'Todos os documentos oficiais relacionados ao processo eleitoral estao disponiveis na secao "Documentos" do portal publico do sistema. Nesta area, voce encontra o edital da eleicao, o regulamento eleitoral vigente, formularios de inscricao de chapas, modelos de requerimentos, resolucoes da Comissao Eleitoral, atas de reunioes e demais documentos pertinentes. Os documentos podem ser visualizados diretamente no navegador ou baixados em formato PDF. Recomenda-se que candidatos e eleitores leiam atentamente o edital e o regulamento antes de participar do processo, para compreender todas as regras, prazos e procedimentos aplicaveis.',
+    categoria: 'processo',
   },
 ]
 
@@ -159,7 +111,7 @@ export function FaqPage() {
   const [expandedIds, setExpandedIds] = useState<string[]>([])
 
   // Filter FAQs
-  const filteredFaqs = mockFaqs.filter(faq => {
+  const filteredFaqs = faqs.filter(faq => {
     const matchesSearch = faq.pergunta.toLowerCase().includes(searchTerm.toLowerCase()) ||
       faq.resposta.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategoria = !selectedCategoria || faq.categoria === selectedCategoria
@@ -306,7 +258,7 @@ export function FaqPage() {
             </div>
           ) : (
             // Show grouped by category
-            Object.entries(faqsByCategoria).map(([catId, faqs]) => {
+            Object.entries(faqsByCategoria).map(([catId, catFaqs]) => {
               const categoria = categorias.find(c => c.id === catId)
               if (!categoria) return null
               const Icon = categoria.icon
@@ -318,7 +270,7 @@ export function FaqPage() {
                     {categoria.nome}
                   </h2>
                   <div className="bg-white rounded-lg shadow-sm border divide-y">
-                    {faqs.map(faq => (
+                    {catFaqs.map(faq => (
                       <FaqItemComponent
                         key={faq.id}
                         faq={faq}
