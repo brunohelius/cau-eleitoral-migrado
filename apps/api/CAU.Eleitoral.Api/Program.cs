@@ -397,6 +397,13 @@ app.MapPost("/api/admin/setup-test-voter", async (HttpContext context, AppDbCont
         // Create eleitor record if election exists
         if (activeEleicao != null)
         {
+            // Ensure election is in voting phase with current dates
+            activeEleicao.Status = CAU.Eleitoral.Domain.Enums.StatusEleicao.EmAndamento;
+            activeEleicao.FaseAtual = CAU.Eleitoral.Domain.Enums.FaseEleicao.Votacao;
+            activeEleicao.DataVotacaoInicio = DateTime.UtcNow.AddDays(-1);
+            activeEleicao.DataVotacaoFim = DateTime.UtcNow.AddDays(7);
+            await db.SaveChangesAsync();
+
             var existingEleitor = await db.Eleitores.FirstOrDefaultAsync(e =>
                 e.ProfissionalId == profissional.Id && e.EleicaoId == activeEleicao.Id);
 
@@ -410,6 +417,14 @@ app.MapPost("/api/admin/setup-test-voter", async (HttpContext context, AppDbCont
                     Apto = true,
                     Votou = false
                 });
+                await db.SaveChangesAsync();
+            }
+            else if (existingEleitor.Votou)
+            {
+                // Reset voter so they can vote again for testing
+                existingEleitor.Votou = false;
+                existingEleitor.DataVoto = null;
+                existingEleitor.Apto = true;
                 await db.SaveChangesAsync();
             }
         }
