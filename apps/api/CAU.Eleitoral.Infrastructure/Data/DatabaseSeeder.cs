@@ -45,6 +45,7 @@ public class DatabaseSeeder
             await SeedDenunciasAsync();
             await SeedComissoesAsync();
             await SeedDocumentosAsync();
+            await SeedDocumentosTableAsync();
             await SeedImpugnacoesAsync();
 
             // Always run: fixes missing roles and user-role assignments
@@ -738,6 +739,116 @@ public class DatabaseSeeder
         }
 
         await _context.SaveChangesAsync();
+    }
+
+    private async Task SeedDocumentosTableAsync()
+    {
+        if (await _context.Documentos.AnyAsync()) return;
+
+        _logger.LogInformation("Criando registros na tabela Documentos...");
+
+        var eleicoes = await _context.Eleicoes.ToListAsync();
+
+        foreach (var eleicao in eleicoes)
+        {
+            // Edital
+            await _context.Documentos.AddAsync(new Documento
+            {
+                EleicaoId = eleicao.Id,
+                Tipo = TipoDocumento.Edital,
+                Categoria = CategoriaDocumento.Eleitoral,
+                Status = StatusDocumento.Publicado,
+                Numero = $"EDT-{eleicao.Ano}-001",
+                Ano = eleicao.Ano,
+                Titulo = $"Edital de Convocação - {eleicao.Nome}",
+                Ementa = "Convocação para eleições do Conselho de Arquitetura e Urbanismo",
+                DataDocumento = eleicao.DataInicio.AddDays(-30),
+                DataPublicacao = eleicao.DataInicio.AddDays(-28),
+                ArquivoNome = $"edital_{eleicao.Ano}.pdf",
+                ArquivoTipo = "application/pdf",
+                ArquivoTamanho = 245000
+            });
+
+            // Resolução
+            await _context.Documentos.AddAsync(new Documento
+            {
+                EleicaoId = eleicao.Id,
+                Tipo = TipoDocumento.Resolucao,
+                Categoria = CategoriaDocumento.Legal,
+                Status = StatusDocumento.Publicado,
+                Numero = $"RES-{eleicao.Ano}-001",
+                Ano = eleicao.Ano,
+                Titulo = $"Resolução Normativa - Processo Eleitoral {eleicao.Ano}",
+                Ementa = "Estabelece normas e procedimentos para o processo eleitoral do CAU",
+                DataDocumento = eleicao.DataInicio.AddDays(-60),
+                DataPublicacao = eleicao.DataInicio.AddDays(-55),
+                DataVigencia = eleicao.DataFim.AddDays(90),
+                ArquivoNome = $"resolucao_{eleicao.Ano}.pdf",
+                ArquivoTipo = "application/pdf",
+                ArquivoTamanho = 180000
+            });
+
+            // Normativa
+            await _context.Documentos.AddAsync(new Documento
+            {
+                EleicaoId = eleicao.Id,
+                Tipo = TipoDocumento.Normativa,
+                Categoria = CategoriaDocumento.Institucional,
+                Status = StatusDocumento.Publicado,
+                Numero = $"NOR-{eleicao.Ano}-001",
+                Ano = eleicao.Ano,
+                Titulo = $"Norma de Votação Eletrônica - {eleicao.Nome}",
+                Ementa = "Regulamenta o sistema de votação eletrônica para as eleições do CAU",
+                DataDocumento = eleicao.DataInicio.AddDays(-45),
+                DataPublicacao = eleicao.DataInicio.AddDays(-40),
+                ArquivoNome = $"normativa_votacao_{eleicao.Ano}.pdf",
+                ArquivoTipo = "application/pdf",
+                ArquivoTamanho = 120000
+            });
+
+            // Comunicados
+            for (int i = 1; i <= 3; i++)
+            {
+                await _context.Documentos.AddAsync(new Documento
+                {
+                    EleicaoId = eleicao.Id,
+                    Tipo = TipoDocumento.Comunicado,
+                    Categoria = CategoriaDocumento.Eleitoral,
+                    Status = StatusDocumento.Publicado,
+                    Numero = $"COM-{eleicao.Ano}-{i:D3}",
+                    Ano = eleicao.Ano,
+                    Titulo = $"Comunicado {i} - {eleicao.Nome}",
+                    Ementa = $"Informativo {i} sobre o processo eleitoral",
+                    DataDocumento = eleicao.DataInicio.AddDays(-20 + i * 5),
+                    DataPublicacao = eleicao.DataInicio.AddDays(-20 + i * 5),
+                    ArquivoNome = $"comunicado_{i}_{eleicao.Ano}.pdf",
+                    ArquivoTipo = "application/pdf",
+                    ArquivoTamanho = 50000 + i * 10000
+                });
+            }
+
+            // Ata (Rascunho for active elections, Publicado for finished)
+            var ataStatus = eleicao.Status == StatusEleicao.Finalizada ? StatusDocumento.Publicado : StatusDocumento.Rascunho;
+            await _context.Documentos.AddAsync(new Documento
+            {
+                EleicaoId = eleicao.Id,
+                Tipo = TipoDocumento.Ata,
+                Categoria = CategoriaDocumento.Administrativo,
+                Status = ataStatus,
+                Numero = $"ATA-{eleicao.Ano}-001",
+                Ano = eleicao.Ano,
+                Titulo = $"Ata de Apuração - {eleicao.Nome}",
+                Ementa = "Registro da sessão de apuração dos votos",
+                DataDocumento = eleicao.DataFim,
+                DataPublicacao = ataStatus == StatusDocumento.Publicado ? eleicao.DataFim.AddDays(1) : null,
+                ArquivoNome = $"ata_apuracao_{eleicao.Ano}.pdf",
+                ArquivoTipo = "application/pdf",
+                ArquivoTamanho = 350000
+            });
+        }
+
+        await _context.SaveChangesAsync();
+        _logger.LogInformation("Documentos criados com sucesso: {Count} registros", eleicoes.Count * 7);
     }
 
     private async Task SeedCircunscricoesAsync()
