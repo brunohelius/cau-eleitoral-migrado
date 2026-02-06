@@ -47,6 +47,9 @@ public class DatabaseSeeder
             await SeedDocumentosAsync();
             await SeedImpugnacoesAsync();
 
+            // Always run: fixes missing roles and user-role assignments
+            await PatchUserRolesAsync();
+
             _logger.LogInformation("Seed do banco de dados concluído com sucesso!");
         }
         catch (Exception ex)
@@ -85,11 +88,12 @@ public class DatabaseSeeder
 
         var roles = new List<Role>
         {
-            new() { Nome = "Administrador", Descricao = "Acesso total ao sistema", Ativo = true },
+            new() { Nome = "Admin", Descricao = "Acesso total ao sistema", Ativo = true },
             new() { Nome = "ComissaoEleitoral", Descricao = "Membro da comissão eleitoral", Ativo = true },
             new() { Nome = "Fiscal", Descricao = "Fiscal de eleição", Ativo = true },
             new() { Nome = "Operador", Descricao = "Operador do sistema", Ativo = true },
             new() { Nome = "Auditor", Descricao = "Auditor do sistema", Ativo = true },
+            new() { Nome = "Analista", Descricao = "Analista do sistema", Ativo = true },
             new() { Nome = "Eleitor", Descricao = "Eleitor", Ativo = true },
             new() { Nome = "Candidato", Descricao = "Candidato", Ativo = true },
         };
@@ -97,8 +101,8 @@ public class DatabaseSeeder
         await _context.Roles.AddRangeAsync(roles);
         await _context.SaveChangesAsync();
 
-        // Associar todas as permissões ao Administrador
-        var adminRole = roles.First(r => r.Nome == "Administrador");
+        // Associar todas as permissões ao Admin
+        var adminRole = roles.First(r => r.Nome == "Admin");
         var savedPermissoes = await _context.Permissoes.ToListAsync();
         foreach (var permissao in savedPermissoes)
         {
@@ -160,7 +164,7 @@ public class DatabaseSeeder
 
         _logger.LogInformation("Criando usuários de teste...");
 
-        var adminRole = await _context.Roles.FirstAsync(r => r.Nome == "Administrador");
+        var adminRole = await _context.Roles.FirstAsync(r => r.Nome == "Admin");
         var comissaoRole = await _context.Roles.FirstAsync(r => r.Nome == "ComissaoEleitoral");
         var fiscalRole = await _context.Roles.FirstAsync(r => r.Nome == "Fiscal");
         var operadorRole = await _context.Roles.FirstAsync(r => r.Nome == "Operador");
@@ -1292,6 +1296,91 @@ public class DatabaseSeeder
         }
 
         await _context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Patches roles and user-role assignments. Runs every seed to fix missing data.
+    /// Renames "Administrador" to "Admin", ensures "Analista" exists, and links admin users.
+    /// </summary>
+    private async Task PatchUserRolesAsync()
+    {
+        _logger.LogInformation("Patching user roles...");
+
+        // Rename "Administrador" to "Admin" if it exists
+        var oldAdminRole = await _context.Roles.FirstOrDefaultAsync(r => r.Nome == "Administrador");
+        if (oldAdminRole != null)
+        {
+            oldAdminRole.Nome = "Admin";
+            _context.Roles.Update(oldAdminRole);
+            await _context.SaveChangesAsync();
+        }
+
+        // Ensure "Admin" role exists
+        var adminRole = await _context.Roles.FirstOrDefaultAsync(r => r.Nome == "Admin");
+        if (adminRole == null)
+        {
+            adminRole = new Role { Nome = "Admin", Descricao = "Acesso total ao sistema", Ativo = true };
+            await _context.Roles.AddAsync(adminRole);
+            await _context.SaveChangesAsync();
+        }
+
+        // Ensure "Analista" role exists
+        var analistaRole = await _context.Roles.FirstOrDefaultAsync(r => r.Nome == "Analista");
+        if (analistaRole == null)
+        {
+            analistaRole = new Role { Nome = "Analista", Descricao = "Analista do sistema", Ativo = true };
+            await _context.Roles.AddAsync(analistaRole);
+            await _context.SaveChangesAsync();
+        }
+
+        // Ensure all admin-type users have the Admin role
+        var adminUsers = await _context.Usuarios
+            .Where(u => u.Tipo == TipoUsuario.Administrador)
+            .ToListAsync();
+
+        foreach (var user in adminUsers)
+        {
+            var hasAdminRole = await _context.UsuarioRoles
+                .AnyAsync(ur => ur.UsuarioId == user.Id && ur.RoleId == adminRole.Id);
+
+            if (!hasAdminRole)
+            {
+                await _context.UsuarioRoles.AddAsync(new UsuarioRole
+                {
+                    UsuarioId = user.Id,
+                    RoleId = adminRole.Id
+                });
+                _logger.LogInformation("Assigned Admin role to user {Email}", user.Email);
+            }
+        }
+
+        // Ensure ComissaoEleitoral users have their role
+        var comissaoRole = await _context.Roles.FirstOrDefaultAsync(r => r.Nome == "ComissaoEleitoral");
+        if (comissaoRole != null)
+        {
+            var comissaoUsers = await _context.Usuarios
+                .Where(u => u.Tipo == TipoUsuario.ComissaoEleitoral || u.Tipo == TipoUsuario.Conselheiro)
+                .ToListAsync();
+
+            foreach (var user in comissaoUsers)
+            {
+                var hasRole = await _context.UsuarioRoles
+                    .AnyAsync(ur => ur.UsuarioId == user.Id && ur.RoleId == comissaoRole.Id);
+
+                if (!hasRole)
+                {
+                    await _context.UsuarioRoles.AddAsync(new UsuarioRole
+                    {
+                        UsuarioId = user.Id,
+                        RoleId = comissaoRole.Id
+                    });
+                    _logger.LogInformation("Assigned ComissaoEleitoral role to user {Email}", user.Email);
+                }
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        _logger.LogInformation("User roles patched successfully.");
     }
 
     private static (string Hash, string Salt) HashPassword(string password)

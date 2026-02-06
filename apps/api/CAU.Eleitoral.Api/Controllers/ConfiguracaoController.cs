@@ -8,7 +8,7 @@ namespace CAU.Eleitoral.Api.Controllers;
 /// <summary>
 /// Controller para gerenciamento de configuracoes do sistema
 /// </summary>
-[Authorize(Roles = "Admin,Administrador")]
+[Authorize(Roles = "Admin")]
 public class ConfiguracaoController : BaseController
 {
     private readonly IConfiguracaoService _configuracaoService;

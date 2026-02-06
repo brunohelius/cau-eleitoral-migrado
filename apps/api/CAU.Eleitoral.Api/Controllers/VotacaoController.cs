@@ -200,7 +200,7 @@ public class VotacaoController : BaseController
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Estatisticas de votacao</returns>
     [HttpGet("estatisticas/{eleicaoId:guid}")]
-    [Authorize(Roles = "Administrador,ComissaoEleitoral")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral")]
     [ProducesResponseType(typeof(EstatisticasVotacaoDto), StatusCodes.Status200OK)]
     public async Task<ActionResult<EstatisticasVotacaoDto>> GetEstatisticas(Guid eleicaoId, CancellationToken cancellationToken)
     {
@@ -225,7 +225,7 @@ public class VotacaoController : BaseController
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Lista de eleitores que votaram</returns>
     [HttpGet("eleitores-votaram/{eleicaoId:guid}")]
-    [Authorize(Roles = "Administrador,ComissaoEleitoral")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral")]
     [ProducesResponseType(typeof(PagedResultDto<EleitorVotouDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<PagedResultDto<EleitorVotouDto>>> GetEleitoresQueVotaram(
         Guid eleicaoId,
@@ -253,7 +253,7 @@ public class VotacaoController : BaseController
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Resultado da anulacao</returns>
     [HttpPost("{id:guid}/anular")]
-    [Authorize(Roles = "Administrador")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AnularVoto(
@@ -289,7 +289,7 @@ public class VotacaoController : BaseController
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Resultado da operacao</returns>
     [HttpPost("abrir/{eleicaoId:guid}")]
-    [Authorize(Roles = "Administrador,ComissaoEleitoral")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AbrirVotacao(Guid eleicaoId, CancellationToken cancellationToken)
@@ -321,7 +321,7 @@ public class VotacaoController : BaseController
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>Resultado da operacao</returns>
     [HttpPost("fechar/{eleicaoId:guid}")]
-    [Authorize(Roles = "Administrador,ComissaoEleitoral")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> FecharVotacao(Guid eleicaoId, CancellationToken cancellationToken)
