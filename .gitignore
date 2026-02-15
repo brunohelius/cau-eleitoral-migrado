@@ -62,6 +62,8 @@ playwright-report*/
 screenshots/
 capture-screens.mjs
 CAU-Sistema-Eleitoral-Migrado.pdf
+output/
+tmp/
 
 # Terraform
 .terraform/
