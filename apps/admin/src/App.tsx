@@ -60,6 +60,40 @@ import { VotacaoPage, VotacaoMonitorPage, ApuracaoPage } from '@/pages/votacao'
 // Auditoria
 import { AuditoriaPage } from '@/pages/auditoria/AuditoriaPage'
 
+// Comissoes
+import { ComissoesPage } from '@/pages/comissoes/ComissoesPage'
+
+// Pedidos
+import { PedidosPage } from '@/pages/pedidos/PedidosPage'
+
+// Usuarios
+import { UsuariosPage } from '@/pages/usuarios/UsuariosPage'
+import { UsuarioDetailPage } from '@/pages/usuarios/UsuarioDetailPage'
+import { UsuarioFormPage } from '@/pages/usuarios/UsuarioFormPage'
+
+// Relatorios
+import { RelatoriosPage } from '@/pages/relatorios/RelatoriosPage'
+import { RelatorioEleicaoPage } from '@/pages/relatorios/RelatorioEleicaoPage'
+import { RelatorioVotacaoPage } from '@/pages/relatorios/RelatorioVotacaoPage'
+
+// Votacao
+import { VotacaoPage, VotacaoMonitorPage, ApuracaoPage } from '@/pages/votacao'
+
+// Auditoria
+import { AuditoriaPage } from '@/pages/auditoria/AuditoriaPage'
+
+// Comissoes
+import { ComissoesPage } from '@/pages/comissoes/ComissoesPage'
+
+// Pedidos
+import { PedidosPage } from '@/pages/pedidos/PedidosPage'
+
+// Diploma
+import { DiplomaEleitoralPage } from '@/pages/diploma/DiplomaEleitoralPage'
+
+// TermoPosse
+import { TermoPossePage } from '@/pages/termo-posse/TermoPossePage'
+
 // Configuracoes
 import { ConfiguracoesPage } from '@/pages/configuracoes/ConfiguracoesPage'
 
@@ -130,8 +164,19 @@ function App() {
           <Route path="/julgamentos/sessao" element={<SessaoJulgamentoPage />} />
           <Route path="/julgamentos/:id" element={<JulgamentoDetailPage />} />
 
+          {/* Comissoes */}
+          <Route path="/comissoes" element={<ComissoesPage />} />
+
+          {/* Pedidos */}
+          <Route path="/pedidos" element={<PedidosPage />} />
+
+          {/* Diplomas */}
+          <Route path="/diploma" element={<DiplomaEleitoralPage />} />
+
+          {/* Termos de Posse */}
+          <Route path="/termoposse" element={<TermoPossePage />} />
+
           {/* Usuarios */}
-          <Route path="/usuarios" element={<UsuariosPage />} />
           <Route path="/usuarios/novo" element={<UsuarioFormPage />} />
           <Route path="/usuarios/:id" element={<UsuarioDetailPage />} />
           <Route path="/usuarios/:id/editar" element={<UsuarioFormPage />} />

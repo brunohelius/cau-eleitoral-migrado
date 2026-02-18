@@ -130,6 +130,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDenunciaService, DenunciaService>();
 builder.Services.AddScoped<IImpugnacaoService, ImpugnacaoService>();
 builder.Services.AddScoped<IJulgamentoService, JulgamentoService>();
+builder.Services.AddScoped<IComissaoService, ComissaoService>();
+builder.Services.AddScoped<IPedidoService, PedidoService>();
 builder.Services.AddScoped<IDocumentoService, DocumentoService>();
 builder.Services.AddScoped<ICalendarioService, CalendarioService>();
 builder.Services.AddScoped<IVotacaoService, VotacaoService>();

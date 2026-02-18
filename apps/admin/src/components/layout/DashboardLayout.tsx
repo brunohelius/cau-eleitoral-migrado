@@ -16,6 +16,8 @@ import {
   Shield,
   UserCog,
   CheckSquare,
+  Briefcase,
+  FileText,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -29,6 +31,10 @@ const navigation = [
   { name: 'Denuncias', href: '/denuncias', icon: AlertTriangle },
   { name: 'Impugnacoes', href: '/impugnacoes', icon: Flag },
   { name: 'Julgamentos', href: '/julgamentos', icon: Gavel },
+  { name: 'Comissoes', href: '/comissoes', icon: Briefcase },
+  { name: 'Pedidos', href: '/pedidos', icon: FileText },
+  { name: 'Diplomas', href: '/diploma', icon: FileText },
+  { name: 'Termos Posse', href: '/termoposse', icon: FileText },
   { name: 'Usuarios', href: '/usuarios', icon: UserCog },
   { name: 'Relatorios', href: '/relatorios', icon: BarChart3 },
   { name: 'Auditoria', href: '/auditoria', icon: Shield },
