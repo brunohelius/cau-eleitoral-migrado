@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, useLocation, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import {
   CheckCircle,
   Download,
@@ -22,7 +22,6 @@ import { extractApiError } from '@/services/api'
 
 export function VotacaoComprovantePage() {
   const { eleicaoId } = useParams<{ eleicaoId: string }>()
-  const location = useLocation()
   const navigate = useNavigate()
 
   // Stores
@@ -233,16 +232,27 @@ Sistema Eleitoral
     )
   }
 
-  // Generate mock comprovante for demo if needed
-  const displayComprovante = activeComprovante || {
-    id: '1',
-    protocolo: 'CAU-2024-' + Math.random().toString(36).substring(2, 10).toUpperCase(),
-    eleicaoId: eleicaoId || '1',
-    eleicaoNome: 'Eleicao Ordinaria CAU/SP 2024',
-    dataHoraVoto: new Date().toISOString(),
-    hashComprovante: 'SHA256:' + Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase(),
-    mensagem: 'Seu voto foi registrado com sucesso.',
+  if (!activeComprovante) {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-red-50 border-2 border-red-300 rounded-lg p-8 text-center">
+          <h1 className="text-2xl font-bold text-red-800 mb-2">Comprovante indisponivel</h1>
+          <p className="text-red-600 mb-6">
+            Nao foi possivel localizar o comprovante desta votacao.
+          </p>
+          <Link
+            to="/eleitor/votacao"
+            className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary/90"
+          >
+            <Home className="h-5 w-5" />
+            Voltar ao inicio
+          </Link>
+        </div>
+      </div>
+    )
   }
+
+  const displayComprovante = activeComprovante
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">

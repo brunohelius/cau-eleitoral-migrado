@@ -35,55 +35,6 @@ const getColorConfig = (numero: number) => {
   return colorConfig[numero] || colorConfig[1]
 }
 
-// Mock data for development
-const mockEleicao = {
-  id: '1',
-  nome: 'Eleicao Ordinaria CAU/SP 2024',
-  descricao: 'Eleicao para renovacao dos cargos do Conselho Regional de Sao Paulo',
-}
-
-const mockChapas: ChapaVotacao[] = [
-  {
-    id: '1',
-    numero: 1,
-    nome: 'Chapa Renovacao',
-    sigla: 'REN',
-    slogan: 'Por uma arquitetura mais inclusiva',
-    presidente: 'Joao Silva',
-    vicePresidente: 'Maria Santos',
-    membros: [
-      { nome: 'Carlos Oliveira', cargo: 'Diretor Financeiro' },
-      { nome: 'Ana Costa', cargo: 'Diretora Tecnica' },
-    ],
-  },
-  {
-    id: '2',
-    numero: 2,
-    nome: 'Chapa Uniao',
-    sigla: 'UNI',
-    slogan: 'Unidos pela arquitetura',
-    presidente: 'Roberto Almeida',
-    vicePresidente: 'Patricia Souza',
-    membros: [
-      { nome: 'Marcos Pereira', cargo: 'Diretor Financeiro' },
-      { nome: 'Fernanda Lima', cargo: 'Diretora Tecnica' },
-    ],
-  },
-  {
-    id: '3',
-    numero: 3,
-    nome: 'Chapa Futuro',
-    sigla: 'FUT',
-    slogan: 'Construindo o amanha',
-    presidente: 'Lucas Martins',
-    vicePresidente: 'Camila Rocha',
-    membros: [
-      { nome: 'Andre Santos', cargo: 'Diretor Financeiro' },
-      { nome: 'Beatriz Costa', cargo: 'Diretora Tecnica' },
-    ],
-  },
-]
-
 export function VotacaoCedulaPage() {
   const { eleicaoId } = useParams<{ eleicaoId: string }>()
   const navigate = useNavigate()
@@ -107,10 +58,10 @@ export function VotacaoCedulaPage() {
 
   // Local state
   const [chapas, setChapas] = useState<ChapaVotacao[]>([])
-  const [eleicaoNome, setEleicaoNome] = useState(voter?.eleicaoNome || mockEleicao.nome)
+  const [eleicaoNome, setEleicaoNome] = useState(voter?.eleicaoNome || 'Eleicao')
   const [expandedChapa, setExpandedChapa] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [showChapaModal, setShowChapaModal] = useState<string | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   // Check authentication
   useEffect(() => {
@@ -119,42 +70,52 @@ export function VotacaoCedulaPage() {
     }
   }, [isAuthenticated, navigate])
 
-  // Load chapas
-  useEffect(() => {
-    const loadChapas = async () => {
-      if (!eleicaoId) return
+  const loadChapas = useCallback(async () => {
+    if (!eleicaoId) return
 
-      setIsLoading(true)
+    setIsLoading(true)
+    setLoadError(null)
+    setStoreError(null)
+
+    try {
+      const response = await votacaoService.getChapasVotacao(eleicaoId)
+      setChapas(response)
+
+      if (!response.length) {
+        const message = 'Nao existem chapas disponiveis para esta eleicao no momento.'
+        setLoadError(message)
+        setStoreError(message)
+      }
+
       try {
-        // Try to load from API
-        const response = await votacaoService.getChapasVotacao(eleicaoId)
-        setChapas(response)
-
-        // Try to get election name from API cedula endpoint
-        try {
-          const status = await votacaoService.getStatus(eleicaoId)
-          if (status.tempoRestante) {
-            setTempoRestante(status.tempoRestante)
-            setTimerAtivo(true)
-          }
-        } catch {
-          // Set 15 minutes default time
+        const status = await votacaoService.getStatus(eleicaoId)
+        if (status.tempoRestante) {
+          setTempoRestante(status.tempoRestante)
+          setTimerAtivo(true)
+        } else {
           setTempoRestante(15 * 60)
           setTimerAtivo(true)
         }
-      } catch (err) {
-        console.warn('Failed to load chapas from API, using mock data:', err)
-        setChapas(mockChapas)
-        // Set 15 minutes default time for demo
+      } catch {
         setTempoRestante(15 * 60)
         setTimerAtivo(true)
-      } finally {
-        setIsLoading(false)
       }
+    } catch (err) {
+      const apiError = extractApiError(err)
+      const message = apiError.message || 'Nao foi possivel carregar a cedula de votacao.'
+      setLoadError(message)
+      setStoreError(message)
+      setChapas([])
+      setTimerAtivo(false)
+    } finally {
+      setIsLoading(false)
     }
+  }, [eleicaoId, setStoreError, setTempoRestante, setTimerAtivo])
 
+  // Load chapas
+  useEffect(() => {
     loadChapas()
-  }, [eleicaoId, setTempoRestante, setTimerAtivo])
+  }, [loadChapas])
 
   // Timer countdown
   useEffect(() => {
@@ -242,6 +203,24 @@ export function VotacaoCedulaPage() {
     )
   }
 
+  if (loadError) {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-red-50 border-2 border-red-300 rounded-lg p-8 text-center">
+          <AlertTriangle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-red-800 mb-2">Falha ao carregar cedula</h1>
+          <p className="text-red-600 mb-6">{loadError}</p>
+          <button
+            onClick={() => loadChapas()}
+            className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary/90"
+          >
+            Tentar novamente
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (isSessionExpired) {
     return (
       <div className="max-w-2xl mx-auto">
@@ -308,6 +287,15 @@ export function VotacaoCedulaPage() {
           </div>
         </div>
       </div>
+
+      {storeError && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-red-700">{storeError}</p>
+          </div>
+        </div>
+      )}
 
       {/* Chapas */}
       <div className="space-y-4">

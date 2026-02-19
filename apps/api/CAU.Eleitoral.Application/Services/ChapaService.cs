@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using CAU.Eleitoral.Application.Interfaces;
 using CAU.Eleitoral.Application.DTOs.Chapas;
+using CAU.Eleitoral.Application.DTOs.Notificacoes;
 using CAU.Eleitoral.Domain.Common;
 using CAU.Eleitoral.Domain.Entities.Chapas;
 using CAU.Eleitoral.Domain.Entities.Core;
@@ -21,6 +22,7 @@ public class ChapaService : IChapaService
     private readonly IRepository<PlataformaEleitoral> _plataformaRepository;
     private readonly IRepository<Eleicao> _eleicaoRepository;
     private readonly ICalendarioService _calendarioService;
+    private readonly INotificacaoService? _notificacaoService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<ChapaService> _logger;
 
@@ -32,7 +34,8 @@ public class ChapaService : IChapaService
         IRepository<Eleicao> eleicaoRepository,
         ICalendarioService calendarioService,
         IUnitOfWork unitOfWork,
-        ILogger<ChapaService> logger)
+        ILogger<ChapaService> logger,
+        INotificacaoService? notificacaoService = null)
     {
         _chapaRepository = chapaRepository;
         _membroRepository = membroRepository;
@@ -40,6 +43,7 @@ public class ChapaService : IChapaService
         _plataformaRepository = plataformaRepository;
         _eleicaoRepository = eleicaoRepository;
         _calendarioService = calendarioService;
+        _notificacaoService = notificacaoService;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -833,6 +837,7 @@ public class ChapaService : IChapaService
 
         var membro = await _membroRepository.Query()
             .Include(m => m.Confirmacoes)
+            .Include(m => m.Profissional)
             .FirstOrDefaultAsync(m => m.Id == dto.MembroId && m.ChapaId == chapaId, cancellationToken);
 
         if (membro == null)
@@ -864,8 +869,39 @@ public class ChapaService : IChapaService
         await _membroRepository.UpdateAsync(membro);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // TODO: Integrar com servico de email para enviar o convite
-        // await _emailService.SendMembroConfirmacaoAsync(membro, token);
+        if (_notificacaoService != null)
+        {
+            var assunto = $"Confirmacao de participacao na chapa {chapa.Nome}";
+            var linkConfirmacao = $"/candidato/confirmar-membro?token={token}";
+            var corpo = $"Voce recebeu um convite para confirmar participacao na chapa {chapa.Nome}. " +
+                        $"Utilize o token {token} ou acesse {linkConfirmacao}. " +
+                        $"Este convite expira em {expiracao:dd/MM/yyyy HH:mm}.";
+
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(dto.Email))
+                {
+                    await _notificacaoService.EnviarEmailAsync(dto.Email, assunto, corpo, cancellationToken);
+                }
+
+                if (membro.Profissional?.UsuarioId is Guid usuarioId)
+                {
+                    await _notificacaoService.EnviarAsync(new EnviarNotificacaoDto
+                    {
+                        UsuarioId = usuarioId,
+                        Tipo = TipoNotificacao.Eleicao,
+                        Canal = CanalNotificacao.InApp,
+                        Titulo = "Convite de confirmacao de chapa",
+                        Mensagem = "Ha um convite pendente para confirmar sua participacao na chapa.",
+                        Link = linkConfirmacao
+                    }, cancellationToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Falha ao enviar notificacao de convite do membro {MembroId}", membro.Id);
+            }
+        }
 
         _logger.LogInformation("Convite de confirmacao enviado para membro {MembroId} ({Email}) na chapa {ChapaId} por {UserId}",
             dto.MembroId, dto.Email, chapaId, userId);

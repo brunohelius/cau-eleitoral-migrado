@@ -873,14 +873,96 @@ public class DenunciaService : IDenunciaService
 
         await RegistrarHistoricoAsync(id, $"Prazo de defesa aberto ate {prazoDefesa:dd/MM/yyyy}. {dto.Observacoes ?? ""}", null, cancellationToken);
 
-        // Send notifications if notification service is available
-        if (_notificacaoService != null)
+        if (_notificacaoService != null && (dto.NotificarPorEmail || dto.NotificarNoSistema))
         {
-            // Notify the accused party (chapa or member)
-            if (dto.NotificarPorEmail || dto.NotificarNoSistema)
+            var usuarioIds = new HashSet<Guid>();
+
+            if (denuncia.MembroId.HasValue)
             {
-                // TODO: Get usuario ID from chapa/membro and send notification
-                _logger.LogInformation("Notificacao de prazo de defesa enviada para denuncia {DenunciaId}", id);
+                var membroAcusado = await _membroChapaRepository.Query()
+                    .Include(m => m.Profissional)
+                    .FirstOrDefaultAsync(m => m.Id == denuncia.MembroId.Value, cancellationToken);
+
+                if (membroAcusado?.Profissional?.UsuarioId is Guid membroUsuarioId)
+                {
+                    usuarioIds.Add(membroUsuarioId);
+                }
+            }
+
+            if (denuncia.ChapaId.HasValue)
+            {
+                var chapaUsuarioIds = await _membroChapaRepository.Query()
+                    .Include(m => m.Profissional)
+                    .Where(m => m.ChapaId == denuncia.ChapaId.Value)
+                    .Where(m => m.Profissional != null && m.Profissional.UsuarioId.HasValue)
+                    .Where(m => m.Status != StatusMembroChapa.Substituido && m.Status != StatusMembroChapa.Recusado)
+                    .Select(m => m.Profissional!.UsuarioId!.Value)
+                    .Distinct()
+                    .ToListAsync(cancellationToken);
+
+                foreach (var usuarioId in chapaUsuarioIds)
+                {
+                    usuarioIds.Add(usuarioId);
+                }
+            }
+
+            if (usuarioIds.Count > 0)
+            {
+                var titulo = "Prazo para defesa de denuncia";
+                var mensagem = $"Foi aberto prazo de defesa para a denuncia {denuncia.Protocolo} ate {prazoDefesa:dd/MM/yyyy}.";
+                var link = $"/denuncias/{denuncia.Id}";
+
+                if (dto.NotificarNoSistema)
+                {
+                    foreach (var usuarioId in usuarioIds)
+                    {
+                        try
+                        {
+                            await _notificacaoService.EnviarAsync(new EnviarNotificacaoDto
+                            {
+                                UsuarioId = usuarioId,
+                                Tipo = TipoNotificacao.Denuncia,
+                                Canal = CanalNotificacao.InApp,
+                                Titulo = titulo,
+                                Mensagem = mensagem,
+                                Link = link
+                            }, cancellationToken);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Falha ao enviar notificacao in-app para usuario {UsuarioId}", usuarioId);
+                        }
+                    }
+                }
+
+                if (dto.NotificarPorEmail)
+                {
+                    var emails = await _usuarioRepository.Query()
+                        .Where(u => usuarioIds.Contains(u.Id))
+                        .Where(u => !string.IsNullOrWhiteSpace(u.Email))
+                        .Select(u => u.Email!)
+                        .Distinct()
+                        .ToListAsync(cancellationToken);
+
+                    foreach (var email in emails)
+                    {
+                        try
+                        {
+                            await _notificacaoService.EnviarEmailAsync(email, titulo, mensagem, cancellationToken);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Falha ao enviar email de notificacao para {Email}", email);
+                        }
+                    }
+                }
+
+                _logger.LogInformation("Notificacao de prazo de defesa enviada para denuncia {DenunciaId} ({Destinatarios} destinatarios)",
+                    id, usuarioIds.Count);
+            }
+            else
+            {
+                _logger.LogWarning("Nenhum usuario vinculado encontrado para notificacao de defesa da denuncia {DenunciaId}", id);
             }
         }
 

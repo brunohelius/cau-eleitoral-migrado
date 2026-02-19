@@ -27,7 +27,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   chapasService,
-  mockChapas,
   colorConfig,
   getColorByNumber,
   getStatusConfig,
@@ -199,24 +198,11 @@ export function ChapaDetailPage() {
         if (chapaData) {
           setChapa(chapaData)
         } else {
-          // Try to find in mock data
-          const mockChapa = mockChapas.find((c) => c.id === chapaId)
-          if (mockChapa) {
-            setChapa(mockChapa)
-          } else {
-            setError('Chapa nao encontrada')
-          }
+          setError('Chapa nao encontrada')
         }
       } catch (err) {
         console.error('Error fetching chapa:', err)
-        // Try mock data as fallback
-        const mockChapa = mockChapas.find((c) => c.id === chapaId)
-        if (mockChapa) {
-          setChapa(mockChapa)
-          setError('Exibindo dados de exemplo - API indisponivel')
-        } else {
-          setError('Nao foi possivel carregar os detalhes da chapa')
-        }
+        setError('Nao foi possivel carregar os detalhes da chapa')
       } finally {
         setIsLoading(false)
       }

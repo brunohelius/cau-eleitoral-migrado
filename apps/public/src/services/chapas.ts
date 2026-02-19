@@ -274,7 +274,7 @@ export const chapasService = {
     } catch (error) {
       const apiError = extractApiError(error)
       console.error('Error fetching chapas:', apiError.message)
-      return []
+      throw new Error(apiError.message || 'Erro ao carregar chapas')
     }
   },
 
@@ -288,7 +288,7 @@ export const chapasService = {
     } catch (error) {
       const apiError = extractApiError(error)
       console.error('Error fetching chapa:', apiError.message)
-      return null
+      throw new Error(apiError.message || 'Erro ao carregar chapa')
     }
   },
 
@@ -460,54 +460,5 @@ export const chapasService = {
     return membros.find((m) => m.tipoMembro === TipoMembro.VICE_PRESIDENTE)
   },
 }
-
-// ============================================
-// Mock data for development/fallback
-// ============================================
-
-export const mockChapas: ChapaDetalhada[] = [
-  {
-    id: '1',
-    eleicaoId: '1',
-    eleicaoNome: 'Eleicao Ordinaria 2024',
-    numero: 1,
-    nome: 'Chapa Renovacao',
-    sigla: 'REN',
-    lema: 'Por uma arquitetura mais inclusiva',
-    status: StatusChapa.DEFERIDA,
-    statusNome: 'Deferida',
-    totalMembros: 6,
-    criadoEm: '2024-01-15T10:00:00',
-    dataRegistro: '2024-02-01T14:30:00',
-    descricao: 'A Chapa Renovacao traz uma proposta de modernizacao e inclusao para o CAU.',
-    proposta: '## Nossa Proposta\n\n### 1. Modernizacao Digital\n- Implementacao de servicos digitais',
-    cor: 'blue',
-    membros: [
-      { id: '1', chapaId: '1', profissionalId: '1', nomeProfissional: 'Joao Silva', tipoMembro: 0, tipoMembroNome: 'Presidente', cargo: 'Presidente', status: 2, statusNome: 'Ativo', ordem: 1, registroCAU: 'A12345-6' },
-      { id: '2', chapaId: '1', profissionalId: '2', nomeProfissional: 'Maria Santos', tipoMembro: 1, tipoMembroNome: 'Vice-Presidente', cargo: 'Vice-Presidente', status: 2, statusNome: 'Ativo', ordem: 2, registroCAU: 'A23456-7' },
-    ],
-  },
-  {
-    id: '2',
-    eleicaoId: '1',
-    eleicaoNome: 'Eleicao Ordinaria 2024',
-    numero: 2,
-    nome: 'Chapa Uniao',
-    sigla: 'UNI',
-    lema: 'Unidos pela arquitetura',
-    status: StatusChapa.DEFERIDA,
-    statusNome: 'Deferida',
-    totalMembros: 4,
-    criadoEm: '2024-01-16T11:00:00',
-    dataRegistro: '2024-02-02T10:15:00',
-    descricao: 'A Chapa Uniao representa a uniao de diferentes correntes de pensamento.',
-    proposta: '## Nossa Proposta\n\n### 1. Unidade Profissional\n- Dialogo entre especialidades',
-    cor: 'green',
-    membros: [
-      { id: '7', chapaId: '2', profissionalId: '7', nomeProfissional: 'Roberto Almeida', tipoMembro: 0, tipoMembroNome: 'Presidente', cargo: 'Presidente', status: 2, statusNome: 'Ativo', ordem: 1, registroCAU: 'A11111-1' },
-      { id: '8', chapaId: '2', profissionalId: '8', nomeProfissional: 'Patricia Souza', tipoMembro: 1, tipoMembroNome: 'Vice-Presidente', cargo: 'Vice-Presidente', status: 2, statusNome: 'Ativo', ordem: 2, registroCAU: 'A22222-2' },
-    ],
-  },
-]
 
 export default chapasService

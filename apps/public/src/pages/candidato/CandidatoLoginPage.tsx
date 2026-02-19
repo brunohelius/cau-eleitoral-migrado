@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   Users,
@@ -11,9 +11,13 @@ import {
   Shield,
   User,
 } from 'lucide-react'
+import { useCandidatoStore } from '@/stores/candidato'
+import { authService } from '@/services/auth'
+import { extractApiError } from '@/services/api'
 
 export function CandidatoLoginPage() {
   const navigate = useNavigate()
+  const { setCandidato, isAuthenticated, candidato } = useCandidatoStore()
   const [cpf, setCpf] = useState('')
   const [cau, setCau] = useState('')
   const [senha, setSenha] = useState('')
@@ -31,11 +35,31 @@ export function CandidatoLoginPage() {
   }
 
   const formatCAU = (value: string) => {
-    const cleaned = value.toUpperCase().replace(/[^A-Z0-9]/g, '')
-    return cleaned
-      .replace(/^([A-Z])(\d{5})(\d)$/, '$1$2-$3')
-      .substring(0, 8)
+    const cleaned = value.toUpperCase().replace(/[^A-Z0-9-]/g, '')
+    if (cleaned.length <= 1) return cleaned
+
+    let formatted = cleaned[0]
+    const rest = cleaned.slice(1).replace(/-/g, '')
+
+    if (rest.length > 0) {
+      const digits = rest.slice(0, 6)
+      formatted += digits
+
+      if (rest.length > 6) {
+        formatted += '-' + rest.slice(6, 8)
+      }
+    }
+
+    return formatted.substring(0, 10)
   }
+
+  useEffect(() => {
+    if (isAuthenticated && candidato) {
+      navigate('/candidato')
+    }
+  }, [isAuthenticated, candidato, navigate])
+
+  const cleanCPF = (value: string) => value.replace(/\D/g, '')
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -43,13 +67,19 @@ export function CandidatoLoginPage() {
     setIsLoading(true)
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      const response = await authService.loginCandidato({
+        cpf: cleanCPF(cpf),
+        registroCAU: cau,
+        senha,
+      })
+
+      setCandidato(response.candidate, response.token, response.expiresAt)
 
       // Navigate to candidate area
       navigate('/candidato')
     } catch (err) {
-      setError('Credenciais invalidas ou voce nao esta registrado como candidato.')
+      const apiError = extractApiError(err)
+      setError(apiError.message || 'Credenciais invalidas ou voce nao esta registrado como candidato.')
     } finally {
       setIsLoading(false)
     }
@@ -112,10 +142,10 @@ export function CandidatoLoginPage() {
                 type="text"
                 value={cau}
                 onChange={(e) => setCau(formatCAU(e.target.value))}
-                placeholder="A00000-0"
+                placeholder="A000018-DF"
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
-                maxLength={8}
+                maxLength={10}
               />
             </div>
           </div>
@@ -153,7 +183,7 @@ export function CandidatoLoginPage() {
 
           <button
             type="submit"
-            disabled={isLoading || cpf.length < 14 || cau.length < 8 || !senha}
+            disabled={isLoading || cleanCPF(cpf).length !== 11 || cau.length < 9 || !senha}
             className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isLoading ? (

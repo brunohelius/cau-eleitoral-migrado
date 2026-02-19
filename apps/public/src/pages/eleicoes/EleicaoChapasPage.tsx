@@ -25,7 +25,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   chapasService,
-  mockChapas,
   colorConfig,
   getColorByNumber,
   getStatusConfig,
@@ -271,24 +270,16 @@ export function EleicaoChapasPage() {
 
         setEleicao(eleicaoData)
 
-        // Use API data if available, otherwise fall back to mock data
-        if (chapasData && chapasData.length > 0) {
-          // Filter only approved chapas for public view
-          const approvedChapas = chapasData.filter(
-            (c) =>
-              c.status === StatusChapa.DEFERIDA ||
-              c.status === StatusChapa.DEFERIDA_COM_RECURSO
-          )
-          setChapas(approvedChapas.length > 0 ? approvedChapas : chapasData)
-        } else {
-          // Use mock data as fallback
-          setChapas(mockChapas)
-        }
+        const approvedChapas = chapasData.filter(
+          (c) =>
+            c.status === StatusChapa.DEFERIDA ||
+            c.status === StatusChapa.DEFERIDA_COM_RECURSO
+        )
+        setChapas(approvedChapas.length > 0 ? approvedChapas : chapasData)
       } catch (err) {
         console.error('Error fetching chapas:', err)
-        // Use mock data on error
-        setChapas(mockChapas)
-        setError('Nao foi possivel carregar os dados da API. Exibindo dados de exemplo.')
+        setChapas([])
+        setError('Nao foi possivel carregar os dados da API.')
       } finally {
         setIsLoading(false)
       }
@@ -334,6 +325,38 @@ export function EleicaoChapasPage() {
           <ChapaCardSkeleton />
           <ChapaCardSkeleton />
         </div>
+      </div>
+    )
+  }
+
+  if (error && chapas.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <Link
+            to={`/eleicoes/${id}`}
+            className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="h-5 w-5 mr-1" />
+            <span>Voltar</span>
+          </Link>
+          <div className="flex-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              Chapas Registradas
+            </h1>
+            <p className="text-gray-600 mt-1">{eleicao?.nome || 'Eleicao'}</p>
+          </div>
+        </div>
+
+        <Card className="py-12">
+          <div className="text-center px-6">
+            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Nao foi possivel carregar as chapas
+            </h3>
+            <p className="text-gray-500">{error}</p>
+          </div>
+        </Card>
       </div>
     )
   }

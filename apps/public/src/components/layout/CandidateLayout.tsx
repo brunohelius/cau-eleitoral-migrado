@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   Users,
@@ -15,6 +15,8 @@ import {
   ChevronDown,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useCandidatoStore } from '@/stores/candidato'
+import { authService } from '@/services/auth'
 
 const navigation = [
   { name: 'Minha Chapa', href: '/candidato', icon: Users },
@@ -32,19 +34,30 @@ export function CandidateLayout() {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
+  const { candidato, isAuthenticated, clearCandidato } = useCandidatoStore()
 
-  // Mock user data - replace with actual auth store
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/candidato/login')
+    }
+  }, [isAuthenticated, navigate])
+
   const user = {
-    nome: 'Maria Santos',
-    cpf: '***.***.***-00',
-    cau: 'A54321-0',
-    chapa: 'Chapa Renovacao',
-    cargo: 'Presidente',
+    nome: candidato?.nome || 'Candidato',
+    cau: candidato?.registroCAU || 'A*****-*',
+    chapa: candidato?.chapaNome || 'Chapa nao vinculada',
+    cargo: candidato?.cargo || 'Candidato',
   }
 
-  const handleLogout = () => {
-    // TODO: Implement actual logout
-    navigate('/candidato/login')
+  const handleLogout = async () => {
+    try {
+      await authService.logoutCandidato()
+    } catch {
+      // logout local sera executado mesmo que a chamada remota falhe
+    } finally {
+      clearCandidato()
+      navigate('/candidato/login')
+    }
   }
 
   return (

@@ -94,7 +94,6 @@ export {
   getStatusColor,
   colorConfig,
   getColorByNumber,
-  mockChapas,
   StatusChapa,
   TipoMembro,
   StatusMembro,
