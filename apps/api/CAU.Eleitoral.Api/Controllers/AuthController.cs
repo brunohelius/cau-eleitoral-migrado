@@ -867,7 +867,11 @@ public class AuthController : BaseController
         Domain.Entities.Usuarios.Usuario usuario,
         Domain.Entities.Usuarios.Profissional profissional)
     {
-        var key = _configuration["Jwt:Key"] ?? "DefaultSecretKeyForDevelopment123456789012345678901234567890";
+        var key = _configuration["Jwt:Key"];
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            throw new InvalidOperationException("Configuracao 'Jwt:Key' nao foi definida.");
+        }
         var issuer = _configuration["Jwt:Issuer"] ?? "CAU.Eleitoral";
         var audience = _configuration["Jwt:Audience"] ?? "CAU.Eleitoral.Client";
 

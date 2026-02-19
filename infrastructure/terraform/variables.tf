@@ -341,6 +341,12 @@ variable "enable_waf" {
   default     = true
 }
 
+variable "rds_rotation_lambda_package" {
+  description = "Path to the zip package for RDS secret rotation lambda. Leave empty to disable rotation deployment."
+  type        = string
+  default     = ""
+}
+
 # -----------------------------------------------------------------------------
 # Backup Configuration
 # -----------------------------------------------------------------------------

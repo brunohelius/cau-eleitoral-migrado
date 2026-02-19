@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import { useVoterStore } from '@/stores/voter'
 import { useVotacaoStore } from '@/stores/votacao'
-import api, { setTokenType } from '@/services/api'
+import api, { extractApiError, setTokenType } from '@/services/api'
 
 // Types
 interface EleicaoDisponivel {
@@ -66,6 +66,7 @@ const statusConfig = {
 export function VotacaoEleicaoPage() {
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [eleicoes, setEleicoes] = useState<(EleicaoDisponivel & { status: ReturnType<typeof statusFromApi> })[]>([])
 
   // Get voter from store
@@ -88,6 +89,7 @@ export function VotacaoEleicaoPage() {
   useEffect(() => {
     const fetchEleicoes = async () => {
       setIsLoading(true)
+      setError(null)
       try {
         setTokenType('voter')
         const response = await api.get<EleicaoDisponivel[]>('/votacao/eleicoes-disponiveis')
@@ -95,39 +97,11 @@ export function VotacaoEleicaoPage() {
           ...e,
           status: statusFromApi(e),
         }))
-
-        // If API returns empty but voter store has election data, use fallback
-        if (mapped.length === 0 && voter?.eleicaoId && voter.eleicaoId !== '00000000-0000-0000-0000-000000000000') {
-          setEleicoes([{
-            id: voter.eleicaoId,
-            nome: voter.eleicaoNome || 'Eleicao CAU',
-            descricao: '',
-            dataInicioVotacao: new Date().toISOString(),
-            dataFimVotacao: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-            totalChapas: 0,
-            emAndamento: !voter.jaVotou,
-            jaVotou: voter.jaVotou,
-            status: voter.jaVotou ? 'votado' : 'disponivel',
-          }])
-        } else {
-          setEleicoes(mapped)
-        }
+        setEleicoes(mapped)
       } catch (err) {
-        console.warn('Failed to load elections from API, using voter store data:', err)
-        // Fallback: use election data from voter store
-        if (voter?.eleicaoId && voter.eleicaoId !== '00000000-0000-0000-0000-000000000000') {
-          setEleicoes([{
-            id: voter.eleicaoId,
-            nome: voter.eleicaoNome || 'Eleicao CAU',
-            descricao: '',
-            dataInicioVotacao: new Date().toISOString(),
-            dataFimVotacao: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-            totalChapas: 0,
-            emAndamento: !voter.jaVotou,
-            jaVotou: voter.jaVotou,
-            status: voter.jaVotou ? 'votado' : 'disponivel',
-          }])
-        }
+        const apiError = extractApiError(err)
+        setEleicoes([])
+        setError(apiError.message || 'Nao foi possivel carregar as eleicoes disponiveis.')
       } finally {
         setIsLoading(false)
       }
@@ -136,7 +110,7 @@ export function VotacaoEleicaoPage() {
     if (isAuthenticated) {
       fetchEleicoes()
     }
-  }, [isAuthenticated, voter])
+  }, [isAuthenticated])
 
   // Get user info from voter store
   const user = {
@@ -208,6 +182,18 @@ export function VotacaoEleicaoPage() {
           </div>
         </div>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-red-800">Falha ao carregar eleicoes</h3>
+              <p className="text-red-700 mt-1 text-sm">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Eleicoes Disponiveis */}
       {eleicoesDisponiveis.length > 0 && (
@@ -286,7 +272,7 @@ export function VotacaoEleicaoPage() {
       )}
 
       {/* Alert for no available elections */}
-      {eleicoesDisponiveis.length === 0 && eleicoesVotadas.length === 0 && outrasEleicoes.length === 0 && (
+      {!error && eleicoesDisponiveis.length === 0 && eleicoesVotadas.length === 0 && outrasEleicoes.length === 0 && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-6 w-6 text-yellow-600 flex-shrink-0" />

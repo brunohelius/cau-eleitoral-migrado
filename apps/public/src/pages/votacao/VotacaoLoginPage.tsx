@@ -347,15 +347,6 @@ export function VotacaoLoginPage() {
           </div>
         </div>
 
-        {/* Demo credentials */}
-        <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-sm font-medium text-yellow-800 mb-2">Credenciais de teste:</p>
-          <div className="text-xs text-yellow-700 space-y-1">
-            <p>CPF: 600.000.000-03</p>
-            <p>CAU: A000005-SP</p>
-            <p>Senha: Eleitor@123</p>
-          </div>
-        </div>
       </div>
     </div>
   )

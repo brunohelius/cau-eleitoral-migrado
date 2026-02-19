@@ -209,7 +209,7 @@ public class AuthService : IAuthService
     {
         try
         {
-            var key = _configuration["Jwt:Key"] ?? "DefaultSecretKeyForDevelopment123456789012345678901234567890";
+            var key = GetJwtKey();
             var tokenHandler = new JwtSecurityTokenHandler();
             var keyBytes = Encoding.UTF8.GetBytes(key);
 
@@ -384,7 +384,7 @@ public class AuthService : IAuthService
 
     private string GenerateAccessToken(Usuario usuario)
     {
-        var key = _configuration["Jwt:Key"] ?? "DefaultSecretKeyForDevelopment123456789012345678901234567890";
+        var key = GetJwtKey();
         var issuer = _configuration["Jwt:Issuer"] ?? "CAU.Eleitoral";
         var audience = _configuration["Jwt:Audience"] ?? "CAU.Eleitoral.Client";
 
@@ -416,6 +416,17 @@ public class AuthService : IAuthService
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    private string GetJwtKey()
+    {
+        var key = _configuration["Jwt:Key"];
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            throw new InvalidOperationException("Configuracao 'Jwt:Key' nao foi definida.");
+        }
+
+        return key;
     }
 
     private static string GenerateRefreshToken()

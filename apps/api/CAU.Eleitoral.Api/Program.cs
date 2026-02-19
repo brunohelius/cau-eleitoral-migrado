@@ -74,7 +74,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 // Configure JWT Authentication
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "DefaultSecretKeyForDevelopment123456789012345678901234567890";
+var jwtKey = builder.Configuration["Jwt:Key"];
+if (string.IsNullOrWhiteSpace(jwtKey))
+{
+    throw new InvalidOperationException("Configuration 'Jwt:Key' is required.");
+}
+if (!builder.Environment.IsDevelopment() && jwtKey.Contains("YourSuperSecretKeyHere", StringComparison.Ordinal))
+{
+    throw new InvalidOperationException("Configuration 'Jwt:Key' must be overridden outside development.");
+}
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "CAU.Eleitoral";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "CAU.Eleitoral.Client";
 
@@ -184,297 +192,75 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
 
-// Seed endpoint (protected by secret key)
-app.MapPost("/api/admin/seed", async (HttpContext context, DatabaseSeeder seeder) =>
+var adminMaintenanceRequested =
+    app.Environment.IsDevelopment() ||
+    builder.Configuration.GetValue<bool>("Admin:EnableMaintenanceEndpoints");
+var adminSeedKey = app.Configuration["Admin:SeedKey"];
+
+if (adminMaintenanceRequested && !string.IsNullOrWhiteSpace(adminSeedKey))
 {
-    var seedKey = context.Request.Headers["X-Seed-Key"].FirstOrDefault();
-    var expectedKey = app.Configuration["Admin:SeedKey"] ?? "CAU-SEED-2026-SECRET";
-
-    if (seedKey != expectedKey)
+    // Seed endpoint (protected by secret key)
+    app.MapPost("/api/admin/seed", async (HttpContext context, DatabaseSeeder seeder) =>
     {
-        return Results.Unauthorized();
-    }
+        if (!HasValidAdminSeedKey(context, adminSeedKey!))
+        {
+            return Results.Unauthorized();
+        }
 
-    try
-    {
-        Log.Information("Starting database seeding via API...");
-        await seeder.SeedAsync();
-        Log.Information("Database seeding completed via API.");
-        return Results.Ok(new { message = "Database seeded successfully" });
-    }
-    catch (Exception ex)
-    {
-        Log.Error(ex, "Error seeding database");
-        return Results.Problem($"Error seeding database: {ex.Message}");
-    }
-});
-
-// Diagnostic endpoint - returns table counts for debugging
-app.MapGet("/api/admin/diag", async (HttpContext context, AppDbContext db) =>
-{
-    var seedKey = context.Request.Headers["X-Seed-Key"].FirstOrDefault();
-    var expectedKey = app.Configuration["Admin:SeedKey"] ?? "CAU-SEED-2026-SECRET";
-    if (seedKey != expectedKey) return Results.Unauthorized();
-
-    var calFiltered = await db.Calendarios.CountAsync();
-    var calTotal = await db.Calendarios.IgnoreQueryFilters().CountAsync();
-    var calDeleted = await db.Calendarios.IgnoreQueryFilters().Where(c => c.IsDeleted).CountAsync();
-    var docFiltered = await db.Documentos.CountAsync();
-    var docTotal = await db.Documentos.IgnoreQueryFilters().CountAsync();
-    var docDeleted = await db.Documentos.IgnoreQueryFilters().Where(d => d.IsDeleted).CountAsync();
-    var editalCount = await db.Editais.CountAsync();
-    var eleicaoCount = await db.Eleicoes.CountAsync();
-    var chapaCount = await db.Chapas.CountAsync();
-    var membroCount = await db.MembrosChapa.CountAsync();
-
-    return Results.Ok(new {
-        calendarios = new { filtered = calFiltered, total = calTotal, deleted = calDeleted },
-        documentos = new { filtered = docFiltered, total = docTotal, deleted = docDeleted },
-        editais = editalCount,
-        eleicoes = eleicaoCount,
-        chapas = chapaCount,
-        membrosChapa = membroCount
+        try
+        {
+            Log.Information("Starting database seeding via API...");
+            await seeder.SeedAsync();
+            Log.Information("Database seeding completed via API.");
+            return Results.Ok(new { message = "Database seeded successfully" });
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error seeding database");
+            return Results.Problem($"Error seeding database: {ex.Message}");
+        }
     });
-});
 
-// Force create admin endpoint (protected by secret key)
-app.MapPost("/api/admin/setup-admin", async (HttpContext context, AppDbContext db) =>
-{
-    var seedKey = context.Request.Headers["X-Seed-Key"].FirstOrDefault();
-    var expectedKey = app.Configuration["Admin:SeedKey"] ?? "CAU-SEED-2026-SECRET";
-
-    if (seedKey != expectedKey)
+    // Diagnostic endpoint - returns table counts for debugging
+    app.MapGet("/api/admin/diag", async (HttpContext context, AppDbContext db) =>
     {
-        return Results.Unauthorized();
-    }
-
-    try
-    {
-        var email = "admin@cau.org.br";
-        var existingUser = await db.Usuarios.FirstOrDefaultAsync(u => u.Email == email);
-
-        // Generate password hash
-        var saltBytes = System.Security.Cryptography.RandomNumberGenerator.GetBytes(16);
-        var salt = Convert.ToBase64String(saltBytes);
-        using var pbkdf2 = new System.Security.Cryptography.Rfc2898DeriveBytes(
-            "Admin@123", saltBytes, 100000, System.Security.Cryptography.HashAlgorithmName.SHA256);
-        var hash = Convert.ToBase64String(pbkdf2.GetBytes(32));
-
-        if (existingUser != null)
+        if (!HasValidAdminSeedKey(context, adminSeedKey!))
         {
-            // Update existing user
-            existingUser.PasswordHash = hash;
-            existingUser.PasswordSalt = salt;
-            existingUser.EmailConfirmado = true;
-            existingUser.Status = CAU.Eleitoral.Domain.Enums.StatusUsuario.Ativo;
-            await db.SaveChangesAsync();
-            return Results.Ok(new { message = "Admin user updated successfully", email });
-        }
-        else
-        {
-            // Create new admin
-            var adminRole = await db.Roles.FirstOrDefaultAsync(r => r.Nome == "Administrador");
-            var admin = new CAU.Eleitoral.Domain.Entities.Usuarios.Usuario
-            {
-                Nome = "Admin Sistema",
-                Email = email,
-                Cpf = "11111111111",
-                PasswordHash = hash,
-                PasswordSalt = salt,
-                Status = CAU.Eleitoral.Domain.Enums.StatusUsuario.Ativo,
-                EmailConfirmado = true,
-                Tipo = CAU.Eleitoral.Domain.Enums.TipoUsuario.Administrador
-            };
-            await db.Usuarios.AddAsync(admin);
-            await db.SaveChangesAsync();
-
-            if (adminRole != null)
-            {
-                await db.UsuarioRoles.AddAsync(new CAU.Eleitoral.Domain.Entities.Usuarios.UsuarioRole
-                {
-                    UsuarioId = admin.Id,
-                    RoleId = adminRole.Id
-                });
-                await db.SaveChangesAsync();
-            }
-            return Results.Ok(new { message = "Admin user created successfully", email });
-        }
-    }
-    catch (Exception ex)
-    {
-        Log.Error(ex, "Error setting up admin");
-        return Results.Problem($"Error setting up admin: {ex.Message}");
-    }
-});
-
-// Setup test voter endpoint (protected by secret key)
-app.MapPost("/api/admin/setup-test-voter", async (HttpContext context, AppDbContext db) =>
-{
-    var seedKey = context.Request.Headers["X-Seed-Key"].FirstOrDefault();
-    var expectedKey = app.Configuration["Admin:SeedKey"] ?? "CAU-SEED-2026-SECRET";
-
-    if (seedKey != expectedKey)
-    {
-        return Results.Unauthorized();
-    }
-
-    try
-    {
-        var cpf = "60000000003";
-        var registroCAU = "A000005-SP";
-        var senha = "Eleitor@123";
-        var email = "eleitor003@teste.com";
-
-        // Get or create regional SP
-        var regionalSP = await db.RegionaisCAU.FirstOrDefaultAsync(r => r.UF == "SP");
-        if (regionalSP == null)
-        {
-            regionalSP = new CAU.Eleitoral.Domain.Entities.Core.RegionalCAU
-            {
-                Sigla = "CAU/SP", Nome = "CAU Sao Paulo", UF = "SP", Ativo = true
-            };
-            await db.RegionaisCAU.AddAsync(regionalSP);
-            await db.SaveChangesAsync();
+            return Results.Unauthorized();
         }
 
-        // Generate password hash
-        var saltBytes = System.Security.Cryptography.RandomNumberGenerator.GetBytes(16);
-        var salt = Convert.ToBase64String(saltBytes);
-        using var pbkdf2 = new System.Security.Cryptography.Rfc2898DeriveBytes(
-            senha, saltBytes, 100000, System.Security.Cryptography.HashAlgorithmName.SHA256);
-        var hash = Convert.ToBase64String(pbkdf2.GetBytes(32));
-
-        // Find or create usuario
-        var usuario = await db.Usuarios.FirstOrDefaultAsync(u => u.Cpf == cpf);
-        if (usuario == null)
-        {
-            usuario = new CAU.Eleitoral.Domain.Entities.Usuarios.Usuario
-            {
-                Nome = "Eleitor Teste 003",
-                Email = email,
-                Cpf = cpf,
-                PasswordHash = hash,
-                PasswordSalt = salt,
-                Status = CAU.Eleitoral.Domain.Enums.StatusUsuario.Ativo,
-                EmailConfirmado = true,
-                Tipo = CAU.Eleitoral.Domain.Enums.TipoUsuario.Eleitor
-            };
-            await db.Usuarios.AddAsync(usuario);
-            await db.SaveChangesAsync();
-
-            // Add Eleitor role
-            var eleitorRole = await db.Roles.FirstOrDefaultAsync(r => r.Nome == "Eleitor");
-            if (eleitorRole != null)
-            {
-                await db.UsuarioRoles.AddAsync(new CAU.Eleitoral.Domain.Entities.Usuarios.UsuarioRole
-                {
-                    UsuarioId = usuario.Id,
-                    RoleId = eleitorRole.Id
-                });
-                await db.SaveChangesAsync();
-            }
-        }
-        else
-        {
-            // Update password
-            usuario.PasswordHash = hash;
-            usuario.PasswordSalt = salt;
-            usuario.Status = CAU.Eleitoral.Domain.Enums.StatusUsuario.Ativo;
-            usuario.EmailConfirmado = true;
-            await db.SaveChangesAsync();
-        }
-
-        // Find or create profissional
-        var profissional = await db.Profissionais.FirstOrDefaultAsync(p => p.Cpf == cpf);
-        if (profissional == null)
-        {
-            profissional = new CAU.Eleitoral.Domain.Entities.Usuarios.Profissional
-            {
-                UsuarioId = usuario.Id,
-                RegistroCAU = registroCAU,
-                Nome = "Eleitor Teste 003",
-                NomeCompleto = "Eleitor Teste 003",
-                Cpf = cpf,
-                Email = email,
-                Tipo = CAU.Eleitoral.Domain.Enums.TipoProfissional.Arquiteto,
-                Status = CAU.Eleitoral.Domain.Enums.StatusProfissional.Ativo,
-                RegionalId = regionalSP.Id,
-                EleitorApto = true,
-                DataRegistro = DateTime.UtcNow.AddYears(-5)
-            };
-            await db.Profissionais.AddAsync(profissional);
-            await db.SaveChangesAsync();
-        }
-        else
-        {
-            profissional.UsuarioId = usuario.Id;
-            profissional.RegistroCAU = registroCAU;
-            profissional.EleitorApto = true;
-            await db.SaveChangesAsync();
-        }
-
-        // Ensure at least one active election exists
-        var activeEleicao = await db.Eleicoes.FirstOrDefaultAsync(e =>
-            e.Status == CAU.Eleitoral.Domain.Enums.StatusEleicao.EmAndamento);
-
-        if (activeEleicao == null)
-        {
-            activeEleicao = await db.Eleicoes.OrderByDescending(e => e.DataInicio).FirstOrDefaultAsync();
-        }
-
-        // Create eleitor record if election exists
-        if (activeEleicao != null)
-        {
-            // Ensure election is in voting phase with current dates
-            activeEleicao.Status = CAU.Eleitoral.Domain.Enums.StatusEleicao.EmAndamento;
-            activeEleicao.FaseAtual = CAU.Eleitoral.Domain.Enums.FaseEleicao.Votacao;
-            activeEleicao.DataVotacaoInicio = DateTime.UtcNow.AddDays(-1);
-            activeEleicao.DataVotacaoFim = DateTime.UtcNow.AddDays(7);
-            await db.SaveChangesAsync();
-
-            var existingEleitor = await db.Eleitores.FirstOrDefaultAsync(e =>
-                e.ProfissionalId == profissional.Id && e.EleicaoId == activeEleicao.Id);
-
-            if (existingEleitor == null)
-            {
-                await db.Eleitores.AddAsync(new CAU.Eleitoral.Domain.Entities.Core.Eleitor
-                {
-                    EleicaoId = activeEleicao.Id,
-                    ProfissionalId = profissional.Id,
-                    NumeroInscricao = "INS-TEST-003",
-                    Apto = true,
-                    Votou = false
-                });
-                await db.SaveChangesAsync();
-            }
-            else if (existingEleitor.Votou)
-            {
-                // Reset voter so they can vote again for testing
-                existingEleitor.Votou = false;
-                existingEleitor.DataVoto = null;
-                existingEleitor.Apto = true;
-                await db.SaveChangesAsync();
-            }
-        }
+        var calFiltered = await db.Calendarios.CountAsync();
+        var calTotal = await db.Calendarios.IgnoreQueryFilters().CountAsync();
+        var calDeleted = await db.Calendarios.IgnoreQueryFilters().Where(c => c.IsDeleted).CountAsync();
+        var docFiltered = await db.Documentos.CountAsync();
+        var docTotal = await db.Documentos.IgnoreQueryFilters().CountAsync();
+        var docDeleted = await db.Documentos.IgnoreQueryFilters().Where(d => d.IsDeleted).CountAsync();
+        var editalCount = await db.Editais.CountAsync();
+        var eleicaoCount = await db.Eleicoes.CountAsync();
+        var chapaCount = await db.Chapas.CountAsync();
+        var membroCount = await db.MembrosChapa.CountAsync();
 
         return Results.Ok(new
         {
-            message = "Test voter setup successfully",
-            cpf,
-            registroCAU,
-            senha,
-            email,
-            profissionalId = profissional.Id,
-            eleicaoId = activeEleicao?.Id,
-            eleicaoNome = activeEleicao?.Nome
+            calendarios = new { filtered = calFiltered, total = calTotal, deleted = calDeleted },
+            documentos = new { filtered = docFiltered, total = docTotal, deleted = docDeleted },
+            editais = editalCount,
+            eleicoes = eleicaoCount,
+            chapas = chapaCount,
+            membrosChapa = membroCount
         });
-    }
-    catch (Exception ex)
-    {
-        Log.Error(ex, "Error setting up test voter");
-        return Results.Problem($"Error setting up test voter: {ex.Message}");
-    }
-});
+    });
+
+    Log.Information("Admin maintenance endpoints enabled.");
+}
+else if (adminMaintenanceRequested)
+{
+    Log.Warning("Admin maintenance endpoints requested but 'Admin:SeedKey' is not configured. Endpoints remain disabled.");
+}
+else
+{
+    Log.Information("Admin maintenance endpoints disabled.");
+}
 
 // Apply migrations on startup (controlled by environment variable)
 var runMigrations = builder.Configuration.GetValue<bool>("Database:RunMigrationsOnStartup", app.Environment.IsDevelopment());
@@ -492,6 +278,13 @@ if (runMigrations)
         var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
         await seeder.SeedAsync();
     }
+}
+
+static bool HasValidAdminSeedKey(HttpContext context, string expectedKey)
+{
+    var providedSeedKey = context.Request.Headers["X-Seed-Key"].FirstOrDefault();
+    return !string.IsNullOrWhiteSpace(providedSeedKey) &&
+           string.Equals(providedSeedKey, expectedKey, StringComparison.Ordinal);
 }
 
 app.Run();

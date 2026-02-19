@@ -154,7 +154,6 @@ export function PerfilPage() {
         setError('Nao foi possivel carregar os dados do perfil. Faca login novamente.')
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleSave = async () => {

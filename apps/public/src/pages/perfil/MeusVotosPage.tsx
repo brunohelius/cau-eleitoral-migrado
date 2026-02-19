@@ -29,6 +29,7 @@ export function MeusVotosPage() {
   const [votos, setVotos] = useState<HistoricoVoto[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
   const [isVerifying, setIsVerifying] = useState(false)
   const [verificationCode, setVerificationCode] = useState('')
   const [verificationResult, setVerificationResult] = useState<'success' | 'error' | null>(null)
@@ -38,6 +39,7 @@ export function MeusVotosPage() {
   const fetchHistorico = useCallback(async () => {
     setLoading(true)
     setError(null)
+    setActionError(null)
     try {
       const data = await votacaoService.getHistoricoVotos()
       // Map the response to our interface (backend returns camelCase via JSON serialization)
@@ -76,16 +78,10 @@ export function MeusVotosPage() {
         setVerificationResult('error')
         setVerificationMessage(result.mensagem || 'Codigo nao encontrado. Verifique se foi digitado corretamente.')
       }
-    } catch {
-      // If API call fails, try matching locally against loaded history
-      const found = votos.some(v => v.hashComprovante === verificationCode.toUpperCase())
-      if (found) {
-        setVerificationResult('success')
-        setVerificationMessage('Seu voto foi registrado com sucesso no sistema.')
-      } else {
-        setVerificationResult('error')
-        setVerificationMessage('Codigo nao encontrado. Verifique se foi digitado corretamente.')
-      }
+    } catch (err) {
+      const apiError = extractApiError(err)
+      setVerificationResult('error')
+      setVerificationMessage(apiError.message || 'Nao foi possivel validar o comprovante agora.')
     } finally {
       setIsVerifying(false)
     }
@@ -93,6 +89,7 @@ export function MeusVotosPage() {
 
   const handleDownloadComprovante = async (voto: HistoricoVoto) => {
     setDownloadingId(voto.eleicaoId)
+    setActionError(null)
     try {
       const blob = await votacaoService.downloadComprovante(voto.eleicaoId)
       const url = window.URL.createObjectURL(blob)
@@ -104,8 +101,7 @@ export function MeusVotosPage() {
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
     } catch {
-      // Fallback: open the comprovante view page
-      window.open(`/eleitor/votacao/${voto.eleicaoId}/comprovante`, '_blank')
+      setActionError('Nao foi possivel baixar o comprovante agora. Tente novamente em instantes.')
     } finally {
       setDownloadingId(null)
     }
@@ -174,6 +170,13 @@ export function MeusVotosPage() {
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Meus Votos</h1>
         <p className="text-gray-600 mt-1">Historico de participacao nas eleicoes</p>
       </div>
+
+      {actionError && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-red-700">{actionError}</p>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

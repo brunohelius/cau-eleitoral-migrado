@@ -92,6 +92,7 @@ export function VotacaoComprovantePage() {
   const handleDownload = async () => {
     if (!eleicaoId) return
 
+    setError(null)
     try {
       const blob = await votacaoService.downloadComprovante(eleicaoId)
       const url = window.URL.createObjectURL(blob)
@@ -102,33 +103,8 @@ export function VotacaoComprovantePage() {
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
-    } catch (err) {
-      // Fallback: generate simple receipt
-      const content = `
-COMPROVANTE DE VOTACAO
-======================
-
-Protocolo: ${activeComprovante?.protocolo}
-Eleicao: ${activeComprovante?.eleicaoNome}
-Data/Hora: ${new Date(activeComprovante?.dataHoraVoto || '').toLocaleString('pt-BR')}
-Hash: ${activeComprovante?.hashComprovante}
-
-Este comprovante confirma que seu voto foi registrado com sucesso.
-O sigilo do seu voto e garantido por lei.
-
-CAU - Conselho de Arquitetura e Urbanismo
-Sistema Eleitoral
-      `.trim()
-
-      const blob = new Blob([content], { type: 'text/plain' })
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `comprovante-votacao-${activeComprovante?.protocolo}.txt`
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
+    } catch {
+      setError('Nao foi possivel baixar o comprovante em PDF. Tente novamente em instantes.')
     }
   }
 
@@ -177,6 +153,7 @@ Sistema Eleitoral
   const handleSendEmail = async () => {
     if (!eleicaoId) return
 
+    setError(null)
     setIsSendingEmail(true)
     try {
       await votacaoService.enviarComprovantePorEmail(eleicaoId)
@@ -375,6 +352,10 @@ Sistema Eleitoral
               Compartilhar
             </button>
           </div>
+
+          {error && (
+            <p className="mt-4 text-sm text-red-600 text-center">{error}</p>
+          )}
 
           {/* Email option */}
           <div className="mt-4 text-center">

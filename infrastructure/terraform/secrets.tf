@@ -2,6 +2,10 @@
 # CAU Sistema Eleitoral - Secrets Manager Configuration
 # =============================================================================
 
+locals {
+  enable_rds_secret_rotation = var.environment == "production" && var.rds_rotation_lambda_package != ""
+}
+
 # -----------------------------------------------------------------------------
 # KMS Key for Secrets
 # -----------------------------------------------------------------------------
@@ -249,7 +253,7 @@ resource "aws_secretsmanager_secret_version" "smtp_credentials" {
 
 # Lambda function for RDS password rotation
 resource "aws_lambda_function" "rds_rotation" {
-  count         = var.environment == "production" ? 1 : 0
+  count         = local.enable_rds_secret_rotation ? 1 : 0
   function_name = "${local.name_prefix}-rds-secret-rotation"
   description   = "Rotates RDS password in Secrets Manager"
 
@@ -261,9 +265,9 @@ resource "aws_lambda_function" "rds_rotation" {
 
   role = aws_iam_role.secrets_rotation[0].arn
 
-  # Placeholder - in production, deploy the actual rotation lambda
-  filename         = data.archive_file.rotation_placeholder[0].output_path
-  source_code_hash = data.archive_file.rotation_placeholder[0].output_base64sha256
+  # Deploy only when a real lambda package is provided
+  filename         = var.rds_rotation_lambda_package
+  source_code_hash = filebase64sha256(var.rds_rotation_lambda_package)
 
   vpc_config {
     subnet_ids         = aws_subnet.private[*].id
@@ -283,19 +287,8 @@ resource "aws_lambda_function" "rds_rotation" {
   depends_on = [aws_iam_role_policy.secrets_rotation]
 }
 
-data "archive_file" "rotation_placeholder" {
-  count       = var.environment == "production" ? 1 : 0
-  type        = "zip"
-  output_path = "${path.module}/rotation_placeholder.zip"
-
-  source {
-    content  = "# Placeholder for rotation lambda"
-    filename = "lambda_function.py"
-  }
-}
-
 resource "aws_security_group" "secrets_rotation" {
-  count       = var.environment == "production" ? 1 : 0
+  count       = local.enable_rds_secret_rotation ? 1 : 0
   name        = "${local.name_prefix}-secrets-rotation-sg"
   description = "Security group for secrets rotation lambda"
   vpc_id      = aws_vpc.main.id
@@ -313,7 +306,7 @@ resource "aws_security_group" "secrets_rotation" {
 }
 
 resource "aws_iam_role" "secrets_rotation" {
-  count = var.environment == "production" ? 1 : 0
+  count = local.enable_rds_secret_rotation ? 1 : 0
   name  = "${local.name_prefix}-secrets-rotation-role"
 
   assume_role_policy = jsonencode({
@@ -335,7 +328,7 @@ resource "aws_iam_role" "secrets_rotation" {
 }
 
 resource "aws_iam_role_policy" "secrets_rotation" {
-  count = var.environment == "production" ? 1 : 0
+  count = local.enable_rds_secret_rotation ? 1 : 0
   name  = "${local.name_prefix}-secrets-rotation-policy"
   role  = aws_iam_role.secrets_rotation[0].id
 
@@ -384,7 +377,7 @@ resource "aws_iam_role_policy" "secrets_rotation" {
 
 # Secrets rotation schedule (disabled by default)
 # resource "aws_secretsmanager_secret_rotation" "rds_credentials" {
-#   count               = var.environment == "production" ? 1 : 0
+#   count               = local.enable_rds_secret_rotation ? 1 : 0
 #   secret_id           = aws_secretsmanager_secret.rds_credentials.id
 #   rotation_lambda_arn = aws_lambda_function.rds_rotation[0].arn
 

@@ -634,16 +634,7 @@ public class DocumentoApiService : Controllers.IDocumentoService
             }
         }
 
-        // Generate a placeholder document with document info
-        var sb = new StringBuilder();
-        sb.AppendLine($"Documento: {d.Titulo}");
-        sb.AppendLine($"Numero: {d.Numero}");
-        sb.AppendLine($"Tipo: {d.Tipo}");
-        sb.AppendLine($"Categoria: {d.Categoria}");
-        sb.AppendLine($"Data: {d.DataDocumento:yyyy-MM-dd}");
-        sb.AppendLine($"Status: {d.Status}");
-        if (!string.IsNullOrEmpty(d.Ementa)) sb.AppendLine($"\nEmenta:\n{d.Ementa}");
-        return (Encoding.UTF8.GetBytes(sb.ToString()), "text/plain", $"{d.Titulo}.txt");
+        throw new KeyNotFoundException("Arquivo do documento nao encontrado");
     }
 
     public async Task<Controllers.DocumentoDto> EnviarParaRevisaoAsync(Guid id, CancellationToken ct = default)
