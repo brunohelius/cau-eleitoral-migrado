@@ -289,7 +289,7 @@ export function DenunciasPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Denuncias</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Denúncias</h1>
           <p className="text-gray-600">Gerencie as denuncias eleitorais ({total} registros)</p>
         </div>
         <div className="flex gap-2">
@@ -605,7 +605,7 @@ export function DenunciasPage() {
           ) : (
             <div className="text-center py-12">
               <AlertTriangle className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">Nenhuma denuncia encontrada.</p>
+              <p className="text-gray-500">Nenhuma denúncia encontrada.</p>
               {hasActiveFilters && (
                 <Button variant="link" onClick={clearFilters} className="mt-2">
                   Limpar filtros

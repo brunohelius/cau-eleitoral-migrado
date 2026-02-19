@@ -324,7 +324,7 @@ export function DenunciaFormPage() {
           </p>
 
           <div className="bg-gray-50 rounded-lg p-6 mb-6">
-            <p className="text-sm text-gray-500 mb-2">Numero do Protocolo</p>
+            <p className="text-sm text-gray-500 mb-2">Número do Protocolo</p>
             <p className="text-2xl font-mono font-bold text-primary">
               {submitSuccess.protocolo}
             </p>
@@ -402,12 +402,12 @@ export function DenunciaFormPage() {
         <div className="flex items-start gap-3">
           <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-blue-800">Antes de enviar sua denuncia</p>
+            <p className="text-sm font-medium text-blue-800">Antes de enviar sua denúncia</p>
             <ul className="text-sm text-blue-700 mt-2 list-disc list-inside space-y-1">
               <li>Descreva os fatos com clareza e objetividade</li>
               <li>Inclua datas, locais e envolvidos, se possível</li>
               <li>Anexe evidencias que comprovem a irregularidade</li>
-              <li>A denuncia pode ser feita de forma anônima</li>
+              <li>A denúncia pode ser feita de forma anônima</li>
             </ul>
           </div>
         </div>
@@ -419,7 +419,7 @@ export function DenunciaFormPage() {
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-red-800">Erro ao enviar denuncia</p>
+              <p className="text-sm font-medium text-red-800">Erro ao enviar denúncia</p>
               <p className="text-sm text-red-700 mt-1">{errors.general}</p>
             </div>
           </div>
@@ -499,7 +499,7 @@ export function DenunciaFormPage() {
                 aria-invalid={!!errors.tipo}
                 aria-describedby={errors.tipo ? 'tipo-error' : undefined}
               >
-                <option value={-1}>Selecione o tipo de denuncia</option>
+                <option value={-1}>Selecione o tipo de denúncia</option>
                 {tiposDenuncia.map(t => (
                   <option key={t.valor} value={t.valor}>
                     {t.nome}
@@ -523,7 +523,7 @@ export function DenunciaFormPage() {
           {/* Tipo Info Panel */}
           {showTipoInfo && (
             <div className="mb-6 bg-gray-50 rounded-lg p-4">
-              <h3 className="text-sm font-medium text-gray-900 mb-3">Tipos de Denuncia</h3>
+              <h3 className="text-sm font-medium text-gray-900 mb-3">Tipos de Denúncia</h3>
               <div className="space-y-3">
                 {tiposDenuncia.map(t => (
                   <div key={t.valor} className="text-sm">

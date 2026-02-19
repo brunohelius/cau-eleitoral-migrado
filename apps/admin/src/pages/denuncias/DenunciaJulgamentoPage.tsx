@@ -122,7 +122,7 @@ export function DenunciaJulgamentoPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <AlertTriangle className="h-12 w-12 text-gray-300 mb-4" />
-        <p className="text-gray-500">Denuncia não encontrada.</p>
+        <p className="text-gray-500">Denúncia não encontrada.</p>
         <Link to="/denuncias">
           <Button variant="link" className="mt-2">
             Voltar para lista
@@ -147,7 +147,7 @@ export function DenunciaJulgamentoPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Julgar Denuncia</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Julgar Denúncia</h1>
           <p className="text-gray-600">{denuncia.protocolo}</p>
         </div>
       </div>
@@ -191,7 +191,7 @@ export function DenunciaJulgamentoPage() {
               <dd className="mt-1 text-sm text-gray-900">{denuncia.eleicaoNome || '-'}</dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-gray-500">Data da Denuncia</dt>
+              <dt className="text-sm font-medium text-gray-500">Data da Denúncia</dt>
               <dd className="mt-1 text-sm text-gray-900">
                 {new Date(denuncia.dataDenuncia).toLocaleDateString('pt-BR')}
               </dd>
@@ -210,7 +210,7 @@ export function DenunciaJulgamentoPage() {
               <Scale className="h-5 w-5" />
               Decisao
             </CardTitle>
-            <CardDescription>Registre o julgamento da denuncia</CardDescription>
+            <CardDescription>Registre o julgamento da denúncia</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -236,7 +236,7 @@ export function DenunciaJulgamentoPage() {
                     />
                     <div className="text-center">
                       <p className="font-medium text-sm">Procedente</p>
-                      <p className="text-xs text-gray-500">Aceitar a denuncia</p>
+                      <p className="text-xs text-gray-500">Aceitar a denúncia</p>
                     </div>
                   </label>
                   <label
@@ -257,7 +257,7 @@ export function DenunciaJulgamentoPage() {
                     />
                     <div className="text-center">
                       <p className="font-medium text-sm">Improcedente</p>
-                      <p className="text-xs text-gray-500">Rejeitar a denuncia</p>
+                      <p className="text-xs text-gray-500">Rejeitar a denúncia</p>
                     </div>
                   </label>
                   <label

@@ -427,8 +427,8 @@ export function ConfiguracoesNotificacoes({
               onClick={() => handleToggle('notificarDenuncia')}
             >
               <div>
-                <p className="font-medium">Denuncia</p>
-                <p className="text-sm text-gray-500">Quando uma denuncia for registrada</p>
+                <p className="font-medium">Denúncia</p>
+                <p className="text-sm text-gray-500">Quando uma denúncia for registrada</p>
               </div>
               <div
                 className={`h-6 w-11 rounded-full transition-colors ${

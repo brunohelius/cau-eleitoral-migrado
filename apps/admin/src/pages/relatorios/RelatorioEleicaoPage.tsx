@@ -342,7 +342,7 @@ export function RelatorioEleicaoPage() {
                       <table className="w-full">
                         <thead>
                           <tr className="border-b">
-                            <th className="text-left py-3 px-4 font-medium">Numero</th>
+                            <th className="text-left py-3 px-4 font-medium">Número</th>
                             <th className="text-left py-3 px-4 font-medium">Nome</th>
                             <th className="text-left py-3 px-4 font-medium">Candidato</th>
                             <th className="text-left py-3 px-4 font-medium">Status</th>

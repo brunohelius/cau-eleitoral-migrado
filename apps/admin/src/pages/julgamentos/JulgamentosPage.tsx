@@ -294,7 +294,7 @@ export function JulgamentosPage() {
                 onChange={(e) => setFilterTipo(e.target.value)}
               >
                 <option value="all">Todos os Tipos</option>
-                <option value="denuncia">Denuncias</option>
+                <option value="denuncia">Denúncias</option>
                 <option value="impugnacao">Impugnações</option>
                 <option value="recurso">Recursos</option>
               </select>

@@ -217,7 +217,7 @@ export function DenunciaDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <AlertTriangle className="h-12 w-12 text-gray-300 mb-4" />
-        <p className="text-gray-500">Denuncia não encontrada.</p>
+        <p className="text-gray-500">Denúncia não encontrada.</p>
         <Link to="/denuncias">
           <Button variant="link" className="mt-2">
             Voltar para lista
@@ -328,7 +328,7 @@ export function DenunciaDetailPage() {
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <div>
-                <dt className="text-sm font-medium text-gray-500">Tipo de Denuncia</dt>
+                <dt className="text-sm font-medium text-gray-500">Tipo de Denúncia</dt>
                 <dd className="mt-1 text-sm text-gray-900">{tipoLabel}</dd>
               </div>
               <div>
@@ -336,7 +336,7 @@ export function DenunciaDetailPage() {
                 <dd className="mt-1 text-sm text-gray-900">{denuncia.eleicaoNome || '-'}</dd>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500">Data da Denuncia</dt>
+                <dt className="text-sm font-medium text-gray-500">Data da Denúncia</dt>
                 <dd className="mt-1 text-sm text-gray-900">
                   {new Date(denuncia.dataDenuncia).toLocaleString('pt-BR')}
                 </dd>

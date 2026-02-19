@@ -291,7 +291,7 @@ export function ChapaFormPage() {
 
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
-                  <Label htmlFor="numero">Numero *</Label>
+                  <Label htmlFor="numero">Número *</Label>
                   <Input
                     id="numero"
                     type="number"

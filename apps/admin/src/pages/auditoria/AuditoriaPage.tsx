@@ -293,7 +293,7 @@ export function AuditoriaPage() {
                 <option value="chapa">Chapa</option>
                 <option value="usuario">Usuario</option>
                 <option value="voto">Voto</option>
-                <option value="denuncia">Denuncia</option>
+                <option value="denuncia">Denúncia</option>
                 <option value="relatorio">Relatório</option>
               </select>
             </div>

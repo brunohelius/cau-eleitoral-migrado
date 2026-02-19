@@ -47,7 +47,7 @@ export function EleicaoDetailPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2 text-gray-500">Carregando eleicao...</span>
+        <span className="ml-2 text-gray-500">Carregando eleição...</span>
       </div>
     )
   }
@@ -261,7 +261,7 @@ export function EleicaoDetailPage() {
             >
               <div className="flex items-center gap-3">
                 <AlertTriangle className="h-5 w-5 text-red-600" />
-                <span className="font-medium text-red-700">Registrar Denuncia</span>
+                <span className="font-medium text-red-700">Registrar Denúncia</span>
               </div>
               <ChevronRight className="h-5 w-5 text-red-400" />
             </Link>

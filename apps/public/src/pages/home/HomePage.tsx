@@ -44,7 +44,7 @@ export function HomePage() {
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <Users className="h-10 w-10 text-primary mb-4" />
           <h3 className="text-lg font-semibold mb-2">Chapas</h3>
-          <p className="text-gray-600">Conheça as chapas e candidatos de cada eleicao.</p>
+          <p className="text-gray-600">Conheça as chapas e candidatos de cada eleição.</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <CheckCircle className="h-10 w-10 text-primary mb-4" />

@@ -229,7 +229,7 @@ export function ConsultaProtocoloPage() {
 
       {/* Quick Links */}
       <div className="mt-8 text-center">
-        <p className="text-gray-600 mb-4">Ainda não registrou sua denuncia?</p>
+        <p className="text-gray-600 mb-4">Ainda não registrou sua denúncia?</p>
         <Link
           to="/denuncias/nova"
           className="inline-flex items-center gap-2 text-primary font-medium hover:underline"

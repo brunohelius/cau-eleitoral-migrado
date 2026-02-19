@@ -380,7 +380,7 @@ export function CandidatoHistoricoPage() {
               <p className="text-2xl font-bold text-gray-900">
                 {historico.filter(e => e.tipo === 'denuncia').length}
               </p>
-              <p className="text-sm text-gray-500">Denuncias</p>
+              <p className="text-sm text-gray-500">Denúncias</p>
             </div>
           </div>
         </div>

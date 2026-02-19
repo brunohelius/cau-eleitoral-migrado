@@ -565,7 +565,7 @@ export function ChapaDetailPage() {
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Numero na Cedula</p>
+                  <p className="text-sm text-gray-500">Número na Cedula</p>
                   <p className="font-bold text-2xl text-gray-900">{chapa.numero}</p>
                 </div>
               </CardContent>
