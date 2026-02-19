@@ -21,13 +21,13 @@ interface EventoCalendario {
 }
 
 const tiposEvento = [
-  { value: 'inscricao', label: 'Inscricao de Chapas', cor: 'bg-blue-500' },
-  { value: 'impugnacao', label: 'Prazo de Impugnacao', cor: 'bg-orange-500' },
+  { value: 'inscricao', label: 'Inscrição de Chapas', cor: 'bg-blue-500' },
+  { value: 'impugnacao', label: 'Prazo de Impugnação', cor: 'bg-orange-500' },
   { value: 'campanha', label: 'Campanha Eleitoral', cor: 'bg-green-500' },
-  { value: 'votacao', label: 'Periodo de Votacao', cor: 'bg-purple-500' },
-  { value: 'apuracao', label: 'Apuracao', cor: 'bg-red-500' },
+  { value: 'votacao', label: 'Período de Votação', cor: 'bg-purple-500' },
+  { value: 'apuracao', label: 'Apuração', cor: 'bg-red-500' },
   { value: 'recurso', label: 'Prazo de Recursos', cor: 'bg-yellow-500' },
-  { value: 'diplomacao', label: 'Diplomacao', cor: 'bg-indigo-500' },
+  { value: 'diplomacao', label: 'Diplomação', cor: 'bg-indigo-500' },
 ]
 
 const mapTipoCalendario = (tipo: number): { value: string; cor: string } => {
@@ -148,7 +148,7 @@ export function EleicaoCalendarioPage() {
         })
         toast({
           title: 'Evento adicionado',
-          description: 'O evento foi adicionado ao calendario.',
+          description: 'O evento foi adicionado ao calendário.',
         })
       }
       refetchEventos()
@@ -167,7 +167,7 @@ export function EleicaoCalendarioPage() {
       await api.delete(`/calendario/${eventoId}`)
       toast({
         title: 'Evento removido',
-        description: 'O evento foi removido do calendario.',
+        description: 'O evento foi removido do calendário.',
       })
       refetchEventos()
     } catch {
@@ -197,7 +197,7 @@ export function EleicaoCalendarioPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Calendario da Eleicao</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Calendário da Eleição</h1>
             <p className="text-gray-600">{eleicao?.nome}</p>
           </div>
         </div>
@@ -215,7 +215,7 @@ export function EleicaoCalendarioPage() {
               <Calendar className="h-5 w-5" />
               Cronograma
             </CardTitle>
-            <CardDescription>Eventos e prazos da eleicao</CardDescription>
+            <CardDescription>Eventos e prazos da eleição</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="relative">
@@ -310,7 +310,7 @@ export function EleicaoCalendarioPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="descricao">Descricao</Label>
+                <Label htmlFor="descricao">Descrição</Label>
                 <textarea
                   id="descricao"
                   className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
@@ -336,7 +336,7 @@ export function EleicaoCalendarioPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="dataInicio">Data Inicio *</Label>
+                  <Label htmlFor="dataInicio">Data Início *</Label>
                   <Input
                     id="dataInicio"
                     type="date"

@@ -215,7 +215,7 @@ export function NotificacoesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Notificacoes</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Notificações</h1>
           <p className="text-gray-600 mt-1">
             {unreadCount > 0 ? `${unreadCount} notificacao(es) nao lida(s)` : 'Todas as notificacoes foram lidas'}
           </p>
@@ -421,7 +421,7 @@ export function NotificacoesPage() {
         <div className="flex items-start gap-3">
           <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="text-sm">
-            <p className="font-medium text-blue-800">Sobre as notificacoes</p>
+            <p className="font-medium text-blue-800">Sobre as notificações</p>
             <p className="text-blue-700">
               Voce recebe notificacoes sobre eleicoes, prazos e atualizacoes importantes.
               Configure suas preferencias de notificacao no seu perfil.

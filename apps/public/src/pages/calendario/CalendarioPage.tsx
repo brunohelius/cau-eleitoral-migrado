@@ -60,7 +60,7 @@ export function CalendarioPage() {
       const data = await calendarioService.getAll()
       setEventos(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar calendario')
+      setError(err instanceof Error ? err.message : 'Erro ao carregar calendário')
     } finally {
       setIsLoading(false)
     }
@@ -135,7 +135,7 @@ export function CalendarioPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2 text-gray-500">Carregando calendario...</span>
+        <span className="ml-2 text-gray-500">Carregando calendário...</span>
       </div>
     )
   }
@@ -144,7 +144,7 @@ export function CalendarioPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-        <p className="text-gray-700 font-medium">Erro ao carregar calendario</p>
+        <p className="text-gray-700 font-medium">Erro ao carregar calendário</p>
         <p className="text-gray-500 text-sm">{error}</p>
         <button
           onClick={loadEventos}
@@ -318,7 +318,7 @@ export function CalendarioPage() {
           {filteredEventos.length === 0 ? (
             <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
               <CalendarDays className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">Nenhum evento encontrado para este periodo</p>
+              <p className="text-gray-500">Nenhum evento encontrado para este período</p>
             </div>
           ) : (
             filteredEventos.map(evento => {

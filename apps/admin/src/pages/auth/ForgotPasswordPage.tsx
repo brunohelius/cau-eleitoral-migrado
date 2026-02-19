@@ -42,7 +42,7 @@ export function ForgotPasswordPage() {
     } catch (error) {
       toast({
         title: 'Email enviado!',
-        description: 'Se o email existir, voce recebera instrucoes.',
+        description: 'Se o email existir, você recebera instruções.',
       })
       setSubmitted(true)
     } finally {

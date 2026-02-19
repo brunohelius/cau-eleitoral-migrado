@@ -110,7 +110,7 @@ export function CandidatoDenunciasPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2 text-gray-500">Carregando denuncias...</span>
+        <span className="ml-2 text-gray-500">Carregando denúncias...</span>
       </div>
     )
   }
@@ -135,8 +135,8 @@ export function CandidatoDenunciasPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Denuncias</h1>
-        <p className="text-gray-600 mt-1">Acompanhe as denuncias registradas contra sua chapa</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Denúncias</h1>
+        <p className="text-gray-600 mt-1">Acompanhe as denúncias registradas contra sua chapa</p>
       </div>
 
       {/* Stats */}
@@ -180,7 +180,7 @@ export function CandidatoDenunciasPage() {
       {denuncias.length === 0 ? (
         <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
           <Shield className="h-12 w-12 text-green-500 mx-auto mb-4" />
-          <p className="text-gray-500">Nenhuma denuncia registrada contra sua chapa</p>
+          <p className="text-gray-500">Nenhuma denúncia registrada contra sua chapa</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -272,7 +272,7 @@ export function CandidatoDenunciasPage() {
                   <div className="px-4 sm:px-6 py-3 bg-red-50 border-t">
                     <div className="flex items-center gap-2 text-sm text-red-800">
                       <XCircle className="h-4 w-4" />
-                      <span>Denuncia procedente. Voce pode interpor recurso.</span>
+                      <span>Denúncia procedente. Você pode interpor recurso.</span>
                       <Link
                         to="/candidato/recursos/novo"
                         className="ml-auto text-red-700 font-medium hover:underline flex items-center gap-1"
@@ -288,7 +288,7 @@ export function CandidatoDenunciasPage() {
                   <div className="px-4 sm:px-6 py-3 bg-green-50 border-t">
                     <div className="flex items-center gap-2 text-sm text-green-800">
                       <CheckCircle className="h-4 w-4" />
-                      <span>Denuncia improcedente. Sua defesa foi aceita.</span>
+                      <span>Denúncia improcedente. Sua defesa foi aceita.</span>
                     </div>
                   </div>
                 )}
@@ -303,11 +303,11 @@ export function CandidatoDenunciasPage() {
         <div className="flex items-start gap-3">
           <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="text-sm">
-            <p className="font-medium text-blue-800">Sobre as Denuncias</p>
+            <p className="font-medium text-blue-800">Sobre as Denúncias</p>
             <ul className="text-blue-700 mt-1 space-y-1 list-disc list-inside">
-              <li>Voce tem direito a apresentar defesa dentro do prazo estabelecido</li>
-              <li>Em caso de deferimento, e possivel interpor recurso</li>
-              <li>Todas as decisoes sao publicadas oficialmente</li>
+              <li>Você tem direito a apresentar defesa dentro do prazo estabelecido</li>
+              <li>Em caso de deferimento, e possível interpor recurso</li>
+              <li>Todas as decisoes são publicadas oficialmente</li>
             </ul>
           </div>
         </div>

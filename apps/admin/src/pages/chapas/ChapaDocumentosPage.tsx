@@ -53,7 +53,7 @@ const tiposDocumento = [
 // Status options
 const statusConfig: Record<number, { label: string; color: string; icon: typeof CheckCircle }> = {
   0: { label: 'Pendente', color: 'bg-yellow-100 text-yellow-800', icon: Clock },
-  1: { label: 'Em Analise', color: 'bg-blue-100 text-blue-800', icon: Clock },
+  1: { label: 'Em Análise', color: 'bg-blue-100 text-blue-800', icon: Clock },
   2: { label: 'Aprovado', color: 'bg-green-100 text-green-800', icon: CheckCircle },
   3: { label: 'Rejeitado', color: 'bg-red-100 text-red-800', icon: XCircle },
 }
@@ -100,7 +100,7 @@ export function ChapaDocumentosPage() {
       queryClient.invalidateQueries({ queryKey: ['chapa-documentos', id] })
       toast({
         title: 'Documento enviado',
-        description: 'O documento foi enviado para analise.',
+        description: 'O documento foi enviado para análise.',
       })
       handleCloseModal()
     },
@@ -162,7 +162,7 @@ export function ChapaDocumentosPage() {
       toast({
         variant: 'destructive',
         title: 'Selecione um arquivo',
-        description: 'Voce precisa selecionar um arquivo para upload.',
+        description: 'Você precisa selecionar um arquivo para upload.',
       })
       return
     }
@@ -170,7 +170,7 @@ export function ChapaDocumentosPage() {
     if (!formData.nome) {
       toast({
         variant: 'destructive',
-        title: 'Nome obrigatorio',
+        title: 'Nome obrigatório',
         description: 'Informe um nome para o documento.',
       })
       return
@@ -242,7 +242,7 @@ export function ChapaDocumentosPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <AlertTriangle className="h-12 w-12 text-red-400 mb-4" />
-        <p className="text-gray-500">Chapa nao encontrada.</p>
+        <p className="text-gray-500">Chapa não encontrada.</p>
         <Link to="/chapas" className="mt-4">
           <Button variant="outline">
             <ArrowLeft className="mr-2 h-4 w-4" />

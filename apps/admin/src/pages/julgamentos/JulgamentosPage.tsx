@@ -164,12 +164,12 @@ export function JulgamentosPage() {
   const getTipoBadge = (tipo: string) => {
     const tipoConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
       denuncia: {
-        label: 'Denuncia',
+        label: 'Denúncia',
         color: 'bg-orange-100 text-orange-800',
         icon: <AlertTriangle className="h-3 w-3" />,
       },
       impugnacao: {
-        label: 'Impugnacao',
+        label: 'Impugnação',
         color: 'bg-red-100 text-red-800',
         icon: <AlertOctagon className="h-3 w-3" />,
       },
@@ -294,8 +294,8 @@ export function JulgamentosPage() {
                 onChange={(e) => setFilterTipo(e.target.value)}
               >
                 <option value="all">Todos os Tipos</option>
-                <option value="denuncia">Denuncias</option>
-                <option value="impugnacao">Impugnacoes</option>
+                <option value="denuncia">Denúncias</option>
+                <option value="impugnacao">Impugnações</option>
                 <option value="recurso">Recursos</option>
               </select>
             </div>
@@ -315,7 +315,7 @@ export function JulgamentosPage() {
                     <th className="text-left py-3 px-4 font-medium">Relator</th>
                     <th className="text-left py-3 px-4 font-medium">Status</th>
                     <th className="text-left py-3 px-4 font-medium">Data</th>
-                    <th className="text-right py-3 px-4 font-medium">Acoes</th>
+                    <th className="text-right py-3 px-4 font-medium">Ações</th>
                   </tr>
                 </thead>
                 <tbody>

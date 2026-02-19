@@ -288,7 +288,7 @@ export function ConfiguracoesNotificacoes({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="templateEmailRecuperacaoSenha">Template de Recuperacao de Senha</Label>
+              <Label htmlFor="templateEmailRecuperacaoSenha">Template de Recuperação de Senha</Label>
               <textarea
                 id="templateEmailRecuperacaoSenha"
                 placeholder="Ola {nome}, voce solicitou a recuperacao de senha..."
@@ -301,7 +301,7 @@ export function ConfiguracoesNotificacoes({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="templateEmailNotificacao">Template de Notificacao Geral</Label>
+              <Label htmlFor="templateEmailNotificacao">Template de Notificação Geral</Label>
               <textarea
                 id="templateEmailNotificacao"
                 placeholder="Ola {nome}, {mensagem}..."
@@ -335,8 +335,8 @@ export function ConfiguracoesNotificacoes({
               onClick={() => handleToggle('notificarNovaEleicao')}
             >
               <div>
-                <p className="font-medium">Nova Eleicao</p>
-                <p className="text-sm text-gray-500">Quando uma nova eleicao for criada</p>
+                <p className="font-medium">Nova Eleição</p>
+                <p className="text-sm text-gray-500">Quando uma nova eleição for criada</p>
               </div>
               <div
                 className={`h-6 w-11 rounded-full transition-colors ${
@@ -358,8 +358,8 @@ export function ConfiguracoesNotificacoes({
               onClick={() => handleToggle('notificarInicioVotacao')}
             >
               <div>
-                <p className="font-medium">Inicio da Votacao</p>
-                <p className="text-sm text-gray-500">Quando a votacao iniciar</p>
+                <p className="font-medium">Início da Votação</p>
+                <p className="text-sm text-gray-500">Quando a votação iniciar</p>
               </div>
               <div
                 className={`h-6 w-11 rounded-full transition-colors ${
@@ -381,8 +381,8 @@ export function ConfiguracoesNotificacoes({
               onClick={() => handleToggle('notificarEncerramentoVotacao')}
             >
               <div>
-                <p className="font-medium">Encerramento da Votacao</p>
-                <p className="text-sm text-gray-500">Quando a votacao encerrar</p>
+                <p className="font-medium">Encerramento da Votação</p>
+                <p className="text-sm text-gray-500">Quando a votação encerrar</p>
               </div>
               <div
                 className={`h-6 w-11 rounded-full transition-colors ${
@@ -427,8 +427,8 @@ export function ConfiguracoesNotificacoes({
               onClick={() => handleToggle('notificarDenuncia')}
             >
               <div>
-                <p className="font-medium">Denuncia</p>
-                <p className="text-sm text-gray-500">Quando uma denuncia for registrada</p>
+                <p className="font-medium">Denúncia</p>
+                <p className="text-sm text-gray-500">Quando uma denúncia for registrada</p>
               </div>
               <div
                 className={`h-6 w-11 rounded-full transition-colors ${
@@ -450,8 +450,8 @@ export function ConfiguracoesNotificacoes({
               onClick={() => handleToggle('notificarImpugnacao')}
             >
               <div>
-                <p className="font-medium">Impugnacao</p>
-                <p className="text-sm text-gray-500">Quando uma impugnacao for registrada</p>
+                <p className="font-medium">Impugnação</p>
+                <p className="text-sm text-gray-500">Quando uma impugnação for registrada</p>
               </div>
               <div
                 className={`h-6 w-11 rounded-full transition-colors ${

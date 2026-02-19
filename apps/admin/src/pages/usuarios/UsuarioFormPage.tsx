@@ -67,7 +67,7 @@ type UsuarioFormData = z.infer<typeof usuarioSchema>
 // Tipo de usuario options
 const tiposUsuario = [
   { value: TipoUsuario.ADMINISTRADOR, label: 'Administrador', descricao: 'Acesso total ao sistema' },
-  { value: TipoUsuario.COMISSAO_ELEITORAL, label: 'Comissao Eleitoral', descricao: 'Gerencia eleicoes e julgamentos' },
+  { value: TipoUsuario.COMISSAO_ELEITORAL, label: 'Comissão Eleitoral', descricao: 'Gerencia eleicoes e julgamentos' },
   { value: TipoUsuario.CONSELHEIRO, label: 'Conselheiro', descricao: 'Atua nos julgamentos e comissoes' },
   { value: TipoUsuario.PROFISSIONAL, label: 'Profissional', descricao: 'Usuario profissional registrado no CAU' },
   { value: TipoUsuario.CANDIDATO, label: 'Candidato', descricao: 'Usuario candidato em uma eleicao' },
@@ -207,7 +207,7 @@ export function UsuarioFormPage() {
       queryClient.invalidateQueries({ queryKey: ['usuario', id] })
       toast({
         title: 'Usuario atualizado com sucesso!',
-        description: 'As alteracoes foram salvas.',
+        description: 'As alterações foram salvas.',
       })
       navigate('/usuarios')
     },
@@ -303,7 +303,7 @@ export function UsuarioFormPage() {
                 <User className="h-5 w-5" />
                 Dados Pessoais
               </CardTitle>
-              <CardDescription>Informacoes basicas do usuario</CardDescription>
+              <CardDescription>Informações basicas do usuario</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
@@ -354,7 +354,7 @@ export function UsuarioFormPage() {
                 <Mail className="h-5 w-5" />
                 Contato
               </CardTitle>
-              <CardDescription>Informacoes de contato do usuario</CardDescription>
+              <CardDescription>Informações de contato do usuario</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
@@ -431,7 +431,7 @@ export function UsuarioFormPage() {
                 <Shield className="h-5 w-5" />
                 Perfis de Acesso
               </CardTitle>
-              <CardDescription>Selecione os perfis que definem as permissoes do usuario</CardDescription>
+              <CardDescription>Selecione os perfis que definem as permissões do usuario</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {isLoadingRoles && (

@@ -23,7 +23,7 @@ interface ConsultaResultado {
 // Status configuration for visual feedback
 const statusConfig: Record<string, { label: string; color: string; icon: typeof CheckCircle }> = {
   Recebida: { label: 'Recebida', color: 'bg-blue-100 text-blue-800', icon: Clock },
-  EmAnalise: { label: 'Em Analise', color: 'bg-yellow-100 text-yellow-800', icon: Search },
+  EmAnalise: { label: 'Em Análise', color: 'bg-yellow-100 text-yellow-800', icon: Search },
   AdmissibilidadeAceita: { label: 'Admissibilidade Aceita', color: 'bg-green-100 text-green-800', icon: CheckCircle },
   AdmissibilidadeRejeitada: { label: 'Admissibilidade Rejeitada', color: 'bg-red-100 text-red-800', icon: AlertCircle },
   AguardandoDefesa: { label: 'Aguardando Defesa', color: 'bg-purple-100 text-purple-800', icon: Clock },
@@ -199,7 +199,7 @@ export function ConsultaProtocoloPage() {
                 <Clock className="h-5 w-5 text-gray-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Ultima Atualizacao</p>
+                <p className="text-sm text-gray-500">Ultima Atualização</p>
                 <p className="font-medium text-gray-900">{formatDate(resultado.ultimaAtualizacao)}</p>
               </div>
             </div>
@@ -229,7 +229,7 @@ export function ConsultaProtocoloPage() {
 
       {/* Quick Links */}
       <div className="mt-8 text-center">
-        <p className="text-gray-600 mb-4">Ainda nao registrou sua denuncia?</p>
+        <p className="text-gray-600 mb-4">Ainda não registrou sua denúncia?</p>
         <Link
           to="/denuncias/nova"
           className="inline-flex items-center gap-2 text-primary font-medium hover:underline"

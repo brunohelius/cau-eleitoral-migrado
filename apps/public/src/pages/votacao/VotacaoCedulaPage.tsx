@@ -197,7 +197,7 @@ export function VotacaoCedulaPage() {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-gray-500">Carregando cedula de votacao...</p>
+          <p className="text-gray-500">Carregando cedula de votação...</p>
         </div>
       </div>
     )
@@ -226,7 +226,7 @@ export function VotacaoCedulaPage() {
       <div className="max-w-2xl mx-auto">
         <div className="bg-red-50 border-2 border-red-300 rounded-lg p-8 text-center">
           <AlertTriangle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-red-800 mb-2">Sessao Expirada</h1>
+          <h1 className="text-2xl font-bold text-red-800 mb-2">Sessão Expirada</h1>
           <p className="text-red-600 mb-6">
             O tempo para votacao expirou. Por favor, reinicie o processo.
           </p>
@@ -254,7 +254,7 @@ export function VotacaoCedulaPage() {
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Cedula de Votacao</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Cedula de Votação</h1>
             <p className="text-gray-600">{eleicaoNome}</p>
           </div>
         </div>
@@ -277,12 +277,12 @@ export function VotacaoCedulaPage() {
         <div className="flex items-start gap-3">
           <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="text-sm">
-            <p className="font-medium text-blue-800">Instrucoes</p>
+            <p className="font-medium text-blue-800">Instruções</p>
             <ul className="text-blue-700 mt-1 space-y-1">
               <li>Selecione uma chapa para votar, ou escolha Voto em Branco ou Voto Nulo.</li>
               <li>Clique em "Ver composicao" para ver os membros de cada chapa.</li>
               <li>Revise sua escolha com atencao antes de confirmar.</li>
-              <li>Apos confirmar, seu voto nao podera ser alterado.</li>
+              <li>Apos confirmar, seu voto não podera ser alterado.</li>
             </ul>
           </div>
         </div>
@@ -501,7 +501,7 @@ export function VotacaoCedulaPage() {
         <div className="bg-gray-50 border rounded-lg p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Sua selecao atual:</p>
+              <p className="text-sm text-gray-500">Sua seleção atual:</p>
               <p className="font-bold text-gray-900">
                 {votoSelecionado.tipo === 'chapa' && votoSelecionado.chapaNome}
                 {votoSelecionado.tipo === 'branco' && 'Voto em Branco'}

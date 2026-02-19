@@ -116,7 +116,7 @@ export function JaVotouPage() {
         <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-100 rounded-full mb-6">
           <CheckCircle className="h-10 w-10 text-blue-600" />
         </div>
-        <h1 className="text-3xl font-bold text-gray-900">Voce ja votou!</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Você já votou!</h1>
         <p className="text-gray-600 mt-2">
           Seu voto nesta eleicao ja foi registrado
         </p>
@@ -262,12 +262,12 @@ export function JaVotouPage() {
 
       {/* Info Box */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="font-semibold text-blue-800 mb-2">Informacoes Importantes</h3>
+        <h3 className="font-semibold text-blue-800 mb-2">Informações Importantes</h3>
         <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
-          <li>Cada eleitor pode votar apenas uma vez por eleicao</li>
-          <li>Seu voto e sigiloso - ninguem pode saber em quem voce votou</li>
+          <li>Cada eleitor pode votar apenas uma vez por eleição</li>
+          <li>Seu voto e sigiloso - ninguem pode saber em quem você votou</li>
           <li>Guarde seu comprovante para futuras verificacoes</li>
-          <li>Os resultados serao divulgados apos o encerramento da votacao</li>
+          <li>Os resultados serao divulgados após o encerramento da votação</li>
         </ul>
       </div>
 

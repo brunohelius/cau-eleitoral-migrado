@@ -40,8 +40,8 @@ export function ResetPasswordPage() {
     if (!token) {
       toast({
         variant: 'destructive',
-        title: 'Token invalido',
-        description: 'O link de recuperacao e invalido ou expirou.',
+        title: 'Token inválido',
+        description: 'O link de recuperação e inválido ou expirou.',
       })
       return
     }
@@ -51,7 +51,7 @@ export function ResetPasswordPage() {
       await authService.resetPassword(token, data.newPassword, data.confirmPassword)
       toast({
         title: 'Senha redefinida!',
-        description: 'Voce pode fazer login com sua nova senha.',
+        description: 'Você pode fazer login com sua nova senha.',
       })
       navigate('/login')
     } catch (error: any) {

@@ -47,7 +47,7 @@ export function EleicaoDetailPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2 text-gray-500">Carregando eleicao...</span>
+        <span className="ml-2 text-gray-500">Carregando eleição...</span>
       </div>
     )
   }
@@ -56,7 +56,7 @@ export function EleicaoDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-        <p className="text-gray-700 font-medium">Erro ao carregar eleicao</p>
+        <p className="text-gray-700 font-medium">Erro ao carregar eleição</p>
         <p className="text-gray-500 text-sm">{(error as Error).message}</p>
         <Link
           to="/eleicoes"
@@ -72,7 +72,7 @@ export function EleicaoDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <Info className="h-12 w-12 text-gray-400 mb-4" />
-        <p className="text-gray-700 font-medium">Eleicao nao encontrada</p>
+        <p className="text-gray-700 font-medium">Eleição não encontrada</p>
         <Link
           to="/eleicoes"
           className="mt-4 text-primary hover:underline"
@@ -171,7 +171,7 @@ export function EleicaoDetailPage() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">{eleicao.diasParaVotacao}</p>
-                <p className="text-sm text-gray-500">Dias para votacao</p>
+                <p className="text-sm text-gray-500">Dias para votação</p>
               </div>
             </div>
           </div>
@@ -182,12 +182,12 @@ export function EleicaoDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Description */}
         <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm border">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Sobre a Eleicao</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Sobre a Eleição</h2>
           <p className="text-gray-600 leading-relaxed">{eleicao.descricao || 'Sem descricao disponivel.'}</p>
 
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <h3 className="text-sm font-medium text-gray-500">Tipo de Eleicao</h3>
+              <h3 className="text-sm font-medium text-gray-500">Tipo de Eleição</h3>
               <p className="mt-1 text-gray-900">{getTipoLabel(eleicao.tipo)}</p>
             </div>
             <div>
@@ -195,14 +195,14 @@ export function EleicaoDetailPage() {
               <p className="mt-1 text-gray-900">{eleicao.ano}</p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-500">Periodo da Eleicao</h3>
+              <h3 className="text-sm font-medium text-gray-500">Período da Eleição</h3>
               <p className="mt-1 text-gray-900">
                 {new Date(eleicao.dataInicio).toLocaleDateString('pt-BR')} a {new Date(eleicao.dataFim).toLocaleDateString('pt-BR')}
               </p>
             </div>
             {eleicao.dataVotacaoInicio && eleicao.dataVotacaoFim && (
               <div>
-                <h3 className="text-sm font-medium text-gray-500">Periodo de Votacao</h3>
+                <h3 className="text-sm font-medium text-gray-500">Período de Votação</h3>
                 <p className="mt-1 text-gray-900">
                   {new Date(eleicao.dataVotacaoInicio).toLocaleDateString('pt-BR')} a {new Date(eleicao.dataVotacaoFim).toLocaleDateString('pt-BR')}
                 </p>
@@ -261,7 +261,7 @@ export function EleicaoDetailPage() {
             >
               <div className="flex items-center gap-3">
                 <AlertTriangle className="h-5 w-5 text-red-600" />
-                <span className="font-medium text-red-700">Registrar Denuncia</span>
+                <span className="font-medium text-red-700">Registrar Denúncia</span>
               </div>
               <ChevronRight className="h-5 w-5 text-red-400" />
             </Link>
@@ -272,7 +272,7 @@ export function EleicaoDetailPage() {
       {/* Timeline */}
       {fases && fases.length > 0 && (
         <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Cronograma da Eleicao</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">Cronograma da Eleição</h2>
           <div className="space-y-4">
             {fases.map((fase, index) => {
               const config = faseStatusConfig[fase.status] || faseStatusConfig.pendente

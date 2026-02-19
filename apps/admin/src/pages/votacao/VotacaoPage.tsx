@@ -68,15 +68,15 @@ export function VotacaoPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['votacao-eleicoes'] })
       toast({
-        title: 'Votacao iniciada',
-        description: 'A votacao foi iniciada com sucesso.',
+        title: 'Votação iniciada',
+        description: 'A votação foi iniciada com sucesso.',
       })
       setConfirmDialog({ open: false, type: null, eleicao: null })
     },
     onError: (error: any) => {
       toast({
         variant: 'destructive',
-        title: 'Erro ao iniciar votacao',
+        title: 'Erro ao iniciar votação',
         description: error.response?.data?.message || 'Nao foi possivel iniciar a votacao.',
       })
     },
@@ -87,15 +87,15 @@ export function VotacaoPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['votacao-eleicoes'] })
       toast({
-        title: 'Votacao encerrada',
-        description: 'A votacao foi encerrada com sucesso.',
+        title: 'Votação encerrada',
+        description: 'A votação foi encerrada com sucesso.',
       })
       setConfirmDialog({ open: false, type: null, eleicao: null })
     },
     onError: (error: any) => {
       toast({
         variant: 'destructive',
-        title: 'Erro ao encerrar votacao',
+        title: 'Erro ao encerrar votação',
         description: error.response?.data?.message || 'Nao foi possivel encerrar a votacao.',
       })
     },
@@ -152,8 +152,8 @@ export function VotacaoPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Votacao</h1>
-          <p className="text-gray-600">Gerencie as votacoes das eleicoes</p>
+          <h1 className="text-2xl font-bold text-gray-900">Votação</h1>
+          <p className="text-gray-600">Gerencie as votacoes das eleições</p>
         </div>
       </div>
 
@@ -166,7 +166,7 @@ export function VotacaoPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totals.eleitores.toLocaleString()}</div>
-            <p className="text-xs text-gray-500">Em todas as eleicoes</p>
+            <p className="text-xs text-gray-500">Em todas as eleições</p>
           </CardContent>
         </Card>
 
@@ -194,12 +194,12 @@ export function VotacaoPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Eleicoes</CardTitle>
+            <CardTitle className="text-sm font-medium">Total de Eleições</CardTitle>
             <BarChart3 className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{eleicoes?.length || 0}</div>
-            <p className="text-xs text-gray-500">Eleicoes cadastradas</p>
+            <p className="text-xs text-gray-500">Eleições cadastradas</p>
           </CardContent>
         </Card>
       </div>
@@ -240,13 +240,13 @@ export function VotacaoPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-3 px-4 font-medium">Eleicao</th>
+                    <th className="text-left py-3 px-4 font-medium">Eleição</th>
                     <th className="text-left py-3 px-4 font-medium">Status</th>
                     <th className="text-right py-3 px-4 font-medium">Eleitores</th>
                     <th className="text-right py-3 px-4 font-medium">Votos</th>
-                    <th className="text-right py-3 px-4 font-medium">Participacao</th>
+                    <th className="text-right py-3 px-4 font-medium">Participação</th>
                     <th className="text-right py-3 px-4 font-medium">Brancos/Nulos</th>
-                    <th className="text-right py-3 px-4 font-medium">Acoes</th>
+                    <th className="text-right py-3 px-4 font-medium">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -330,7 +330,7 @@ export function VotacaoPage() {
           ) : (
             <div className="flex flex-col items-center justify-center py-12 text-gray-500">
               <AlertCircle className="h-12 w-12 mb-4" />
-              <p>Nenhuma eleicao encontrada.</p>
+              <p>Nenhuma eleição encontrada.</p>
             </div>
           )}
         </CardContent>

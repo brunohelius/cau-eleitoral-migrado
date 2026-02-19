@@ -51,7 +51,7 @@ const statusConfig: Record<StatusChapa, { label: string; color: string; bgColor:
     bgColor: 'bg-yellow-100',
   },
   [StatusChapa.EM_ANALISE]: {
-    label: 'Em Analise',
+    label: 'Em Análise',
     color: 'text-blue-700',
     bgColor: 'bg-blue-100',
   },
@@ -354,7 +354,7 @@ export function ChapaDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <AlertTriangle className="h-12 w-12 text-red-400 mb-4" />
-        <p className="text-gray-500">Chapa nao encontrada.</p>
+        <p className="text-gray-500">Chapa não encontrada.</p>
         <Link to="/chapas" className="mt-4">
           <Button variant="outline">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -474,7 +474,7 @@ export function ChapaDetailPage() {
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">Numero</dt>
+                  <dt className="text-sm font-medium text-gray-500">Número</dt>
                   <dd className="mt-1 text-lg font-bold text-blue-600">{chapa.numero}</dd>
                 </div>
                 <div>
@@ -482,7 +482,7 @@ export function ChapaDetailPage() {
                   <dd className="mt-1 text-sm text-gray-900">{chapa.sigla || '-'}</dd>
                 </div>
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">Eleicao</dt>
+                  <dt className="text-sm font-medium text-gray-500">Eleição</dt>
                   <dd className="mt-1 text-sm text-gray-900">{chapa.eleicaoNome || '-'}</dd>
                 </div>
                 <div>
@@ -498,7 +498,7 @@ export function ChapaDetailPage() {
                   </dd>
                 </div>
                 <div className="sm:col-span-2">
-                  <dt className="text-sm font-medium text-gray-500">Descricao</dt>
+                  <dt className="text-sm font-medium text-gray-500">Descrição</dt>
                   <dd className="mt-1 text-sm text-gray-900 whitespace-pre-wrap">
                     {chapa.descricao || 'Sem descricao.'}
                   </dd>
@@ -640,7 +640,7 @@ export function ChapaDetailPage() {
               <div className="flex items-start gap-3">
                 <div className="h-2 w-2 mt-2 rounded-full bg-blue-400" />
                 <div>
-                  <p className="text-sm font-medium">Ultima atualizacao</p>
+                  <p className="text-sm font-medium">Ultima atualização</p>
                   <p className="text-xs text-gray-500">
                     {formatDate(chapa.updatedAt || chapa.createdAt)}
                   </p>

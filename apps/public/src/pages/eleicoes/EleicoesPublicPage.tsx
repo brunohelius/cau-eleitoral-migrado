@@ -27,7 +27,7 @@ export function EleicoesPublicPage() {
       const data = await eleicoesPublicService.getAll()
       setEleicoes(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar eleicoes')
+      setError(err instanceof Error ? err.message : 'Erro ao carregar eleições')
     } finally {
       setIsLoading(false)
     }
@@ -37,7 +37,7 @@ export function EleicoesPublicPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2 text-gray-500">Carregando eleicoes...</span>
+        <span className="ml-2 text-gray-500">Carregando eleições...</span>
       </div>
     )
   }
@@ -46,7 +46,7 @@ export function EleicoesPublicPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-        <p className="text-gray-700 font-medium">Erro ao carregar eleicoes</p>
+        <p className="text-gray-700 font-medium">Erro ao carregar eleições</p>
         <p className="text-gray-500 text-sm">{error}</p>
         <button
           onClick={loadEleicoes}
@@ -85,14 +85,14 @@ export function EleicoesPublicPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Eleicoes</h1>
-        <p className="text-gray-600 mt-2">Acompanhe as eleicoes em andamento e seus resultados.</p>
+        <h1 className="text-3xl font-bold text-gray-900">Eleições</h1>
+        <p className="text-gray-600 mt-2">Acompanhe as eleições em andamento e seus resultados.</p>
       </div>
 
       {/* Eleicoes Ativas */}
       {eleicoesAtivas.length > 0 && (
         <section>
-          <h2 className="text-xl font-semibold mb-4">Eleicoes em Andamento</h2>
+          <h2 className="text-xl font-semibold mb-4">Eleições em Andamento</h2>
           <div className="grid gap-4">
             {eleicoesAtivas.map(eleicao => (
               <div key={eleicao.id} className="bg-white p-6 rounded-lg shadow-sm border">
@@ -158,23 +158,23 @@ export function EleicoesPublicPage() {
       {eleicoesAtivas.length === 0 && eleicoesConcluidas.length === 0 && (
         <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
           <Vote className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">Nenhuma eleicao encontrada</p>
+          <p className="text-gray-500">Nenhuma eleição encontrada</p>
         </div>
       )}
 
       {/* Eleicoes Anteriores */}
       {eleicoesConcluidas.length > 0 && (
         <section>
-          <h2 className="text-xl font-semibold mb-4">Eleicoes Anteriores</h2>
+          <h2 className="text-xl font-semibold mb-4">Eleições Anteriores</h2>
           <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="text-left py-3 px-4 font-medium">Eleicao</th>
+                  <th className="text-left py-3 px-4 font-medium">Eleição</th>
                   <th className="text-left py-3 px-4 font-medium hidden sm:table-cell">Tipo</th>
-                  <th className="text-left py-3 px-4 font-medium">Periodo</th>
+                  <th className="text-left py-3 px-4 font-medium">Período</th>
                   <th className="text-left py-3 px-4 font-medium">Status</th>
-                  <th className="text-right py-3 px-4 font-medium">Acoes</th>
+                  <th className="text-right py-3 px-4 font-medium">Ações</th>
                 </tr>
               </thead>
               <tbody>

@@ -16,8 +16,8 @@ import { candidatoService, type ChapaInfoCandidato } from '@/services/candidato'
 const statusConfig: Record<number, { label: string; color: string; icon: React.ElementType }> = {
   0: { label: 'Rascunho', color: 'bg-gray-100 text-gray-800', icon: Clock },
   1: { label: 'Pendente', color: 'bg-yellow-100 text-yellow-800', icon: Clock },
-  2: { label: 'Aguardando Analise', color: 'bg-blue-100 text-blue-800', icon: Clock },
-  3: { label: 'Em Analise', color: 'bg-blue-100 text-blue-800', icon: Clock },
+  2: { label: 'Aguardando Análise', color: 'bg-blue-100 text-blue-800', icon: Clock },
+  3: { label: 'Em Análise', color: 'bg-blue-100 text-blue-800', icon: Clock },
   4: { label: 'Aprovada', color: 'bg-green-100 text-green-800', icon: CheckCircle },
   5: { label: 'Reprovada', color: 'bg-red-100 text-red-800', icon: AlertTriangle },
   6: { label: 'Impugnada', color: 'bg-red-100 text-red-800', icon: AlertTriangle },
@@ -51,7 +51,7 @@ export function CandidatoChapaPage() {
       <div className="flex flex-col items-center justify-center h-64">
         <AlertTriangle className="h-12 w-12 text-gray-400 mb-4" />
         <p className="text-gray-700 font-medium">Nenhuma chapa encontrada</p>
-        <p className="text-gray-500 text-sm mt-1">Voce ainda nao esta vinculado a nenhuma chapa.</p>
+        <p className="text-gray-500 text-sm mt-1">Você ainda nao esta vinculado a nenhuma chapa.</p>
       </div>
     )
   }
@@ -64,7 +64,7 @@ export function CandidatoChapaPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Minha Chapa</h1>
-        <p className="text-gray-600 mt-1">Informacoes sobre sua chapa e composicao</p>
+        <p className="text-gray-600 mt-1">Informações sobre sua chapa e composicao</p>
       </div>
 
       {/* Chapa Card */}
@@ -191,7 +191,7 @@ export function CandidatoChapaPage() {
           <div className="flex items-start gap-3">
             <Clock className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-medium text-yellow-800">Em Analise</p>
+              <p className="font-medium text-yellow-800">Em Análise</p>
               <p className="text-sm text-yellow-700">
                 Sua chapa esta em analise pela Comissao Eleitoral. Aguarde a comunicacao oficial.
               </p>

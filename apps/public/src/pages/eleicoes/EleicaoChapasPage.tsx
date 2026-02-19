@@ -461,7 +461,7 @@ export function EleicaoChapasPage() {
           <CardContent className="py-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <div className="flex-1">
-                <h3 className="font-medium text-blue-900 mb-1">Precisa de mais informacoes?</h3>
+                <h3 className="font-medium text-blue-900 mb-1">Precisa de mais informações?</h3>
                 <p className="text-sm text-blue-700">
                   Clique em "Ver Detalhes Completos" para conhecer a plataforma e propostas de cada chapa.
                 </p>

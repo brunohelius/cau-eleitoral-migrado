@@ -203,7 +203,7 @@ export function CandidatoHistoricoPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2 text-gray-500">Carregando historico...</span>
+        <span className="ml-2 text-gray-500">Carregando histórico...</span>
       </div>
     )
   }
@@ -228,7 +228,7 @@ export function CandidatoHistoricoPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Historico</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Histórico</h1>
         <p className="text-gray-600 mt-1">Acompanhe todas as movimentacoes da sua candidatura</p>
       </div>
 
@@ -380,7 +380,7 @@ export function CandidatoHistoricoPage() {
               <p className="text-2xl font-bold text-gray-900">
                 {historico.filter(e => e.tipo === 'denuncia').length}
               </p>
-              <p className="text-sm text-gray-500">Denuncias</p>
+              <p className="text-sm text-gray-500">Denúncias</p>
             </div>
           </div>
         </div>

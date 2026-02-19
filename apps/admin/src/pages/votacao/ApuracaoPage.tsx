@@ -73,7 +73,7 @@ export function ApuracaoPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['apuracao', eleicaoId] })
       toast({
-        title: 'Apuracao realizada',
+        title: 'Apuração realizada',
         description: 'Os votos foram apurados com sucesso.',
       })
       setConfirmDialog({ open: false, type: null })
@@ -81,7 +81,7 @@ export function ApuracaoPage() {
     onError: (error: any) => {
       toast({
         variant: 'destructive',
-        title: 'Erro na apuracao',
+        title: 'Erro na apuração',
         description: error.response?.data?.message || 'Nao foi possivel realizar a apuracao.',
       })
     },
@@ -200,7 +200,7 @@ export function ApuracaoPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-gray-500">
         <AlertCircle className="h-12 w-12 mb-4" />
-        <p>Nao foi possivel carregar os resultados.</p>
+        <p>Não foi possível carregar os resultados.</p>
       </div>
     )
   }
@@ -216,7 +216,7 @@ export function ApuracaoPage() {
           </Link>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">Apuracao</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Apuração</h1>
               {getStatusBadge(resultado.status)}
             </div>
             <p className="text-gray-600">{eleicao?.nome || resultado.eleicaoNome}</p>
@@ -274,7 +274,7 @@ export function ApuracaoPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Participacao</CardTitle>
+            <CardTitle className="text-sm font-medium">Participação</CardTitle>
             <TrendingUp className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
@@ -377,7 +377,7 @@ export function ApuracaoPage() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Detalhes da Votacao</CardTitle>
+              <CardTitle>Detalhes da Votação</CardTitle>
               <CardDescription>Distribuicao dos votos</CardDescription>
             </CardHeader>
             <CardContent>
@@ -435,7 +435,7 @@ export function ApuracaoPage() {
                 <FileText className="h-5 w-5" />
                 Exportar Resultados
               </CardTitle>
-              <CardDescription>Baixe o relatorio em diferentes formatos</CardDescription>
+              <CardDescription>Baixe o relatório em diferentes formatos</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

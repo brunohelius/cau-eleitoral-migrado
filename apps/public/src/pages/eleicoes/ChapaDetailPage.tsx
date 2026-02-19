@@ -526,7 +526,7 @@ export function ChapaDetailPage() {
                 {chapa.descricao ? (
                   <p className="text-gray-600 leading-relaxed">{chapa.descricao}</p>
                 ) : (
-                  <p className="text-gray-500 italic">Descricao nao disponivel.</p>
+                  <p className="text-gray-500 italic">Descrição nao disponível.</p>
                 )}
               </CardContent>
             </Card>
@@ -541,7 +541,7 @@ export function ChapaDetailPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-500">Eleicao</p>
+                  <p className="text-sm text-gray-500">Eleição</p>
                   <p className="font-medium text-gray-900">
                     {eleicao?.nome || chapa.eleicaoNome || 'Eleicao'}
                   </p>
@@ -565,7 +565,7 @@ export function ChapaDetailPage() {
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Numero na Cedula</p>
+                  <p className="text-sm text-gray-500">Número na Cedula</p>
                   <p className="font-bold text-2xl text-gray-900">{chapa.numero}</p>
                 </div>
               </CardContent>

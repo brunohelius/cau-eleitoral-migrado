@@ -43,7 +43,7 @@ const statusLabels: Record<number, { label: string; color: string; icon: React.R
     icon: <Clock className="h-3 w-3" />,
   },
   [StatusImpugnacao.EM_ANALISE]: {
-    label: 'Em Analise',
+    label: 'Em Análise',
     color: 'bg-blue-100 text-blue-800',
     icon: <RefreshCw className="h-3 w-3" />,
   },
@@ -192,8 +192,8 @@ export function ImpugnacoesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Impugnacoes</h1>
-          <p className="text-gray-600">Gerencie as impugnacoes do processo eleitoral</p>
+          <h1 className="text-2xl font-bold text-gray-900">Impugnações</h1>
+          <p className="text-gray-600">Gerencie as impugnações do processo eleitoral</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExportReport}>
@@ -227,7 +227,7 @@ export function ImpugnacoesPage() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-2xl font-bold text-blue-600">{estatisticas.emAnalise}</div>
-              <p className="text-xs text-gray-500">Em Analise</p>
+              <p className="text-xs text-gray-500">Em Análise</p>
             </CardContent>
           </Card>
           <Card>
@@ -291,7 +291,7 @@ export function ImpugnacoesPage() {
                 <SelectValue placeholder="Eleicao" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todas Eleicoes</SelectItem>
+                <SelectItem value="all">Todas Eleições</SelectItem>
                 {eleicoes?.map((eleicao) => (
                   <SelectItem key={eleicao.id} value={eleicao.id}>
                     {eleicao.nome}
@@ -313,7 +313,7 @@ export function ImpugnacoesPage() {
               <SelectContent>
                 <SelectItem value="all">Todos Status</SelectItem>
                 <SelectItem value={String(StatusImpugnacao.PENDENTE)}>Pendente</SelectItem>
-                <SelectItem value={String(StatusImpugnacao.EM_ANALISE)}>Em Analise</SelectItem>
+                <SelectItem value={String(StatusImpugnacao.EM_ANALISE)}>Em Análise</SelectItem>
                 <SelectItem value={String(StatusImpugnacao.DEFERIDA)}>Deferida</SelectItem>
                 <SelectItem value={String(StatusImpugnacao.INDEFERIDA)}>Indeferida</SelectItem>
                 <SelectItem value={String(StatusImpugnacao.PARCIALMENTE_DEFERIDA)}>
@@ -338,9 +338,9 @@ export function ImpugnacoesPage() {
                 <SelectItem value="all">Todos Tipos</SelectItem>
                 <SelectItem value={String(TipoImpugnacao.CANDIDATURA)}>Candidatura</SelectItem>
                 <SelectItem value={String(TipoImpugnacao.CHAPA)}>Chapa</SelectItem>
-                <SelectItem value={String(TipoImpugnacao.ELEICAO)}>Eleicao</SelectItem>
+                <SelectItem value={String(TipoImpugnacao.ELEICAO)}>Eleição</SelectItem>
                 <SelectItem value={String(TipoImpugnacao.RESULTADO)}>Resultado</SelectItem>
-                <SelectItem value={String(TipoImpugnacao.VOTACAO)}>Votacao</SelectItem>
+                <SelectItem value={String(TipoImpugnacao.VOTACAO)}>Votação</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -382,12 +382,12 @@ export function ImpugnacoesPage() {
                     <tr className="border-b">
                       <th className="text-left py-3 px-4 font-medium">Protocolo</th>
                       <th className="text-left py-3 px-4 font-medium">Requerente</th>
-                      <th className="text-left py-3 px-4 font-medium">Eleicao</th>
+                      <th className="text-left py-3 px-4 font-medium">Eleição</th>
                       <th className="text-left py-3 px-4 font-medium">Tipo</th>
                       <th className="text-left py-3 px-4 font-medium">Fase</th>
                       <th className="text-left py-3 px-4 font-medium">Status</th>
                       <th className="text-left py-3 px-4 font-medium">Data</th>
-                      <th className="text-right py-3 px-4 font-medium">Acoes</th>
+                      <th className="text-right py-3 px-4 font-medium">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -474,7 +474,7 @@ export function ImpugnacoesPage() {
           ) : (
             <div className="text-center py-12">
               <AlertOctagon className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-              <p className="text-gray-500 mb-4">Nenhuma impugnacao encontrada.</p>
+              <p className="text-gray-500 mb-4">Nenhuma impugnação encontrada.</p>
               <Link to="/impugnacoes/nova">
                 <Button>
                   <Plus className="mr-2 h-4 w-4" />

@@ -84,15 +84,15 @@ export function ConfiguracoesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['configuracoes', 'geral'] })
       toast({
-        title: 'Configuracoes salvas',
-        description: 'As configuracoes gerais foram atualizadas com sucesso.',
+        title: 'Configurações salvas',
+        description: 'As configurações gerais foram atualizadas com sucesso.',
       })
     },
     onError: () => {
       toast({
         variant: 'destructive',
         title: 'Erro ao salvar',
-        description: 'Nao foi possivel salvar as configuracoes. Tente novamente.',
+        description: 'Não foi possível salvar as configurações. Tente novamente.',
       })
     },
   })
@@ -102,15 +102,15 @@ export function ConfiguracoesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['configuracoes', 'eleicao'] })
       toast({
-        title: 'Configuracoes salvas',
-        description: 'As configuracoes de eleicao foram atualizadas com sucesso.',
+        title: 'Configurações salvas',
+        description: 'As configurações de eleição foram atualizadas com sucesso.',
       })
     },
     onError: () => {
       toast({
         variant: 'destructive',
         title: 'Erro ao salvar',
-        description: 'Nao foi possivel salvar as configuracoes. Tente novamente.',
+        description: 'Não foi possível salvar as configurações. Tente novamente.',
       })
     },
   })
@@ -120,15 +120,15 @@ export function ConfiguracoesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['configuracoes', 'notificacao'] })
       toast({
-        title: 'Configuracoes salvas',
-        description: 'As configuracoes de notificacao foram atualizadas com sucesso.',
+        title: 'Configurações salvas',
+        description: 'As configurações de notificação foram atualizadas com sucesso.',
       })
     },
     onError: () => {
       toast({
         variant: 'destructive',
         title: 'Erro ao salvar',
-        description: 'Nao foi possivel salvar as configuracoes. Tente novamente.',
+        description: 'Não foi possível salvar as configurações. Tente novamente.',
       })
     },
   })
@@ -138,15 +138,15 @@ export function ConfiguracoesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['configuracoes', 'seguranca'] })
       toast({
-        title: 'Configuracoes salvas',
-        description: 'As configuracoes de seguranca foram atualizadas com sucesso.',
+        title: 'Configurações salvas',
+        description: 'As configurações de segurança foram atualizadas com sucesso.',
       })
     },
     onError: () => {
       toast({
         variant: 'destructive',
         title: 'Erro ao salvar',
-        description: 'Nao foi possivel salvar as configuracoes. Tente novamente.',
+        description: 'Não foi possível salvar as configurações. Tente novamente.',
       })
     },
   })
@@ -171,13 +171,13 @@ export function ConfiguracoesPage() {
       URL.revokeObjectURL(url)
       toast({
         title: 'Exportacao concluida',
-        description: 'As configuracoes foram exportadas com sucesso.',
+        description: 'As configurações foram exportadas com sucesso.',
       })
     } catch {
       toast({
         variant: 'destructive',
         title: 'Erro na exportacao',
-        description: 'Nao foi possivel exportar as configuracoes.',
+        description: 'Não foi possível exportar as configurações.',
       })
     }
   }
@@ -206,7 +206,7 @@ export function ConfiguracoesPage() {
       toast({
         variant: 'destructive',
         title: 'Erro na importacao',
-        description: 'Nao foi possivel importar as configuracoes.',
+        description: 'Não foi possível importar as configurações.',
       })
     }
     // Limpa o input
@@ -222,14 +222,14 @@ export function ConfiguracoesPage() {
       await configuracoesService.resetarPadrao()
       queryClient.invalidateQueries({ queryKey: ['configuracoes'] })
       toast({
-        title: 'Configuracoes restauradas',
-        description: 'Todas as configuracoes foram restauradas para os valores padrao.',
+        title: 'Configurações restauradas',
+        description: 'Todas as configurações foram restauradas para os valores padrao.',
       })
     } catch {
       toast({
         variant: 'destructive',
         title: 'Erro ao restaurar',
-        description: 'Nao foi possivel restaurar as configuracoes.',
+        description: 'Não foi possível restaurar as configurações.',
       })
     }
   }
@@ -238,8 +238,8 @@ export function ConfiguracoesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Configuracoes</h1>
-          <p className="text-gray-600">Gerencie as configuracoes do sistema eleitoral</p>
+          <h1 className="text-2xl font-bold text-gray-900">Configurações</h1>
+          <p className="text-gray-600">Gerencie as configurações do sistema eleitoral</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExportarConfiguracoes}>
@@ -275,15 +275,15 @@ export function ConfiguracoesPage() {
           </TabsTrigger>
           <TabsTrigger value="eleicoes" className="flex items-center gap-2">
             <Vote className="h-4 w-4" />
-            <span className="hidden sm:inline">Eleicoes</span>
+            <span className="hidden sm:inline">Eleições</span>
           </TabsTrigger>
           <TabsTrigger value="notificacoes" className="flex items-center gap-2">
             <Bell className="h-4 w-4" />
-            <span className="hidden sm:inline">Notificacoes</span>
+            <span className="hidden sm:inline">Notificações</span>
           </TabsTrigger>
           <TabsTrigger value="seguranca" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
-            <span className="hidden sm:inline">Seguranca</span>
+            <span className="hidden sm:inline">Segurança</span>
           </TabsTrigger>
           <TabsTrigger value="logs" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />

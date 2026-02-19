@@ -110,8 +110,8 @@ export function RelatorioEleicaoPage() {
   const tiposRelatorio = [
     { value: 'resumo', label: 'Resumo Geral', icon: BarChart3 },
     { value: 'chapas', label: 'Chapas Participantes', icon: Users },
-    { value: 'calendario', label: 'Calendario Eleitoral', icon: Calendar },
-    { value: 'historico', label: 'Historico de Alteracoes', icon: FileText },
+    { value: 'calendario', label: 'Calendário Eleitoral', icon: Calendar },
+    { value: 'historico', label: 'Histórico de Alterações', icon: FileText },
   ]
 
   const mapTipoCalendario = (tipo: number): string => {
@@ -147,8 +147,8 @@ export function RelatorioEleicaoPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Relatorios de Eleicao</h1>
-            <p className="text-gray-600">Visualize e exporte informacoes das eleicoes</p>
+            <h1 className="text-2xl font-bold text-gray-900">Relatórios de Eleição</h1>
+            <p className="text-gray-600">Visualize e exporte informações das eleições</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -178,13 +178,13 @@ export function RelatorioEleicaoPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Eleicao</Label>
+              <Label>Eleição</Label>
               <select
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 value={selectedEleicao}
                 onChange={(e) => setSelectedEleicao(e.target.value)}
               >
-                <option value="">Selecione uma eleicao</option>
+                <option value="">Selecione uma eleição</option>
                 {eleicoes?.map((eleicao) => (
                   <option key={eleicao.id} value={eleicao.id}>
                     {eleicao.nome}
@@ -194,7 +194,7 @@ export function RelatorioEleicaoPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Tipo de Relatorio</Label>
+              <Label>Tipo de Relatório</Label>
               <div className="space-y-2">
                 {tiposRelatorio.map((tipo) => (
                   <label
@@ -230,7 +230,7 @@ export function RelatorioEleicaoPage() {
             <Card>
               <CardContent className="py-12 text-center">
                 <Calendar className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-                <p className="text-gray-500">Selecione uma eleicao para visualizar o relatorio</p>
+                <p className="text-gray-500">Selecione uma eleição para visualizar o relatório</p>
               </CardContent>
             </Card>
           ) : (
@@ -280,7 +280,7 @@ export function RelatorioEleicaoPage() {
                       <BarChart3 className="h-8 w-8 text-orange-500" />
                       <div>
                         <p className="text-2xl font-bold">{selectedEleicaoData?.participacao}%</p>
-                        <p className="text-sm text-gray-500">Participacao</p>
+                        <p className="text-sm text-gray-500">Participação</p>
                       </div>
                     </div>
                   </CardContent>
@@ -300,7 +300,7 @@ export function RelatorioEleicaoPage() {
                     <div className="space-y-6">
                       <div className="grid gap-4 sm:grid-cols-2">
                         <div className="rounded-lg bg-gray-50 p-4">
-                          <h4 className="font-medium mb-2">Informacoes Gerais</h4>
+                          <h4 className="font-medium mb-2">Informações Gerais</h4>
                           <dl className="space-y-2 text-sm">
                             <div className="flex justify-between">
                               <dt className="text-gray-500">Ano</dt>
@@ -317,7 +317,7 @@ export function RelatorioEleicaoPage() {
                           </dl>
                         </div>
                         <div className="rounded-lg bg-gray-50 p-4">
-                          <h4 className="font-medium mb-2">Votacao</h4>
+                          <h4 className="font-medium mb-2">Votação</h4>
                           <dl className="space-y-2 text-sm">
                             <div className="flex justify-between">
                               <dt className="text-gray-500">Eleitores Aptos</dt>
@@ -328,7 +328,7 @@ export function RelatorioEleicaoPage() {
                               <dd className="font-medium">{selectedEleicaoData?.totalVotos.toLocaleString()}</dd>
                             </div>
                             <div className="flex justify-between">
-                              <dt className="text-gray-500">Participacao</dt>
+                              <dt className="text-gray-500">Participação</dt>
                               <dd className="font-medium">{selectedEleicaoData?.participacao}%</dd>
                             </div>
                           </dl>
@@ -342,7 +342,7 @@ export function RelatorioEleicaoPage() {
                       <table className="w-full">
                         <thead>
                           <tr className="border-b">
-                            <th className="text-left py-3 px-4 font-medium">Numero</th>
+                            <th className="text-left py-3 px-4 font-medium">Número</th>
                             <th className="text-left py-3 px-4 font-medium">Nome</th>
                             <th className="text-left py-3 px-4 font-medium">Candidato</th>
                             <th className="text-left py-3 px-4 font-medium">Status</th>
@@ -384,7 +384,7 @@ export function RelatorioEleicaoPage() {
                           </span>
                         </div>
                       )) : (
-                        <p className="text-center py-8 text-gray-500">Nenhum evento no calendario</p>
+                        <p className="text-center py-8 text-gray-500">Nenhum evento no calendário</p>
                       )}
                     </div>
                   )}
@@ -397,7 +397,7 @@ export function RelatorioEleicaoPage() {
                           <div className="absolute left-2 top-1 h-4 w-4 rounded-full bg-blue-500 ring-4 ring-white" />
                           <div className="flex-1">
                             <div className="flex items-center justify-between">
-                              <span className="font-medium">Eleicao criada</span>
+                              <span className="font-medium">Eleição criada</span>
                               <span className="text-xs text-gray-500">
                                 {selectedEleicaoData?.ano}
                               </span>

@@ -7,9 +7,9 @@ export function PublicLayout() {
   const location = useLocation()
 
   const navigation = [
-    { name: 'Inicio', href: '/' },
-    { name: 'Eleicoes', href: '/eleicoes' },
-    { name: 'Calendario', href: '/calendario' },
+    { name: 'Início', href: '/' },
+    { name: 'Eleições', href: '/eleicoes' },
+    { name: 'Calendário', href: '/calendario' },
     { name: 'Documentos', href: '/documentos' },
     { name: 'FAQ', href: '/faq' },
   ]
@@ -135,23 +135,23 @@ export function PublicLayout() {
 
             {/* Quick Links */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">Links Rapidos</h3>
+              <h3 className="text-lg font-semibold mb-4">Links Rápidos</h3>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li><Link to="/eleicoes" className="hover:text-white">Eleicoes</Link></li>
-                <li><Link to="/calendario" className="hover:text-white">Calendario</Link></li>
+                <li><Link to="/eleicoes" className="hover:text-white">Eleições</Link></li>
+                <li><Link to="/calendario" className="hover:text-white">Calendário</Link></li>
                 <li><Link to="/documentos" className="hover:text-white">Documentos</Link></li>
                 <li><Link to="/faq" className="hover:text-white">FAQ</Link></li>
-                <li><Link to="/denuncias/nova" className="hover:text-white">Registrar Denuncia</Link></li>
+                <li><Link to="/denuncias/nova" className="hover:text-white">Registrar Denúncia</Link></li>
                 <li><Link to="/denuncias/consultar" className="hover:text-white">Consultar Protocolo</Link></li>
               </ul>
             </div>
 
             {/* Areas */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">Areas Restritas</h3>
+              <h3 className="text-lg font-semibold mb-4">Áreas Restritas</h3>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li><Link to="/votacao" className="hover:text-white">Area do Eleitor</Link></li>
-                <li><Link to="/candidato/login" className="hover:text-white">Area do Candidato</Link></li>
+                <li><Link to="/votacao" className="hover:text-white">Área do Eleitor</Link></li>
+                <li><Link to="/candidato/login" className="hover:text-white">Área do Candidato</Link></li>
               </ul>
             </div>
 

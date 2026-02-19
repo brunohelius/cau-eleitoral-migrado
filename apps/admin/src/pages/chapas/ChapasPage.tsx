@@ -43,7 +43,7 @@ import { eleicoesService } from '@/services/eleicoes'
 // Status labels with colors
 const statusConfig: Record<StatusChapa, { label: string; color: string }> = {
   [StatusChapa.PENDENTE]: { label: 'Pendente', color: 'bg-yellow-100 text-yellow-800' },
-  [StatusChapa.EM_ANALISE]: { label: 'Em Analise', color: 'bg-blue-100 text-blue-800' },
+  [StatusChapa.EM_ANALISE]: { label: 'Em Análise', color: 'bg-blue-100 text-blue-800' },
   [StatusChapa.APROVADA]: { label: 'Aprovada', color: 'bg-green-100 text-green-800' },
   [StatusChapa.REPROVADA]: { label: 'Reprovada', color: 'bg-red-100 text-red-800' },
   [StatusChapa.IMPUGNADA]: { label: 'Impugnada', color: 'bg-orange-100 text-orange-800' },
@@ -359,7 +359,7 @@ export function ChapasPage() {
               }}
               className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              <option value="">Todas as eleicoes</option>
+              <option value="">Todas as eleições</option>
               {eleicoes?.map((eleicao) => (
                 <option key={eleicao.id} value={eleicao.id}>
                   {eleicao.nome} ({eleicao.ano})
@@ -408,11 +408,11 @@ export function ChapasPage() {
                     <thead>
                       <tr className="border-b">
                         <th className="text-left py-3 px-4 font-medium">Nome</th>
-                        <th className="text-left py-3 px-4 font-medium">Eleicao</th>
+                        <th className="text-left py-3 px-4 font-medium">Eleição</th>
                         <th className="text-left py-3 px-4 font-medium">Status</th>
                         <th className="text-center py-3 px-4 font-medium">Membros</th>
                         <th className="text-left py-3 px-4 font-medium">Data Registro</th>
-                        <th className="text-right py-3 px-4 font-medium">Acoes</th>
+                        <th className="text-right py-3 px-4 font-medium">Ações</th>
                       </tr>
                     </thead>
                     <tbody>

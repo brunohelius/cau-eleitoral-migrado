@@ -37,7 +37,7 @@ const getStatusInfo = (status: StatusUsuario) => {
     [StatusUsuario.INATIVO]: { label: 'Inativo', color: 'bg-gray-100 text-gray-800', icon: XCircle },
     [StatusUsuario.BLOQUEADO]: { label: 'Bloqueado', color: 'bg-red-100 text-red-800', icon: Ban },
     [StatusUsuario.PENDENTE_CADASTRO]: { label: 'Pendente (Cadastro)', color: 'bg-yellow-100 text-yellow-800', icon: AlertTriangle },
-    [StatusUsuario.PENDENTE_CONFIRMACAO]: { label: 'Pendente (Confirmacao)', color: 'bg-orange-100 text-orange-800', icon: AlertTriangle },
+    [StatusUsuario.PENDENTE_CONFIRMACAO]: { label: 'Pendente (Confirmação)', color: 'bg-orange-100 text-orange-800', icon: AlertTriangle },
   }
   return statusMap[status] || { label: 'Desconhecido', color: 'bg-gray-100 text-gray-800', icon: XCircle }
 }
@@ -45,7 +45,7 @@ const getStatusInfo = (status: StatusUsuario) => {
 const getTipoInfo = (tipo: TipoUsuario) => {
   const tipoMap: Record<TipoUsuario, { label: string; color: string }> = {
     [TipoUsuario.ADMINISTRADOR]: { label: 'Administrador', color: 'bg-purple-100 text-purple-800' },
-    [TipoUsuario.COMISSAO_ELEITORAL]: { label: 'Comissao Eleitoral', color: 'bg-blue-100 text-blue-800' },
+    [TipoUsuario.COMISSAO_ELEITORAL]: { label: 'Comissão Eleitoral', color: 'bg-blue-100 text-blue-800' },
     [TipoUsuario.CONSELHEIRO]: { label: 'Conselheiro', color: 'bg-teal-100 text-teal-800' },
     [TipoUsuario.PROFISSIONAL]: { label: 'Profissional', color: 'bg-indigo-100 text-indigo-800' },
     [TipoUsuario.CANDIDATO]: { label: 'Candidato', color: 'bg-orange-100 text-orange-800' },
@@ -139,7 +139,7 @@ export function UsuarioDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['usuarios'] })
       toast({ title: 'Usuario ativado', description: 'O usuario foi ativado com sucesso.' })
     },
-    onError: () => toast({ variant: 'destructive', title: 'Erro', description: 'Nao foi possivel ativar o usuario.' }),
+    onError: () => toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível ativar o usuario.' }),
   })
 
   const inativarMutation = useMutation({
@@ -149,7 +149,7 @@ export function UsuarioDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['usuarios'] })
       toast({ title: 'Usuario inativado', description: 'O usuario foi inativado com sucesso.' })
     },
-    onError: () => toast({ variant: 'destructive', title: 'Erro', description: 'Nao foi possivel inativar o usuario.' }),
+    onError: () => toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível inativar o usuario.' }),
   })
 
   const bloquearMutation = useMutation({
@@ -159,7 +159,7 @@ export function UsuarioDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['usuarios'] })
       toast({ title: 'Usuario bloqueado', description: 'O usuario foi bloqueado com sucesso.' })
     },
-    onError: () => toast({ variant: 'destructive', title: 'Erro', description: 'Nao foi possivel bloquear o usuario.' }),
+    onError: () => toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível bloquear o usuario.' }),
   })
 
   const desbloquearMutation = useMutation({
@@ -169,7 +169,7 @@ export function UsuarioDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['usuarios'] })
       toast({ title: 'Usuario desbloqueado', description: 'O usuario foi desbloqueado com sucesso.' })
     },
-    onError: () => toast({ variant: 'destructive', title: 'Erro', description: 'Nao foi possivel desbloquear o usuario.' }),
+    onError: () => toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível desbloquear o usuario.' }),
   })
 
   const resetSenhaMutation = useMutation({
@@ -183,7 +183,7 @@ export function UsuarioDetailPage() {
       setNewPassword('')
       toast({ title: 'Senha redefinida', description: `Nova senha: ${password}` })
     },
-    onError: () => toast({ variant: 'destructive', title: 'Erro', description: 'Nao foi possivel redefinir a senha.' }),
+    onError: () => toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível redefinir a senha.' }),
   })
 
   const deleteMutation = useMutation({
@@ -193,7 +193,7 @@ export function UsuarioDetailPage() {
       toast({ title: 'Usuario excluido', description: 'O usuario foi excluido com sucesso.' })
       navigate('/usuarios')
     },
-    onError: () => toast({ variant: 'destructive', title: 'Erro', description: 'Nao foi possivel excluir o usuario.' }),
+    onError: () => toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível excluir o usuario.' }),
   })
 
   if (isLoading) {
@@ -207,7 +207,7 @@ export function UsuarioDetailPage() {
   if (isError || !usuario) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-gray-500">Usuario nao encontrado.</p>
+        <p className="text-gray-500">Usuario não encontrado.</p>
       </div>
     )
   }
@@ -392,7 +392,7 @@ export function UsuarioDetailPage() {
               <AlertTriangle className="h-5 w-5" />
               Zona de Perigo
             </CardTitle>
-            <CardDescription>Acoes irreversiveis. Prossiga com cautela.</CardDescription>
+            <CardDescription>Ações irreversiveis. Prossiga com cautela.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-4">

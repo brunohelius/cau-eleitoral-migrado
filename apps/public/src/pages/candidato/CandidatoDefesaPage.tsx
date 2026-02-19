@@ -175,7 +175,7 @@ export function CandidatoDefesaPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-lg shadow-sm border">
           <p className="text-2xl font-bold text-gray-900">{totalImpugnacoes}</p>
-          <p className="text-sm text-gray-500">Impugnacoes</p>
+          <p className="text-sm text-gray-500">Impugnações</p>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-sm border">
           <p className="text-2xl font-bold text-blue-600">{totalDefesas}</p>
@@ -309,7 +309,7 @@ export function CandidatoDefesaPage() {
                       <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
                         <div className="flex items-center gap-2 text-green-800">
                           <CheckCircle className="h-5 w-5" />
-                          <span className="font-medium">Impugnacao improcedente - Defesa aceita</span>
+                          <span className="font-medium">Impugnação improcedente - Defesa aceita</span>
                         </div>
                       </div>
                     )}
@@ -319,7 +319,7 @@ export function CandidatoDefesaPage() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2 text-red-800">
                             <AlertTriangle className="h-5 w-5" />
-                            <span className="font-medium">Impugnacao procedente</span>
+                            <span className="font-medium">Impugnação procedente</span>
                           </div>
                           <Link
                             to="/candidato/recursos/novo"
@@ -345,8 +345,8 @@ export function CandidatoDefesaPage() {
           <div className="text-sm">
             <p className="font-medium text-blue-800">Sobre as Defesas</p>
             <ul className="text-blue-700 mt-1 space-y-1 list-disc list-inside">
-              <li>As defesas sao analisadas pela Comissao Eleitoral</li>
-              <li>Em caso de rejeicao, voce pode interpor recurso</li>
+              <li>As defesas são analisadas pela Comissão Eleitoral</li>
+              <li>Em caso de rejeicao, você pode interpor recurso</li>
               <li>Mantenha os documentos comprobatorios arquivados</li>
             </ul>
           </div>

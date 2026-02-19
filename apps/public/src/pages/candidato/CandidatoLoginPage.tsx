@@ -93,7 +93,7 @@ export function CandidatoLoginPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
             <Users className="h-8 w-8 text-blue-600" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Area do Candidato</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Área do Candidato</h1>
           <p className="text-gray-600 mt-2">
             Acesse sua area restrita para gerenciar sua candidatura
           </p>

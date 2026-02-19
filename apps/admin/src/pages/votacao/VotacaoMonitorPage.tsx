@@ -116,7 +116,7 @@ export function VotacaoMonitorPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-gray-500">
         <AlertCircle className="h-12 w-12 mb-4" />
-        <p>Nao foi possivel carregar as estatisticas.</p>
+        <p>Não foi possível carregar as estatisticas.</p>
       </div>
     )
   }
@@ -191,7 +191,7 @@ export function VotacaoMonitorPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Participacao</CardTitle>
+            <CardTitle className="text-sm font-medium">Participação</CardTitle>
             <TrendingUp className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
@@ -207,7 +207,7 @@ export function VotacaoMonitorPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ultima Atualizacao</CardTitle>
+            <CardTitle className="text-sm font-medium">Ultima Atualização</CardTitle>
             <Clock className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
@@ -301,7 +301,7 @@ export function VotacaoMonitorPage() {
             <MapPin className="h-5 w-5" />
             Votacao por Regiao (UF)
           </CardTitle>
-          <CardDescription>Participacao por regional do CAU</CardDescription>
+          <CardDescription>Participação por regional do CAU</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -312,7 +312,7 @@ export function VotacaoMonitorPage() {
                   <th className="text-left py-3 px-4 font-medium">Regional</th>
                   <th className="text-right py-3 px-4 font-medium">Eleitores</th>
                   <th className="text-right py-3 px-4 font-medium">Votos</th>
-                  <th className="text-right py-3 px-4 font-medium">Participacao</th>
+                  <th className="text-right py-3 px-4 font-medium">Participação</th>
                 </tr>
               </thead>
               <tbody>

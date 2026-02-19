@@ -187,14 +187,14 @@ export function SessaoJulgamentoPage() {
       toast({
         variant: 'destructive',
         title: 'Quorum insuficiente',
-        description: 'E necessario quorum minimo para iniciar a sessao.',
+        description: 'E necessario quorum mínimo para iniciar a sessão.',
       })
       return
     }
     setSessaoIniciada(true)
     toast({
-      title: 'Sessao iniciada',
-      description: 'A sessao de julgamento foi iniciada.',
+      title: 'Sessão iniciada',
+      description: 'A sessão de julgamento foi iniciada.',
     })
   }
 
@@ -203,8 +203,8 @@ export function SessaoJulgamentoPage() {
     setProcessoAtual(null)
     setVotacaoAberta(false)
     toast({
-      title: 'Sessao encerrada',
-      description: 'A sessao de julgamento foi encerrada.',
+      title: 'Sessão encerrada',
+      description: 'A sessão de julgamento foi encerrada.',
     })
     navigate('/julgamentos')
   }
@@ -236,7 +236,7 @@ export function SessaoJulgamentoPage() {
   const handleIniciarVotacao = () => {
     setVotacaoAberta(true)
     toast({
-      title: 'Votacao iniciada',
+      title: 'Votação iniciada',
       description: 'Os membros podem registrar seus votos.',
     })
   }
@@ -254,8 +254,8 @@ export function SessaoJulgamentoPage() {
     if (votosDeferidos + votosIndeferidos === 0) {
       toast({
         variant: 'destructive',
-        title: 'Votacao invalida',
-        description: 'E necessario pelo menos um voto valido (deferir ou indeferir).',
+        title: 'Votação invalida',
+        description: 'E necessario pelo menos um voto válido (deferir ou indeferir).',
       })
       return
     }
@@ -302,7 +302,7 @@ export function SessaoJulgamentoPage() {
       )
 
       toast({
-        title: 'Votacao finalizada',
+        title: 'Votação finalizada',
         description: `Processo ${decisao === 'deferida' ? 'deferido' : 'indeferido'} por ${votosDeferidos} x ${votosIndeferidos}.`,
       })
 
@@ -323,8 +323,8 @@ export function SessaoJulgamentoPage() {
 
   const getTipoBadge = (tipo: string) => {
     const config: Record<string, { label: string; color: string }> = {
-      denuncia: { label: 'Denuncia', color: 'bg-orange-100 text-orange-800' },
-      impugnacao: { label: 'Impugnacao', color: 'bg-red-100 text-red-800' },
+      denuncia: { label: 'Denúncia', color: 'bg-orange-100 text-orange-800' },
+      impugnacao: { label: 'Impugnação', color: 'bg-red-100 text-red-800' },
       recurso: { label: 'Recurso', color: 'bg-purple-100 text-purple-800' },
     }
     const item = config[tipo] || config.denuncia
@@ -383,7 +383,7 @@ export function SessaoJulgamentoPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Sessao de Julgamento</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Sessão de Julgamento</h1>
             <p className="text-gray-600">
               {sessaoIniciada ? 'Sessao em andamento' : 'Configure a sessao antes de iniciar'}
             </p>
@@ -443,7 +443,7 @@ export function SessaoJulgamentoPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-500 text-center py-4">Nenhum membro da comissao encontrado.</p>
+              <p className="text-sm text-gray-500 text-center py-4">Nenhum membro da comissão encontrado.</p>
             )}
           </CardContent>
         </Card>
@@ -520,7 +520,7 @@ export function SessaoJulgamentoPage() {
               ) : (
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <Label>Fundamentacao da Decisao</Label>
+                    <Label>Fundamentação da Decisao</Label>
                     <textarea
                       className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                       placeholder="Digite a fundamentacao..."

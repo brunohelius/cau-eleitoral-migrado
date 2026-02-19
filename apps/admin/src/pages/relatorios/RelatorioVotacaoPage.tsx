@@ -147,7 +147,7 @@ export function RelatorioVotacaoPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Relatorios de Votacao</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Relatórios de Votação</h1>
             <p className="text-gray-600">Estatisticas e resultados detalhados</p>
           </div>
         </div>
@@ -173,13 +173,13 @@ export function RelatorioVotacaoPage() {
           <div className="flex items-center gap-4">
             <Filter className="h-5 w-5 text-gray-400" />
             <div className="flex-1 max-w-xs">
-              <Label className="sr-only">Eleicao</Label>
+              <Label className="sr-only">Eleição</Label>
               <select
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 value={selectedEleicao}
                 onChange={(e) => setSelectedEleicao(e.target.value)}
               >
-                <option value="">Selecione uma eleicao</option>
+                <option value="">Selecione uma eleição</option>
                 {eleicoes.map((eleicao: any) => (
                   <option key={eleicao.id} value={eleicao.id}>
                     {eleicao.nome}
@@ -195,7 +195,7 @@ export function RelatorioVotacaoPage() {
         <Card>
           <CardContent className="py-12 text-center">
             <Vote className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-            <p className="text-gray-500">Selecione uma eleicao para visualizar os dados de votacao</p>
+            <p className="text-gray-500">Selecione uma eleição para visualizar os dados de votação</p>
           </CardContent>
         </Card>
       ) : isLoading ? (
@@ -240,7 +240,7 @@ export function RelatorioVotacaoPage() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold">{dadosVotacao.participacao}%</p>
-                    <p className="text-sm text-gray-500">Participacao</p>
+                    <p className="text-sm text-gray-500">Participação</p>
                   </div>
                 </div>
               </CardContent>
@@ -298,7 +298,7 @@ export function RelatorioVotacaoPage() {
                       </div>
                     </div>
                   )) : (
-                    <p className="text-center py-4 text-gray-500">Nenhum dado disponivel</p>
+                    <p className="text-center py-4 text-gray-500">Nenhum dado disponível</p>
                   )}
                 </div>
 
@@ -326,7 +326,7 @@ export function RelatorioVotacaoPage() {
                   <Clock className="h-5 w-5" />
                   Votos por Hora
                 </CardTitle>
-                <CardDescription>Distribuicao temporal da votacao</CardDescription>
+                <CardDescription>Distribuicao temporal da votação</CardDescription>
               </CardHeader>
               <CardContent>
                 {dadosVotacao.votosPorHora.length > 0 ? (
@@ -367,7 +367,7 @@ export function RelatorioVotacaoPage() {
                         <tr className="border-b">
                           <th className="text-left py-3 px-4 font-medium">Regional</th>
                           <th className="text-right py-3 px-4 font-medium">Votos</th>
-                          <th className="text-right py-3 px-4 font-medium">Participacao</th>
+                          <th className="text-right py-3 px-4 font-medium">Participação</th>
                           <th className="text-left py-3 px-4 font-medium w-1/3">Grafico</th>
                         </tr>
                       </thead>
@@ -399,7 +399,7 @@ export function RelatorioVotacaoPage() {
         <Card>
           <CardContent className="py-12 text-center">
             <BarChart3 className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-            <p className="text-gray-500">Nenhum dado de apuracao disponivel para esta eleicao</p>
+            <p className="text-gray-500">Nenhum dado de apuração disponível para esta eleição</p>
           </CardContent>
         </Card>
       )}

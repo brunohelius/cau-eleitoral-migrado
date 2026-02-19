@@ -171,7 +171,7 @@ export function AuditoriaPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Auditoria</h1>
-          <p className="text-gray-600">Logs de atividades e acoes do sistema</p>
+          <p className="text-gray-600">Logs de atividades e ações do sistema</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => refetch()}>
@@ -289,12 +289,12 @@ export function AuditoriaPage() {
               >
                 <option value="all">Todas as Entidades</option>
                 <option value="auth">Autenticacao</option>
-                <option value="eleicao">Eleicao</option>
+                <option value="eleicao">Eleição</option>
                 <option value="chapa">Chapa</option>
                 <option value="usuario">Usuario</option>
                 <option value="voto">Voto</option>
-                <option value="denuncia">Denuncia</option>
-                <option value="relatorio">Relatorio</option>
+                <option value="denuncia">Denúncia</option>
+                <option value="relatorio">Relatório</option>
               </select>
             </div>
             <div className="flex gap-2">
@@ -333,7 +333,7 @@ export function AuditoriaPage() {
                     <th className="text-left py-3 px-4 font-medium">Entidade</th>
                     <th className="text-left py-3 px-4 font-medium">Nivel</th>
                     <th className="text-left py-3 px-4 font-medium">IP</th>
-                    <th className="text-right py-3 px-4 font-medium">Acoes</th>
+                    <th className="text-right py-3 px-4 font-medium">Ações</th>
                   </tr>
                 </thead>
                 <tbody>

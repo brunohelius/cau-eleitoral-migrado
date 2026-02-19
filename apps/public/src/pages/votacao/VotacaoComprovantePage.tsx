@@ -118,7 +118,7 @@ export function VotacaoComprovantePage() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Comprovante de Votacao',
+          title: 'Comprovante de Votação',
           text: shareText,
         })
       } catch (err) {
@@ -248,7 +248,7 @@ export function VotacaoComprovantePage() {
       <div className="bg-white rounded-xl shadow-lg border overflow-hidden print:shadow-none">
         {/* Header */}
         <div className="bg-primary text-white p-6 text-center">
-          <h2 className="text-xl font-bold">Comprovante de Votacao</h2>
+          <h2 className="text-xl font-bold">Comprovante de Votação</h2>
           <p className="text-primary-foreground/80 mt-1">{displayComprovante.eleicaoNome}</p>
         </div>
 
@@ -323,7 +323,7 @@ export function VotacaoComprovantePage() {
           {/* Security Badge */}
           <div className="flex items-center justify-center gap-2 text-green-600">
             <Shield className="h-5 w-5" />
-            <span className="text-sm font-medium">Voto registrado de forma segura e anonima</span>
+            <span className="text-sm font-medium">Voto registrado de forma segura e anônima</span>
           </div>
         </div>
 
@@ -391,10 +391,10 @@ export function VotacaoComprovantePage() {
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <h3 className="font-semibold text-blue-800 mb-2">Importante</h3>
         <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
-          <li>Guarde este comprovante como prova de sua participacao</li>
+          <li>Guarde este comprovante como prova de sua participação</li>
           <li>O codigo de verificacao permite confirmar que seu voto foi registrado</li>
-          <li>Seu voto e sigiloso - ninguem pode saber em quem voce votou</li>
-          <li>Os resultados serao divulgados apos o encerramento da votacao</li>
+          <li>Seu voto e sigiloso - ninguem pode saber em quem você votou</li>
+          <li>Os resultados serao divulgados após o encerramento da votação</li>
         </ul>
       </div>
 

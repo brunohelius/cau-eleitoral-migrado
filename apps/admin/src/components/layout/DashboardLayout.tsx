@@ -23,16 +23,16 @@ import { useAuthStore } from '@/stores/auth'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
-  { name: 'Eleicoes', href: '/eleicoes', icon: Vote },
-  { name: 'Votacao', href: '/votacao', icon: CheckSquare },
+  { name: 'Eleições', href: '/eleicoes', icon: Vote },
+  { name: 'Votação', href: '/votacao', icon: CheckSquare },
   { name: 'Chapas', href: '/chapas', icon: Users },
-  { name: 'Denuncias', href: '/denuncias', icon: AlertTriangle },
-  { name: 'Impugnacoes', href: '/impugnacoes', icon: Flag },
+  { name: 'Denúncias', href: '/denuncias', icon: AlertTriangle },
+  { name: 'Impugnações', href: '/impugnacoes', icon: Flag },
   { name: 'Julgamentos', href: '/julgamentos', icon: Gavel },
   { name: 'Usuarios', href: '/usuarios', icon: UserCog },
-  { name: 'Relatorios', href: '/relatorios', icon: BarChart3 },
+  { name: 'Relatórios', href: '/relatorios', icon: BarChart3 },
   { name: 'Auditoria', href: '/auditoria', icon: Shield },
-  { name: 'Configuracoes', href: '/configuracoes', icon: Settings },
+  { name: 'Configurações', href: '/configuracoes', icon: Settings },
 ]
 
 export function DashboardLayout() {

@@ -60,7 +60,7 @@ const statusLabels: Record<number, { label: string; color: string; icon: React.R
     icon: <Clock className="h-3 w-3" />,
   },
   [StatusImpugnacao.EM_ANALISE]: {
-    label: 'Em Analise',
+    label: 'Em Análise',
     color: 'bg-blue-100 text-blue-800',
     icon: <Clock className="h-3 w-3" />,
   },
@@ -101,7 +101,7 @@ const tipoLabels: Record<number, string> = {
 
 const faseLabels: Record<number, { label: string; icon: React.ReactNode }> = {
   [FaseImpugnacao.REGISTRO]: { label: 'Registro', icon: <FileText className="h-4 w-4" /> },
-  [FaseImpugnacao.ANALISE_INICIAL]: { label: 'Analise Inicial', icon: <Play className="h-4 w-4" /> },
+  [FaseImpugnacao.ANALISE_INICIAL]: { label: 'Análise Inicial', icon: <Play className="h-4 w-4" /> },
   [FaseImpugnacao.DEFESA]: { label: 'Defesa', icon: <MessageSquare className="h-4 w-4" /> },
   [FaseImpugnacao.PARECER]: { label: 'Parecer', icon: <FileCheck className="h-4 w-4" /> },
   [FaseImpugnacao.JULGAMENTO]: { label: 'Julgamento', icon: <Gavel className="h-4 w-4" /> },
@@ -152,11 +152,11 @@ export function ImpugnacaoDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['impugnacao', id] })
       queryClient.invalidateQueries({ queryKey: ['impugnacao-timeline', id] })
-      toast({ title: 'Analise iniciada com sucesso!' })
+      toast({ title: 'Análise iniciada com sucesso!' })
       setShowIniciarAnaliseDialog(false)
     },
     onError: () => {
-      toast({ variant: 'destructive', title: 'Erro ao iniciar analise' })
+      toast({ variant: 'destructive', title: 'Erro ao iniciar análise' })
     },
   })
 
@@ -207,12 +207,12 @@ export function ImpugnacaoDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['impugnacao', id] })
       queryClient.invalidateQueries({ queryKey: ['impugnacao-timeline', id] })
-      toast({ title: 'Impugnacao arquivada com sucesso!' })
+      toast({ title: 'Impugnação arquivada com sucesso!' })
       setShowArquivarDialog(false)
       setMotivoArquivamento('')
     },
     onError: () => {
-      toast({ variant: 'destructive', title: 'Erro ao arquivar impugnacao' })
+      toast({ variant: 'destructive', title: 'Erro ao arquivar impugnação' })
     },
   })
 
@@ -235,7 +235,7 @@ export function ImpugnacaoDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['impugnacao', id] })
       queryClient.invalidateQueries({ queryKey: ['impugnacao-timeline', id] })
-      toast({ title: 'Impugnacao encaminhada para julgamento!' })
+      toast({ title: 'Impugnação encaminhada para julgamento!' })
     },
     onError: () => {
       toast({ variant: 'destructive', title: 'Erro ao encaminhar para julgamento' })
@@ -273,7 +273,7 @@ export function ImpugnacaoDetailPage() {
   if (!impugnacao) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-gray-500">Impugnacao nao encontrada.</p>
+        <p className="text-gray-500">Impugnação não encontrada.</p>
       </div>
     )
   }
@@ -457,7 +457,7 @@ export function ImpugnacaoDetailPage() {
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <div>
-                <dt className="text-sm font-medium text-gray-500">Eleicao</dt>
+                <dt className="text-sm font-medium text-gray-500">Eleição</dt>
                 <dd className="mt-1 text-sm text-gray-900">{impugnacao.eleicaoNome}</dd>
               </div>
               <div>
@@ -737,7 +737,7 @@ export function ImpugnacaoDetailPage() {
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-gray-500">Nenhum registro no historico.</p>
+              <p className="text-sm text-gray-500">Nenhum registro no histórico.</p>
             )}
           </CardContent>
         </Card>
@@ -747,7 +747,7 @@ export function ImpugnacaoDetailPage() {
       <Dialog open={showIniciarAnaliseDialog} onOpenChange={setShowIniciarAnaliseDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Iniciar Analise</DialogTitle>
+            <DialogTitle>Iniciar Análise</DialogTitle>
             <DialogDescription>
               Confirma o inicio da analise desta impugnacao? A fase sera alterada para "Analise Inicial".
             </DialogDescription>
@@ -892,7 +892,7 @@ export function ImpugnacaoDetailPage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="fundamentacaoDecisao">Fundamentacao da Decisao</Label>
+              <Label htmlFor="fundamentacaoDecisao">Fundamentação da Decisao</Label>
               <Textarea
                 id="fundamentacaoDecisao"
                 placeholder="Fundamente a decisao..."
@@ -932,7 +932,7 @@ export function ImpugnacaoDetailPage() {
       <Dialog open={showArquivarDialog} onOpenChange={setShowArquivarDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Arquivar Impugnacao</DialogTitle>
+            <DialogTitle>Arquivar Impugnação</DialogTitle>
             <DialogDescription>
               Informe o motivo do arquivamento desta impugnacao.
             </DialogDescription>

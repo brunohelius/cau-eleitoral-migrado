@@ -150,7 +150,7 @@ export function ConfiguracoesLogs({ isLoading: parentLoading }: ConfiguracoesLog
               <AlertTriangle className="h-8 w-8 text-red-500" />
               <div>
                 <p className="text-2xl font-bold">{stats.seguranca}</p>
-                <p className="text-sm text-gray-500">Seguranca</p>
+                <p className="text-sm text-gray-500">Segurança</p>
               </div>
             </div>
           </CardContent>
@@ -161,7 +161,7 @@ export function ConfiguracoesLogs({ isLoading: parentLoading }: ConfiguracoesLog
               <CheckCircle className="h-8 w-8 text-blue-500" />
               <div>
                 <p className="text-2xl font-bold">{stats.notificacao}</p>
-                <p className="text-sm text-gray-500">Notificacao</p>
+                <p className="text-sm text-gray-500">Notificação</p>
               </div>
             </div>
           </CardContent>
@@ -172,7 +172,7 @@ export function ConfiguracoesLogs({ isLoading: parentLoading }: ConfiguracoesLog
               <CheckCircle className="h-8 w-8 text-green-500" />
               <div>
                 <p className="text-2xl font-bold">{stats.eleicao}</p>
-                <p className="text-sm text-gray-500">Eleicao</p>
+                <p className="text-sm text-gray-500">Eleição</p>
               </div>
             </div>
           </CardContent>
@@ -202,7 +202,7 @@ export function ConfiguracoesLogs({ isLoading: parentLoading }: ConfiguracoesLog
               </div>
             </div>
             <div>
-              <Label className="sr-only">Data Inicio</Label>
+              <Label className="sr-only">Data Início</Label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 <Input
@@ -236,7 +236,7 @@ export function ConfiguracoesLogs({ isLoading: parentLoading }: ConfiguracoesLog
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Historico de Alteracoes</CardTitle>
+              <CardTitle>Histórico de Alterações</CardTitle>
               <CardDescription>
                 {filteredLogs?.length || 0} registros encontrados
               </CardDescription>
@@ -265,10 +265,10 @@ export function ConfiguracoesLogs({ isLoading: parentLoading }: ConfiguracoesLog
                   <tr className="border-b">
                     <th className="text-left py-3 px-4 font-medium">Data/Hora</th>
                     <th className="text-left py-3 px-4 font-medium">Usuario</th>
-                    <th className="text-left py-3 px-4 font-medium">Configuracao</th>
+                    <th className="text-left py-3 px-4 font-medium">Configuração</th>
                     <th className="text-left py-3 px-4 font-medium">Valor Anterior</th>
                     <th className="text-left py-3 px-4 font-medium">Valor Novo</th>
-                    <th className="text-right py-3 px-4 font-medium">Acoes</th>
+                    <th className="text-right py-3 px-4 font-medium">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -370,7 +370,7 @@ export function ConfiguracoesLogs({ isLoading: parentLoading }: ConfiguracoesLog
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <Card className="w-full max-w-lg m-4">
             <CardHeader>
-              <CardTitle>Detalhes da Alteracao</CardTitle>
+              <CardTitle>Detalhes da Alteração</CardTitle>
               <CardDescription>
                 {getChaveLabel(selectedLog.chave).categoria} -{' '}
                 {getChaveLabel(selectedLog.chave).campo}
@@ -399,7 +399,7 @@ export function ConfiguracoesLogs({ isLoading: parentLoading }: ConfiguracoesLog
               </div>
 
               <div>
-                <Label className="text-gray-500">Chave da Configuracao</Label>
+                <Label className="text-gray-500">Chave da Configuração</Label>
                 <p className="mt-1 text-sm bg-gray-50 p-3 rounded-lg font-mono">
                   {selectedLog.chave}
                 </p>

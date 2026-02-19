@@ -36,7 +36,7 @@ const getStatusInfo = (status: StatusUsuario) => {
     [StatusUsuario.INATIVO]: { label: 'Inativo', color: 'bg-gray-100 text-gray-800' },
     [StatusUsuario.BLOQUEADO]: { label: 'Bloqueado', color: 'bg-red-100 text-red-800' },
     [StatusUsuario.PENDENTE_CADASTRO]: { label: 'Pendente (Cadastro)', color: 'bg-yellow-100 text-yellow-800' },
-    [StatusUsuario.PENDENTE_CONFIRMACAO]: { label: 'Pendente (Confirmacao)', color: 'bg-orange-100 text-orange-800' },
+    [StatusUsuario.PENDENTE_CONFIRMACAO]: { label: 'Pendente (Confirmação)', color: 'bg-orange-100 text-orange-800' },
   }
   return statusMap[status] || { label: 'Desconhecido', color: 'bg-gray-100 text-gray-800' }
 }
@@ -45,7 +45,7 @@ const getStatusInfo = (status: StatusUsuario) => {
 const getTipoInfo = (tipo: TipoUsuario) => {
   const tipoMap: Record<TipoUsuario, { label: string; color: string }> = {
     [TipoUsuario.ADMINISTRADOR]: { label: 'Administrador', color: 'bg-purple-100 text-purple-800' },
-    [TipoUsuario.COMISSAO_ELEITORAL]: { label: 'Comissao Eleitoral', color: 'bg-blue-100 text-blue-800' },
+    [TipoUsuario.COMISSAO_ELEITORAL]: { label: 'Comissão Eleitoral', color: 'bg-blue-100 text-blue-800' },
     [TipoUsuario.CONSELHEIRO]: { label: 'Conselheiro', color: 'bg-teal-100 text-teal-800' },
     [TipoUsuario.PROFISSIONAL]: { label: 'Profissional', color: 'bg-indigo-100 text-indigo-800' },
     [TipoUsuario.CANDIDATO]: { label: 'Candidato', color: 'bg-orange-100 text-orange-800' },
@@ -151,7 +151,7 @@ export function UsuariosPage() {
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Nao foi possivel ativar o usuario.',
+        description: 'Não foi possível ativar o usuario.',
       })
     },
   })
@@ -170,7 +170,7 @@ export function UsuariosPage() {
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Nao foi possivel inativar o usuario.',
+        description: 'Não foi possível inativar o usuario.',
       })
     },
   })
@@ -193,7 +193,7 @@ export function UsuariosPage() {
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Nao foi possivel redefinir a senha.',
+        description: 'Não foi possível redefinir a senha.',
       })
     },
   })
@@ -280,7 +280,7 @@ export function UsuariosPage() {
                   >
                     <option value="">Todos</option>
                     <option value={TipoUsuario.ADMINISTRADOR}>Administrador</option>
-                    <option value={TipoUsuario.COMISSAO_ELEITORAL}>Comissao Eleitoral</option>
+                    <option value={TipoUsuario.COMISSAO_ELEITORAL}>Comissão Eleitoral</option>
                     <option value={TipoUsuario.CONSELHEIRO}>Conselheiro</option>
                     <option value={TipoUsuario.PROFISSIONAL}>Profissional</option>
                     <option value={TipoUsuario.CANDIDATO}>Candidato</option>
@@ -304,7 +304,7 @@ export function UsuariosPage() {
                     <option value={StatusUsuario.INATIVO}>Inativo</option>
                     <option value={StatusUsuario.BLOQUEADO}>Bloqueado</option>
                     <option value={StatusUsuario.PENDENTE_CADASTRO}>Pendente (Cadastro)</option>
-                    <option value={StatusUsuario.PENDENTE_CONFIRMACAO}>Pendente (Confirmacao)</option>
+                    <option value={StatusUsuario.PENDENTE_CONFIRMACAO}>Pendente (Confirmação)</option>
                   </select>
                 </div>
                 <div className="flex items-end">
@@ -380,7 +380,7 @@ export function UsuariosPage() {
                       <th className="pb-3 font-medium">Tipo</th>
                       <th className="pb-3 font-medium">Status</th>
                       <th className="pb-3 font-medium">Ultimo Acesso</th>
-                      <th className="pb-3 font-medium text-right">Acoes</th>
+                      <th className="pb-3 font-medium text-right">Ações</th>
                     </tr>
                   </thead>
                   <tbody>

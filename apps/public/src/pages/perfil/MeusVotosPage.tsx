@@ -127,12 +127,12 @@ export function MeusVotosPage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Meus Votos</h1>
-          <p className="text-gray-600 mt-1">Historico de participacao nas eleicoes</p>
+          <p className="text-gray-600 mt-1">Histórico de participação nas eleições</p>
         </div>
         <div className="flex items-center justify-center py-16">
           <div className="flex flex-col items-center gap-3">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-gray-500">Carregando historico de votos...</p>
+            <p className="text-gray-500">Carregando histórico de votos...</p>
           </div>
         </div>
       </div>
@@ -145,11 +145,11 @@ export function MeusVotosPage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Meus Votos</h1>
-          <p className="text-gray-600 mt-1">Historico de participacao nas eleicoes</p>
+          <p className="text-gray-600 mt-1">Histórico de participação nas eleições</p>
         </div>
         <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
           <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
-          <p className="text-gray-700 font-medium mb-2">Erro ao carregar historico</p>
+          <p className="text-gray-700 font-medium mb-2">Erro ao carregar histórico</p>
           <p className="text-gray-500 mb-6 text-sm">{error}</p>
           <button
             onClick={fetchHistorico}
@@ -168,7 +168,7 @@ export function MeusVotosPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Meus Votos</h1>
-        <p className="text-gray-600 mt-1">Historico de participacao nas eleicoes</p>
+        <p className="text-gray-600 mt-1">Histórico de participação nas eleições</p>
       </div>
 
       {actionError && (
@@ -223,7 +223,7 @@ export function MeusVotosPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{oldestYear ?? '-'}</p>
-              <p className="text-sm text-gray-500">Primeira Votacao</p>
+              <p className="text-sm text-gray-500">Primeira Votação</p>
             </div>
           </div>
         </div>
@@ -280,7 +280,7 @@ export function MeusVotosPage() {
           <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
             <Shield className="h-5 w-5 text-red-600 flex-shrink-0" />
             <div>
-              <p className="font-medium text-red-800">Codigo nao encontrado</p>
+              <p className="font-medium text-red-800">Codigo não encontrado</p>
               <p className="text-sm text-red-700">{verificationMessage}</p>
             </div>
           </div>
@@ -307,7 +307,7 @@ export function MeusVotosPage() {
       {/* Previous Votes */}
       {previousVotes.length > 0 && (
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Eleicoes Anteriores</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Eleições Anteriores</h2>
           <div className="space-y-4">
             {previousVotes.map(voto => (
               <VotoCard
@@ -325,7 +325,7 @@ export function MeusVotosPage() {
       {votos.length === 0 && (
         <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
           <Vote className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500 mb-4">Voce ainda nao participou de nenhuma eleicao</p>
+          <p className="text-gray-500 mb-4">Você ainda nao participou de nenhuma eleição</p>
           <Link
             to="/eleitor/votacao"
             className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90"

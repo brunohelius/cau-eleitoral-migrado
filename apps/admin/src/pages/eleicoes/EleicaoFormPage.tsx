@@ -94,15 +94,15 @@ export function EleicaoFormPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['eleicoes'] })
       toast({
-        title: 'Eleicao criada com sucesso!',
-        description: 'A eleicao foi cadastrada no sistema.',
+        title: 'Eleição criada com sucesso!',
+        description: 'A eleição foi cadastrada no sistema.',
       })
       navigate('/eleicoes')
     },
     onError: (error: any) => {
       toast({
         variant: 'destructive',
-        title: 'Erro ao criar eleicao',
+        title: 'Erro ao criar eleição',
         description: error.response?.data?.message || 'Tente novamente mais tarde.',
       })
     },
@@ -114,15 +114,15 @@ export function EleicaoFormPage() {
       queryClient.invalidateQueries({ queryKey: ['eleicoes'] })
       queryClient.invalidateQueries({ queryKey: ['eleicao', id] })
       toast({
-        title: 'Eleicao atualizada com sucesso!',
-        description: 'As alteracoes foram salvas.',
+        title: 'Eleição atualizada com sucesso!',
+        description: 'As alterações foram salvas.',
       })
       navigate('/eleicoes')
     },
     onError: (error: any) => {
       toast({
         variant: 'destructive',
-        title: 'Erro ao atualizar eleicao',
+        title: 'Erro ao atualizar eleição',
         description: error.response?.data?.message || 'Tente novamente mais tarde.',
       })
     },
@@ -168,13 +168,13 @@ export function EleicaoFormPage() {
         <div className="grid gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Informacoes Basicas</CardTitle>
-              <CardDescription>Dados principais da eleicao</CardDescription>
+              <CardTitle>Informações Basicas</CardTitle>
+              <CardDescription>Dados principais da eleição</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="nome">Nome da Eleicao *</Label>
+                  <Label htmlFor="nome">Nome da Eleição *</Label>
                   <Input
                     id="nome"
                     placeholder="Ex: Eleicao CAU/BR 2024"
@@ -198,7 +198,7 @@ export function EleicaoFormPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="descricao">Descricao</Label>
+                <Label htmlFor="descricao">Descrição</Label>
                 <textarea
                   id="descricao"
                   className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -209,7 +209,7 @@ export function EleicaoFormPage() {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="tipo">Tipo de Eleicao *</Label>
+                  <Label htmlFor="tipo">Tipo de Eleição *</Label>
                   <select
                     id="tipo"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -226,7 +226,7 @@ export function EleicaoFormPage() {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="modoVotacao">Modo de Votacao *</Label>
+                  <Label htmlFor="modoVotacao">Modo de Votação *</Label>
                   <select
                     id="modoVotacao"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -249,12 +249,12 @@ export function EleicaoFormPage() {
           <Card>
             <CardHeader>
               <CardTitle>Datas</CardTitle>
-              <CardDescription>Cronograma da eleicao</CardDescription>
+              <CardDescription>Cronograma da eleição</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="dataInicio">Data de Inicio *</Label>
+                  <Label htmlFor="dataInicio">Data de Início *</Label>
                   <Input
                     id="dataInicio"
                     type="date"
@@ -279,7 +279,7 @@ export function EleicaoFormPage() {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="dataVotacaoInicio">Inicio da Votacao</Label>
+                  <Label htmlFor="dataVotacaoInicio">Início da Votação</Label>
                   <Input
                     id="dataVotacaoInicio"
                     type="date"
@@ -287,7 +287,7 @@ export function EleicaoFormPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="dataVotacaoFim">Fim da Votacao</Label>
+                  <Label htmlFor="dataVotacaoFim">Fim da Votação</Label>
                   <Input
                     id="dataVotacaoFim"
                     type="date"
@@ -300,7 +300,7 @@ export function EleicaoFormPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Configuracoes</CardTitle>
+              <CardTitle>Configurações</CardTitle>
               <CardDescription>Parametros adicionais</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

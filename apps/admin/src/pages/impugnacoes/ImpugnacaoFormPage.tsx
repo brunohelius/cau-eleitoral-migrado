@@ -116,7 +116,7 @@ export function ImpugnacaoFormPage() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['impugnacoes'] })
       toast({
-        title: 'Impugnacao registrada com sucesso!',
+        title: 'Impugnação registrada com sucesso!',
         description: `Protocolo: ${data.protocolo}. A impugnacao sera analisada pela Comissao Eleitoral.`,
       })
       navigate(`/impugnacoes/${data.id}`)
@@ -124,7 +124,7 @@ export function ImpugnacaoFormPage() {
     onError: (error: any) => {
       toast({
         variant: 'destructive',
-        title: 'Erro ao registrar impugnacao',
+        title: 'Erro ao registrar impugnação',
         description: error.response?.data?.message || 'Tente novamente mais tarde.',
       })
     },
@@ -173,8 +173,8 @@ export function ImpugnacaoFormPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Nova Impugnacao</h1>
-          <p className="text-gray-600">Registre uma impugnacao no processo eleitoral</p>
+          <h1 className="text-2xl font-bold text-gray-900">Nova Impugnação</h1>
+          <p className="text-gray-600">Registre uma impugnação no processo eleitoral</p>
         </div>
       </div>
 
@@ -187,12 +187,12 @@ export function ImpugnacaoFormPage() {
                 <AlertOctagon className="h-5 w-5 text-red-500" />
                 Dados da Impugnacao
               </CardTitle>
-              <CardDescription>Selecione o tipo e a eleicao relacionada</CardDescription>
+              <CardDescription>Selecione o tipo e a eleição relacionada</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="tipo">Tipo de Impugnacao *</Label>
+                  <Label htmlFor="tipo">Tipo de Impugnação *</Label>
                   <Select
                     value={selectedTipo}
                     onValueChange={(value) => setValue('tipo', value)}
@@ -214,7 +214,7 @@ export function ImpugnacaoFormPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="eleicaoId">Eleicao *</Label>
+                  <Label htmlFor="eleicaoId">Eleição *</Label>
                   <Select
                     value={selectedEleicaoId}
                     onValueChange={(value) => setValue('eleicaoId', value)}
@@ -283,14 +283,14 @@ export function ImpugnacaoFormPage() {
           {/* Fundamentacao */}
           <Card>
             <CardHeader>
-              <CardTitle>Fundamentacao</CardTitle>
+              <CardTitle>Fundamentação</CardTitle>
               <CardDescription>
                 Descreva detalhadamente os fatos e fundamentos juridicos da impugnacao
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="fundamentacao">Fundamentacao de Fato e de Direito *</Label>
+                <Label htmlFor="fundamentacao">Fundamentação de Fato e de Direito *</Label>
                 <Textarea
                   id="fundamentacao"
                   placeholder="Descreva detalhadamente os fatos que motivam a impugnacao e os fundamentos juridicos que a sustentam. Seja o mais especifico possivel, citando datas, documentos e testemunhas quando aplicavel..."
@@ -410,12 +410,12 @@ export function ImpugnacaoFormPage() {
               <div className="flex gap-3">
                 <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-medium text-blue-900">Informacoes Importantes</h4>
+                  <h4 className="font-medium text-blue-900">Informações Importantes</h4>
                   <ul className="text-sm text-blue-800 mt-2 space-y-1">
-                    <li>- A impugnacao deve ser apresentada dentro do prazo estabelecido pelo calendario eleitoral</li>
-                    <li>- Impugnacoes intempestivas nao serao conhecidas</li>
-                    <li>- O impugnado sera notificado e tera prazo para apresentar defesa</li>
-                    <li>- A decisao sera proferida pela Comissao Eleitoral</li>
+                    <li>- A impugnação deve ser apresentada dentro do prazo estabelecido pelo calendário eleitoral</li>
+                    <li>- Impugnações intempestivas não seráo conhecidas</li>
+                    <li>- O impugnado será notificado e tera prazo para apresentar defesa</li>
+                    <li>- A decisao será proferida pela Comissão Eleitoral</li>
                     <li>- Cabe recurso da decisao no prazo regulamentar</li>
                   </ul>
                 </div>

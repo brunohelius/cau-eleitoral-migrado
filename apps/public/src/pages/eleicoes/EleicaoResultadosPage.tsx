@@ -169,7 +169,7 @@ export function EleicaoResultadosPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{participacao.toFixed(1)}%</p>
-              <p className="text-sm text-gray-500">Participacao</p>
+              <p className="text-sm text-gray-500">Participação</p>
             </div>
           </div>
         </div>
@@ -191,7 +191,7 @@ export function EleicaoResultadosPage() {
       {resultado.resultadosChapas.length > 0 && (
         <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
           <div className="p-6 border-b">
-            <h2 className="text-lg font-semibold text-gray-900">Votacao por Chapa</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Votação por Chapa</h2>
           </div>
           <div className="p-6 space-y-6">
             {resultado.resultadosChapas
@@ -279,7 +279,7 @@ export function EleicaoResultadosPage() {
         {/* Participation Info */}
         <div className="bg-white rounded-lg shadow-sm border">
           <div className="p-6 border-b">
-            <h2 className="text-lg font-semibold text-gray-900">Informacoes de Participacao</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Informações de Participação</h2>
           </div>
           <div className="p-6">
             <div className="space-y-4">
@@ -296,7 +296,7 @@ export function EleicaoResultadosPage() {
                 <span className="font-semibold">{resultado.totalAbstencoes.toLocaleString()}</span>
               </div>
               <div className="pt-4 border-t flex items-center justify-between">
-                <span className="text-gray-900 font-medium">Taxa de Participacao</span>
+                <span className="text-gray-900 font-medium">Taxa de Participação</span>
                 <span className="font-bold text-lg text-green-600">{participacao.toFixed(1)}%</span>
               </div>
             </div>

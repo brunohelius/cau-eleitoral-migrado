@@ -25,7 +25,7 @@ const statusLabels: Record<number, { label: string; color: string }> = {
   3: { label: 'Encerrada', color: 'bg-yellow-100 text-yellow-800' },
   4: { label: 'Suspensa', color: 'bg-orange-100 text-orange-800' },
   5: { label: 'Cancelada', color: 'bg-red-100 text-red-800' },
-  6: { label: 'Apuracao', color: 'bg-purple-100 text-purple-800' },
+  6: { label: 'Apuração', color: 'bg-purple-100 text-purple-800' },
   7: { label: 'Finalizada', color: 'bg-indigo-100 text-indigo-800' },
 }
 
@@ -47,8 +47,8 @@ export function EleicoesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['eleicoes'] })
       toast({
-        title: 'Eleicao excluida com sucesso!',
-        description: 'A eleicao foi removida do sistema.',
+        title: 'Eleição excluida com sucesso!',
+        description: 'A eleição foi removida do sistema.',
       })
       setDeleteDialogOpen(false)
       setEleicaoToDelete(null)
@@ -56,7 +56,7 @@ export function EleicoesPage() {
     onError: (error: any) => {
       toast({
         variant: 'destructive',
-        title: 'Erro ao excluir eleicao',
+        title: 'Erro ao excluir eleição',
         description: error.response?.data?.message || 'Nao foi possivel excluir a eleicao. Tente novamente mais tarde.',
       })
     },
@@ -90,8 +90,8 @@ export function EleicoesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Eleicoes</h1>
-          <p className="text-gray-600">Gerencie as eleicoes do sistema</p>
+          <h1 className="text-2xl font-bold text-gray-900">Eleições</h1>
+          <p className="text-gray-600">Gerencie as eleições do sistema</p>
         </div>
         <Link to="/eleicoes/nova">
           <Button>
@@ -129,8 +129,8 @@ export function EleicoesPage() {
                     <th className="text-left py-3 px-4 font-medium">Ano</th>
                     <th className="text-left py-3 px-4 font-medium">Status</th>
                     <th className="text-left py-3 px-4 font-medium">Chapas</th>
-                    <th className="text-left py-3 px-4 font-medium">Periodo</th>
-                    <th className="text-right py-3 px-4 font-medium">Acoes</th>
+                    <th className="text-left py-3 px-4 font-medium">Período</th>
+                    <th className="text-right py-3 px-4 font-medium">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -184,7 +184,7 @@ export function EleicoesPage() {
               </table>
             </div>
           ) : (
-            <p className="text-center py-8 text-gray-500">Nenhuma eleicao encontrada.</p>
+            <p className="text-center py-8 text-gray-500">Nenhuma eleição encontrada.</p>
           )}
         </CardContent>
       </Card>
@@ -193,7 +193,7 @@ export function EleicoesPage() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar Exclusao</AlertDialogTitle>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
             <AlertDialogDescription>
               Tem certeza que deseja excluir a eleicao "{eleicaoToDelete?.nome}"?
               <br />

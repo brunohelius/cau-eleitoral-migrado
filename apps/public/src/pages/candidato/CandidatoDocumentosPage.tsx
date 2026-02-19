@@ -153,10 +153,10 @@ export function CandidatoDocumentosPage() {
           <div className="flex items-start gap-3">
             <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="text-sm">
-              <p className="font-medium text-blue-800">Informacoes Importantes</p>
+              <p className="font-medium text-blue-800">Informações Importantes</p>
               <ul className="text-blue-700 mt-1 space-y-1 list-disc list-inside">
                 <li>Todos os documentos obrigatorios devem ser aprovados para validar sua candidatura</li>
-                <li>Formatos aceitos: PDF, JPG, PNG (maximo 5MB por arquivo)</li>
+                <li>Formatos aceitos: PDF, JPG, PNG (máximo 5MB por arquivo)</li>
                 <li>Documentos rejeitados podem ser reenviados</li>
               </ul>
             </div>
@@ -247,10 +247,10 @@ export function CandidatoDocumentosPage() {
         <div className="flex items-start gap-3">
           <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="text-sm">
-            <p className="font-medium text-blue-800">Informacoes Importantes</p>
+            <p className="font-medium text-blue-800">Informações Importantes</p>
             <ul className="text-blue-700 mt-1 space-y-1 list-disc list-inside">
               <li>Todos os documentos obrigatorios devem ser aprovados para validar sua candidatura</li>
-              <li>Formatos aceitos: PDF, JPG, PNG (maximo 5MB por arquivo)</li>
+              <li>Formatos aceitos: PDF, JPG, PNG (máximo 5MB por arquivo)</li>
               <li>Documentos rejeitados podem ser reenviados</li>
             </ul>
           </div>

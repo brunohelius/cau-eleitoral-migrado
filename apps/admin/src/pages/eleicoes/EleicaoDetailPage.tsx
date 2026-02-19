@@ -25,7 +25,7 @@ export function EleicaoDetailPage() {
   if (!eleicao) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-gray-500">Eleicao nao encontrada.</p>
+        <p className="text-gray-500">Eleição não encontrada.</p>
       </div>
     )
   }
@@ -40,7 +40,7 @@ export function EleicaoDetailPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{eleicao.nome}</h1>
-          <p className="text-gray-600">Detalhes da eleicao</p>
+          <p className="text-gray-600">Detalhes da eleição</p>
         </div>
       </div>
 
@@ -94,7 +94,7 @@ export function EleicaoDetailPage() {
               <dd className="mt-1 text-sm text-gray-900">{eleicao.regionalNome || '-'}</dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-gray-500">Data de Inicio</dt>
+              <dt className="text-sm font-medium text-gray-500">Data de Início</dt>
               <dd className="mt-1 text-sm text-gray-900">
                 {new Date(eleicao.dataInicio).toLocaleDateString('pt-BR')}
               </dd>
@@ -107,7 +107,7 @@ export function EleicaoDetailPage() {
             </div>
             {eleicao.dataVotacaoInicio && (
               <div>
-                <dt className="text-sm font-medium text-gray-500">Inicio da Votacao</dt>
+                <dt className="text-sm font-medium text-gray-500">Início da Votação</dt>
                 <dd className="mt-1 text-sm text-gray-900">
                   {new Date(eleicao.dataVotacaoInicio).toLocaleDateString('pt-BR')}
                 </dd>
@@ -115,14 +115,14 @@ export function EleicaoDetailPage() {
             )}
             {eleicao.dataVotacaoFim && (
               <div>
-                <dt className="text-sm font-medium text-gray-500">Fim da Votacao</dt>
+                <dt className="text-sm font-medium text-gray-500">Fim da Votação</dt>
                 <dd className="mt-1 text-sm text-gray-900">
                   {new Date(eleicao.dataVotacaoFim).toLocaleDateString('pt-BR')}
                 </dd>
               </div>
             )}
             <div>
-              <dt className="text-sm font-medium text-gray-500">Descricao</dt>
+              <dt className="text-sm font-medium text-gray-500">Descrição</dt>
               <dd className="mt-1 text-sm text-gray-900">{eleicao.descricao || '-'}</dd>
             </div>
           </dl>

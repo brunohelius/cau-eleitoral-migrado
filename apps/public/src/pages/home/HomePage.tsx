@@ -33,18 +33,18 @@ export function HomePage() {
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <Vote className="h-10 w-10 text-primary mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Votacao Online</h3>
-          <p className="text-gray-600">Vote de qualquer lugar com seguranca e praticidade.</p>
+          <h3 className="text-lg font-semibold mb-2">Votação Online</h3>
+          <p className="text-gray-600">Vote de qualquer lugar com segurança e praticidade.</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <Calendar className="h-10 w-10 text-primary mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Calendario Eleitoral</h3>
-          <p className="text-gray-600">Acompanhe todas as datas importantes das eleicoes.</p>
+          <h3 className="text-lg font-semibold mb-2">Calendário Eleitoral</h3>
+          <p className="text-gray-600">Acompanhe todas as datas importantes das eleições.</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <Users className="h-10 w-10 text-primary mb-4" />
           <h3 className="text-lg font-semibold mb-2">Chapas</h3>
-          <p className="text-gray-600">Conheca as chapas e candidatos de cada eleicao.</p>
+          <p className="text-gray-600">Conheça as chapas e candidatos de cada eleição.</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <CheckCircle className="h-10 w-10 text-primary mb-4" />
@@ -56,7 +56,7 @@ export function HomePage() {
       {/* CTA */}
       <section className="bg-primary text-white rounded-xl p-8 text-center">
         <h2 className="text-2xl font-bold mb-4">Pronto para votar?</h2>
-        <p className="mb-6">Acesse a area do eleitor e exerca seu direito ao voto.</p>
+        <p className="mb-6">Acesse a área do eleitor e exerça seu direito ao voto.</p>
         <Link
           to="/votacao"
           className="bg-white text-primary px-6 py-3 rounded-lg font-medium hover:bg-gray-100 inline-block"

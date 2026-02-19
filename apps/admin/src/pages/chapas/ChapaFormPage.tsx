@@ -130,7 +130,7 @@ export function ChapaFormPage() {
       queryClient.invalidateQueries({ queryKey: ['chapa', id] })
       toast({
         title: 'Chapa atualizada com sucesso!',
-        description: 'As alteracoes foram salvas.',
+        description: 'As alterações foram salvas.',
       })
       navigate('/chapas')
     },
@@ -175,7 +175,7 @@ export function ChapaFormPage() {
         toast({
           variant: 'destructive',
           title: 'Arquivo muito grande',
-          description: 'O tamanho maximo permitido e 2MB.',
+          description: 'O tamanho máximo permitido e 2MB.',
         })
         return
       }
@@ -184,8 +184,8 @@ export function ChapaFormPage() {
       if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
         toast({
           variant: 'destructive',
-          title: 'Formato invalido',
-          description: 'Apenas arquivos JPG, PNG e WebP sao permitidos.',
+          title: 'Formato inválido',
+          description: 'Apenas arquivos JPG, PNG e WebP são permitidos.',
         })
         return
       }
@@ -246,7 +246,7 @@ export function ChapaFormPage() {
           {/* Basic Info Card */}
           <Card>
             <CardHeader>
-              <CardTitle>Informacoes Basicas</CardTitle>
+              <CardTitle>Informações Basicas</CardTitle>
               <CardDescription>Dados principais da chapa</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -264,14 +264,14 @@ export function ChapaFormPage() {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="eleicaoId">Eleicao *</Label>
+                  <Label htmlFor="eleicaoId">Eleição *</Label>
                   <select
                     id="eleicaoId"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     {...register('eleicaoId')}
                     disabled={isSubmitting || isEditing}
                   >
-                    <option value="">Selecione uma eleicao</option>
+                    <option value="">Selecione uma eleição</option>
                     {eleicoes?.map((eleicao) => (
                       <option key={eleicao.id} value={eleicao.id}>
                         {eleicao.nome} ({eleicao.ano})
@@ -291,7 +291,7 @@ export function ChapaFormPage() {
 
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
-                  <Label htmlFor="numero">Numero *</Label>
+                  <Label htmlFor="numero">Número *</Label>
                   <Input
                     id="numero"
                     type="number"
@@ -334,7 +334,7 @@ export function ChapaFormPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="descricao">Descricao</Label>
+                <Label htmlFor="descricao">Descrição</Label>
                 <textarea
                   id="descricao"
                   className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -350,7 +350,7 @@ export function ChapaFormPage() {
           <Card>
             <CardHeader>
               <CardTitle>Logo da Chapa</CardTitle>
-              <CardDescription>Imagem de identificacao visual</CardDescription>
+              <CardDescription>Imagem de identificação visual</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-start gap-6">

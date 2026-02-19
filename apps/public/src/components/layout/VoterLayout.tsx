@@ -16,10 +16,10 @@ import { useVoterStore } from '@/stores/voter'
 import { useVotacaoStore } from '@/stores/votacao'
 
 const navigation = [
-  { name: 'Inicio', href: '/eleitor', icon: Home },
+  { name: 'Início', href: '/eleitor', icon: Home },
   { name: 'Votar', href: '/eleitor/votacao', icon: Vote },
   { name: 'Meus Votos', href: '/eleitor/meus-votos', icon: History },
-  { name: 'Notificacoes', href: '/eleitor/notificacoes', icon: Bell },
+  { name: 'Notificações', href: '/eleitor/notificacoes', icon: Bell },
   { name: 'Perfil', href: '/eleitor/perfil', icon: User },
 ]
 
@@ -71,7 +71,7 @@ export function VoterLayout() {
         )}
       >
         <div className="flex h-16 items-center justify-between px-4 border-b">
-          <span className="text-xl font-bold text-primary">Area do Eleitor</span>
+          <span className="text-xl font-bold text-primary">Área do Eleitor</span>
           <button
             onClick={() => setSidebarOpen(false)}
             className="p-2 rounded-md text-gray-500 hover:bg-gray-100"

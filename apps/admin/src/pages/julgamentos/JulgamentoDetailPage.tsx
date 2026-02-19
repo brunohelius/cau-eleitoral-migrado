@@ -205,12 +205,12 @@ export function JulgamentoDetailPage() {
   const getTipoBadge = (tipo: string) => {
     const tipoConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
       denuncia: {
-        label: 'Denuncia',
+        label: 'Denúncia',
         color: 'bg-orange-100 text-orange-800',
         icon: <AlertTriangle className="h-4 w-4" />,
       },
       impugnacao: {
-        label: 'Impugnacao',
+        label: 'Impugnação',
         color: 'bg-red-100 text-red-800',
         icon: <AlertOctagon className="h-4 w-4" />,
       },
@@ -248,7 +248,7 @@ export function JulgamentoDetailPage() {
   if (!julgamento) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-gray-500">Julgamento nao encontrado.</p>
+        <p className="text-gray-500">Julgamento não encontrado.</p>
       </div>
     )
   }
@@ -293,13 +293,13 @@ export function JulgamentoDetailPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
-              <h4 className="font-medium text-gray-700 mb-2">Descricao</h4>
+              <h4 className="font-medium text-gray-700 mb-2">Descrição</h4>
               <p className="text-gray-600">{julgamento.descricao}</p>
             </div>
 
             {julgamento.fundamentacao && (
               <div className="rounded-lg bg-gray-50 p-4">
-                <h4 className="font-medium text-gray-700 mb-2">Fundamentacao da Decisao</h4>
+                <h4 className="font-medium text-gray-700 mb-2">Fundamentação da Decisao</h4>
                 <p className="text-gray-600 whitespace-pre-wrap">{julgamento.fundamentacao}</p>
               </div>
             )}
@@ -317,7 +317,7 @@ export function JulgamentoDetailPage() {
                 <dd className="mt-1 text-sm text-gray-900">{julgamento.relatorNome}</dd>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500">Eleicao</dt>
+                <dt className="text-sm font-medium text-gray-500">Eleição</dt>
                 <dd className="mt-1 text-sm text-gray-900">{julgamento.eleicaoNome}</dd>
               </div>
               <div>

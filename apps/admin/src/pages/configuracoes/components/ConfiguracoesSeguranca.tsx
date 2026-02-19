@@ -153,7 +153,7 @@ export function ConfiguracoesSeguranca({ data, isLoading, onSave }: Configuracoe
         <CardContent className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="sessaoTimeoutMinutos">Timeout da Sessao (minutos)</Label>
+              <Label htmlFor="sessaoTimeoutMinutos">Timeout da Sessão (minutos)</Label>
               <Input
                 id="sessaoTimeoutMinutos"
                 type="number"
@@ -236,7 +236,7 @@ export function ConfiguracoesSeguranca({ data, isLoading, onSave }: Configuracoe
 
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="tamanhoMinimoSenha">Tamanho Minimo</Label>
+              <Label htmlFor="tamanhoMinimoSenha">Tamanho Mínimo</Label>
               <Input
                 id="tamanhoMinimoSenha"
                 type="number"
@@ -258,14 +258,14 @@ export function ConfiguracoesSeguranca({ data, isLoading, onSave }: Configuracoe
               <p className="text-xs text-gray-500">0 = nunca expira</p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="historicoSenhasImpedir">Historico a Impedir</Label>
+              <Label htmlFor="historicoSenhasImpedir">Histórico a Impedir</Label>
               <Input
                 id="historicoSenhasImpedir"
                 type="number"
                 min={0}
                 {...register('historicoSenhasImpedir')}
               />
-              <p className="text-xs text-gray-500">Ultimas senhas que nao podem ser reutilizadas</p>
+              <p className="text-xs text-gray-500">Ultimas senhas que não podem ser reutilizadas</p>
             </div>
           </div>
 

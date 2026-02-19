@@ -283,7 +283,7 @@ export function CandidatoRecursosPage() {
                   <div className="px-4 sm:px-6 pb-6 border-t pt-4">
                     {/* Decisao Original */}
                     <div className="mb-4">
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">Impugnacao Recorrida</h4>
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Impugnação Recorrida</h4>
                       <div className="p-3 bg-gray-50 rounded-lg text-sm text-gray-600">
                         {recurso.impugnacaoDescricao}
                       </div>

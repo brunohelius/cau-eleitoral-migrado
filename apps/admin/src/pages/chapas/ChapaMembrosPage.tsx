@@ -178,7 +178,7 @@ export function ChapaMembrosPage() {
     if (!formData.candidatoId) {
       toast({
         variant: 'destructive',
-        title: 'Campo obrigatorio',
+        title: 'Campo obrigatório',
         description: 'Selecione um candidato.',
       })
       return
@@ -237,7 +237,7 @@ export function ChapaMembrosPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <AlertTriangle className="h-12 w-12 text-red-400 mb-4" />
-        <p className="text-gray-500">Chapa nao encontrada.</p>
+        <p className="text-gray-500">Chapa não encontrada.</p>
         <Link to="/chapas" className="mt-4">
           <Button variant="outline">
             <ArrowLeft className="mr-2 h-4 w-4" />

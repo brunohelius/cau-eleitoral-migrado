@@ -136,7 +136,7 @@ export function VotacaoConfirmacaoPage() {
         {/* Security indicator */}
         <div className="mt-8 flex items-center gap-2 text-green-600">
           <Shield className="h-5 w-5" />
-          <span className="text-sm font-medium">Conexao segura e criptografada</span>
+          <span className="text-sm font-medium">Conexão segura e criptografada</span>
         </div>
       </div>
     )
@@ -183,7 +183,7 @@ export function VotacaoConfirmacaoPage() {
           <div>
             <h2 className="text-lg font-bold text-yellow-800">Atencao!</h2>
             <p className="text-yellow-700 mt-1">
-              Apos a confirmacao, seu voto sera registrado de forma definitiva e <strong>nao podera ser alterado</strong>.
+              Apos a confirmacao, seu voto sera registrado de forma definitiva e <strong>não podera ser alterado</strong>.
               Revise sua escolha com atencao antes de confirmar.
             </p>
           </div>
@@ -202,7 +202,7 @@ export function VotacaoConfirmacaoPage() {
               </div>
               <div>
                 <p className="text-xl font-bold text-gray-700">Voto em Branco</p>
-                <p className="text-gray-500">Voce optou por nao escolher nenhuma chapa</p>
+                <p className="text-gray-500">Você optou por nao escolher nenhuma chapa</p>
               </div>
             </>
           ) : votoSelecionado.tipo === 'nulo' ? (
@@ -212,7 +212,7 @@ export function VotacaoConfirmacaoPage() {
               </div>
               <div>
                 <p className="text-xl font-bold text-red-600">Voto Nulo</p>
-                <p className="text-gray-500">Voce optou por anular seu voto</p>
+                <p className="text-gray-500">Você optou por anular seu voto</p>
               </div>
             </>
           ) : (
@@ -236,7 +236,7 @@ export function VotacaoConfirmacaoPage() {
 
         <div className="mt-6 space-y-3 text-sm">
           <div className="flex justify-between py-2 border-b">
-            <span className="text-gray-500">Eleicao:</span>
+            <span className="text-gray-500">Eleição:</span>
             <span className="font-medium text-gray-900">{eleicaoNome}</span>
           </div>
           <div className="flex justify-between py-2 border-b">

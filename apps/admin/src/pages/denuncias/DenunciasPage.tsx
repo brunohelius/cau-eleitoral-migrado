@@ -36,7 +36,7 @@ import { eleicoesService, type Eleicao } from '@/services/eleicoes'
 const statusFilterOptions = [
   { value: '', label: 'Todos os Status' },
   { value: String(StatusDenuncia.RECEBIDA), label: 'Recebida' },
-  { value: String(StatusDenuncia.EM_ANALISE), label: 'Em Analise' },
+  { value: String(StatusDenuncia.EM_ANALISE), label: 'Em Análise' },
   { value: String(StatusDenuncia.AGUARDANDO_JULGAMENTO), label: 'Aguardando Julgamento' },
   { value: String(StatusDenuncia.JULGADA), label: 'Julgada' },
   { value: String(StatusDenuncia.PROCEDENTE), label: 'Procedente' },
@@ -107,8 +107,8 @@ export function DenunciasPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['denuncias'] })
       toast({
-        title: 'Analise iniciada',
-        description: 'A denuncia foi movida para analise.',
+        title: 'Análise iniciada',
+        description: 'A denúncia foi movida para análise.',
       })
       setActionModal({ type: null, denuncia: null })
     },
@@ -116,7 +116,7 @@ export function DenunciasPage() {
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Nao foi possivel iniciar a analise.',
+        description: 'Não foi possível iniciar a análise.',
       })
     },
   })
@@ -127,8 +127,8 @@ export function DenunciasPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['denuncias'] })
       toast({
-        title: 'Denuncia arquivada',
-        description: 'A denuncia foi arquivada com sucesso.',
+        title: 'Denúncia arquivada',
+        description: 'A denúncia foi arquivada com sucesso.',
       })
       setActionModal({ type: null, denuncia: null })
       setActionMotivo('')
@@ -137,7 +137,7 @@ export function DenunciasPage() {
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Nao foi possivel arquivar a denuncia.',
+        description: 'Não foi possível arquivar a denúncia.',
       })
     },
   })
@@ -148,8 +148,8 @@ export function DenunciasPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['denuncias'] })
       toast({
-        title: 'Denuncia reaberta',
-        description: 'A denuncia foi reaberta com sucesso.',
+        title: 'Denúncia reaberta',
+        description: 'A denúncia foi reaberta com sucesso.',
       })
       setActionModal({ type: null, denuncia: null })
       setActionMotivo('')
@@ -158,7 +158,7 @@ export function DenunciasPage() {
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Nao foi possivel reabrir a denuncia.',
+        description: 'Não foi possível reabrir a denúncia.',
       })
     },
   })
@@ -180,7 +180,7 @@ export function DenunciasPage() {
     if (!actionModal.denuncia || !actionMotivo.trim()) {
       toast({
         variant: 'destructive',
-        title: 'Motivo obrigatorio',
+        title: 'Motivo obrigatório',
         description: 'Informe o motivo do arquivamento.',
       })
       return
@@ -192,7 +192,7 @@ export function DenunciasPage() {
     if (!actionModal.denuncia || !actionMotivo.trim()) {
       toast({
         variant: 'destructive',
-        title: 'Motivo obrigatorio',
+        title: 'Motivo obrigatório',
         description: 'Informe o motivo da reabertura.',
       })
       return
@@ -215,14 +215,14 @@ export function DenunciasPage() {
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
       toast({
-        title: 'Relatorio exportado',
-        description: 'O download do relatorio foi iniciado.',
+        title: 'Relatório exportado',
+        description: 'O download do relatório foi iniciado.',
       })
     } catch {
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Nao foi possivel exportar o relatorio.',
+        description: 'Não foi possível exportar o relatório.',
       })
     }
   }
@@ -249,7 +249,7 @@ export function DenunciasPage() {
     switch (denuncia.status) {
       case StatusDenuncia.RECEBIDA:
         actions.push({
-          label: 'Iniciar Analise',
+          label: 'Iniciar Análise',
           icon: <PlayCircle className="h-4 w-4" />,
           action: () => handleIniciarAnalise(denuncia),
         })
@@ -289,7 +289,7 @@ export function DenunciasPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Denuncias</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Denúncias</h1>
           <p className="text-gray-600">Gerencie as denuncias eleitorais ({total} registros)</p>
         </div>
         <div className="flex gap-2">
@@ -317,12 +317,12 @@ export function DenunciasPage() {
             <div className="text-2xl font-bold">
               {denuncias.filter((d) => d.status === StatusDenuncia.RECEBIDA).length}
             </div>
-            <p className="text-xs text-muted-foreground">aguardando analise</p>
+            <p className="text-xs text-muted-foreground">aguardando análise</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Em Analise</CardTitle>
+            <CardTitle className="text-sm font-medium">Em Análise</CardTitle>
             <FileText className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
@@ -437,7 +437,7 @@ export function DenunciasPage() {
                 </select>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">Eleicao</label>
+                <label className="text-sm font-medium text-gray-700">Eleição</label>
                 <select
                   value={eleicaoFilter}
                   onChange={(e) => {
@@ -446,7 +446,7 @@ export function DenunciasPage() {
                   }}
                   className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
-                  <option value="">Todas as Eleicoes</option>
+                  <option value="">Todas as Eleições</option>
                   {eleicoes?.map((eleicao: Eleicao) => (
                     <option key={eleicao.id} value={eleicao.id}>
                       {eleicao.nome} ({eleicao.ano})
@@ -476,7 +476,7 @@ export function DenunciasPage() {
                       <th className="text-left py-3 px-4 font-medium">Tipo</th>
                       <th className="text-left py-3 px-4 font-medium">Status</th>
                       <th className="text-left py-3 px-4 font-medium">Data</th>
-                      <th className="text-right py-3 px-4 font-medium">Acoes</th>
+                      <th className="text-right py-3 px-4 font-medium">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -605,7 +605,7 @@ export function DenunciasPage() {
           ) : (
             <div className="text-center py-12">
               <AlertTriangle className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">Nenhuma denuncia encontrada.</p>
+              <p className="text-gray-500">Nenhuma denúncia encontrada.</p>
               {hasActiveFilters && (
                 <Button variant="link" onClick={clearFilters} className="mt-2">
                   Limpar filtros

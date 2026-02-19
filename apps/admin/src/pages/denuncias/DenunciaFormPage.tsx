@@ -190,15 +190,15 @@ export function DenunciaFormPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['denuncias'] })
       toast({
-        title: 'Denuncia registrada com sucesso!',
-        description: 'A denuncia foi registrada e sera analisada pela Comissao Eleitoral.',
+        title: 'Denúncia registrada com sucesso!',
+        description: 'A denúncia foi registrada e será analisada pela Comissão Eleitoral.',
       })
       navigate('/denuncias')
     },
     onError: (error: Error & { response?: { data?: { message?: string } } }) => {
       toast({
         variant: 'destructive',
-        title: 'Erro ao registrar denuncia',
+        title: 'Erro ao registrar denúncia',
         description: error.response?.data?.message || 'Tente novamente mais tarde.',
       })
     },
@@ -212,15 +212,15 @@ export function DenunciaFormPage() {
       queryClient.invalidateQueries({ queryKey: ['denuncias'] })
       queryClient.invalidateQueries({ queryKey: ['denuncia', id] })
       toast({
-        title: 'Denuncia atualizada com sucesso!',
-        description: 'As alteracoes foram salvas.',
+        title: 'Denúncia atualizada com sucesso!',
+        description: 'As alterações foram salvas.',
       })
       navigate(`/denuncias/${id}`)
     },
     onError: (error: Error & { response?: { data?: { message?: string } } }) => {
       toast({
         variant: 'destructive',
-        title: 'Erro ao atualizar denuncia',
+        title: 'Erro ao atualizar denúncia',
         description: error.response?.data?.message || 'Tente novamente mais tarde.',
       })
     },
@@ -317,14 +317,14 @@ export function DenunciaFormPage() {
             <CardContent className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="eleicaoId">Eleicao *</Label>
+                  <Label htmlFor="eleicaoId">Eleição *</Label>
                   <select
                     id="eleicaoId"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     {...register('eleicaoId')}
                     disabled={isEditing || isLoadingEleicoes}
                   >
-                    <option value="">Selecione uma eleicao</option>
+                    <option value="">Selecione uma eleição</option>
                     {eleicoes?.map((eleicao: Eleicao) => (
                       <option key={eleicao.id} value={eleicao.id}>
                         {eleicao.nome} ({eleicao.ano})
@@ -336,7 +336,7 @@ export function DenunciaFormPage() {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="tipo">Tipo de Denuncia *</Label>
+                  <Label htmlFor="tipo">Tipo de Denúncia *</Label>
                   <select
                     id="tipo"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
@@ -412,7 +412,7 @@ export function DenunciaFormPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="descricao">Descricao Detalhada *</Label>
+                <Label htmlFor="descricao">Descrição Detalhada *</Label>
                 <textarea
                   id="descricao"
                   className="flex min-h-[150px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
@@ -425,7 +425,7 @@ export function DenunciaFormPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="fundamentacao">Fundamentacao Legal (opcional)</Label>
+                <Label htmlFor="fundamentacao">Fundamentação Legal (opcional)</Label>
                 <textarea
                   id="fundamentacao"
                   className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
@@ -444,7 +444,7 @@ export function DenunciaFormPage() {
                   <User className="h-5 w-5" />
                   Denunciante
                 </CardTitle>
-                <CardDescription>Suas informacoes de contato (opcional)</CardDescription>
+                <CardDescription>Suas informações de contato (opcional)</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-2">

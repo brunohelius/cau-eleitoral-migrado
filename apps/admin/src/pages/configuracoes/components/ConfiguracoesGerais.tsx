@@ -140,7 +140,7 @@ export function ConfiguracoesGerais({ data, isLoading, onSave }: ConfiguracoesGe
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="descricao">Descricao</Label>
+            <Label htmlFor="descricao">Descrição</Label>
             <textarea
               id="descricao"
               placeholder="Sistema de votacao eletronica do Conselho de Arquitetura e Urbanismo"

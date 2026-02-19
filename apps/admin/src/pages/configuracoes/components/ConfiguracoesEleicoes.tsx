@@ -116,7 +116,7 @@ export function ConfiguracoesEleicoes({ data, isLoading, onSave }: Configuracoes
         <CardContent className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="horasAntesInicioVotacao">Horas antes do inicio (para avisos)</Label>
+              <Label htmlFor="horasAntesInicioVotacao">Horas antes do início (para avisos)</Label>
               <Input
                 id="horasAntesInicioVotacao"
                 type="number"
@@ -128,7 +128,7 @@ export function ConfiguracoesEleicoes({ data, isLoading, onSave }: Configuracoes
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="horasAposEncerramento">Horas apos encerramento (para recursos)</Label>
+              <Label htmlFor="horasAposEncerramento">Horas após encerramento (para recursos)</Label>
               <Input
                 id="horasAposEncerramento"
                 type="number"
@@ -140,7 +140,7 @@ export function ConfiguracoesEleicoes({ data, isLoading, onSave }: Configuracoes
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="tempoMaximoVotacao">Tempo maximo para votar (minutos)</Label>
+              <Label htmlFor="tempoMaximoVotacao">Tempo máximo para votar (minutos)</Label>
               <Input
                 id="tempoMaximoVotacao"
                 type="number"
@@ -155,7 +155,7 @@ export function ConfiguracoesEleicoes({ data, isLoading, onSave }: Configuracoes
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="diasMinimosInscricao">Dias minimos para inscricao de chapas</Label>
+              <Label htmlFor="diasMinimosInscricao">Dias minimos para inscrição de chapas</Label>
               <Input
                 id="diasMinimosInscricao"
                 type="number"
@@ -276,7 +276,7 @@ export function ConfiguracoesEleicoes({ data, isLoading, onSave }: Configuracoes
               onClick={() => handleToggle('exibirResultadosAposEncerramento')}
             >
               <div>
-                <p className="font-medium">Exibir resultados apos encerramento</p>
+                <p className="font-medium">Exibir resultados após encerramento</p>
                 <p className="text-sm text-gray-500">
                   Divulga automaticamente os resultados quando a votacao encerrar
                 </p>
@@ -424,7 +424,7 @@ export function ConfiguracoesEleicoes({ data, isLoading, onSave }: Configuracoes
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="bloquearAposXTentativas">Bloquear apos X tentativas</Label>
+              <Label htmlFor="bloquearAposXTentativas">Bloquear após X tentativas</Label>
               <Input
                 id="bloquearAposXTentativas"
                 type="number"

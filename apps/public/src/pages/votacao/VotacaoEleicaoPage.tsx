@@ -38,7 +38,7 @@ const statusFromApi = (e: EleicaoDisponivel): 'disponivel' | 'votado' | 'encerra
 
 const statusConfig = {
   disponivel: {
-    label: 'Votacao Aberta',
+    label: 'Votação Aberta',
     color: 'bg-green-100 text-green-800',
     icon: Vote,
     action: 'Votar Agora',
@@ -153,7 +153,7 @@ export function VotacaoEleicaoPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2 text-gray-500">Carregando eleicoes...</span>
+        <span className="ml-2 text-gray-500">Carregando eleições...</span>
       </div>
     )
   }
@@ -188,7 +188,7 @@ export function VotacaoEleicaoPage() {
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-semibold text-red-800">Falha ao carregar eleicoes</h3>
+              <h3 className="font-semibold text-red-800">Falha ao carregar eleições</h3>
               <p className="text-red-700 mt-1 text-sm">{error}</p>
             </div>
           </div>
@@ -277,7 +277,7 @@ export function VotacaoEleicaoPage() {
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-6 w-6 text-yellow-600 flex-shrink-0" />
             <div>
-              <h3 className="font-semibold text-yellow-800">Nenhuma eleicao disponivel</h3>
+              <h3 className="font-semibold text-yellow-800">Nenhuma eleição disponível</h3>
               <p className="text-yellow-700 mt-1">
                 No momento nao ha eleicoes abertas para votacao. Verifique o calendario eleitoral para saber as proximas datas.
               </p>

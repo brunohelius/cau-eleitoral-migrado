@@ -200,7 +200,7 @@ export function PerfilPage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Meu Perfil</h1>
-          <p className="text-gray-600 mt-1">Visualize e atualize suas informacoes</p>
+          <p className="text-gray-600 mt-1">Visualize e atualize suas informações</p>
         </div>
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
           <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-3" />
@@ -227,7 +227,7 @@ export function PerfilPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Meu Perfil</h1>
-        <p className="text-gray-600 mt-1">Visualize e atualize suas informacoes</p>
+        <p className="text-gray-600 mt-1">Visualize e atualize suas informações</p>
       </div>
 
       {/* Success Toast */}
@@ -396,7 +396,7 @@ export function PerfilPage() {
       <div className="bg-white rounded-lg shadow-sm border p-6">
         <div className="flex items-center gap-2 mb-4">
           <Bell className="h-5 w-5 text-gray-400" />
-          <h3 className="text-lg font-semibold text-gray-900">Preferencias de Notificacao</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Preferencias de Notificação</h3>
         </div>
 
         <div className="space-y-4">
@@ -404,8 +404,8 @@ export function PerfilPage() {
             <div className="flex items-center gap-3">
               <Mail className="h-5 w-5 text-gray-400" />
               <div>
-                <p className="font-medium text-gray-900">Notificacoes por E-mail</p>
-                <p className="text-sm text-gray-500">Receba avisos sobre eleicoes no seu e-mail</p>
+                <p className="font-medium text-gray-900">Notificações por E-mail</p>
+                <p className="text-sm text-gray-500">Receba avisos sobre eleições no seu e-mail</p>
               </div>
             </div>
             <input
@@ -420,8 +420,8 @@ export function PerfilPage() {
             <div className="flex items-center gap-3">
               <Phone className="h-5 w-5 text-gray-400" />
               <div>
-                <p className="font-medium text-gray-900">Notificacoes por SMS</p>
-                <p className="text-sm text-gray-500">Receba lembretes de votacao no seu celular</p>
+                <p className="font-medium text-gray-900">Notificações por SMS</p>
+                <p className="text-sm text-gray-500">Receba lembretes de votação no seu celular</p>
               </div>
             </div>
             <input
@@ -438,7 +438,7 @@ export function PerfilPage() {
       <div className="bg-white rounded-lg shadow-sm border p-6">
         <div className="flex items-center gap-2 mb-4">
           <Shield className="h-5 w-5 text-gray-400" />
-          <h3 className="text-lg font-semibold text-gray-900">Informacoes da Conta</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Informações da Conta</h3>
         </div>
 
         <div className="space-y-4">
@@ -447,7 +447,7 @@ export function PerfilPage() {
             <span className="text-gray-900 capitalize">{eleitor.tipo}</span>
           </div>
           <div className="flex items-center justify-between py-2">
-            <span className="text-gray-500">Situacao Eleitoral</span>
+            <span className="text-gray-500">Situação Eleitoral</span>
             <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${situacao.color}`}>
               <SituacaoIcon className="h-3 w-3" />
               {situacao.label}

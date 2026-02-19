@@ -112,14 +112,14 @@ export function EleicaoApuracaoPage() {
     setIsRefreshing(false)
     toast({
       title: 'Dados atualizados',
-      description: 'Os dados da apuracao foram atualizados.',
+      description: 'Os dados da apuração foram atualizados.',
     })
   }
 
   const handleExportarResultados = () => {
     toast({
       title: 'Exportando resultados',
-      description: 'O arquivo sera baixado em instantes.',
+      description: 'O arquivo será baixado em instantes.',
     })
   }
 
@@ -168,7 +168,7 @@ export function EleicaoApuracaoPage() {
           </Link>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">Apuracao</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Apuração</h1>
               {getStatusBadge(dadosApuracao.status)}
             </div>
             <p className="text-gray-600">{eleicao?.nome}</p>
@@ -216,7 +216,7 @@ export function EleicaoApuracaoPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Participacao</CardTitle>
+            <CardTitle className="text-sm font-medium">Participação</CardTitle>
             <TrendingUp className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
@@ -281,7 +281,7 @@ export function EleicaoApuracaoPage() {
                     </div>
                   ))
               ) : (
-                <p className="text-center py-4 text-gray-500">Nenhum resultado disponivel</p>
+                <p className="text-center py-4 text-gray-500">Nenhum resultado disponível</p>
               )}
             </div>
           </CardContent>
@@ -290,7 +290,7 @@ export function EleicaoApuracaoPage() {
         {/* Detalhes da Votacao */}
         <Card>
           <CardHeader>
-            <CardTitle>Detalhes da Votacao</CardTitle>
+            <CardTitle>Detalhes da Votação</CardTitle>
             <CardDescription>Distribuicao dos votos</CardDescription>
           </CardHeader>
           <CardContent>

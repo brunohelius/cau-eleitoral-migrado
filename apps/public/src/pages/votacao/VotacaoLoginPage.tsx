@@ -150,7 +150,7 @@ export function VotacaoLoginPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
             <Lock className="h-8 w-8 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Area do Eleitor</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Área do Eleitor</h1>
           <p className="text-gray-600 mt-2">
             {step === 'identificacao'
               ? 'Identifique-se para acessar a votacao'
@@ -166,7 +166,7 @@ export function VotacaoLoginPage() {
             }`}>
               {step === 'senha' ? <CheckCircle className="h-5 w-5" /> : '1'}
             </div>
-            <span className="text-sm font-medium hidden sm:block">Identificacao</span>
+            <span className="text-sm font-medium hidden sm:block">Identificação</span>
           </div>
           <div className="w-8 h-0.5 bg-gray-200" />
           <div className={`flex items-center gap-2 ${step === 'senha' ? 'text-primary' : 'text-gray-400'}`}>
@@ -257,7 +257,7 @@ export function VotacaoLoginPage() {
             <form onSubmit={handleLogin} className="space-y-6">
               {/* Show user info */}
               <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-500">Voce esta acessando como:</p>
+                <p className="text-sm text-gray-500">Você esta acessando como:</p>
                 <p className="font-medium text-gray-900">CPF: {cpf}</p>
                 <p className="text-sm text-gray-600">CAU: {cau}</p>
                 <button

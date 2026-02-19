@@ -15,8 +15,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 const relatorioCategories = [
   {
     id: 'eleicao',
-    title: 'Relatorios de Eleicao',
-    description: 'Informacoes gerais sobre as eleicoes',
+    title: 'Relatórios de Eleição',
+    description: 'Informações gerais sobre as eleições',
     icon: Calendar,
     color: 'bg-blue-100 text-blue-600',
     link: '/relatorios/eleicao',
@@ -29,8 +29,8 @@ const relatorioCategories = [
   },
   {
     id: 'votacao',
-    title: 'Relatorios de Votacao',
-    description: 'Estatisticas e resultados da votacao',
+    title: 'Relatórios de Votação',
+    description: 'Estatisticas e resultados da votação',
     icon: Vote,
     color: 'bg-green-100 text-green-600',
     link: '/relatorios/votacao',
@@ -43,8 +43,8 @@ const relatorioCategories = [
   },
   {
     id: 'eleitores',
-    title: 'Relatorios de Eleitores',
-    description: 'Informacoes sobre o corpo eleitoral',
+    title: 'Relatórios de Eleitores',
+    description: 'Informações sobre o corpo eleitoral',
     icon: Users,
     color: 'bg-purple-100 text-purple-600',
     link: '/relatorios/eleitores',
@@ -57,8 +57,8 @@ const relatorioCategories = [
   },
   {
     id: 'juridico',
-    title: 'Relatorios Juridicos',
-    description: 'Denuncias, impugnacoes e julgamentos',
+    title: 'Relatórios Juridicos',
+    description: 'Denúncias, impugnações e julgamentos',
     icon: FileText,
     color: 'bg-orange-100 text-orange-600',
     link: '/relatorios/juridico',
@@ -72,10 +72,10 @@ const relatorioCategories = [
 ]
 
 const quickStats = [
-  { label: 'Eleicoes Realizadas', value: '12', icon: Calendar, color: 'text-blue-600' },
+  { label: 'Eleições Realizadas', value: '12', icon: Calendar, color: 'text-blue-600' },
   { label: 'Total de Votos', value: '45.832', icon: Vote, color: 'text-green-600' },
   { label: 'Eleitores Cadastrados', value: '58.741', icon: Users, color: 'text-purple-600' },
-  { label: 'Participacao Media', value: '78%', icon: TrendingUp, color: 'text-orange-600' },
+  { label: 'Participação Media', value: '78%', icon: TrendingUp, color: 'text-orange-600' },
 ]
 
 export function RelatoriosPage() {
@@ -88,8 +88,8 @@ export function RelatoriosPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Relatorios</h1>
-          <p className="text-gray-600">Visualize e exporte relatorios do sistema eleitoral</p>
+          <h1 className="text-2xl font-bold text-gray-900">Relatórios</h1>
+          <p className="text-gray-600">Visualize e exporte relatórios do sistema eleitoral</p>
         </div>
         <Button onClick={handleExportAll}>
           <Download className="mr-2 h-4 w-4" />
@@ -160,14 +160,14 @@ export function RelatoriosPage() {
             <BarChart3 className="h-5 w-5" />
             Relatorios Recentes
           </CardTitle>
-          <CardDescription>Ultimos relatorios gerados</CardDescription>
+          <CardDescription>Ultimos relatórios gerados</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium">Relatorio</th>
+                  <th className="text-left py-3 px-4 font-medium">Relatório</th>
                   <th className="text-left py-3 px-4 font-medium">Tipo</th>
                   <th className="text-left py-3 px-4 font-medium">Data</th>
                   <th className="text-left py-3 px-4 font-medium">Gerado por</th>
@@ -176,7 +176,7 @@ export function RelatoriosPage() {
               </thead>
               <tbody>
                 <tr className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4">Resultado Final - Eleicao CAU/SP 2024</td>
+                  <td className="py-3 px-4">Resultado Final - Eleição CAU/SP 2024</td>
                   <td className="py-3 px-4">
                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
                       Votacao
@@ -206,7 +206,7 @@ export function RelatoriosPage() {
                   </td>
                 </tr>
                 <tr className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4">Denuncias Julgadas - Fevereiro 2024</td>
+                  <td className="py-3 px-4">Denúncias Julgadas - Fevereiro 2024</td>
                   <td className="py-3 px-4">
                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">
                       Juridico
@@ -221,7 +221,7 @@ export function RelatoriosPage() {
                   </td>
                 </tr>
                 <tr className="hover:bg-gray-50">
-                  <td className="py-3 px-4">Resumo Geral - Eleicao CAU/SP 2024</td>
+                  <td className="py-3 px-4">Resumo Geral - Eleição CAU/SP 2024</td>
                   <td className="py-3 px-4">
                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
                       Eleicao

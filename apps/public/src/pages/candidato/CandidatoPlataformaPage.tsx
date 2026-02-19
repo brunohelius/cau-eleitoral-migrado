@@ -324,7 +324,7 @@ export function CandidatoPlataformaPage() {
             {/* Video */}
             {plataforma.video && (
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Video de Apresentacao</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Video de Apresentação</h3>
                 <a
                   href={plataforma.video}
                   target="_blank"
@@ -341,7 +341,7 @@ export function CandidatoPlataformaPage() {
           // Empty State
           <div className="p-12 text-center">
             <Megaphone className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500 mb-2">Plataforma nao disponivel</p>
+            <p className="text-gray-500 mb-2">Plataforma nao disponível</p>
             <p className="text-sm text-gray-400">
               Clique em "Criar Plataforma" para cadastrar suas propostas eleitorais.
             </p>

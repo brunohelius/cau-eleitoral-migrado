@@ -22,10 +22,10 @@ const navigation = [
   { name: 'Minha Chapa', href: '/candidato', icon: Users },
   { name: 'Documentos', href: '/candidato/documentos', icon: FileText },
   { name: 'Plataforma', href: '/candidato/plataforma', icon: Megaphone },
-  { name: 'Denuncias', href: '/candidato/denuncias', icon: AlertTriangle },
+  { name: 'Denúncias', href: '/candidato/denuncias', icon: AlertTriangle },
   { name: 'Defesas', href: '/candidato/defesas', icon: Shield },
   { name: 'Recursos', href: '/candidato/recursos', icon: Scale },
-  { name: 'Historico', href: '/candidato/historico', icon: History },
+  { name: 'Histórico', href: '/candidato/historico', icon: History },
   { name: 'Perfil', href: '/candidato/perfil', icon: User },
 ]
 
@@ -78,7 +78,7 @@ export function CandidateLayout() {
         )}
       >
         <div className="flex h-16 items-center justify-between px-4 border-b">
-          <span className="text-xl font-bold text-primary">Area do Candidato</span>
+          <span className="text-xl font-bold text-primary">Área do Candidato</span>
           <button
             onClick={() => setSidebarOpen(false)}
             className="p-2 rounded-md text-gray-500 hover:bg-gray-100"

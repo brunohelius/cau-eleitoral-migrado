@@ -57,15 +57,15 @@ export function DenunciaDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['denuncia', id] })
       queryClient.invalidateQueries({ queryKey: ['denuncias'] })
       toast({
-        title: 'Analise iniciada',
-        description: 'A denuncia foi movida para analise.',
+        title: 'Análise iniciada',
+        description: 'A denúncia foi movida para análise.',
       })
     },
     onError: () => {
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Nao foi possivel iniciar a analise.',
+        description: 'Não foi possível iniciar a análise.',
       })
     },
   })
@@ -76,8 +76,8 @@ export function DenunciaDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['denuncia', id] })
       queryClient.invalidateQueries({ queryKey: ['denuncias'] })
       toast({
-        title: 'Denuncia arquivada',
-        description: 'A denuncia foi arquivada com sucesso.',
+        title: 'Denúncia arquivada',
+        description: 'A denúncia foi arquivada com sucesso.',
       })
       setActionModal({ type: null })
       setActionMotivo('')
@@ -86,7 +86,7 @@ export function DenunciaDetailPage() {
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Nao foi possivel arquivar a denuncia.',
+        description: 'Não foi possível arquivar a denúncia.',
       })
     },
   })
@@ -97,8 +97,8 @@ export function DenunciaDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['denuncia', id] })
       queryClient.invalidateQueries({ queryKey: ['denuncias'] })
       toast({
-        title: 'Denuncia reaberta',
-        description: 'A denuncia foi reaberta com sucesso.',
+        title: 'Denúncia reaberta',
+        description: 'A denúncia foi reaberta com sucesso.',
       })
       setActionModal({ type: null })
       setActionMotivo('')
@@ -107,7 +107,7 @@ export function DenunciaDetailPage() {
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Nao foi possivel reabrir a denuncia.',
+        description: 'Não foi possível reabrir a denúncia.',
       })
     },
   })
@@ -117,8 +117,8 @@ export function DenunciaDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['denuncias'] })
       toast({
-        title: 'Denuncia excluida',
-        description: 'A denuncia foi excluida com sucesso.',
+        title: 'Denúncia excluida',
+        description: 'A denúncia foi excluida com sucesso.',
       })
       navigate('/denuncias')
     },
@@ -126,7 +126,7 @@ export function DenunciaDetailPage() {
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Nao foi possivel excluir a denuncia.',
+        description: 'Não foi possível excluir a denúncia.',
       })
     },
   })
@@ -146,7 +146,7 @@ export function DenunciaDetailPage() {
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Nao foi possivel baixar o anexo.',
+        description: 'Não foi possível baixar o anexo.',
       })
     }
   }
@@ -155,7 +155,7 @@ export function DenunciaDetailPage() {
     if (!actionMotivo.trim() && (actionModal.type === 'arquivar' || actionModal.type === 'reabrir')) {
       toast({
         variant: 'destructive',
-        title: 'Motivo obrigatorio',
+        title: 'Motivo obrigatório',
         description: 'Informe o motivo da acao.',
       })
       return
@@ -217,7 +217,7 @@ export function DenunciaDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <AlertTriangle className="h-12 w-12 text-gray-300 mb-4" />
-        <p className="text-gray-500">Denuncia nao encontrada.</p>
+        <p className="text-gray-500">Denúncia não encontrada.</p>
         <Link to="/denuncias">
           <Button variant="link" className="mt-2">
             Voltar para lista
@@ -321,22 +321,22 @@ export function DenunciaDetailPage() {
 
             {denuncia.fundamentacao && (
               <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <h4 className="text-sm font-medium text-gray-500 mb-2">Fundamentacao</h4>
+                <h4 className="text-sm font-medium text-gray-500 mb-2">Fundamentação</h4>
                 <p className="text-gray-700 whitespace-pre-wrap">{denuncia.fundamentacao}</p>
               </div>
             )}
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <div>
-                <dt className="text-sm font-medium text-gray-500">Tipo de Denuncia</dt>
+                <dt className="text-sm font-medium text-gray-500">Tipo de Denúncia</dt>
                 <dd className="mt-1 text-sm text-gray-900">{tipoLabel}</dd>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500">Eleicao</dt>
+                <dt className="text-sm font-medium text-gray-500">Eleição</dt>
                 <dd className="mt-1 text-sm text-gray-900">{denuncia.eleicaoNome || '-'}</dd>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500">Data da Denuncia</dt>
+                <dt className="text-sm font-medium text-gray-500">Data da Denúncia</dt>
                 <dd className="mt-1 text-sm text-gray-900">
                   {new Date(denuncia.dataDenuncia).toLocaleString('pt-BR')}
                 </dd>
