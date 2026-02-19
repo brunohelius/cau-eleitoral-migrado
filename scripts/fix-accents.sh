@@ -1,0 +1,215 @@
+#!/bin/bash
+# Fix missing Portuguese diacritics in all TSX files (display text only)
+# Only targets text inside JSX (between > and <) and string literals
+
+cd "$(dirname "$0")/.."
+
+# Process all TSX files in apps/
+find apps -name '*.tsx' -type f | while read -r file; do
+  # Use sed with in-place editing (macOS compatible with -i '')
+  sed -i '' \
+    -e 's/Eleicoes/Eleições/g' \
+    -e 's/eleicoes/eleições/g' \
+    -e 's/Eleicao /Eleição /g' \
+    -e 's/eleicao /eleição /g' \
+    -e 's/eleicao\./eleição./g' \
+    -e 's/eleicao"/eleição"/g' \
+    -e 's/Calendario /Calendário /g' \
+    -e 's/Calendario"/Calendário"/g' \
+    -e 's/calendario /calendário /g' \
+    -e 's/Votacao/Votação/g' \
+    -e 's/votacao/votação/g' \
+    -e 's/Denuncia /Denúncia /g' \
+    -e 's/denuncia /denúncia /g' \
+    -e 's/Denuncia"/Denúncia"/g' \
+    -e 's/denuncia"/denúncia"/g' \
+    -e 's/Denuncia\?/Denúncia?/g' \
+    -e 's/denuncia\?/denúncia?/g' \
+    -e 's/Denuncia\./Denúncia./g' \
+    -e 's/denuncia\./denúncia./g' \
+    -e 's/Denuncias/Denúncias/g' \
+    -e 's/denuncias/denúncias/g' \
+    -e 's/Impugnacao/Impugnação/g' \
+    -e 's/impugnacao/impugnação/g' \
+    -e 's/Impugnacoes/Impugnações/g' \
+    -e 's/impugnacoes/impugnações/g' \
+    -e 's/Apuracao/Apuração/g' \
+    -e 's/apuracao/apuração/g' \
+    -e 's/Diplomacao/Diplomação/g' \
+    -e 's/diplomacao/diplomação/g' \
+    -e 's/Inscricao/Inscrição/g' \
+    -e 's/inscricao/inscrição/g' \
+    -e 's/Inscricoes/Inscrições/g' \
+    -e 's/inscricoes/inscrições/g' \
+    -e 's/Identificacao/Identificação/g' \
+    -e 's/identificacao/identificação/g' \
+    -e 's/Informacoes/Informações/g' \
+    -e 's/informacoes/informações/g' \
+    -e 's/Informacao/Informação/g' \
+    -e 's/informacao/informação/g' \
+    -e 's/Descricao/Descrição/g' \
+    -e 's/descricao/descrição/g' \
+    -e 's/Configuracoes/Configurações/g' \
+    -e 's/configuracoes/configurações/g' \
+    -e 's/Configuracao/Configuração/g' \
+    -e 's/configuracao/configuração/g' \
+    -e 's/Notificacoes/Notificações/g' \
+    -e 's/notificacoes/notificações/g' \
+    -e 's/Notificacao/Notificação/g' \
+    -e 's/notificacao/notificação/g' \
+    -e 's/Fundamentacao/Fundamentação/g' \
+    -e 's/fundamentacao/fundamentação/g' \
+    -e 's/Comissao/Comissão/g' \
+    -e 's/comissao/comissão/g' \
+    -e 's/Apresentacao/Apresentação/g' \
+    -e 's/apresentacao/apresentação/g' \
+    -e 's/Area do/Área do/g' \
+    -e 's/area do/área do/g' \
+    -e 's/Areas /Áreas /g' \
+    -e 's/areas /áreas /g' \
+    -e 's/Esta area/Esta área/g' \
+    -e 's/esta area/esta área/g' \
+    -e 's/sua area/sua área/g' \
+    -e 's/Inicio/Início/g' \
+    -e 's/Links Rapidos/Links Rápidos/g' \
+    -e 's/Rapidos/Rápidos/g' \
+    -e 's/>Conexao/>Conexão/g' \
+    -e 's/conexao /conexão /g' \
+    -e 's/conexao"/conexão"/g' \
+    -e 's/protecao/proteção/g' \
+    -e 's/Protecao/Proteção/g' \
+    -e 's/seguranca/segurança/g' \
+    -e 's/Seguranca/Segurança/g' \
+    -e 's/obrigatorio/obrigatório/g' \
+    -e 's/Obrigatorio/Obrigatório/g' \
+    -e 's/ invalidas/ inválidas/g' \
+    -e 's/instrucoes/instruções/g' \
+    -e 's/Instrucoes/Instruções/g' \
+    -e 's/recuperacao/recuperação/g' \
+    -e 's/Recuperacao/Recuperação/g' \
+    -e 's/Condicoes/Condições/g' \
+    -e 's/condicoes/condições/g' \
+    -e 's/Condicao/Condição/g' \
+    -e 's/condicao/condição/g' \
+    -e 's/orgaos/órgãos/g' \
+    -e 's/Orgaos/Órgãos/g' \
+    -e 's/duvidas/dúvidas/g' \
+    -e 's/Duvidas/Dúvidas/g' \
+    -e 's/duvida/dúvida/g' \
+    -e 's/Duvida/Dúvida/g' \
+    -e 's/Minimo/Mínimo/g' \
+    -e 's/minimo/mínimo/g' \
+    -e 's/Maximo/Máximo/g' \
+    -e 's/maximo/máximo/g' \
+    -e 's/numero/número/g' \
+    -e 's/Numero/Número/g' \
+    -e 's/digitos/dígitos/g' \
+    -e 's/ e protegida/ é protegida/g' \
+    -e 's/ e exclusiva/ é exclusiva/g' \
+    -e 's/ e obrig/ é obrig/g' \
+    -e 's/Nao e /Não é /g' \
+    -e 's/nao e /não é /g' \
+    -e 's/O que e /O que é /g' \
+    -e 's/ sao / são /g' \
+    -e 's/ e a plataforma/ é a plataforma/g' \
+    -e 's/Nao foi/Não foi/g' \
+    -e 's/nao foi/não foi/g' \
+    -e 's/Nao ha/Não há/g' \
+    -e 's/nao ha/não há/g' \
+    -e 's/nao encontr/não encontr/g' \
+    -e 's/Nao encontr/Não encontr/g' \
+    -e 's/Nenhuma elei/Nenhuma elei/g' \
+    -e 's/esta em/está em/g' \
+    -e 's/ possivel/ possível/g' \
+    -e 's/Possivel/Possível/g' \
+    -e 's/anonima/anônima/g' \
+    -e 's/formulario/formulário/g' \
+    -e 's/Formulario/Formulário/g' \
+    -e 's/Relatorio/Relatório/g' \
+    -e 's/relatorio/relatório/g' \
+    -e 's/Relatorios/Relatórios/g' \
+    -e 's/relatorios/relatórios/g' \
+    -e 's/Julgamento/Julgamento/g' \
+    -e 's/Edicao/Edição/g' \
+    -e 's/edicao/edição/g' \
+    -e 's/Selecao/Seleção/g' \
+    -e 's/selecao/seleção/g' \
+    -e 's/Selecione/Selecione/g' \
+    -e 's/historico/histórico/g' \
+    -e 's/Historico/Histórico/g' \
+    -e 's/valido/válido/g' \
+    -e 's/Valido/Válido/g' \
+    -e 's/invalido/inválido/g' \
+    -e 's/Invalido/Inválido/g' \
+    -e 's/obrigatorio/obrigatório/g' \
+    -e 's/Obrigatorio/Obrigatório/g' \
+    -e 's/academico/acadêmico/g' \
+    -e 's/Academico/Acadêmico/g' \
+    -e 's/profissao/profissão/g' \
+    -e 's/Profissao/Profissão/g' \
+    -e 's/participacao/participação/g' \
+    -e 's/Participacao/Participação/g' \
+    -e 's/Auditoria/Auditoria/g' \
+    -e 's/situacao/situação/g' \
+    -e 's/Situacao/Situação/g' \
+    -e 's/operacao/operação/g' \
+    -e 's/Operacao/Operação/g' \
+    -e 's/operacoes/operações/g' \
+    -e 's/Operacoes/Operações/g' \
+    -e 's/Periodo/Período/g' \
+    -e 's/periodo/período/g' \
+    -e 's/Visualizacao/Visualização/g' \
+    -e 's/visualizacao/visualização/g' \
+    -e 's/Conclusao/Conclusão/g' \
+    -e 's/conclusao/conclusão/g' \
+    -e 's/Confirmacao/Confirmação/g' \
+    -e 's/confirmacao/confirmação/g' \
+    -e 's/Resolucao/Resolução/g' \
+    -e 's/resolucao/resolução/g' \
+    -e 's/Justificacao/Justificação/g' \
+    -e 's/justificacao/justificação/g' \
+    -e 's/Justificativa/Justificativa/g' \
+    -e 's/sessao/sessão/g' \
+    -e 's/Sessao/Sessão/g' \
+    -e 's/Conheca/Conheça/g' \
+    -e 's/conheca/conheça/g' \
+    -e 's/praticidade/praticidade/g' \
+    -e 's/Acoes/Ações/g' \
+    -e 's/acoes/ações/g' \
+    -e 's/Acao/Ação/g' \
+    -e 's/Funcao/Função/g' \
+    -e 's/funcao/função/g' \
+    -e 's/Funcoes/Funções/g' \
+    -e 's/funcoes/funções/g' \
+    -e 's/sera /será /g' \
+    -e 's/sera\./será./g' \
+    -e 's/atraves/através/g' \
+    -e 's/Atraves/Através/g' \
+    -e 's/Disponivel/Disponível/g' \
+    -e 's/disponivel/disponível/g' \
+    -e 's/Disponibilidade/Disponibilidade/g' \
+    -e 's/Permissao/Permissão/g' \
+    -e 's/permissao/permissão/g' \
+    -e 's/Permissoes/Permissões/g' \
+    -e 's/permissoes/permissões/g' \
+    -e 's/Exclusao/Exclusão/g' \
+    -e 's/exclusao/exclusão/g' \
+    -e 's/Criacao/Criação/g' \
+    -e 's/criacao/criação/g' \
+    -e 's/Alteracao/Alteração/g' \
+    -e 's/alteracao/alteração/g' \
+    -e 's/Alteracoes/Alterações/g' \
+    -e 's/alteracoes/alterações/g' \
+    -e 's/Atualizacao/Atualização/g' \
+    -e 's/atualizacao/atualização/g' \
+    -e 's/exerca/exerça/g' \
+    -e 's/Analise/Análise/g' \
+    -e 's/analise/análise/g' \
+    -e 's/Painel Administrativo/Painel Administrativo/g' \
+    -e 's/protocolo/protocolo/g' \
+    -e 's/Administracao/Administração/g' \
+    -e 's/administracao/administração/g' \
+    "$file"
+done
+
+echo "✅ Accent fixes applied to all TSX files."
