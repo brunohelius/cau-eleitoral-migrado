@@ -183,7 +183,7 @@ export function VotacaoConfirmacaoPage() {
           <div>
             <h2 className="text-lg font-bold text-yellow-800">Atencao!</h2>
             <p className="text-yellow-700 mt-1">
-              Apos a confirmacao, seu voto sera registrado de forma definitiva e <strong>não podera ser alterado</strong>.
+              Apos a confirmação, seu voto será registrado de forma definitiva e <strong>não podera ser alterado</strong>.
               Revise sua escolha com atencao antes de confirmar.
             </p>
           </div>
@@ -261,7 +261,7 @@ export function VotacaoConfirmacaoPage() {
           <div className="text-sm">
             <p className="font-medium text-green-800">Voto Seguro e Sigiloso</p>
             <p className="text-green-700">
-              Seu voto e protegido por criptografia. Nenhuma informacao pessoal sera vinculada ao seu voto.
+              Seu voto e protegido por criptografia. Nenhuma informação pessoal será vinculada ao seu voto.
               O sigilo do voto e garantido por lei.
             </p>
           </div>
@@ -300,7 +300,7 @@ export function VotacaoConfirmacaoPage() {
             </div>
 
             <p className="text-gray-600 mb-6">
-              Voce tem certeza que deseja confirmar seu voto? Esta acao e <strong>irreversivel</strong>.
+              Você tem certeza que deseja confirmar seu voto? Esta acao e <strong>irreversivel</strong>.
             </p>
 
             <div className="p-4 bg-gray-50 rounded-lg mb-6">

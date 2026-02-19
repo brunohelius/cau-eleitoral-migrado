@@ -17,7 +17,7 @@ import { useCandidatoStore } from '../../stores/candidato'
 // Types
 interface Plataforma {
   titulo: string
-  descricao: string
+  descrição: string
   propostas: string[]
   video?: string
   imagem?: string
@@ -27,7 +27,7 @@ interface Plataforma {
 
 const emptyPlataforma: Plataforma = {
   titulo: '',
-  descricao: '',
+  descrição: '',
   propostas: [],
   video: '',
   publicada: false,
@@ -63,7 +63,7 @@ export function CandidatoPlataformaPage() {
       // Even if the API fails (e.g., endpoint not yet implemented),
       // we save locally and show a warning
       console.warn('Plataforma API save failed, saving locally:', apiErr.message)
-      setSaveError('Dados salvos localmente. O servidor ainda nao suporta esta operacao.')
+      setSaveError('Dados salvos localmente. O servidor ainda nao suporta esta operação.')
     } finally {
       // Always update local state
       setPlataforma({
@@ -286,7 +286,7 @@ export function CandidatoPlataformaPage() {
                 ) : (
                   <>
                     <Save className="h-4 w-4" />
-                    Salvar Alteracoes
+                    Salvar Alterações
                   </>
                 )}
               </button>

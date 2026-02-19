@@ -29,7 +29,7 @@ interface Recurso {
   impugnacaoId: string
   tipo?: string
   tipoNome?: string
-  fundamentacao: string
+  fundamentação: string
   dataApresentacao: string
   status?: string
   statusNome?: string
@@ -107,8 +107,8 @@ export function CandidatoRecursosPage() {
     const recursos = recursosMap[imp.id] || []
     return recursos.map(r => ({
       ...r,
-      impugnacaoDescricao: imp.descricao,
-      impugnacaoTipo: imp.tipoNome || 'Impugnacao',
+      impugnacaoDescricao: imp.descrição,
+      impugnacaoTipo: imp.tipoNome || 'Impugnação',
       impugnacaoStatus: imp.status,
     }))
   })
@@ -201,7 +201,7 @@ export function CandidatoRecursosPage() {
           <Scale className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-500 mb-4">Nenhum recurso interposto</p>
           <p className="text-sm text-gray-400 mb-4">
-            Recursos podem ser interpostos quando uma impugnacao e julgada procedente.
+            Recursos podem ser interpostos quando uma impugnação e julgada procedente.
           </p>
           {podeInterporRecurso.length > 0 && (
             <Link

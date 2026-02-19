@@ -51,7 +51,7 @@ export function VotacaoPage() {
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean
     type: 'iniciar' | 'encerrar' | null
-    eleicao: EleicaoVotacao | null
+    eleição: EleicaoVotacao | null
   }>({ open: false, type: null, eleicao: null })
 
   const navigate = useNavigate()
@@ -59,7 +59,7 @@ export function VotacaoPage() {
   const queryClient = useQueryClient()
 
   const { data: eleicoes, isLoading } = useQuery({
-    queryKey: ['votacao-eleicoes'],
+    queryKey: ['votação-eleições'],
     queryFn: votacaoService.getAll,
   })
 
@@ -77,7 +77,7 @@ export function VotacaoPage() {
       toast({
         variant: 'destructive',
         title: 'Erro ao iniciar votação',
-        description: error.response?.data?.message || 'Nao foi possivel iniciar a votacao.',
+        description: error.response?.data?.message || 'Não foi possível iniciar a votação.',
       })
     },
   })
@@ -96,7 +96,7 @@ export function VotacaoPage() {
       toast({
         variant: 'destructive',
         title: 'Erro ao encerrar votação',
-        description: error.response?.data?.message || 'Nao foi possivel encerrar a votacao.',
+        description: error.response?.data?.message || 'Não foi possível encerrar a votação.',
       })
     },
   })
@@ -354,7 +354,7 @@ export function VotacaoPage() {
                 <>
                   Tem certeza que deseja encerrar a votacao para "{confirmDialog.eleicao?.nome}"?
                   <br /><br />
-                  Esta acao impedira novos votos e nao pode ser desfeita.
+                  Esta acao impedira novos votos e não pode ser desfeita.
                 </>
               )}
             </AlertDialogDescription>

@@ -31,7 +31,7 @@ export function JaVotouPage() {
   const [hashInput, setHashInput] = useState('')
   const [isVerifying, setIsVerifying] = useState(false)
   const [verificationResult, setVerificationResult] = useState<{
-    valido: boolean
+    válido: boolean
     mensagem: string
     dataVoto?: string
     eleicaoNome?: string
@@ -63,7 +63,7 @@ export function JaVotouPage() {
           return
         }
 
-        setError(apiError.message || 'Nao foi possivel carregar as informacoes do voto.')
+        setError(apiError.message || 'Não foi possível carregar as informações do voto.')
       } finally {
         setIsLoading(false)
       }
@@ -84,8 +84,8 @@ export function JaVotouPage() {
     } catch (err) {
       const apiError = extractApiError(err)
       setVerificationResult({
-        valido: false,
-        mensagem: apiError.message || 'Nao foi possivel verificar o codigo.',
+        válido: false,
+        mensagem: apiError.message || 'Não foi possível verificar o codigo.',
       })
     } finally {
       setIsVerifying(false)
@@ -118,7 +118,7 @@ export function JaVotouPage() {
         </div>
         <h1 className="text-3xl font-bold text-gray-900">Você já votou!</h1>
         <p className="text-gray-600 mt-2">
-          Seu voto nesta eleicao ja foi registrado
+          Seu voto nesta eleição já foi registrado
         </p>
       </div>
 
@@ -240,12 +240,12 @@ export function JaVotouPage() {
               )}
               <div>
                 <p className={`font-medium ${
-                  verificationResult.valido ? 'text-green-800' : 'text-red-800'
+                  verificationResult.válido ? 'text-green-800' : 'text-red-800'
                 }`}>
                   {verificationResult.valido ? 'Voto Verificado' : 'Verificacao Falhou'}
                 </p>
                 <p className={`text-sm mt-1 ${
-                  verificationResult.valido ? 'text-green-700' : 'text-red-600'
+                  verificationResult.válido ? 'text-green-700' : 'text-red-600'
                 }`}>
                   {verificationResult.mensagem}
                 </p>
@@ -291,14 +291,14 @@ export function JaVotouPage() {
           to="/eleitor/votacao"
           className="flex-1 py-3 px-4 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 text-center"
         >
-          Ver outras eleicoes
+          Ver outras eleições
         </Link>
         <button
           onClick={handleLogout}
           className="flex-1 py-3 px-4 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 flex items-center justify-center gap-2"
         >
           <Home className="h-5 w-5" />
-          Encerrar Sessao
+          Encerrar Sessão
         </button>
       </div>
     </div>

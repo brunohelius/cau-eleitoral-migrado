@@ -45,7 +45,7 @@ export function DenunciaDetailPage() {
 
   // Fetch denuncia
   const { data: denuncia, isLoading, error } = useQuery({
-    queryKey: ['denuncia', id],
+    queryKey: ['denúncia', id],
     queryFn: () => denunciasService.getById(id!),
     enabled: !!id,
   })
@@ -268,7 +268,7 @@ export function DenunciaDetailPage() {
               ) : (
                 <PlayCircle className="mr-2 h-4 w-4" />
               )}
-              Iniciar Analise
+              Iniciar Análise
             </Button>
           )}
           {canArquivar && (
@@ -300,7 +300,7 @@ export function DenunciaDetailPage() {
             <Link to={`/denuncias/${id}/julgamento`}>
               <Button>
                 <Gavel className="mr-2 h-4 w-4" />
-                Julgar Denuncia
+                Julgar Denúncia
               </Button>
             </Link>
           )}
@@ -313,7 +313,7 @@ export function DenunciaDetailPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-orange-500" />
-              Descricao da Denuncia
+              Descrição da Denúncia
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -545,7 +545,7 @@ export function DenunciaDetailPage() {
 
               {actionModal.type === 'delete' ? (
                 <p className="text-sm text-gray-600 mb-4">
-                  Tem certeza que deseja excluir esta denuncia? Esta acao nao pode ser desfeita.
+                  Tem certeza que deseja excluir esta denúncia? Esta acao não pode ser desfeita.
                 </p>
               ) : (
                 <>

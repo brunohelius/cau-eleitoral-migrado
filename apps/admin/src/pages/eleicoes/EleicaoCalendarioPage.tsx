@@ -13,7 +13,7 @@ import api from '@/services/api'
 interface EventoCalendario {
   id: string
   titulo: string
-  descricao?: string
+  descrição?: string
   dataInicio: string
   dataFim: string
   tipo: string
@@ -45,8 +45,8 @@ const mapTipoCalendario = (tipo: number): { value: string; cor: string } => {
 
 const mapTipoToIndex = (tipo: string): number => {
   const map: Record<string, number> = {
-    inscricao: 0, impugnacao: 1, campanha: 2, votacao: 3,
-    apuracao: 4, recurso: 5, diplomacao: 6,
+    inscrição: 0, impugnação: 1, campanha: 2, votação: 3,
+    apuração: 4, recurso: 5, diplomação: 6,
   }
   return map[tipo] ?? 0
 }
@@ -58,20 +58,20 @@ export function EleicaoCalendarioPage() {
   const [editingEvento, setEditingEvento] = useState<EventoCalendario | null>(null)
   const [formData, setFormData] = useState({
     titulo: '',
-    descricao: '',
+    descrição: '',
     dataInicio: '',
     dataFim: '',
-    tipo: 'inscricao',
+    tipo: 'inscrição',
   })
 
   const { data: eleicao, isLoading: isLoadingEleicao } = useQuery({
-    queryKey: ['eleicao', id],
+    queryKey: ['eleição', id],
     queryFn: () => eleicoesService.getById(id!),
     enabled: !!id,
   })
 
   const { data: eventos = [], isLoading: isLoadingEventos, refetch: refetchEventos } = useQuery({
-    queryKey: ['calendario', id],
+    queryKey: ['calendário', id],
     queryFn: async () => {
       try {
         const response = await api.get('/calendario', { params: { eleicaoId: id } })
@@ -81,7 +81,7 @@ export function EleicaoCalendarioPage() {
           return {
             id: e.id,
             titulo: e.titulo,
-            descricao: e.descricao,
+            descrição: e.descrição,
             dataInicio: e.dataInicio?.split('T')[0] || '',
             dataFim: e.dataFim?.split('T')[0] || '',
             tipo: tipoInfo.value,
@@ -100,7 +100,7 @@ export function EleicaoCalendarioPage() {
       setEditingEvento(evento)
       setFormData({
         titulo: evento.titulo,
-        descricao: evento.descricao || '',
+        descrição: evento.descrição || '',
         dataInicio: evento.dataInicio,
         dataFim: evento.dataFim,
         tipo: evento.tipo,
@@ -109,10 +109,10 @@ export function EleicaoCalendarioPage() {
       setEditingEvento(null)
       setFormData({
         titulo: '',
-        descricao: '',
+        descrição: '',
         dataInicio: '',
         dataFim: '',
-        tipo: 'inscricao',
+        tipo: 'inscrição',
       })
     }
     setIsModalOpen(true)
@@ -128,7 +128,7 @@ export function EleicaoCalendarioPage() {
       if (editingEvento) {
         await api.put(`/calendario/${editingEvento.id}`, {
           titulo: formData.titulo,
-          descricao: formData.descricao || undefined,
+          descrição: formData.descrição || undefined,
           tipo: mapTipoToIndex(formData.tipo),
           dataInicio: formData.dataInicio,
           dataFim: formData.dataFim,
@@ -141,7 +141,7 @@ export function EleicaoCalendarioPage() {
         await api.post('/calendario', {
           eleicaoId: id,
           titulo: formData.titulo,
-          descricao: formData.descricao || undefined,
+          descrição: formData.descrição || undefined,
           tipo: mapTipoToIndex(formData.tipo),
           dataInicio: formData.dataInicio,
           dataFim: formData.dataFim,

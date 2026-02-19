@@ -76,12 +76,12 @@ export function MeusVotosPage() {
         setVerificationMessage(result.mensagem || 'Seu voto foi registrado com sucesso no sistema.')
       } else {
         setVerificationResult('error')
-        setVerificationMessage(result.mensagem || 'Codigo nao encontrado. Verifique se foi digitado corretamente.')
+        setVerificationMessage(result.mensagem || 'Codigo não encontrado. Verifique se foi digitado corretamente.')
       }
     } catch (err) {
       const apiError = extractApiError(err)
       setVerificationResult('error')
-      setVerificationMessage(apiError.message || 'Nao foi possivel validar o comprovante agora.')
+      setVerificationMessage(apiError.message || 'Não foi possível validar o comprovante agora.')
     } finally {
       setIsVerifying(false)
     }
@@ -101,7 +101,7 @@ export function MeusVotosPage() {
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
     } catch {
-      setActionError('Nao foi possivel baixar o comprovante agora. Tente novamente em instantes.')
+      setActionError('Não foi possível baixar o comprovante agora. Tente novamente em instantes.')
     } finally {
       setDownloadingId(null)
     }
@@ -330,7 +330,7 @@ export function MeusVotosPage() {
             to="/eleitor/votacao"
             className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90"
           >
-            Ver Eleicoes Disponiveis
+            Ver Eleições Disponíveis
           </Link>
         </div>
       )}

@@ -64,12 +64,12 @@ export function EleicaoResultadosPage() {
       <div className="flex flex-col items-center justify-center h-64">
         <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
         <p className="text-gray-700 font-medium">Erro ao carregar resultados</p>
-        <p className="text-gray-500 text-sm">{error || 'Resultado nao encontrado'}</p>
+        <p className="text-gray-500 text-sm">{error || 'Resultado não encontrado'}</p>
         <Link
           to="/eleicoes"
           className="mt-4 text-primary hover:underline"
         >
-          Voltar para eleicoes
+          Voltar para eleições
         </Link>
       </div>
     )
@@ -106,7 +106,7 @@ export function EleicaoResultadosPage() {
               ) : (
                 <>
                   <Clock className="h-4 w-4" />
-                  Em Apuracao
+                  Em Apuração
                 </>
               )}
             </span>

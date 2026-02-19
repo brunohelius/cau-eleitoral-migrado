@@ -26,7 +26,7 @@ interface Eleicao {
   totalChapas: number
   totalEleitores: number
   totalVotos: number
-  participacao: number
+  participação: number
 }
 
 const mapStatusEleicao = (status: number): string => {
@@ -46,7 +46,7 @@ export function RelatorioEleicaoPage() {
   const [tipoRelatorio, setTipoRelatorio] = useState<string>('resumo')
 
   const { data: eleicoes, isLoading } = useQuery({
-    queryKey: ['eleicoes-relatorio'],
+    queryKey: ['eleições-relatório'],
     queryFn: async () => {
       try {
         const response = await api.get('/eleicao')
@@ -59,7 +59,7 @@ export function RelatorioEleicaoPage() {
           totalChapas: e.totalChapas || 0,
           totalEleitores: e.totalEleitores || 0,
           totalVotos: e.totalVotos || 0,
-          participacao: e.totalEleitores > 0
+          participação: e.totalEleitores > 0
             ? Math.round((e.totalVotos / e.totalEleitores) * 100 * 10) / 10
             : 0,
         })) as Eleicao[]
@@ -71,7 +71,7 @@ export function RelatorioEleicaoPage() {
 
   // Load calendario for selected election
   const { data: calendario } = useQuery({
-    queryKey: ['calendario-relatorio', selectedEleicao],
+    queryKey: ['calendário-relatório', selectedEleicao],
     queryFn: async () => {
       try {
         const response = await api.get('/calendario', { params: { eleicaoId: selectedEleicao } })
@@ -85,7 +85,7 @@ export function RelatorioEleicaoPage() {
 
   // Load chapas for selected election
   const { data: chapas } = useQuery({
-    queryKey: ['chapas-relatorio', selectedEleicao],
+    queryKey: ['chapas-relatório', selectedEleicao],
     queryFn: async () => {
       try {
         const response = await api.get(`/chapa/eleicao/${selectedEleicao}`)

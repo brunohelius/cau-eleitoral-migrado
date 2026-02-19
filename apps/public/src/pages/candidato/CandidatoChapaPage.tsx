@@ -51,7 +51,7 @@ export function CandidatoChapaPage() {
       <div className="flex flex-col items-center justify-center h-64">
         <AlertTriangle className="h-12 w-12 text-gray-400 mb-4" />
         <p className="text-gray-700 font-medium">Nenhuma chapa encontrada</p>
-        <p className="text-gray-500 text-sm mt-1">Você ainda nao esta vinculado a nenhuma chapa.</p>
+        <p className="text-gray-500 text-sm mt-1">Você ainda não está vinculado a nenhuma chapa.</p>
       </div>
     )
   }
@@ -179,7 +179,7 @@ export function CandidatoChapaPage() {
             <div>
               <p className="font-medium text-green-800">Chapa Aprovada</p>
               <p className="text-sm text-green-700">
-                Sua chapa foi aprovada pela Comissao Eleitoral e esta apta a participar da eleicao.
+                Sua chapa foi aprovada pela Comissão Eleitoral e está apta a participar da eleição.
               </p>
             </div>
           </div>
@@ -193,7 +193,7 @@ export function CandidatoChapaPage() {
             <div>
               <p className="font-medium text-yellow-800">Em Análise</p>
               <p className="text-sm text-yellow-700">
-                Sua chapa esta em analise pela Comissao Eleitoral. Aguarde a comunicacao oficial.
+                Sua chapa está em análise pela Comissão Eleitoral. Aguarde a comunicação oficial.
               </p>
             </div>
           </div>
@@ -207,13 +207,13 @@ export function CandidatoChapaPage() {
             <div>
               <p className="font-medium text-red-800">Chapa Impugnada</p>
               <p className="text-sm text-red-700">
-                Sua chapa recebeu uma impugnacao. Verifique a area de denuncias e defesas.
+                Sua chapa recebeu uma impugnação. Verifique a area de denúncias e defesas.
               </p>
               <Link
                 to="/candidato/defesas"
                 className="inline-flex items-center gap-1 mt-2 text-red-800 font-medium hover:underline"
               >
-                Ver impugnacao
+                Ver impugnação
                 <ExternalLink className="h-4 w-4" />
               </Link>
             </div>

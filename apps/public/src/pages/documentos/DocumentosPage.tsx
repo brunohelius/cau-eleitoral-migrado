@@ -75,7 +75,7 @@ interface DocumentoDto {
   categoriaNome: string
   status: StatusDocumento
   statusNome: string
-  numero: string
+  número: string
   ano: number | null
   titulo: string
   ementa: string | null
@@ -213,7 +213,7 @@ export function DocumentosPage() {
       } catch (err) {
         if (!cancelled) {
           console.error('Erro ao carregar documentos:', err)
-          setError('Nao foi possivel carregar os documentos. Tente novamente mais tarde.')
+          setError('Não foi possível carregar os documentos. Tente novamente mais tarde.')
         }
       } finally {
         if (!cancelled) {

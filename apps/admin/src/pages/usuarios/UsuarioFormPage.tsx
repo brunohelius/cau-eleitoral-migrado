@@ -34,9 +34,9 @@ import {
 
 // Validation schema
 const usuarioSchema = z.object({
-  nome: z.string().min(3, 'Nome deve ter no minimo 3 caracteres'),
+  nome: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
   nomeCompleto: z.string().optional(),
-  email: z.string().email('Email invalido'),
+  email: z.string().email('Email inválido'),
   cpf: z
     .string()
     .optional()
@@ -49,7 +49,7 @@ const usuarioSchema = z.object({
   telefone: z.string().optional(),
   tipo: z.nativeEnum(TipoUsuario),
   roles: z.array(z.string()).min(1, 'Selecione pelo menos um perfil'),
-  password: z.string().min(8, 'Senha deve ter no minimo 8 caracteres').optional(),
+  password: z.string().min(8, 'Senha deve ter no mínimo 8 caracteres').optional(),
   confirmarSenha: z.string().optional(),
   enviarEmailBoasVindas: z.boolean().default(true),
 }).refine((data) => {

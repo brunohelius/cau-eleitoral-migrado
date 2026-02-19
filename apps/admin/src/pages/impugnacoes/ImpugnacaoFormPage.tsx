@@ -27,13 +27,13 @@ import { eleicoesService } from '@/services/eleicoes'
 import { chapasService } from '@/services/chapas'
 
 const impugnacaoSchema = z.object({
-  eleicaoId: z.string().min(1, 'Selecione uma eleicao'),
-  tipo: z.string().min(1, 'Selecione o tipo de impugnacao'),
+  eleicaoId: z.string().min(1, 'Selecione uma eleição'),
+  tipo: z.string().min(1, 'Selecione o tipo de impugnação'),
   chapaId: z.string().optional(),
   candidatoId: z.string().optional(),
-  fundamentacao: z.string().min(100, 'Fundamentacao deve ter no minimo 100 caracteres'),
+  fundamentação: z.string().min(100, 'Fundamentação deve ter no mínimo 100 caracteres'),
   normasVioladas: z.string().optional(),
-  pedido: z.string().min(20, 'Pedido deve ter no minimo 20 caracteres'),
+  pedido: z.string().min(20, 'Pedido deve ter no mínimo 20 caracteres'),
 })
 
 type ImpugnacaoFormData = z.infer<typeof impugnacaoSchema>
@@ -63,7 +63,7 @@ export function ImpugnacaoFormPage() {
 
   // Fetch eleicoes
   const { data: eleicoes, isLoading: loadingEleicoes } = useQuery({
-    queryKey: ['eleicoes-ativas'],
+    queryKey: ['eleições-ativas'],
     queryFn: eleicoesService.getAtivas,
   })
 
@@ -95,7 +95,7 @@ export function ImpugnacaoFormPage() {
       const request: CreateImpugnacaoRequest = {
         eleicaoId: data.eleicaoId,
         tipo: Number(data.tipo),
-        fundamentacao: data.fundamentacao,
+        fundamentação: data.fundamentação,
         normasVioladas: data.normasVioladas,
         pedido: data.pedido,
         chapaId: data.chapaId || undefined,
@@ -107,7 +107,7 @@ export function ImpugnacaoFormPage() {
       // Upload anexos if any
       if (anexos.length > 0) {
         for (const anexo of anexos) {
-          await impugnacoesService.uploadAnexo(impugnacao.id, anexo)
+          await impugnacoesService.uploadAnexo(impugnação.id, anexo)
         }
       }
 
@@ -185,7 +185,7 @@ export function ImpugnacaoFormPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <AlertOctagon className="h-5 w-5 text-red-500" />
-                Dados da Impugnacao
+                Dados da Impugnação
               </CardTitle>
               <CardDescription>Selecione o tipo e a eleição relacionada</CardDescription>
             </CardHeader>
@@ -273,7 +273,7 @@ export function ImpugnacaoFormPage() {
                     {...register('candidatoId')}
                   />
                   <p className="text-xs text-gray-500">
-                    Em producao, este sera um campo de busca de candidatos.
+                    Em producao, este será um campo de busca de candidatos.
                   </p>
                 </div>
               )}
@@ -285,7 +285,7 @@ export function ImpugnacaoFormPage() {
             <CardHeader>
               <CardTitle>Fundamentação</CardTitle>
               <CardDescription>
-                Descreva detalhadamente os fatos e fundamentos juridicos da impugnacao
+                Descreva detalhadamente os fatos e fundamentos juridicos da impugnação
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -301,7 +301,7 @@ export function ImpugnacaoFormPage() {
                   <p className="text-sm text-red-500">{errors.fundamentacao.message}</p>
                 )}
                 <p className="text-xs text-gray-500">
-                  Minimo de 100 caracteres. Seja o mais detalhado possivel.
+                  Mínimo de 100 caracteres. Seja o mais detalhado possível.
                 </p>
               </div>
 
@@ -346,7 +346,7 @@ export function ImpugnacaoFormPage() {
                 Documentos Comprobatorios
               </CardTitle>
               <CardDescription>
-                Anexe documentos que comprovem suas alegacoes (maximo 10MB por arquivo)
+                Anexe documentos que comprovem suas alegacoes (máximo 10MB por arquivo)
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -431,8 +431,8 @@ export function ImpugnacaoFormPage() {
                 <div>
                   <h4 className="font-medium text-yellow-800">Atencao</h4>
                   <p className="text-sm text-yellow-700 mt-1">
-                    Ao registrar esta impugnacao, voce declara que as informacoes prestadas sao
-                    verdadeiras e que tem ciencia de que a prestacao de informacoes falsas pode
+                    Ao registrar esta impugnação, você declara que as informações prestadas sao
+                    verdadeiras e que tem ciencia de que a prestacao de informações falsas pode
                     caracterizar crime previsto no Codigo Penal.
                   </p>
                 </div>
@@ -449,7 +449,7 @@ export function ImpugnacaoFormPage() {
             <Button type="submit" disabled={createMutation.isPending}>
               {createMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               <Save className="mr-2 h-4 w-4" />
-              Registrar Impugnacao
+              Registrar Impugnação
             </Button>
           </div>
         </div>

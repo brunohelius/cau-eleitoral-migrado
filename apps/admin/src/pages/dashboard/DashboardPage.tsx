@@ -12,7 +12,7 @@ const stats = [
 
 export function DashboardPage() {
   const { data: eleicoes, isLoading } = useQuery({
-    queryKey: ['eleicoes-ativas'],
+    queryKey: ['eleições-ativas'],
     queryFn: eleicoesService.getAtivas,
   })
 
@@ -43,7 +43,7 @@ export function DashboardPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            Eleicoes em Andamento
+            Eleições em Andamento
           </CardTitle>
         </CardHeader>
         <CardContent>

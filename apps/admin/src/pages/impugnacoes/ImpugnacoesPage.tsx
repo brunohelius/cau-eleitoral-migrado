@@ -102,7 +102,7 @@ export function ImpugnacoesPage() {
 
   // Fetch eleicoes for filter
   const { data: eleicoes } = useQuery({
-    queryKey: ['eleicoes'],
+    queryKey: ['eleições'],
     queryFn: eleicoesService.getAll,
   })
 
@@ -118,13 +118,13 @@ export function ImpugnacoesPage() {
 
   // Fetch impugnacoes
   const { data: impugnacoesData, isLoading, refetch } = useQuery({
-    queryKey: ['impugnacoes', params],
+    queryKey: ['impugnações', params],
     queryFn: () => impugnacoesService.getAll(params),
   })
 
   // Fetch statistics
   const { data: estatisticas } = useQuery({
-    queryKey: ['impugnacoes-estatisticas', eleicaoFilter],
+    queryKey: ['impugnações-estatisticas', eleicaoFilter],
     queryFn: () => impugnacoesService.getEstatisticas(eleicaoFilter !== 'all' ? eleicaoFilter : undefined),
   })
 
@@ -183,7 +183,7 @@ export function ImpugnacoesPage() {
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
     } catch (error) {
-      console.error('Erro ao exportar relatorio:', error)
+      console.error('Erro ao exportar relatório:', error)
     }
   }
 
@@ -203,7 +203,7 @@ export function ImpugnacoesPage() {
           <Link to="/impugnacoes/nova">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Nova Impugnacao
+              Nova Impugnação
             </Button>
           </Link>
         </div>
@@ -362,7 +362,7 @@ export function ImpugnacoesPage() {
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <AlertOctagon className="h-5 w-5 text-red-500" />
-              Lista de Impugnacoes
+              Lista de Impugnações
             </CardTitle>
             <Button variant="ghost" size="sm" onClick={() => refetch()}>
               <RefreshCw className="h-4 w-4" />
@@ -478,7 +478,7 @@ export function ImpugnacoesPage() {
               <Link to="/impugnacoes/nova">
                 <Button>
                   <Plus className="mr-2 h-4 w-4" />
-                  Registrar Nova Impugnacao
+                  Registrar Nova Impugnação
                 </Button>
               </Link>
             </div>

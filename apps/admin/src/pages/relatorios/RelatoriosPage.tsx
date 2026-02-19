@@ -14,12 +14,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 
 const relatorioCategories = [
   {
-    id: 'eleicao',
+    id: 'eleição',
     title: 'Relatórios de Eleição',
     description: 'Informações gerais sobre as eleições',
     icon: Calendar,
     color: 'bg-blue-100 text-blue-600',
-    link: '/relatorios/eleicao',
+    link: '/relatórios/eleição',
     reports: [
       'Resumo da Eleicao',
       'Chapas Participantes',
@@ -28,12 +28,12 @@ const relatorioCategories = [
     ],
   },
   {
-    id: 'votacao',
+    id: 'votação',
     title: 'Relatórios de Votação',
     description: 'Estatisticas e resultados da votação',
     icon: Vote,
     color: 'bg-green-100 text-green-600',
-    link: '/relatorios/votacao',
+    link: '/relatórios/votação',
     reports: [
       'Resultado da Votacao',
       'Participacao por Regional',
@@ -47,7 +47,7 @@ const relatorioCategories = [
     description: 'Informações sobre o corpo eleitoral',
     icon: Users,
     color: 'bg-purple-100 text-purple-600',
-    link: '/relatorios/eleitores',
+    link: '/relatórios/eleitores',
     reports: [
       'Lista de Eleitores',
       'Eleitores por Regional',
@@ -61,7 +61,7 @@ const relatorioCategories = [
     description: 'Denúncias, impugnações e julgamentos',
     icon: FileText,
     color: 'bg-orange-100 text-orange-600',
-    link: '/relatorios/juridico',
+    link: '/relatórios/juridico',
     reports: [
       'Denuncias por Status',
       'Impugnacoes Registradas',
@@ -81,7 +81,7 @@ const quickStats = [
 export function RelatoriosPage() {
   const handleExportAll = () => {
     // Implementar exportacao
-    console.log('Exportando todos os relatorios...')
+    console.log('Exportando todos os relatórios...')
   }
 
   return (
@@ -144,7 +144,7 @@ export function RelatoriosPage() {
               </ul>
               <Link to={category.link}>
                 <Button variant="outline" className="w-full">
-                  Acessar Relatorios
+                  Acessar Relatórios
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
@@ -158,7 +158,7 @@ export function RelatoriosPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5" />
-            Relatorios Recentes
+            Relatórios Recentes
           </CardTitle>
           <CardDescription>Ultimos relatórios gerados</CardDescription>
         </CardHeader>

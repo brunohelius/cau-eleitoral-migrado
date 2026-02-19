@@ -517,7 +517,7 @@ export function ChapaMembrosPage() {
             <AlertDialogTitle>Remover Membro</AlertDialogTitle>
             <AlertDialogDescription>
               Tem certeza que deseja remover <strong>"{membroToDelete?.candidatoNome}"</strong> da
-              chapa? Esta acao nao pode ser desfeita.
+              chapa? Esta acao não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

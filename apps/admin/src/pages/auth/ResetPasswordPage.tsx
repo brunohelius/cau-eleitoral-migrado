@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast'
 import { authService } from '@/services/auth'
 
 const resetPasswordSchema = z.object({
-  newPassword: z.string().min(6, 'Senha deve ter no minimo 6 caracteres'),
+  newPassword: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres'),
   confirmPassword: z.string(),
 }).refine((data) => data.newPassword === data.confirmPassword, {
   message: 'As senhas nao conferem',
@@ -58,7 +58,7 @@ export function ResetPasswordPage() {
       toast({
         variant: 'destructive',
         title: 'Erro ao redefinir senha',
-        description: error.response?.data?.message || 'Token invalido ou expirado.',
+        description: error.response?.data?.message || 'Token inválido ou expirado.',
       })
     } finally {
       setIsLoading(false)

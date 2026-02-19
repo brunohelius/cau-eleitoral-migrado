@@ -28,10 +28,10 @@ interface DadosVotacao {
   votosValidos: number
   votosBrancos: number
   votosNulos: number
-  participacao: number
+  participação: number
   chapas: Array<{
     id: string
-    numero: number
+    número: number
     nome: string
     votos: number
     percentual: number
@@ -43,7 +43,7 @@ interface DadosVotacao {
   votosPorRegional: Array<{
     regional: string
     votos: number
-    participacao: number
+    participação: number
   }>
 }
 
@@ -52,7 +52,7 @@ export function RelatorioVotacaoPage() {
 
   // Load elections from API
   const { data: eleicoes = [] } = useQuery({
-    queryKey: ['eleicoes-votacao-relatorio'],
+    queryKey: ['eleições-votação-relatório'],
     queryFn: async () => {
       try {
         const response = await api.get('/eleicao')
@@ -69,7 +69,7 @@ export function RelatorioVotacaoPage() {
 
   // Load voting data for selected election
   const { data: dadosVotacao, isLoading } = useQuery({
-    queryKey: ['votacao-relatorio', selectedEleicao],
+    queryKey: ['votação-relatório', selectedEleicao],
     queryFn: async (): Promise<DadosVotacao | null> => {
       try {
         // Try to get apuracao results first
@@ -78,7 +78,7 @@ export function RelatorioVotacaoPage() {
 
         const chapas = (r.resultadosChapas || []).map((c: any) => ({
           id: c.chapaId,
-          numero: c.numero,
+          número: c.número,
           nome: c.nome,
           votos: c.totalVotos,
           percentual: Number(c.percentualVotosValidos) || Number(c.percentual) || 0,
@@ -98,7 +98,7 @@ export function RelatorioVotacaoPage() {
           votosPorRegional = (stats.votosPorRegiao || []).map((v: any) => ({
             regional: v.nomeRegiao || v.uf || '',
             votos: v.totalVotantes || 0,
-            participacao: Number(v.taxaParticipacao) || 0,
+            participação: Number(v.taxaParticipacao) || 0,
           }))
         } catch {
           // Statistics endpoint may require auth or return empty
@@ -114,7 +114,7 @@ export function RelatorioVotacaoPage() {
           votosValidos: r.votosValidos || 0,
           votosBrancos: r.votosBrancos || 0,
           votosNulos: r.votosNulos || 0,
-          participacao: Number(r.percentualParticipacao) || 0,
+          participação: Number(r.percentualParticipacao) || 0,
           chapas,
           votosPorHora,
           votosPorRegional,
@@ -345,7 +345,7 @@ export function RelatorioVotacaoPage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-center py-8 text-gray-500">Dados de distribuicao por hora nao disponiveis</p>
+                  <p className="text-center py-8 text-gray-500">Dados de distribuicao por hora nao disponíveis</p>
                 )}
               </CardContent>
             </Card>
@@ -356,7 +356,7 @@ export function RelatorioVotacaoPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <MapPin className="h-5 w-5" />
-                    Participacao por Regional
+                    Participação por Regional
                   </CardTitle>
                   <CardDescription>Distribuicao geografica dos votos</CardDescription>
                 </CardHeader>

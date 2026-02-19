@@ -22,9 +22,9 @@ import { type Impugnacao, StatusImpugnacao } from '../../services/impugnacaoServ
 // Types
 interface EventoHistorico {
   id: string
-  tipo: 'documento' | 'defesa' | 'recurso' | 'denuncia' | 'status' | 'outro'
+  tipo: 'documento' | 'defesa' | 'recurso' | 'denúncia' | 'status' | 'outro'
   titulo: string
-  descricao: string
+  descrição: string
   data: string
   resultado?: 'aprovado' | 'rejeitado' | 'pendente'
 }
@@ -32,7 +32,7 @@ interface EventoHistorico {
 interface HistoricoItem {
   id: string
   tipo: string
-  descricao: string
+  descrição: string
   data: string
   usuario?: string
 }
@@ -68,8 +68,8 @@ function mapImpugnacaoToEvento(imp: Impugnacao): EventoHistorico {
   return {
     id: imp.id,
     tipo,
-    titulo: imp.tipoNome || 'Impugnacao',
-    descricao: imp.descricao,
+    titulo: imp.tipoNome || 'Impugnação',
+    descrição: imp.descrição,
     data: imp.createdAt,
     resultado,
   }
@@ -89,7 +89,7 @@ function mapHistoricoItem(item: HistoricoItem, impId: string): EventoHistorico {
     id: `${impId}-${item.id}`,
     tipo,
     titulo: item.tipo || 'Evento',
-    descricao: item.descricao,
+    descrição: item.descrição,
     data: item.data,
   }
 }
@@ -143,7 +143,7 @@ export function CandidatoHistoricoPage() {
       try {
         const denResponse = await api.get<Array<{
           id: string
-          descricao: string
+          descrição: string
           createdAt: string
           tipoNome?: string
           statusNome?: string
@@ -153,9 +153,9 @@ export function CandidatoHistoricoPage() {
         for (const den of denuncias) {
           eventos.push({
             id: `den-${den.id}`,
-            tipo: 'denuncia',
-            titulo: den.tipoNome || 'Denuncia',
-            descricao: den.descricao,
+            tipo: 'denúncia',
+            titulo: den.tipoNome || 'Denúncia',
+            descrição: den.descrição,
             data: den.createdAt,
           })
         }
@@ -270,7 +270,7 @@ export function CandidatoHistoricoPage() {
           <History className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-500">Nenhum evento registrado</p>
           <p className="text-sm text-gray-400 mt-2">
-            O historico da sua candidatura aparecera aqui conforme eventos forem registrados.
+            O histórico da sua candidatura aparecera aqui conforme eventos forem registrados.
           </p>
         </div>
       ) : (

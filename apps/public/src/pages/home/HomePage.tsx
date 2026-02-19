@@ -10,7 +10,7 @@ export function HomePage() {
           Sistema Eleitoral CAU
         </h1>
         <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          Participe das eleicoes do Conselho de Arquitetura e Urbanismo.
+          Participe das eleições do Conselho de Arquitetura e Urbanismo.
           Vote de forma segura e transparente.
         </p>
         <div className="flex justify-center gap-4">
@@ -24,7 +24,7 @@ export function HomePage() {
             to="/eleicoes"
             className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-50"
           >
-            Ver Eleicoes
+            Ver Eleições
           </Link>
         </div>
       </section>
@@ -61,7 +61,7 @@ export function HomePage() {
           to="/votacao"
           className="bg-white text-primary px-6 py-3 rounded-lg font-medium hover:bg-gray-100 inline-block"
         >
-          Acessar Area do Eleitor
+          Acessar Área do Eleitor
         </Link>
       </section>
     </div>

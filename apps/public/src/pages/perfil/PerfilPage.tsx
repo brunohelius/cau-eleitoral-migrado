@@ -43,7 +43,7 @@ interface EleitorProfile {
   telefone: string
   regional: string
   tipo: string
-  situacao: 'apto' | 'inapto' | 'pendente'
+  situação: 'apto' | 'inapto' | 'pendente'
   notificacoesEmail: boolean
   notificacoesSms: boolean
 }
@@ -103,7 +103,7 @@ export function PerfilPage() {
       telefone: (extraClaims.telefone as string) || '',
       regional: voter.regional || (extraClaims.regional as string) || '',
       tipo: (extraClaims.tipo as string) || 'Eleitor',
-      situacao: voter.podeVotar ? 'apto' : 'inapto',
+      situação: voter.podeVotar ? 'apto' : 'inapto',
       notificacoesEmail: true,
       notificacoesSms: false,
     }
@@ -122,7 +122,7 @@ export function PerfilPage() {
       }
     } catch (err) {
       // If API call fails, we still have data from the store/token
-      console.warn('Nao foi possivel atualizar dados do servidor:', err)
+      console.warn('Não foi possível atualizar dados do servidor:', err)
     }
 
     // Build profile from current voter data (which may have been updated)
@@ -132,7 +132,7 @@ export function PerfilPage() {
       setEditedEmail(profile.email)
       setEditedTelefone(profile.telefone)
     } else {
-      setError('Nao foi possivel carregar os dados do perfil. Faca login novamente.')
+      setError('Não foi possível carregar os dados do perfil. Faça login novamente.')
     }
 
     setIsLoading(false)
@@ -151,7 +151,7 @@ export function PerfilPage() {
       }
       setIsLoading(false)
       if (!voter) {
-        setError('Nao foi possivel carregar os dados do perfil. Faca login novamente.')
+        setError('Não foi possível carregar os dados do perfil. Faça login novamente.')
       }
     }
   }, [])

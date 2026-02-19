@@ -21,7 +21,7 @@ import api from '@/services/api'
 interface Julgamento {
   id: string
   protocolo: string
-  tipo: 'denuncia' | 'impugnacao' | 'recurso'
+  tipo: 'denúncia' | 'impugnação' | 'recurso'
   titulo: string
   status: 'aguardando' | 'em_julgamento' | 'julgado'
   decisao?: 'deferida' | 'indeferida' | 'arquivada'
@@ -216,7 +216,7 @@ export function JulgamentosPage() {
         <Link to="/julgamentos/sessao">
           <Button>
             <Gavel className="mr-2 h-4 w-4" />
-            Nova Sessao
+            Nova Sessão
           </Button>
         </Link>
       </div>

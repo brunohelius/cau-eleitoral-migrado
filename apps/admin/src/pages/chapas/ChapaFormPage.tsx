@@ -20,12 +20,12 @@ import { eleicoesService } from '@/services/eleicoes'
 
 // Validation schema
 const chapaSchema = z.object({
-  nome: z.string().min(3, 'Nome deve ter no minimo 3 caracteres'),
-  numero: z.number().min(1, 'Numero e obrigatorio'),
+  nome: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
+  número: z.number().min(1, 'Número é obrigatório'),
   sigla: z.string().max(10, 'Sigla muito longa').optional().or(z.literal('')),
   lema: z.string().optional().or(z.literal('')),
-  descricao: z.string().optional().or(z.literal('')),
-  eleicaoId: z.string().min(1, 'Selecione uma eleicao'),
+  descrição: z.string().optional().or(z.literal('')),
+  eleicaoId: z.string().min(1, 'Selecione uma eleição'),
 })
 
 type ChapaFormData = z.infer<typeof chapaSchema>
@@ -49,7 +49,7 @@ export function ChapaFormPage() {
 
   // Fetch eleicoes for dropdown
   const { data: eleicoes, isLoading: isLoadingEleicoes } = useQuery({
-    queryKey: ['eleicoes-ativas'],
+    queryKey: ['eleições-ativas'],
     queryFn: eleicoesService.getAtivas,
   })
 
@@ -62,11 +62,11 @@ export function ChapaFormPage() {
   } = useForm<ChapaFormData>({
     resolver: zodResolver(chapaSchema),
     defaultValues: {
-      numero: 1,
+      número: 1,
       nome: '',
       sigla: '',
       lema: '',
-      descricao: '',
+      descrição: '',
       eleicaoId: '',
     },
   })
@@ -76,10 +76,10 @@ export function ChapaFormPage() {
     if (chapa) {
       reset({
         nome: chapa.nome,
-        numero: chapa.numero,
+        número: chapa.número,
         sigla: chapa.sigla || '',
         lema: chapa.lema || '',
-        descricao: chapa.descricao || '',
+        descrição: chapa.descrição || '',
         eleicaoId: chapa.eleicaoId,
       })
       if (chapa.logoUrl) {
@@ -150,17 +150,17 @@ export function ChapaFormPage() {
         nome: data.nome,
         sigla: data.sigla || undefined,
         lema: data.lema || undefined,
-        descricao: data.descricao || undefined,
+        descrição: data.descrição || undefined,
       }
       updateMutation.mutate(updateData)
     } else {
       const createData: CreateChapaRequest = {
         eleicaoId: data.eleicaoId,
-        numero: data.numero,
+        número: data.número,
         nome: data.nome,
         sigla: data.sigla || undefined,
         lema: data.lema || undefined,
-        descricao: data.descricao || undefined,
+        descrição: data.descrição || undefined,
       }
       createMutation.mutate(createData)
     }
@@ -283,7 +283,7 @@ export function ChapaFormPage() {
                   )}
                   {isEditing && (
                     <p className="text-xs text-gray-500">
-                      A eleicao nao pode ser alterada apos a criacao
+                      A eleição não pode ser alterada após a criação
                     </p>
                   )}
                 </div>
@@ -305,7 +305,7 @@ export function ChapaFormPage() {
                   )}
                   {isEditing && (
                     <p className="text-xs text-gray-500">
-                      O numero nao pode ser alterado
+                      O número não pode ser alterado
                     </p>
                   )}
                 </div>
@@ -389,7 +389,7 @@ export function ChapaFormPage() {
                     disabled={isSubmitting}
                   />
                   <p className="text-xs text-gray-500">
-                    Formatos aceitos: JPG, PNG, WebP. Tamanho maximo: 2MB
+                    Formatos aceitos: JPG, PNG, WebP. Tamanho máximo: 2MB
                   </p>
                 </div>
               </div>

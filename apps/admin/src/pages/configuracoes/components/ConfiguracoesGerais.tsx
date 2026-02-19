@@ -9,12 +9,12 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 
 const configGeralSchema = z.object({
-  nomeSistema: z.string().min(1, 'Nome do sistema e obrigatorio'),
-  sigla: z.string().min(1, 'Sigla e obrigatoria'),
-  descricao: z.string().optional(),
+  nomeSistema: z.string().min(1, 'Nome do sistema é obrigatório'),
+  sigla: z.string().min(1, 'Sigla é obrigatoria'),
+  descrição: z.string().optional(),
   logoUrl: z.string().optional(),
   faviconUrl: z.string().optional(),
-  emailContato: z.string().email('Email invalido').optional().or(z.literal('')),
+  emailContato: z.string().email('Email inválido').optional().or(z.literal('')),
   telefoneContato: z.string().optional(),
   enderecoContato: z.string().optional(),
   siteInstitucional: z.string().url('URL invalida').optional().or(z.literal('')),
@@ -45,7 +45,7 @@ export function ConfiguracoesGerais({ data, isLoading, onSave }: ConfiguracoesGe
     defaultValues: {
       nomeSistema: 'CAU Sistema Eleitoral',
       sigla: 'CAU-SE',
-      descricao: '',
+      descrição: '',
       logoUrl: '',
       faviconUrl: '',
       emailContato: '',
@@ -110,7 +110,7 @@ export function ConfiguracoesGerais({ data, isLoading, onSave }: ConfiguracoesGe
             Identidade do Sistema
           </CardTitle>
           <CardDescription>
-            Configure as informacoes basicas do sistema eleitoral
+            Configure as informações basicas do sistema eleitoral
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -247,7 +247,7 @@ export function ConfiguracoesGerais({ data, isLoading, onSave }: ConfiguracoesGe
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Mail className="h-5 w-5" />
-            Informacoes de Contato
+            Informações de Contato
           </CardTitle>
           <CardDescription>
             Dados de contato exibidos para os usuarios
@@ -336,7 +336,7 @@ export function ConfiguracoesGerais({ data, isLoading, onSave }: ConfiguracoesGe
         <Button type="submit" disabled={!isDirty || isSaving}>
           {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           <Save className="mr-2 h-4 w-4" />
-          Salvar Alteracoes
+          Salvar Alterações
         </Button>
       </div>
     </form>

@@ -40,7 +40,7 @@ export function ConfiguracoesLogs({ isLoading: parentLoading }: ConfiguracoesLog
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ['configuracoes-logs', filterNivel, dataInicio, dataFim, page],
+    queryKey: ['configurações-logs', filterNivel, dataInicio, dataFim, page],
     queryFn: () => configuracoesService.getLogs({
       ...(dataInicio && { dataInicio }),
       ...(dataFim && { dataFim }),
@@ -54,9 +54,9 @@ export function ConfiguracoesLogs({ isLoading: parentLoading }: ConfiguracoesLog
     const parts = chave.split('.')
     const categorias: Record<string, string> = {
       sistema: 'Sistema',
-      seguranca: 'Seguranca',
-      notificacao: 'Notificacao',
-      eleicao: 'Eleicao',
+      segurança: 'Segurança',
+      notificação: 'Notificação',
+      eleição: 'Eleição',
       aparencia: 'Aparencia',
       integracao: 'Integracao',
     }
@@ -70,9 +70,9 @@ export function ConfiguracoesLogs({ isLoading: parentLoading }: ConfiguracoesLog
     const categoria = chave.split('.')[0]
     const colors: Record<string, string> = {
       sistema: 'bg-gray-100 text-gray-800',
-      seguranca: 'bg-red-100 text-red-800',
-      notificacao: 'bg-blue-100 text-blue-800',
-      eleicao: 'bg-green-100 text-green-800',
+      segurança: 'bg-red-100 text-red-800',
+      notificação: 'bg-blue-100 text-blue-800',
+      eleição: 'bg-green-100 text-green-800',
       aparencia: 'bg-purple-100 text-purple-800',
       integracao: 'bg-yellow-100 text-yellow-800',
     }
@@ -331,7 +331,7 @@ export function ConfiguracoesLogs({ isLoading: parentLoading }: ConfiguracoesLog
             </div>
           ) : (
             <p className="text-center py-8 text-gray-500">
-              Nenhum log de alteracao encontrado.
+              Nenhum log de alteração encontrado.
             </p>
           )}
 

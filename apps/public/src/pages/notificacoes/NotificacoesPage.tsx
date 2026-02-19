@@ -152,7 +152,7 @@ export function NotificacoesPage() {
   const markAllAsRead = async () => {
     setActionLoading('all')
     try {
-      await api.post('/notificacao/marcar-todas-lidas')
+      await api.post('/notificação/marcar-todas-lidas')
       setNotificacoes(prev =>
         prev.map(n => ({ ...n, lida: true, dataLeitura: n.dataLeitura ?? new Date().toISOString() }))
       )
@@ -423,8 +423,8 @@ export function NotificacoesPage() {
           <div className="text-sm">
             <p className="font-medium text-blue-800">Sobre as notificações</p>
             <p className="text-blue-700">
-              Voce recebe notificacoes sobre eleicoes, prazos e atualizacoes importantes.
-              Configure suas preferencias de notificacao no seu perfil.
+              Você recebe notificações sobre eleições, prazos e atualizacoes importantes.
+              Configure suas preferencias de notificação no seu perfil.
             </p>
             <Link
               to="/eleitor/perfil"

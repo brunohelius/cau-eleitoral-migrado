@@ -55,7 +55,7 @@ export function VotacaoComprovantePage() {
         setComprovante(data)
       } catch (err) {
         const apiError = extractApiError(err)
-        setError(apiError.message || 'Nao foi possivel carregar o comprovante.')
+        setError(apiError.message || 'Não foi possível carregar o comprovante.')
 
         // If no vote exists, redirect
         if (apiError.code === 'NOT_FOUND') {
@@ -104,7 +104,7 @@ export function VotacaoComprovantePage() {
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
     } catch {
-      setError('Nao foi possivel baixar o comprovante em PDF. Tente novamente em instantes.')
+      setError('Não foi possível baixar o comprovante em PDF. Tente novamente em instantes.')
     }
   }
 
@@ -160,7 +160,7 @@ export function VotacaoComprovantePage() {
       setEmailSent(true)
     } catch (err) {
       const apiError = extractApiError(err)
-      setError(apiError.message || 'Nao foi possivel enviar o email.')
+      setError(apiError.message || 'Não foi possível enviar o email.')
     } finally {
       setIsSendingEmail(false)
     }
@@ -202,7 +202,7 @@ export function VotacaoComprovantePage() {
             className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary/90"
           >
             <Home className="h-5 w-5" />
-            Voltar ao inicio
+            Voltar ao início
           </Link>
         </div>
       </div>
@@ -215,14 +215,14 @@ export function VotacaoComprovantePage() {
         <div className="bg-red-50 border-2 border-red-300 rounded-lg p-8 text-center">
           <h1 className="text-2xl font-bold text-red-800 mb-2">Comprovante indisponivel</h1>
           <p className="text-red-600 mb-6">
-            Nao foi possivel localizar o comprovante desta votacao.
+            Não foi possível localizar o comprovante desta votação.
           </p>
           <Link
             to="/eleitor/votacao"
             className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary/90"
           >
             <Home className="h-5 w-5" />
-            Voltar ao inicio
+            Voltar ao início
           </Link>
         </div>
       </div>
@@ -404,14 +404,14 @@ export function VotacaoComprovantePage() {
           onClick={handleFinish}
           className="flex-1 py-3 px-4 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 text-center"
         >
-          Votar em Outra Eleicao
+          Votar em Outra Eleição
         </button>
         <button
           onClick={handleLogout}
           className="flex-1 py-3 px-4 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 flex items-center justify-center gap-2"
         >
           <Home className="h-5 w-5" />
-          Encerrar Sessao
+          Encerrar Sessão
         </button>
       </div>
 

@@ -174,7 +174,7 @@ export function CandidateLayout() {
 
           <div className="flex-1">
             <h1 className="text-lg font-semibold text-gray-900 lg:hidden">
-              Area do Candidato
+              Área do Candidato
             </h1>
           </div>
 

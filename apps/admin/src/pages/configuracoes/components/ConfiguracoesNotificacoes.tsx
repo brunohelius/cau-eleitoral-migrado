@@ -19,7 +19,7 @@ const configNotificacaoSchema = z.object({
   notificarDenuncia: z.boolean(),
   notificarImpugnacao: z.boolean(),
   notificarJulgamento: z.boolean(),
-  remetenteEmail: z.string().email('Email invalido').optional().or(z.literal('')),
+  remetenteEmail: z.string().email('Email inválido').optional().or(z.literal('')),
   nomeRemetente: z.string().optional(),
   templateEmailBoasVindas: z.string().optional(),
   templateEmailRecuperacaoSenha: z.string().optional(),
@@ -129,10 +129,10 @@ export function ConfiguracoesNotificacoes({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bell className="h-5 w-5" />
-            Canais de Notificacao
+            Canais de Notificação
           </CardTitle>
           <CardDescription>
-            Configure quais canais de notificacao estao habilitados
+            Configure quais canais de notificação estão habilitados
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -195,7 +195,7 @@ export function ConfiguracoesNotificacoes({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Mail className="h-5 w-5" />
-            Configuracoes de Email
+            Configurações de Email
           </CardTitle>
           <CardDescription>
             Configure o remetente e templates de email
@@ -228,7 +228,7 @@ export function ConfiguracoesNotificacoes({
           <div className="border-t pt-4">
             <Label className="text-sm font-medium">Testar Envio de Email</Label>
             <p className="text-sm text-gray-500 mb-3">
-              Envie um email de teste para verificar se as configuracoes estao corretas
+              Envie um email de teste para verificar se as configurações estão corretas
             </p>
             <div className="flex gap-2">
               <Input
@@ -320,10 +320,10 @@ export function ConfiguracoesNotificacoes({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bell className="h-5 w-5" />
-            Eventos de Notificacao
+            Eventos de Notificação
           </CardTitle>
           <CardDescription>
-            Configure quais eventos geram notificacoes automaticas
+            Configure quais eventos geram notificações automaticas
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -504,7 +504,7 @@ export function ConfiguracoesNotificacoes({
         <Button type="submit" disabled={!isDirty || isSaving}>
           {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           <Save className="mr-2 h-4 w-4" />
-          Salvar Alteracoes
+          Salvar Alterações
         </Button>
       </div>
     </form>

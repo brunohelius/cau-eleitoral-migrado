@@ -56,7 +56,7 @@ const faqs: FaqItem[] = [
   {
     id: '3',
     pergunta: 'Como funciona o processo de votação online?',
-    resposta: 'O processo de votação online e realizado inteiramente pela internet, de forma segura e acessivel. O eleitor acessa a Área do Eleitor no portal publico do sistema, identifica-se com seu CPF e número de registro no CAU, e informa sua senha. Após a autenticacao, o eleitor visualiza as eleições disponiveis para o seu perfil e seleciona aquela em que deseja votar. Na cedula eletronica, são apresentadas todas as chapas concorrentes, e o eleitor escolhe a chapa de sua preferencia ou opta pelo voto em branco. Antes da confirmação, e exibido um resumo da escolha para revisao. Após confirmar, o voto e registrado de forma anônima e um comprovante de votação e gerado para o eleitor.',
+    resposta: 'O processo de votação online e realizado inteiramente pela internet, de forma segura e acessivel. O eleitor acessa a Área do Eleitor no portal público do sistema, identifica-se com seu CPF e número de registro no CAU, e informa sua senha. Após a autenticacao, o eleitor visualiza as eleições disponíveis para o seu perfil e seleciona aquela em que deseja votar. Na cedula eletronica, são apresentadas todas as chapas concorrentes, e o eleitor escolhe a chapa de sua preferencia ou opta pelo voto em branco. Antes da confirmação, e exibido um resumo da escolha para revisao. Após confirmar, o voto e registrado de forma anônima e um comprovante de votação e gerado para o eleitor.',
     categoria: 'votação',
   },
   {
@@ -88,19 +88,19 @@ const faqs: FaqItem[] = [
   {
     id: '8',
     pergunta: 'Como acompanhar o calendário eleitoral?',
-    resposta: 'O calendário eleitoral contem todas as datas e prazos relevantes do processo eleitoral, como o período de inscrição de chapas, os prazos para impugnações, o período de campanha, as datas de votação, a apuração e a proclamacao dos resultados. Para acompanhar o calendário, acesse a secao "Calendário" no menu principal do portal publico. Todas as etapas são listadas em ordem cronologica com suas respectivas datas de início e termino. E recomendavel que eleitores e candidatos consultem o calendário regularmente para nao perder prazos importantes. As datas são definidas pela Comissão Eleitoral e publicadas no edital de cada eleição.',
+    resposta: 'O calendário eleitoral contem todas as datas e prazos relevantes do processo eleitoral, como o período de inscrição de chapas, os prazos para impugnações, o período de campanha, as datas de votação, a apuração e a proclamação dos resultados. Para acompanhar o calendário, acesse a seção "Calendário" no menu principal do portal público. Todas as etapas são listadas em ordem cronológica com suas respectivas datas de início e término. E recomendável que eleitores e candidatos consultem o calendário regularmente para nao perder prazos importantes. As datas são definidas pela Comissão Eleitoral e publicadas no edital de cada eleição.',
     categoria: 'processo',
   },
   {
     id: '9',
     pergunta: 'Como posso fazer uma denúncia eleitoral?',
-    resposta: 'Se você identificar qualquer irregularidade durante o processo eleitoral, como praticas vedadas de campanha, uso indevido de recursos do conselho, coacao de eleitores ou qualquer outra conduta contraria ao regulamento, você pode registrar uma denúncia pelo sistema. Acesse a secao de denúncias no portal ou entre em contato com a Comissão Eleitoral responsavel. A denúncia deve conter a descrição detalhada dos fatos, indicacao de data e local (quando aplicavel) e, sempre que possível, provas ou evidencias que sustentem a alegacao. A Comissão Eleitoral analisara o caso e adotara as providencias cabiveis conforme o regulamento. A identidade do denunciante será tratada com sigilo.',
+    resposta: 'Se você identificar qualquer irregularidade durante o processo eleitoral, como praticas vedadas de campanha, uso indevido de recursos do conselho, coacao de eleitores ou qualquer outra conduta contraria ao regulamento, você pode registrar uma denúncia pelo sistema. Acesse a seção de denúncias no portal ou entre em contato com a Comissão Eleitoral responsavel. A denúncia deve conter a descrição detalhada dos fatos, indicacao de data e local (quando aplicavel) e, sempre que possível, provas ou evidencias que sustentem a alegacao. A Comissão Eleitoral analisara o caso e adotara as providencias cabiveis conforme o regulamento. A identidade do denunciante será tratada com sigilo.',
     categoria: 'processo',
   },
   {
     id: '10',
     pergunta: 'Onde posso obter os documentos oficiais?',
-    resposta: 'Todos os documentos oficiais relacionados ao processo eleitoral estao disponiveis na secao "Documentos" do portal publico do sistema. Nesta área, você encontra o edital da eleição, o regulamento eleitoral vigente, formularios de inscrição de chapas, modelos de requerimentos, resolucoes da Comissão Eleitoral, atas de reunioes e demais documentos pertinentes. Os documentos podem ser visualizados diretamente no navegador ou baixados em formato PDF. Recomenda-se que candidatos e eleitores leiam atentamente o edital e o regulamento antes de participar do processo, para compreender todas as regras, prazos e procedimentos aplicaveis.',
+    resposta: 'Todos os documentos oficiais relacionados ao processo eleitoral estão disponíveis na seção "Documentos" do portal público do sistema. Nesta área, você encontra o edital da eleição, o regulamento eleitoral vigente, formularios de inscrição de chapas, modelos de requerimentos, resoluções da Comissão Eleitoral, atas de reuniões e demais documentos pertinentes. Os documentos podem ser visualizados diretamente no navegador ou baixados em formato PDF. Recomenda-se que candidatos e eleitores leiam atentamente o edital e o regulamento antes de participar do processo, para compreender todas as regras, prazos e procedimentos aplicáveis.',
     categoria: 'processo',
   },
 ]
@@ -154,7 +154,7 @@ export function FaqPage() {
           Perguntas Frequentes
         </h1>
         <p className="text-gray-600 mt-2">
-          Encontre respostas para as duvidas mais comuns sobre o processo eleitoral
+          Encontre respostas para as dúvidas mais comuns sobre o processo eleitoral
         </p>
       </div>
 
@@ -290,7 +290,7 @@ export function FaqPage() {
       <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl p-6 sm:p-8">
         <div className="text-center mb-6">
           <h2 className="text-xl font-semibold text-gray-900">
-            Nao encontrou o que procurava?
+            Não encontrou o que procurava?
           </h2>
           <p className="text-gray-600 mt-1">
             Entre em contato conosco pelos canais abaixo
@@ -356,7 +356,7 @@ export function FaqPage() {
             className="flex items-center gap-2 text-primary hover:underline"
           >
             <Calendar className="h-4 w-4" />
-            Calendario Eleitoral
+            Calendário Eleitoral
             <ExternalLink className="h-3 w-3" />
           </Link>
           <Link
@@ -364,7 +364,7 @@ export function FaqPage() {
             className="flex items-center gap-2 text-primary hover:underline"
           >
             <Vote className="h-4 w-4" />
-            Eleicoes em Andamento
+            Eleições em Andamento
             <ExternalLink className="h-3 w-3" />
           </Link>
           <Link
@@ -372,7 +372,7 @@ export function FaqPage() {
             className="flex items-center gap-2 text-primary hover:underline"
           >
             <Users className="h-4 w-4" />
-            Area do Eleitor
+            Área do Eleitor
             <ExternalLink className="h-3 w-3" />
           </Link>
         </div>

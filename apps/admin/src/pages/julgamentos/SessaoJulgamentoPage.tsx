@@ -22,7 +22,7 @@ import api from '@/services/api'
 interface ProcessoPauta {
   id: string
   protocolo: string
-  tipo: 'denuncia' | 'impugnacao' | 'recurso'
+  tipo: 'denúncia' | 'impugnação' | 'recurso'
   titulo: string
   relatorNome: string
   status: 'pendente' | 'em_julgamento' | 'julgado'
@@ -136,7 +136,7 @@ export function SessaoJulgamentoPage() {
   // Load commission members for the current comissao (derived from selected or first julgamento)
   const membrosJulgamentoId = processoAtual?.id || processosApi?.[0]?.id
   const { data: membrosApi, isLoading: isLoadingMembros } = useQuery({
-    queryKey: ['membros-comissao', membrosJulgamentoId],
+    queryKey: ['membros-comissão', membrosJulgamentoId],
     queryFn: async () => {
       if (!membrosJulgamentoId) return [] as MembroComissao[]
       try {
@@ -285,14 +285,14 @@ export function SessaoJulgamentoPage() {
         await api.post(`/julgamento/${processoAtual.id}/votos`, {
           membroId: membro.id,
           voto: mapVotoToApi(voto),
-          fundamentacao: null,
+          fundamentação: null,
         })
       }
 
       await api.post(`/julgamento/${processoAtual.id}/concluir`, {
         tipoDecisao: tipoDecisaoApi,
         decisao: decisaoTexto,
-        fundamentacao: fundamentacao || null,
+        fundamentação: fundamentação || null,
       })
 
       setProcessos((prev) =>
@@ -392,12 +392,12 @@ export function SessaoJulgamentoPage() {
         {!sessaoIniciada ? (
           <Button onClick={handleIniciarSessao} disabled={!quorum}>
             <Play className="mr-2 h-4 w-4" />
-            Iniciar Sessao
+            Iniciar Sessão
           </Button>
         ) : (
           <Button variant="destructive" onClick={handleEncerrarSessao}>
             <Pause className="mr-2 h-4 w-4" />
-            Encerrar Sessao
+            Encerrar Sessão
           </Button>
         )}
       </div>
@@ -408,7 +408,7 @@ export function SessaoJulgamentoPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Membros da Comissao
+              Membros da Comissão
             </CardTitle>
             <CardDescription>
               {membrosPresentes.length}/{membros.length} presentes
@@ -453,7 +453,7 @@ export function SessaoJulgamentoPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              Pauta da Sessao
+              Pauta da Sessão
             </CardTitle>
             <CardDescription>
               {processos.filter((p) => p.status === 'julgado').length}/{processos.length} julgados
@@ -514,7 +514,7 @@ export function SessaoJulgamentoPage() {
                   </p>
                   <Button onClick={handleIniciarVotacao}>
                     <Play className="mr-2 h-4 w-4" />
-                    Iniciar Votacao
+                    Iniciar Votação
                   </Button>
                 </div>
               ) : (
@@ -586,7 +586,7 @@ export function SessaoJulgamentoPage() {
                       ) : (
                         <CheckCircle className="mr-2 h-4 w-4" />
                       )}
-                      Finalizar Votacao
+                      Finalizar Votação
                     </Button>
                   </div>
                 </div>

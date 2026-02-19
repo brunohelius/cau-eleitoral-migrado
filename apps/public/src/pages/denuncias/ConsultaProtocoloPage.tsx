@@ -50,7 +50,7 @@ export function ConsultaProtocoloPage() {
     e.preventDefault()
 
     if (!protocolo.trim()) {
-      setError('Digite o numero do protocolo')
+      setError('Digite o número do protocolo')
       return
     }
 
@@ -65,7 +65,7 @@ export function ConsultaProtocoloPage() {
     } catch (err) {
       const apiError = extractApiError(err)
       if (apiError.message.includes('nao encontrado')) {
-        setError('Protocolo nao encontrado. Verifique o numero e tente novamente.')
+        setError('Protocolo não encontrado. Verifique o número e tente novamente.')
       } else {
         setError(apiError.message)
       }
@@ -101,10 +101,10 @@ export function ConsultaProtocoloPage() {
           <span>Voltar</span>
         </Link>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Consultar Denuncia
+          Consultar Denúncia
         </h1>
         <p className="text-gray-600 mt-2">
-          Digite o numero do protocolo para consultar o andamento da sua denuncia.
+          Digite o número do protocolo para consultar o andamento da sua denúncia.
         </p>
       </div>
 
@@ -113,7 +113,7 @@ export function ConsultaProtocoloPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="protocolo" className="block text-sm font-medium text-gray-700 mb-2">
-              Numero do Protocolo
+              Número do Protocolo
             </label>
             <div className="flex gap-3">
               <input
@@ -209,8 +209,8 @@ export function ConsultaProtocoloPage() {
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
             <p className="text-sm text-blue-700">
               <strong>Nota:</strong> O status da denuncia e atualizado conforme o andamento do
-              processo de analise pela Comissao Eleitoral. Para mais informacoes, entre em
-              contato atraves do suporte.
+              processo de análise pela Comissão Eleitoral. Para mais informações, entre em
+              contato através do suporte.
             </p>
           </div>
         </div>
@@ -222,7 +222,7 @@ export function ConsultaProtocoloPage() {
           <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-500">Nenhum resultado encontrado</p>
           <p className="text-sm text-gray-400 mt-2">
-            Verifique se o numero do protocolo esta correto e tente novamente.
+            Verifique se o número do protocolo esta correto e tente novamente.
           </p>
         </div>
       )}
@@ -235,7 +235,7 @@ export function ConsultaProtocoloPage() {
           className="inline-flex items-center gap-2 text-primary font-medium hover:underline"
         >
           <FileText className="h-5 w-5" />
-          Registrar Nova Denuncia
+          Registrar Nova Denúncia
         </Link>
       </div>
     </div>

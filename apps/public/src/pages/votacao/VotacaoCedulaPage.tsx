@@ -58,7 +58,7 @@ export function VotacaoCedulaPage() {
 
   // Local state
   const [chapas, setChapas] = useState<ChapaVotacao[]>([])
-  const [eleicaoNome, setEleicaoNome] = useState(voter?.eleicaoNome || 'Eleicao')
+  const [eleicaoNome, setEleicaoNome] = useState(voter?.eleicaoNome || 'Eleição')
   const [expandedChapa, setExpandedChapa] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -102,7 +102,7 @@ export function VotacaoCedulaPage() {
       }
     } catch (err) {
       const apiError = extractApiError(err)
-      const message = apiError.message || 'Nao foi possivel carregar a cedula de votacao.'
+      const message = apiError.message || 'Não foi possível carregar a cedula de votação.'
       setLoadError(message)
       setStoreError(message)
       setChapas([])
@@ -132,7 +132,7 @@ export function VotacaoCedulaPage() {
   useEffect(() => {
     if (tempoRestante !== null && tempoRestante <= 0) {
       setTimerAtivo(false)
-      setStoreError('Tempo de sessao expirado. Por favor, reinicie o processo de votacao.')
+      setStoreError('Tempo de sessão expirado. Por favor, reinicie o processo de votação.')
     }
   }, [tempoRestante, setTimerAtivo, setStoreError])
 
@@ -154,7 +154,7 @@ export function VotacaoCedulaPage() {
   const handleSelectChapa = (chapa: ChapaVotacao) => {
     selecionarChapa({
       id: chapa.id,
-      numero: chapa.numero,
+      número: chapa.número,
       nome: chapa.nome,
       sigla: chapa.sigla,
       logoUrl: chapa.logoUrl,
@@ -228,14 +228,14 @@ export function VotacaoCedulaPage() {
           <AlertTriangle className="h-16 w-16 text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-red-800 mb-2">Sessão Expirada</h1>
           <p className="text-red-600 mb-6">
-            O tempo para votacao expirou. Por favor, reinicie o processo.
+            O tempo para votação expirou. Por favor, reinicie o processo.
           </p>
           <Link
             to="/eleitor/votacao"
             className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary/90"
           >
             <ArrowLeft className="h-5 w-5" />
-            Voltar para eleicoes
+            Voltar para eleições
           </Link>
         </div>
       </div>
@@ -489,7 +489,7 @@ export function VotacaoCedulaPage() {
             <div className="text-sm">
               <p className="font-medium text-yellow-800">Atencao</p>
               <p className="text-yellow-700">
-                Apos confirmar, seu voto nao podera ser alterado. Certifique-se de que sua escolha esta correta.
+                Apos confirmar, seu voto não podera ser alterado. Certifique-se de que sua escolha esta correta.
               </p>
             </div>
           </div>

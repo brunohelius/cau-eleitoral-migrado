@@ -79,7 +79,7 @@ export function CandidatoLoginPage() {
       navigate('/candidato')
     } catch (err) {
       const apiError = extractApiError(err)
-      setError(apiError.message || 'Credenciais invalidas ou voce nao esta registrado como candidato.')
+      setError(apiError.message || 'Credenciais inválidas ou você não está registrado como candidato.')
     } finally {
       setIsLoading(false)
     }
@@ -95,7 +95,7 @@ export function CandidatoLoginPage() {
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Área do Candidato</h1>
           <p className="text-gray-600 mt-2">
-            Acesse sua area restrita para gerenciar sua candidatura
+            Acesse sua área restrita para gerenciar sua candidatura
           </p>
         </div>
 
@@ -210,7 +210,7 @@ export function CandidatoLoginPage() {
           <div className="text-sm text-gray-500">
             Nao e candidato?{' '}
             <Link to="/votacao" className="text-blue-600 hover:underline">
-              Acesse a area do eleitor
+              Acesse a área do eleitor
             </Link>
           </div>
         </div>
@@ -222,7 +222,7 @@ export function CandidatoLoginPage() {
             <div className="text-sm">
               <p className="font-medium text-blue-800">Acesso Restrito</p>
               <p className="text-blue-700">
-                Esta area e exclusiva para candidatos registrados em chapas aprovadas pela Comissao Eleitoral.
+                Esta área é exclusiva para candidatos registrados em chapas aprovadas pela Comissão Eleitoral.
               </p>
             </div>
           </div>

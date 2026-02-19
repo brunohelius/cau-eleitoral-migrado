@@ -38,7 +38,7 @@ export function EleicoesPage() {
   const queryClient = useQueryClient()
 
   const { data: eleicoes, isLoading } = useQuery({
-    queryKey: ['eleicoes'],
+    queryKey: ['eleições'],
     queryFn: eleicoesService.getAll,
   })
 
@@ -57,7 +57,7 @@ export function EleicoesPage() {
       toast({
         variant: 'destructive',
         title: 'Erro ao excluir eleição',
-        description: error.response?.data?.message || 'Nao foi possivel excluir a eleicao. Tente novamente mais tarde.',
+        description: error.response?.data?.message || 'Não foi possível excluir a eleição. Tente novamente mais tarde.',
       })
     },
   })
@@ -96,7 +96,7 @@ export function EleicoesPage() {
         <Link to="/eleicoes/nova">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Nova Eleicao
+            Nova Eleição
           </Button>
         </Link>
       </div>
@@ -141,7 +141,7 @@ export function EleicoesPage() {
                       <td className="py-3 px-4">
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            statusLabels[eleicao.status]?.color || 'bg-gray-100 text-gray-800'
+                            statusLabels[eleição.status]?.color || 'bg-gray-100 text-gray-800'
                           }`}
                         >
                           {statusLabels[eleicao.status]?.label || 'Desconhecido'}
@@ -198,7 +198,7 @@ export function EleicoesPage() {
               Tem certeza que deseja excluir a eleicao "{eleicaoToDelete?.nome}"?
               <br />
               <br />
-              Esta acao nao pode ser desfeita. Todos os dados relacionados a esta eleicao serao permanentemente removidos.
+              Esta acao não pode ser desfeita. Todos os dados relacionados a esta eleição serao permanentemente removidos.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

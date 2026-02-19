@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast'
 import { authService } from '@/services/auth'
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email('Email invalido'),
+  email: z.string().email('Email inválido'),
 })
 
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>
@@ -56,7 +56,7 @@ export function ForgotPasswordPage() {
         <CardHeader>
           <CardTitle className="text-center">Verifique seu email</CardTitle>
           <CardDescription className="text-center">
-            Enviamos instrucoes para recuperacao de senha para o seu email.
+            Enviamos instruções para recuperação de senha para o seu email.
           </CardDescription>
         </CardHeader>
         <CardFooter className="justify-center">
@@ -76,7 +76,7 @@ export function ForgotPasswordPage() {
       <CardHeader>
         <CardTitle className="text-center">Esqueceu sua senha?</CardTitle>
         <CardDescription className="text-center">
-          Digite seu email para receber instrucoes de recuperacao.
+          Digite seu email para receber instruções de recuperação.
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>

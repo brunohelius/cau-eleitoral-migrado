@@ -29,7 +29,7 @@ const julgamentoSchema = z.object({
   decisao: z.enum(['procedente', 'improcedente', 'parcialmente_procedente', 'arquivada'], {
     required_error: 'Selecione uma decisao',
   }),
-  fundamentacao: z.string().min(50, 'A fundamentacao deve ter no minimo 50 caracteres'),
+  fundamentação: z.string().min(50, 'A fundamentação deve ter no mínimo 50 caracteres'),
   penalidade: z.string().optional(),
   prazoRecurso: z.number().min(0).optional(),
   notificarPartes: z.boolean().default(true),
@@ -60,7 +60,7 @@ export function DenunciaJulgamentoPage() {
 
   // Fetch denuncia
   const { data: denuncia, isLoading: isLoadingDenuncia } = useQuery({
-    queryKey: ['denuncia', id],
+    queryKey: ['denúncia', id],
     queryFn: () => denunciasService.getById(id!),
     enabled: !!id,
   })
@@ -84,7 +84,7 @@ export function DenunciaJulgamentoPage() {
     mutationFn: async (data: JulgamentoFormData) => {
       return denunciasService.julgar(id!, {
         decisao: decisaoToStatus[data.decisao],
-        fundamentacao: data.fundamentacao,
+        fundamentação: data.fundamentação,
         penalidade: data.penalidade,
       })
     },

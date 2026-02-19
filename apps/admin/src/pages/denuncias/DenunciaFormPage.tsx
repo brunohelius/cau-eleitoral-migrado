@@ -23,18 +23,18 @@ import { eleicoesService, type Eleicao } from '@/services/eleicoes'
 import { chapasService } from '@/services/chapas'
 
 const denunciaSchema = z.object({
-  titulo: z.string().min(10, 'Titulo deve ter no minimo 10 caracteres'),
-  descricao: z.string().min(50, 'Descricao deve ter no minimo 50 caracteres'),
-  fundamentacao: z.string().optional(),
-  tipo: z.string().min(1, 'Selecione um tipo de denuncia'),
+  titulo: z.string().min(10, 'Titulo deve ter no mínimo 10 caracteres'),
+  descrição: z.string().min(50, 'Descrição deve ter no mínimo 50 caracteres'),
+  fundamentação: z.string().optional(),
+  tipo: z.string().min(1, 'Selecione um tipo de denúncia'),
   prioridade: z.string().min(1, 'Selecione uma prioridade'),
-  eleicaoId: z.string().min(1, 'Selecione uma eleicao'),
+  eleicaoId: z.string().min(1, 'Selecione uma eleição'),
   chapaId: z.string().optional(),
   membroId: z.string().optional(),
   denuncianteNome: z.string().optional(),
-  denuncianteEmail: z.string().email('Email invalido').optional().or(z.literal('')),
+  denuncianteEmail: z.string().email('Email inválido').optional().or(z.literal('')),
   denuncianteTelefone: z.string().optional(),
-  anonima: z.boolean().default(false),
+  anônima: z.boolean().default(false),
 })
 
 type DenunciaFormData = z.infer<typeof denunciaSchema>
@@ -42,7 +42,7 @@ type DenunciaFormData = z.infer<typeof denunciaSchema>
 interface Chapa {
   id: string
   nome: string
-  numero: number
+  número: number
   eleicaoId: string
 }
 
@@ -84,14 +84,14 @@ export function DenunciaFormPage() {
 
   // Fetch existing denuncia if editing
   const { data: existingDenuncia, isLoading: isLoadingDenuncia } = useQuery({
-    queryKey: ['denuncia', id],
+    queryKey: ['denúncia', id],
     queryFn: () => denunciasService.getById(id!),
     enabled: isEditing,
   })
 
   // Fetch eleicoes
   const { data: eleicoes, isLoading: isLoadingEleicoes } = useQuery({
-    queryKey: ['eleicoes'],
+    queryKey: ['eleições'],
     queryFn: eleicoesService.getAll,
   })
 
@@ -107,7 +107,7 @@ export function DenunciaFormPage() {
     defaultValues: {
       prioridade: String(PrioridadeDenuncia.NORMAL),
       tipo: '',
-      anonima: false,
+      anônima: false,
     },
   })
 
@@ -116,8 +116,8 @@ export function DenunciaFormPage() {
     if (existingDenuncia) {
       reset({
         titulo: existingDenuncia.titulo,
-        descricao: existingDenuncia.descricao,
-        fundamentacao: existingDenuncia.fundamentacao || '',
+        descrição: existingDenuncia.descrição,
+        fundamentação: existingDenuncia.fundamentação || '',
         tipo: String(existingDenuncia.tipo),
         prioridade: String(existingDenuncia.prioridade || PrioridadeDenuncia.NORMAL),
         eleicaoId: existingDenuncia.eleicaoId,
@@ -126,7 +126,7 @@ export function DenunciaFormPage() {
         denuncianteNome: existingDenuncia.denuncianteNome || '',
         denuncianteEmail: existingDenuncia.denuncianteEmail || '',
         denuncianteTelefone: existingDenuncia.denuncianteTelefone || '',
-        anonima: existingDenuncia.anonima,
+        anônima: existingDenuncia.anônima,
       })
       setIsAnonimo(existingDenuncia.anonima)
     }
@@ -136,13 +136,13 @@ export function DenunciaFormPage() {
   const selectedChapaId = watch('chapaId')
 
   const { data: chapas = [], isLoading: isLoadingChapas } = useQuery({
-    queryKey: ['chapas-denuncia', selectedEleicaoId],
+    queryKey: ['chapas-denúncia', selectedEleicaoId],
     queryFn: async () => {
       const result = await chapasService.getByEleicao(selectedEleicaoId!)
       return result.map((c) => ({
         id: c.id,
         nome: c.nome,
-        numero: c.numero,
+        número: c.número,
         eleicaoId: c.eleicaoId,
       })) as Chapa[]
     },
@@ -150,7 +150,7 @@ export function DenunciaFormPage() {
   })
 
   const { data: membros = [], isLoading: isLoadingMembros } = useQuery({
-    queryKey: ['membros-denuncia', selectedChapaId],
+    queryKey: ['membros-denúncia', selectedChapaId],
     queryFn: async () => {
       const result = await chapasService.getMembros(selectedChapaId!)
       return result.map((m) => ({
@@ -183,7 +183,7 @@ export function DenunciaFormPage() {
       const denuncia = await denunciasService.create(data)
       // Upload anexos if any
       for (const file of anexos) {
-        await denunciasService.uploadAnexo(denuncia.id, file)
+        await denunciasService.uploadAnexo(denúncia.id, file)
       }
       return denuncia
     },
@@ -230,8 +230,8 @@ export function DenunciaFormPage() {
     if (isEditing) {
       const updateData: UpdateDenunciaRequest = {
         titulo: data.titulo,
-        descricao: data.descricao,
-        fundamentacao: data.fundamentacao,
+        descrição: data.descrição,
+        fundamentação: data.fundamentação,
         tipo: Number(data.tipo) as TipoDenuncia,
         prioridade: Number(data.prioridade) as PrioridadeDenuncia,
       }
@@ -243,10 +243,10 @@ export function DenunciaFormPage() {
         membroId: data.membroId || undefined,
         tipo: Number(data.tipo) as TipoDenuncia,
         titulo: data.titulo,
-        descricao: data.descricao,
-        fundamentacao: data.fundamentacao,
+        descrição: data.descrição,
+        fundamentação: data.fundamentação,
         prioridade: Number(data.prioridade) as PrioridadeDenuncia,
-        anonima: isAnonimo,
+        anônima: isAnonimo,
         denuncianteNome: isAnonimo ? undefined : data.denuncianteNome,
         denuncianteEmail: isAnonimo ? undefined : data.denuncianteEmail,
         denuncianteTelefone: isAnonimo ? undefined : data.denuncianteTelefone,
@@ -310,7 +310,7 @@ export function DenunciaFormPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-orange-500" />
-                Informacoes da Denuncia
+                Informações da Denúncia
               </CardTitle>
               <CardDescription>Descreva detalhadamente a irregularidade</CardDescription>
             </CardHeader>
@@ -456,7 +456,7 @@ export function DenunciaFormPage() {
                     className="h-4 w-4 rounded border-gray-300"
                   />
                   <Label htmlFor="anonimo" className="font-normal">
-                    Denuncia anonima (seus dados nao serao registrados)
+                    Denúncia anônima (seus dados não seráo registrados)
                   </Label>
                 </div>
 

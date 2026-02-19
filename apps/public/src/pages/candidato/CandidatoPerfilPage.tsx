@@ -137,7 +137,7 @@ export function CandidatoPerfilPage() {
       // 1. Parse JWT for basic profile data
       const payload = getTokenPayload()
       if (!payload) {
-        setError('Sessao expirada. Faca login novamente.')
+        setError('Sessão expirada. Faça login novamente.')
         setLoading(false)
         return
       }
@@ -221,7 +221,7 @@ export function CandidatoPerfilPage() {
         <div className="text-center max-w-md">
           <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
           <h2 className="text-lg font-semibold text-gray-900 mb-2">Erro ao carregar perfil</h2>
-          <p className="text-gray-600 mb-4">{error || 'Dados do perfil nao encontrados.'}</p>
+          <p className="text-gray-600 mb-4">{error || 'Dados do perfil não encontrados.'}</p>
           <button
             onClick={loadData}
             className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
@@ -307,7 +307,7 @@ export function CandidatoPerfilPage() {
               <div>
                 <p className="text-sm text-gray-500">Nenhuma chapa vinculada</p>
                 <p className="text-xs text-gray-400">
-                  Voce ainda nao esta associado a nenhuma chapa eleitoral.
+                  Você ainda não está associado a nenhuma chapa eleitoral.
                 </p>
               </div>
             </div>

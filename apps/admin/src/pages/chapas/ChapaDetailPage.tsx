@@ -229,10 +229,10 @@ export function ChapaDetailPage() {
         aprovarMutation.mutate()
         break
       case 'reject':
-        reprovarMutation.mutate(actionReason || 'Chapa reprovada pela administracao')
+        reprovarMutation.mutate(actionReason || 'Chapa reprovada pela administração')
         break
       case 'suspend':
-        suspenderMutation.mutate(actionReason || 'Chapa suspensa pela administracao')
+        suspenderMutation.mutate(actionReason || 'Chapa suspensa pela administração')
         break
       case 'reactivate':
         reativarMutation.mutate()
@@ -268,7 +268,7 @@ export function ChapaDetailPage() {
           description: (
             <>
               Tem certeza que deseja excluir a chapa <strong>"{chapa?.nome}"</strong>?
-              Esta acao nao pode ser desfeita.
+              Esta acao não pode ser desfeita.
             </>
           ),
           confirmLabel: 'Excluir',
@@ -468,7 +468,7 @@ export function ChapaDetailPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Building className="h-5 w-5" />
-                Informacoes da Chapa
+                Informações da Chapa
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -500,7 +500,7 @@ export function ChapaDetailPage() {
                 <div className="sm:col-span-2">
                   <dt className="text-sm font-medium text-gray-500">Descrição</dt>
                   <dd className="mt-1 text-sm text-gray-900 whitespace-pre-wrap">
-                    {chapa.descricao || 'Sem descricao.'}
+                    {chapa.descricao || 'Sem descrição.'}
                   </dd>
                 </div>
               </div>

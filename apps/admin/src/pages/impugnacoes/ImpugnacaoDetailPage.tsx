@@ -134,14 +134,14 @@ export function ImpugnacaoDetailPage() {
 
   // Fetch impugnacao
   const { data: impugnacao, isLoading } = useQuery({
-    queryKey: ['impugnacao', id],
+    queryKey: ['impugnação', id],
     queryFn: () => impugnacoesService.getById(id!),
     enabled: !!id,
   })
 
   // Fetch timeline
   const { data: timeline } = useQuery({
-    queryKey: ['impugnacao-timeline', id],
+    queryKey: ['impugnação-timeline', id],
     queryFn: () => impugnacoesService.getTimeline(id!),
     enabled: !!id,
   })
@@ -342,7 +342,7 @@ export function ImpugnacaoDetailPage() {
                 {canIniciarAnalise && (
                   <Button onClick={() => setShowIniciarAnaliseDialog(true)}>
                     <Play className="mr-2 h-4 w-4" />
-                    Iniciar Analise
+                    Iniciar Análise
                   </Button>
                 )}
                 {canSolicitarDefesa && (
@@ -749,7 +749,7 @@ export function ImpugnacaoDetailPage() {
           <DialogHeader>
             <DialogTitle>Iniciar Análise</DialogTitle>
             <DialogDescription>
-              Confirma o inicio da analise desta impugnacao? A fase sera alterada para "Analise Inicial".
+              Confirma o início da análise desta impugnação? A fase será alterada para "Análise Inicial".
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -775,7 +775,7 @@ export function ImpugnacaoDetailPage() {
           <DialogHeader>
             <DialogTitle>Solicitar Defesa</DialogTitle>
             <DialogDescription>
-              Defina o prazo para apresentacao de defesa pelo impugnado.
+              Defina o prazo para apresentação de defesa pelo impugnado.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -813,7 +813,7 @@ export function ImpugnacaoDetailPage() {
           <DialogHeader>
             <DialogTitle>Emitir Parecer</DialogTitle>
             <DialogDescription>
-              Emita seu parecer sobre a impugnacao e indique sua recomendacao.
+              Emita seu parecer sobre a impugnação e indique sua recomendacao.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -869,7 +869,7 @@ export function ImpugnacaoDetailPage() {
           <DialogHeader>
             <DialogTitle>Proferir Decisao</DialogTitle>
             <DialogDescription>
-              Profira a decisao final sobre esta impugnacao.
+              Profira a decisao final sobre esta impugnação.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -934,7 +934,7 @@ export function ImpugnacaoDetailPage() {
           <DialogHeader>
             <DialogTitle>Arquivar Impugnação</DialogTitle>
             <DialogDescription>
-              Informe o motivo do arquivamento desta impugnacao.
+              Informe o motivo do arquivamento desta impugnação.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -973,7 +973,7 @@ export function ImpugnacaoDetailPage() {
           <DialogHeader>
             <DialogTitle>Atribuir Relator</DialogTitle>
             <DialogDescription>
-              Selecione o relator responsavel por esta impugnacao.
+              Selecione o relator responsavel por esta impugnação.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -986,7 +986,7 @@ export function ImpugnacaoDetailPage() {
                 onChange={(e) => setRelatorId(e.target.value)}
               />
               <p className="text-xs text-gray-500">
-                Em producao, este campo sera um select com os membros da comissao eleitoral.
+                Em producao, este campo será um select com os membros da comissão eleitoral.
               </p>
             </div>
           </div>

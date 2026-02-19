@@ -13,8 +13,8 @@ import { useAuthStore } from '@/stores/auth'
 import { authService } from '@/services/auth'
 
 const loginSchema = z.object({
-  email: z.string().email('Email invalido'),
-  password: z.string().min(6, 'Senha deve ter no minimo 6 caracteres'),
+  email: z.string().email('Email inválido'),
+  password: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres'),
 })
 
 type LoginFormData = z.infer<typeof loginSchema>
@@ -47,7 +47,7 @@ export function LoginPage() {
       toast({
         variant: 'destructive',
         title: 'Erro ao fazer login',
-        description: error.response?.data?.message || 'Credenciais invalidas',
+        description: error.response?.data?.message || 'Credenciais inválidas',
       })
     } finally {
       setIsLoading(false)

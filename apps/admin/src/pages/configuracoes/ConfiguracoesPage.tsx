@@ -21,12 +21,12 @@ export function ConfiguracoesPage() {
 
   // Queries para carregar dados de cada aba
   const { data: configGeral, isLoading: isLoadingGeral } = useQuery({
-    queryKey: ['configuracoes', 'geral'],
+    queryKey: ['configurações', 'geral'],
     queryFn: async () => {
       const defaults = {
         nomeSistema: 'CAU Sistema Eleitoral',
         sigla: 'CAU-SE',
-        descricao: 'Sistema de votacao eletronica do Conselho de Arquitetura e Urbanismo',
+        descrição: 'Sistema de votação eletronica do Conselho de Arquitetura e Urbanismo',
         logoUrl: '',
         faviconUrl: '',
         emailContato: 'contato@cau.org.br',
@@ -55,19 +55,19 @@ export function ConfiguracoesPage() {
   })
 
   const { data: configEleicao, isLoading: isLoadingEleicao } = useQuery({
-    queryKey: ['configuracoes', 'eleicao'],
+    queryKey: ['configurações', 'eleição'],
     queryFn: configuracoesService.getConfiguracoesEleicao,
     enabled: activeTab === 'eleicoes',
   })
 
   const { data: configNotificacao, isLoading: isLoadingNotificacao } = useQuery({
-    queryKey: ['configuracoes', 'notificacao'],
+    queryKey: ['configurações', 'notificação'],
     queryFn: configuracoesService.getConfiguracoesNotificacao,
     enabled: activeTab === 'notificacoes',
   })
 
   const { data: configSeguranca, isLoading: isLoadingSeguranca } = useQuery({
-    queryKey: ['configuracoes', 'seguranca'],
+    queryKey: ['configurações', 'segurança'],
     queryFn: configuracoesService.getConfiguracoesSeguranca,
     enabled: activeTab === 'seguranca',
   })

@@ -16,15 +16,15 @@ const configEleicaoSchema = z.object({
   exibirResultadosParciais: z.boolean(),
   exibirResultadosAposEncerramento: z.boolean(),
   requererJustificativaAusencia: z.boolean(),
-  tempoMaximoVotacao: z.coerce.number().min(1, 'Minimo 1 minuto'),
-  tentativasMaximasLogin: z.coerce.number().min(1, 'Minimo 1 tentativa'),
-  bloquearAposXTentativas: z.coerce.number().min(1, 'Minimo 1 tentativa'),
-  tempoBloqueioMinutos: z.coerce.number().min(1, 'Minimo 1 minuto'),
+  tempoMaximoVotacao: z.coerce.number().min(1, 'Mínimo 1 minuto'),
+  tentativasMaximasLogin: z.coerce.number().min(1, 'Mínimo 1 tentativa'),
+  bloquearAposXTentativas: z.coerce.number().min(1, 'Mínimo 1 tentativa'),
+  tempoBloqueioMinutos: z.coerce.number().min(1, 'Mínimo 1 minuto'),
   validarCPFReceita: z.boolean(),
   validarRegistroCAU: z.boolean(),
   permitirCandidaturaMultipla: z.boolean(),
-  diasMinimosInscricao: z.coerce.number().min(1, 'Minimo 1 dia'),
-  diasMaximosRecurso: z.coerce.number().min(1, 'Minimo 1 dia'),
+  diasMinimosInscricao: z.coerce.number().min(1, 'Mínimo 1 dia'),
+  diasMaximosRecurso: z.coerce.number().min(1, 'Mínimo 1 dia'),
 })
 
 type ConfigEleicaoFormData = z.infer<typeof configEleicaoSchema>
@@ -110,7 +110,7 @@ export function ConfiguracoesEleicoes({ data, isLoading, onSave }: Configuracoes
             Tempos e Prazos
           </CardTitle>
           <CardDescription>
-            Configure os prazos padrao para eleicoes
+            Configure os prazos padrao para eleições
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -186,10 +186,10 @@ export function ConfiguracoesEleicoes({ data, isLoading, onSave }: Configuracoes
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Vote className="h-5 w-5" />
-            Opcoes de Votacao
+            Opcoes de Votação
           </CardTitle>
           <CardDescription>
-            Configure as regras de votacao
+            Configure as regras de votação
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -203,7 +203,7 @@ export function ConfiguracoesEleicoes({ data, isLoading, onSave }: Configuracoes
               <div>
                 <p className="font-medium">Permitir voto antecipado</p>
                 <p className="text-sm text-gray-500">
-                  Eleitores podem votar antes da data oficial de inicio
+                  Eleitores podem votar antes da data oficial de início
                 </p>
               </div>
               <div
@@ -253,7 +253,7 @@ export function ConfiguracoesEleicoes({ data, isLoading, onSave }: Configuracoes
               <div>
                 <p className="font-medium">Exibir resultados parciais</p>
                 <p className="text-sm text-gray-500">
-                  Mostra contagem parcial durante a votacao (nao recomendado)
+                  Mostra contagem parcial durante a votação (nao recomendado)
                 </p>
               </div>
               <div
@@ -278,7 +278,7 @@ export function ConfiguracoesEleicoes({ data, isLoading, onSave }: Configuracoes
               <div>
                 <p className="font-medium">Exibir resultados após encerramento</p>
                 <p className="text-sm text-gray-500">
-                  Divulga automaticamente os resultados quando a votacao encerrar
+                  Divulga automaticamente os resultados quando a votação encerrar
                 </p>
               </div>
               <div
@@ -463,7 +463,7 @@ export function ConfiguracoesEleicoes({ data, isLoading, onSave }: Configuracoes
         <Button type="submit" disabled={!isDirty || isSaving}>
           {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           <Save className="mr-2 h-4 w-4" />
-          Salvar Alteracoes
+          Salvar Alterações
         </Button>
       </div>
     </form>

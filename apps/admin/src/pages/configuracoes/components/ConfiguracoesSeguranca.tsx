@@ -9,18 +9,18 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 
 const configSegurancaSchema = z.object({
-  sessaoTimeoutMinutos: z.coerce.number().min(5, 'Minimo 5 minutos'),
-  tokenExpiracaoHoras: z.coerce.number().min(1, 'Minimo 1 hora'),
-  refreshTokenExpiracaoDias: z.coerce.number().min(1, 'Minimo 1 dia'),
+  sessaoTimeoutMinutos: z.coerce.number().min(5, 'Mínimo 5 minutos'),
+  tokenExpiracaoHoras: z.coerce.number().min(1, 'Mínimo 1 hora'),
+  refreshTokenExpiracaoDias: z.coerce.number().min(1, 'Mínimo 1 dia'),
   requerer2FA: z.boolean(),
   complexidadeSenhaMinima: z.enum(['baixa', 'media', 'alta']),
-  tamanhoMinimoSenha: z.coerce.number().min(6, 'Minimo 6 caracteres'),
+  tamanhoMinimoSenha: z.coerce.number().min(6, 'Mínimo 6 caracteres'),
   diasExpiracaoSenha: z.coerce.number().min(0, 'Valor deve ser positivo'),
   historicoSenhasImpedir: z.coerce.number().min(0, 'Valor deve ser positivo'),
   ipWhitelist: z.string().optional(),
   ipBlacklist: z.string().optional(),
-  rateLimitRequests: z.coerce.number().min(1, 'Minimo 1 requisicao'),
-  rateLimitWindowMinutos: z.coerce.number().min(1, 'Minimo 1 minuto'),
+  rateLimitRequests: z.coerce.number().min(1, 'Mínimo 1 requisicao'),
+  rateLimitWindowMinutos: z.coerce.number().min(1, 'Mínimo 1 minuto'),
   auditarTodasAcoes: z.boolean(),
   criptografarVotos: z.boolean(),
   algoritmoHash: z.enum(['bcrypt', 'argon2', 'scrypt']),
@@ -38,19 +38,19 @@ const complexidadeOptions = [
   {
     value: 'baixa',
     label: 'Baixa',
-    descricao: 'Minimo 6 caracteres',
+    descrição: 'Mínimo 6 caracteres',
     color: 'bg-yellow-100 text-yellow-800',
   },
   {
     value: 'media',
     label: 'Media',
-    descricao: 'Letras maiusculas, minusculas e numeros',
+    descrição: 'Letras maiusculas, minusculas e numeros',
     color: 'bg-blue-100 text-blue-800',
   },
   {
     value: 'alta',
     label: 'Alta',
-    descricao: 'Maiusculas, minusculas, numeros e simbolos',
+    descrição: 'Maiusculas, minusculas, numeros e simbolos',
     color: 'bg-green-100 text-green-800',
   },
 ]
@@ -59,17 +59,17 @@ const hashOptions = [
   {
     value: 'bcrypt',
     label: 'BCrypt',
-    descricao: 'Algoritmo padrao, recomendado para maioria dos casos',
+    descrição: 'Algoritmo padrao, recomendado para maioria dos casos',
   },
   {
     value: 'argon2',
     label: 'Argon2',
-    descricao: 'Algoritmo mais moderno, maior seguranca',
+    descrição: 'Algoritmo mais moderno, maior segurança',
   },
   {
     value: 'scrypt',
     label: 'Scrypt',
-    descricao: 'Alto consumo de memoria, resistente a ataques',
+    descrição: 'Alto consumo de memoria, resistente a ataques',
   },
 ]
 
@@ -144,10 +144,10 @@ export function ConfiguracoesSeguranca({ data, isLoading, onSave }: Configuracoe
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
-            Sessao e Tokens
+            Sessão e Tokens
           </CardTitle>
           <CardDescription>
-            Configure os tempos de expiracao de sessao e tokens
+            Configure os tempos de expiracao de sessão e tokens
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -457,7 +457,7 @@ export function ConfiguracoesSeguranca({ data, isLoading, onSave }: Configuracoe
                 <div>
                   <p className="font-medium">Auditoria Completa</p>
                   <p className="text-sm text-gray-500">
-                    Registrar todas as acoes dos usuarios no sistema
+                    Registrar todas as ações dos usuarios no sistema
                   </p>
                 </div>
               </div>
@@ -489,7 +489,7 @@ export function ConfiguracoesSeguranca({ data, isLoading, onSave }: Configuracoe
         <Button type="submit" disabled={!isDirty || isSaving}>
           {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           <Save className="mr-2 h-4 w-4" />
-          Salvar Alteracoes
+          Salvar Alterações
         </Button>
       </div>
     </form>

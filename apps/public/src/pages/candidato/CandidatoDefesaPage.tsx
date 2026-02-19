@@ -111,7 +111,7 @@ export function CandidatoDefesaPage() {
     const defesas = defesasMap[imp.id] || []
     return defesas.map(d => ({
       ...d,
-      impugnacaoTitulo: `${imp.tipoNome || 'Impugnacao'} - ${imp.descricao.substring(0, 60)}`,
+      impugnacaoTitulo: `${imp.tipoNome || 'Impugnação'} - ${imp.descricao.substring(0, 60)}`,
       impugnacaoStatus: imp.status,
       impugnacaoStatusNome: imp.statusNome,
     }))
@@ -167,7 +167,7 @@ export function CandidatoDefesaPage() {
           className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
         >
           <AlertTriangle className="h-4 w-4" />
-          Ver Denuncias
+          Ver Denúncias
         </Link>
       </div>
 
@@ -199,7 +199,7 @@ export function CandidatoDefesaPage() {
           <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-500 mb-4">Nenhuma defesa necessaria</p>
           <p className="text-sm text-gray-400">
-            Nenhuma impugnacao registrada contra sua chapa.
+            Nenhuma impugnação registrada contra sua chapa.
           </p>
         </div>
       ) : (
@@ -236,7 +236,7 @@ export function CandidatoDefesaPage() {
                       </div>
 
                       <h3 className="font-semibold text-gray-900">
-                        {imp.tipoNome || 'Impugnacao'}
+                        {imp.tipoNome || 'Impugnação'}
                       </h3>
                       <p className="text-gray-600 text-sm mt-1 line-clamp-2">{imp.descricao}</p>
 
@@ -300,7 +300,7 @@ export function CandidatoDefesaPage() {
                       ))
                     ) : (
                       <div className="text-center py-4 text-gray-500 text-sm">
-                        Nenhuma defesa enviada para esta impugnacao.
+                        Nenhuma defesa enviada para esta impugnação.
                       </div>
                     )}
 

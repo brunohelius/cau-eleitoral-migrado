@@ -198,11 +198,11 @@ export function ChapaDetailPage() {
         if (chapaData) {
           setChapa(chapaData)
         } else {
-          setError('Chapa nao encontrada')
+          setError('Chapa não encontrada')
         }
       } catch (err) {
         console.error('Error fetching chapa:', err)
-        setError('Nao foi possivel carregar os detalhes da chapa')
+        setError('Não foi possível carregar os detalhes da chapa')
       } finally {
         setIsLoading(false)
       }
@@ -243,7 +243,7 @@ export function ChapaDetailPage() {
           <div className="text-center">
             <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Chapa nao encontrada
+              Chapa não encontrada
             </h2>
             <p className="text-gray-500 mb-6">{error}</p>
             <Link to={`/eleicoes/${eleicaoId}/chapas`}>
@@ -475,7 +475,7 @@ export function ChapaDetailPage() {
                 <div className="text-center py-8">
                   <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-500 mb-4">
-                    A plataforma detalhada ainda nao foi disponibilizada.
+                    A plataforma detalhada ainda não foi disponibilizada.
                   </p>
                   {chapa.plataformaUrl && (
                     <a
@@ -536,14 +536,14 @@ export function ChapaDetailPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Calendar className={`h-5 w-5 ${colors.text}`} />
-                  Informacoes da Eleicao
+                  Informações da Eleição
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
                   <p className="text-sm text-gray-500">Eleição</p>
                   <p className="font-medium text-gray-900">
-                    {eleicao?.nome || chapa.eleicaoNome || 'Eleicao'}
+                    {eleicao?.nome || chapa.eleicaoNome || 'Eleição'}
                   </p>
                 </div>
                 {chapa.dataRegistro && (
@@ -580,10 +580,10 @@ export function ChapaDetailPage() {
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
               <h3 className="font-semibold text-gray-900 mb-1">
-                Duvidas sobre esta chapa?
+                Dúvidas sobre esta chapa?
               </h3>
               <p className="text-sm text-gray-600">
-                Entre em contato com a comissao eleitoral para mais informacoes.
+                Entre em contato com a comissão eleitoral para mais informações.
               </p>
             </div>
             <div className="flex gap-3">
@@ -614,7 +614,7 @@ export function ChapaDetailPage() {
         </Link>
         <Link to={`/eleicoes/${eleicaoId}`}>
           <Button variant="ghost">
-            Voltar para a eleicao
+            Voltar para a eleição
           </Button>
         </Link>
       </div>

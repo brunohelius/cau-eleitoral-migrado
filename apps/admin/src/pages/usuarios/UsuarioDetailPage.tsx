@@ -298,7 +298,7 @@ export function UsuarioDetailPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <User className="h-5 w-5" />
-              Informacoes do Usuario
+              Informações do Usuario
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -443,7 +443,7 @@ export function UsuarioDetailPage() {
                   className="mt-1"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Se deixar vazio, uma senha temporaria sera gerada e exibida.
+                  Se deixar vazio, uma senha temporaria será gerada e exibida.
                 </p>
               </div>
             </div>

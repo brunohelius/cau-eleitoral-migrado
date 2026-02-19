@@ -36,11 +36,10 @@ export function PublicLayout() {
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`text-sm font-medium transition-colors ${
-                    isActive(item.href)
+                  className={`text-sm font-medium transition-colors ${isActive(item.href)
                       ? 'text-primary'
                       : 'text-gray-600 hover:text-gray-900'
-                  }`}
+                    }`}
                 >
                   {item.name}
                 </Link>
@@ -53,13 +52,13 @@ export function PublicLayout() {
                 to="/candidato/login"
                 className="text-sm font-medium text-gray-600 hover:text-gray-900"
               >
-                Area do Candidato
+                Área do Candidato
               </Link>
               <Link
                 to="/votacao"
                 className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 text-sm font-medium"
               >
-                Area do Eleitor
+                Área do Eleitor
               </Link>
             </div>
 
@@ -86,11 +85,10 @@ export function PublicLayout() {
                   key={item.name}
                   to={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`block px-3 py-2 rounded-md text-base font-medium ${
-                    isActive(item.href)
+                  className={`block px-3 py-2 rounded-md text-base font-medium ${isActive(item.href)
                       ? 'bg-primary/10 text-primary'
                       : 'text-gray-600 hover:bg-gray-100'
-                  }`}
+                    }`}
                 >
                   {item.name}
                 </Link>
@@ -101,14 +99,14 @@ export function PublicLayout() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-100"
                 >
-                  Area do Candidato
+                  Área do Candidato
                 </Link>
                 <Link
                   to="/votacao"
                   onClick={() => setMobileMenuOpen(false)}
                   className="block px-3 py-2 rounded-md text-base font-medium bg-primary text-white text-center"
                 >
-                  Area do Eleitor
+                  Área do Eleitor
                 </Link>
               </div>
             </div>
@@ -129,7 +127,7 @@ export function PublicLayout() {
             <div className="md:col-span-1">
               <h3 className="text-lg font-semibold mb-4">CAU Sistema Eleitoral</h3>
               <p className="text-gray-400 text-sm">
-                Sistema oficial de eleicoes do Conselho de Arquitetura e Urbanismo.
+                Sistema oficial de eleições do Conselho de Arquitetura e Urbanismo.
               </p>
             </div>
 

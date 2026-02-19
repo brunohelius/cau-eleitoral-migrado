@@ -29,7 +29,7 @@ export function VotacaoMonitorPage() {
   const [lastUpdate, setLastUpdate] = useState(new Date())
 
   const { data: eleicao, isLoading: isLoadingEleicao } = useQuery({
-    queryKey: ['eleicao', eleicaoId],
+    queryKey: ['eleição', eleicaoId],
     queryFn: () => eleicoesService.getById(eleicaoId!),
     enabled: !!eleicaoId,
   })
@@ -39,7 +39,7 @@ export function VotacaoMonitorPage() {
     isLoading: isLoadingEstatisticas,
     refetch,
   } = useQuery({
-    queryKey: ['votacao-estatisticas', eleicaoId],
+    queryKey: ['votação-estatisticas', eleicaoId],
     queryFn: () => votacaoService.getEstatisticas(eleicaoId!),
     enabled: !!eleicaoId,
     refetchInterval: autoRefresh ? 30000 : false, // Refresh every 30 seconds if auto-refresh enabled
@@ -66,7 +66,7 @@ export function VotacaoMonitorPage() {
   const toggleAutoRefresh = () => {
     setAutoRefresh(!autoRefresh)
     toast({
-      title: autoRefresh ? 'Atualizacao automatica desativada' : 'Atualizacao automatica ativada',
+      title: autoRefresh ? 'Atualização automatica desativada' : 'Atualização automatica ativada',
       description: autoRefresh
         ? 'Os dados nao serao mais atualizados automaticamente.'
         : 'Os dados serao atualizados a cada 30 segundos.',
@@ -223,7 +223,7 @@ export function VotacaoMonitorPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Activity className="h-5 w-5" />
-              Atividade de Votacao por Hora
+              Atividade de Votação por Hora
             </CardTitle>
             <CardDescription>Quantidade de votos registrados ao longo do dia</CardDescription>
           </CardHeader>
@@ -299,7 +299,7 @@ export function VotacaoMonitorPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MapPin className="h-5 w-5" />
-            Votacao por Regiao (UF)
+            Votação por Regiao (UF)
           </CardTitle>
           <CardDescription>Participação por regional do CAU</CardDescription>
         </CardHeader>

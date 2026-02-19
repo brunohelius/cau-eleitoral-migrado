@@ -13,17 +13,17 @@ import { useToast } from '@/hooks/use-toast'
 import { eleicoesService, CreateEleicaoRequest, UpdateEleicaoRequest } from '@/services/eleicoes'
 
 const eleicaoSchema = z.object({
-  nome: z.string().min(3, 'Nome deve ter no minimo 3 caracteres'),
-  descricao: z.string().optional(),
+  nome: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
+  descrição: z.string().optional(),
   tipo: z.number().min(0, 'Selecione um tipo'),
-  ano: z.number().min(2020, 'Ano invalido').max(2100, 'Ano invalido'),
+  ano: z.number().min(2020, 'Ano inválido').max(2100, 'Ano inválido'),
   mandato: z.number().optional(),
-  dataInicio: z.string().min(1, 'Data de inicio e obrigatoria'),
-  dataFim: z.string().min(1, 'Data de fim e obrigatoria'),
+  dataInicio: z.string().min(1, 'Data de início é obrigatoria'),
+  dataFim: z.string().min(1, 'Data de fim é obrigatoria'),
   dataVotacaoInicio: z.string().optional(),
   dataVotacaoFim: z.string().optional(),
   regionalId: z.string().optional(),
-  modoVotacao: z.number().min(0, 'Selecione um modo de votacao'),
+  modoVotacao: z.number().min(0, 'Selecione um modo de votação'),
   quantidadeVagas: z.number().optional(),
   quantidadeSuplentes: z.number().optional(),
 })
@@ -50,7 +50,7 @@ export function EleicaoFormPage() {
   const isEditing = !!id
 
   const { data: eleicao, isLoading: isLoadingEleicao } = useQuery({
-    queryKey: ['eleicao', id],
+    queryKey: ['eleição', id],
     queryFn: () => eleicoesService.getById(id!),
     enabled: isEditing,
   })
@@ -72,19 +72,19 @@ export function EleicaoFormPage() {
   useEffect(() => {
     if (eleicao) {
       reset({
-        nome: eleicao.nome,
-        descricao: eleicao.descricao || '',
-        tipo: eleicao.tipo,
-        ano: eleicao.ano,
-        mandato: eleicao.mandato,
-        dataInicio: eleicao.dataInicio.split('T')[0],
-        dataFim: eleicao.dataFim.split('T')[0],
-        dataVotacaoInicio: eleicao.dataVotacaoInicio?.split('T')[0] || '',
-        dataVotacaoFim: eleicao.dataVotacaoFim?.split('T')[0] || '',
-        regionalId: eleicao.regionalId || '',
-        modoVotacao: eleicao.modoVotacao,
-        quantidadeVagas: eleicao.quantidadeVagas,
-        quantidadeSuplentes: eleicao.quantidadeSuplentes,
+        nome: eleição.nome,
+        descrição: eleição.descrição || '',
+        tipo: eleição.tipo,
+        ano: eleição.ano,
+        mandato: eleição.mandato,
+        dataInicio: eleição.dataInicio.split('T')[0],
+        dataFim: eleição.dataFim.split('T')[0],
+        dataVotacaoInicio: eleição.dataVotacaoInicio?.split('T')[0] || '',
+        dataVotacaoFim: eleição.dataVotacaoFim?.split('T')[0] || '',
+        regionalId: eleição.regionalId || '',
+        modoVotacao: eleição.modoVotacao,
+        quantidadeVagas: eleição.quantidadeVagas,
+        quantidadeSuplentes: eleição.quantidadeSuplentes,
       })
     }
   }, [eleicao, reset])

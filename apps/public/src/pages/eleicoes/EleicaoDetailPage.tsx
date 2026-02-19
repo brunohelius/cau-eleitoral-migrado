@@ -32,13 +32,13 @@ export function EleicaoDetailPage() {
   const { id } = useParams<{ id: string }>()
 
   const { data: eleicao, isLoading, error } = useQuery({
-    queryKey: ['eleicao-detail', id],
+    queryKey: ['eleição-detail', id],
     queryFn: () => eleicoesPublicService.getById(id!),
     enabled: !!id,
   })
 
   const { data: fases } = useQuery({
-    queryKey: ['eleicao-calendario', id],
+    queryKey: ['eleição-calendário', id],
     queryFn: () => eleicoesPublicService.getCalendario(id!),
     enabled: !!id,
   })
@@ -62,7 +62,7 @@ export function EleicaoDetailPage() {
           to="/eleicoes"
           className="mt-4 text-primary hover:underline"
         >
-          Voltar para lista de eleicoes
+          Voltar para lista de eleições
         </Link>
       </div>
     )
@@ -77,7 +77,7 @@ export function EleicaoDetailPage() {
           to="/eleicoes"
           className="mt-4 text-primary hover:underline"
         >
-          Voltar para lista de eleicoes
+          Voltar para lista de eleições
         </Link>
       </div>
     )
@@ -183,7 +183,7 @@ export function EleicaoDetailPage() {
         {/* Description */}
         <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm border">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Sobre a Eleição</h2>
-          <p className="text-gray-600 leading-relaxed">{eleicao.descricao || 'Sem descricao disponivel.'}</p>
+          <p className="text-gray-600 leading-relaxed">{eleicao.descricao || 'Sem descrição disponível.'}</p>
 
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>

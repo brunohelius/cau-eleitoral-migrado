@@ -279,7 +279,7 @@ export function EleicaoChapasPage() {
       } catch (err) {
         console.error('Error fetching chapas:', err)
         setChapas([])
-        setError('Nao foi possivel carregar os dados da API.')
+        setError('Não foi possível carregar os dados da API.')
       } finally {
         setIsLoading(false)
       }
@@ -344,7 +344,7 @@ export function EleicaoChapasPage() {
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
               Chapas Registradas
             </h1>
-            <p className="text-gray-600 mt-1">{eleicao?.nome || 'Eleicao'}</p>
+            <p className="text-gray-600 mt-1">{eleicao?.nome || 'Eleição'}</p>
           </div>
         </div>
 
@@ -352,7 +352,7 @@ export function EleicaoChapasPage() {
           <div className="text-center px-6">
             <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Nao foi possivel carregar as chapas
+              Não foi possível carregar as chapas
             </h3>
             <p className="text-gray-500">{error}</p>
           </div>
@@ -380,7 +380,7 @@ export function EleicaoChapasPage() {
             Chapas Registradas
           </h1>
           <p className="text-gray-600 mt-1">
-            {eleicao?.nome || 'Eleicao'}
+            {eleicao?.nome || 'Eleição'}
           </p>
         </div>
       </div>

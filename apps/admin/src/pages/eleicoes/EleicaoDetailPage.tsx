@@ -9,7 +9,7 @@ export function EleicaoDetailPage() {
   const { id } = useParams<{ id: string }>()
 
   const { data: eleicao, isLoading } = useQuery({
-    queryKey: ['eleicao', id],
+    queryKey: ['eleição', id],
     queryFn: () => eleicoesService.getById(id!),
     enabled: !!id,
   })
@@ -80,7 +80,7 @@ export function EleicaoDetailPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            Informacoes da Eleicao
+            Informações da Eleição
           </CardTitle>
         </CardHeader>
         <CardContent>

@@ -19,7 +19,7 @@ import api, { extractApiError, setTokenType } from '@/services/api'
 interface EleicaoDisponivel {
   id: string
   nome: string
-  descricao: string
+  descrição: string
   dataInicioVotacao: string
   dataFimVotacao: string
   totalChapas: number
@@ -101,7 +101,7 @@ export function VotacaoEleicaoPage() {
       } catch (err) {
         const apiError = extractApiError(err)
         setEleicoes([])
-        setError(apiError.message || 'Nao foi possivel carregar as eleicoes disponiveis.')
+        setError(apiError.message || 'Não foi possível carregar as eleições disponíveis.')
       } finally {
         setIsLoading(false)
       }
@@ -163,10 +163,10 @@ export function VotacaoEleicaoPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Selecionar Eleicao
+          Selecionar Eleição
         </h1>
         <p className="text-gray-600 mt-1">
-          Escolha uma eleicao para votar ou visualizar seu comprovante
+          Escolha uma eleição para votar ou visualizar seu comprovante
         </p>
       </div>
 
@@ -201,7 +201,7 @@ export function VotacaoEleicaoPage() {
           <div className="flex items-center gap-2 mb-4">
             <Vote className="h-5 w-5 text-green-600" />
             <h2 className="text-lg font-semibold text-gray-900">
-              Eleicoes Disponiveis para Votacao
+              Eleições Disponíveis para Votação
             </h2>
             <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded-full">
               {eleicoesDisponiveis.length}
@@ -279,13 +279,13 @@ export function VotacaoEleicaoPage() {
             <div>
               <h3 className="font-semibold text-yellow-800">Nenhuma eleição disponível</h3>
               <p className="text-yellow-700 mt-1">
-                No momento nao ha eleicoes abertas para votacao. Verifique o calendario eleitoral para saber as proximas datas.
+                No momento não há eleições abertas para votação. Verifique o calendário eleitoral para saber as proximas datas.
               </p>
               <Link
                 to="/calendario"
                 className="inline-flex items-center gap-1 mt-3 text-yellow-800 font-medium hover:underline"
               >
-                Ver calendario eleitoral
+                Ver calendário eleitoral
                 <ChevronRight className="h-4 w-4" />
               </Link>
             </div>
@@ -348,7 +348,7 @@ export function VotacaoEleicaoPage() {
           <div className="flex items-center gap-2 mb-4">
             <Calendar className="h-5 w-5 text-gray-600" />
             <h2 className="text-lg font-semibold text-gray-900">
-              Outras Eleicoes
+              Outras Eleições
             </h2>
           </div>
 
@@ -405,8 +405,8 @@ export function VotacaoEleicaoPage() {
           <div className="text-sm">
             <p className="font-medium text-blue-800">Lembre-se</p>
             <p className="text-blue-700">
-              Cada eleitor pode votar apenas uma vez por eleicao. Apos confirmar seu voto, nao sera possivel altera-lo.
-              Guarde seu comprovante de votacao.
+              Cada eleitor pode votar apenas uma vez por eleição. Após confirmar seu voto, não será possível altera-lo.
+              Guarde seu comprovante de votação.
             </p>
           </div>
         </div>

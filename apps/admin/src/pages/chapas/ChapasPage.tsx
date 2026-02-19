@@ -95,7 +95,7 @@ export function ChapasPage() {
 
   // Fetch eleicoes for filter
   const { data: eleicoes } = useQuery({
-    queryKey: ['eleicoes'],
+    queryKey: ['eleições'],
     queryFn: eleicoesService.getAll,
   })
 
@@ -188,7 +188,7 @@ export function ChapasPage() {
       case 'reject':
         reprovarMutation.mutate({
           id: selectedChapa.id,
-          motivo: rejectReason || 'Chapa reprovada pela administracao',
+          motivo: rejectReason || 'Chapa reprovada pela administração',
         })
         break
     }
@@ -237,11 +237,11 @@ export function ChapasPage() {
           description: (
             <>
               Tem certeza que deseja excluir a chapa <strong>"{selectedChapa?.nome}"</strong>?
-              Esta acao nao pode ser desfeita.
+              Esta acao não pode ser desfeita.
               {selectedChapa?.membros && selectedChapa.membros.length > 0 && (
                 <span className="block mt-2 text-orange-600">
                   Atencao: Esta chapa possui {selectedChapa.membros.length} membro(s) cadastrado(s)
-                  que tambem serao removidos.
+                  que também serao removidos.
                 </span>
               )}
             </>
@@ -255,7 +255,7 @@ export function ChapasPage() {
           description: (
             <>
               Confirma a aprovacao da chapa <strong>"{selectedChapa?.nome}"</strong>?
-              Apos aprovada, a chapa estara apta a participar da eleicao.
+              Apos aprovada, a chapa estara apta a participar da eleição.
             </>
           ),
           confirmLabel: 'Aprovar',

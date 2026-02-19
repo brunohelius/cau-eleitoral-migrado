@@ -95,7 +95,7 @@ export function VotacaoLoginPage() {
       }
     } catch (err) {
       const apiError = extractApiError(err)
-      setError(apiError.message || 'Nao foi possivel verificar seus dados. Verifique o CPF e Registro CAU.')
+      setError(apiError.message || 'Não foi possível verificar seus dados. Verifique o CPF e Registro CAU.')
     } finally {
       setIsLoading(false)
     }
@@ -122,7 +122,7 @@ export function VotacaoLoginPage() {
       navigate('/eleitor')
     } catch (err) {
       const apiError = extractApiError(err)
-      setError(apiError.message || 'Credenciais invalidas. Verifique seus dados e tente novamente.')
+      setError(apiError.message || 'Credenciais inválidas. Verifique seus dados e tente novamente.')
     } finally {
       setIsLoading(false)
     }
@@ -234,7 +234,7 @@ export function VotacaoLoginPage() {
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Formato: Letra + 6 digitos + UF (ex: A000005-SP)
+                  Formato: Letra + 6 dígitos + UF (ex: A000005-SP)
                 </p>
               </div>
 
@@ -341,7 +341,7 @@ export function VotacaoLoginPage() {
             <div className="text-sm">
               <p className="font-medium text-green-800">Ambiente Seguro</p>
               <p className="text-green-700">
-                Sua conexao e protegida por criptografia SSL. Seus dados sao mantidos em sigilo absoluto.
+                Sua conexão é protegida por criptografia SSL. Seus dados são mantidos em sigilo absoluto.
               </p>
             </div>
           </div>

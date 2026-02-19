@@ -53,7 +53,7 @@ export function ApuracaoPage() {
   }>({ open: false, type: null })
 
   const { data: eleicao, isLoading: isLoadingEleicao } = useQuery({
-    queryKey: ['eleicao', eleicaoId],
+    queryKey: ['eleição', eleicaoId],
     queryFn: () => eleicoesService.getById(eleicaoId!),
     enabled: !!eleicaoId,
   })
@@ -63,7 +63,7 @@ export function ApuracaoPage() {
     isLoading: isLoadingResultado,
     refetch,
   } = useQuery({
-    queryKey: ['apuracao', eleicaoId],
+    queryKey: ['apuração', eleicaoId],
     queryFn: () => votacaoService.getResultados(eleicaoId!),
     enabled: !!eleicaoId,
   })
@@ -82,7 +82,7 @@ export function ApuracaoPage() {
       toast({
         variant: 'destructive',
         title: 'Erro na apuração',
-        description: error.response?.data?.message || 'Nao foi possivel realizar a apuracao.',
+        description: error.response?.data?.message || 'Não foi possível realizar a apuração.',
       })
     },
   })
@@ -101,7 +101,7 @@ export function ApuracaoPage() {
       toast({
         variant: 'destructive',
         title: 'Erro ao publicar',
-        description: error.response?.data?.message || 'Nao foi possivel publicar os resultados.',
+        description: error.response?.data?.message || 'Não foi possível publicar os resultados.',
       })
     },
   })
@@ -136,7 +136,7 @@ export function ApuracaoPage() {
       toast({
         variant: 'destructive',
         title: 'Erro ao exportar',
-        description: error.response?.data?.message || 'Nao foi possivel exportar os resultados.',
+        description: error.response?.data?.message || 'Não foi possível exportar os resultados.',
       })
     }
   }
@@ -472,15 +472,15 @@ export function ApuracaoPage() {
             <AlertDialogDescription>
               {confirmDialog.type === 'apurar' ? (
                 <>
-                  Tem certeza que deseja iniciar a apuracao dos votos?
+                  Tem certeza que deseja iniciar a apuração dos votos?
                   <br /><br />
-                  Este processo contabilizara todos os votos registrados e calculara os resultados da eleicao.
+                  Este processo contabilizara todos os votos registrados e calculara os resultados da eleição.
                 </>
               ) : (
                 <>
                   Tem certeza que deseja publicar os resultados?
                   <br /><br />
-                  Esta acao tornara os resultados visiveis publicamente e nao pode ser desfeita.
+                  Esta acao tornara os resultados visiveis publicamente e não pode ser desfeita.
                 </>
               )}
             </AlertDialogDescription>

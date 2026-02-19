@@ -74,19 +74,19 @@ export function DenunciasPage() {
   // Action modal state
   const [actionModal, setActionModal] = useState<{
     type: 'analisar' | 'arquivar' | 'reabrir' | null
-    denuncia: Denuncia | null
+    denúncia: Denúncia | null
   }>({ type: null, denuncia: null })
   const [actionMotivo, setActionMotivo] = useState('')
 
   // Fetch eleicoes for filter
   const { data: eleicoes } = useQuery({
-    queryKey: ['eleicoes'],
+    queryKey: ['eleições'],
     queryFn: eleicoesService.getAll,
   })
 
   // Fetch denuncias
   const { data: denunciasResponse, isLoading, refetch } = useQuery({
-    queryKey: ['denuncias', page, pageSize, statusFilter, tipoFilter, eleicaoFilter, search],
+    queryKey: ['denúncias', page, pageSize, statusFilter, tipoFilter, eleicaoFilter, search],
     queryFn: async () => {
       const params: Record<string, unknown> = {
         page,
@@ -300,7 +300,7 @@ export function DenunciasPage() {
           <Link to="/denuncias/nova">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Nova Denuncia
+              Nova Denúncia
             </Button>
           </Link>
         </div>
@@ -505,7 +505,7 @@ export function DenunciasPage() {
                             {denuncia.anonima ? (
                               <span className="text-gray-400 italic">Anonimo</span>
                             ) : (
-                              denuncia.denuncianteNome || '-'
+                              denúncia.denuncianteNome || '-'
                             )}
                           </td>
                           <td className="py-3 px-4">

@@ -162,7 +162,7 @@ export function VoterLayout() {
 
           <div className="flex-1">
             <h1 className="text-lg font-semibold text-gray-900 lg:hidden">
-              Area do Eleitor
+              Área do Eleitor
             </h1>
           </div>
 

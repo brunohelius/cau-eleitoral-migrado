@@ -22,12 +22,12 @@ import api from '@/services/api'
 interface Julgamento {
   id: string
   protocolo: string
-  tipo: 'denuncia' | 'impugnacao' | 'recurso'
+  tipo: 'denúncia' | 'impugnação' | 'recurso'
   titulo: string
-  descricao: string
+  descrição: string
   status: 'aguardando' | 'em_julgamento' | 'julgado'
   decisao?: 'deferida' | 'indeferida' | 'arquivada'
-  fundamentacao?: string
+  fundamentação?: string
   penalidade?: string
   relatorNome: string
   relatorVoto?: string
@@ -39,7 +39,7 @@ interface Julgamento {
     id: string
     membroNome: string
     voto: 'deferido' | 'indeferido' | 'abstencao'
-    fundamentacao?: string
+    fundamentação?: string
   }>
   documentos: Array<{
     id: string
@@ -129,10 +129,10 @@ export function JulgamentoDetailPage() {
           protocolo: j.protocolo || `JUL-${String(j.id).substring(0, 8).toUpperCase()}`,
           tipo: mapTipo(j.tipo),
           titulo: j.ementa || 'Julgamento eleitoral',
-          descricao: j.relatorio || j.ementa || 'Detalhes do julgamento',
+          descrição: j.relatório || j.ementa || 'Detalhes do julgamento',
           status: mapStatus(j.status),
           decisao: mapDecisao(j.decisao),
-          fundamentacao: j.fundamentacao,
+          fundamentação: j.fundamentação,
           penalidade: undefined,
           relatorNome: j.relatorNome || 'Nao definido',
           relatorVoto: undefined,
@@ -143,10 +143,10 @@ export function JulgamentoDetailPage() {
             id: v.id,
             membroNome: v.membroNome,
             voto: mapVoto(v.voto),
-            fundamentacao: v.fundamentacao,
+            fundamentação: v.fundamentação,
           })),
           documentos: [],
-          historico: [
+          histórico: [
             { id: '1', data: j.createdAt, acao: 'Julgamento criado', usuario: 'Sistema' },
             ...(j.dataInicio ? [{ id: '2', data: j.dataInicio, acao: 'Julgamento iniciado', usuario: 'Comissao Eleitoral' }] : []),
             ...(j.dataFim ? [{ id: '3', data: j.dataFim, acao: `Julgamento concluido${j.decisao ? ' - ' + j.decisao : ''}`, usuario: 'Comissao Eleitoral' }] : []),
