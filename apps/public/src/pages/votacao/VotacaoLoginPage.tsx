@@ -90,8 +90,6 @@ export function VotacaoLoginPage() {
       })
 
       if (response.verificacaoEnviada) {
-        // For demo purposes, we'll skip verification code and go straight to password
-        // In production, this would send a code to the voter's email/phone
         setVoterName(response.destino) // This would be the voter's name in a real scenario
         setStep('senha')
       }
@@ -113,7 +111,8 @@ export function VotacaoLoginPage() {
       const response = await authService.loginEleitor({
         cpf: cleanCPF(cpf),
         registroCAU: cau,
-        codigoVerificacao: senha, // Using password as verification for demo
+        // O backend utiliza o campo codigoVerificacao como credencial de acesso do eleitor.
+        codigoVerificacao: senha,
       })
 
       // Store voter info in state
