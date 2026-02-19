@@ -9,7 +9,7 @@ export function EleicaoDetailPage() {
   const { id } = useParams<{ id: string }>()
 
   const { data: eleicao, isLoading } = useQuery({
-    queryKey: ['eleição', id],
+    queryKey: ['eleicao', id],
     queryFn: () => eleicoesService.getById(id!),
     enabled: !!id,
   })

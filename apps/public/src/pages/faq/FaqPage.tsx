@@ -56,20 +56,20 @@ const faqs: FaqItem[] = [
   {
     id: '3',
     pergunta: 'Como funciona o processo de votação online?',
-    resposta: 'O processo de votação online e realizado inteiramente pela internet, de forma segura e acessivel. O eleitor acessa a Área do Eleitor no portal público do sistema, identifica-se com seu CPF e número de registro no CAU, e informa sua senha. Após a autenticacao, o eleitor visualiza as eleições disponíveis para o seu perfil e seleciona aquela em que deseja votar. Na cedula eletronica, são apresentadas todas as chapas concorrentes, e o eleitor escolhe a chapa de sua preferencia ou opta pelo voto em branco. Antes da confirmação, e exibido um resumo da escolha para revisao. Após confirmar, o voto e registrado de forma anônima e um comprovante de votação e gerado para o eleitor.',
+    resposta: 'O processo de votação online e realizado inteiramente pela internet, de forma segura e acessivel. O eleitor acessa a Área do Eleitor no portal público do sistema, identifica-se com seu CPF e numero de registro no CAU, e informa sua senha. Após a autenticacao, o eleitor visualiza as eleições disponíveis para o seu perfil e seleciona aquela em que deseja votar. Na cedula eletronica, são apresentadas todas as chapas concorrentes, e o eleitor escolhe a chapa de sua preferencia ou opta pelo voto em branco. Antes da confirmação, e exibido um resumo da escolha para revisao. Após confirmar, o voto e registrado de forma anônima e um comprovante de votação e gerado para o eleitor.',
     categoria: 'votação',
   },
   {
     id: '4',
     pergunta: 'O voto é obrigatório?',
-    resposta: 'Sim, o voto nas eleições do CAU é obrigatório para todos os profissionais com registro ativo e regular. O profissional que nao exercer o voto e nao apresentar justificativa dentro do prazo previsto no calendário eleitoral podera estar sujeito a penalidades previstas no regulamento eleitoral e na legislacao do conselho. A justificativa de ausencia deve ser feita por meio do proprio sistema eleitoral ou pelos canais indicados no edital da eleição. Recomenda-se que o eleitor fique atento ao período de votação e exerça seu direito e dever de voto dentro do prazo estipulado.',
+    resposta: 'Sim, o voto nas eleições do CAU é obrigatório para todos os profissionais com registro ativo e regular. O profissional que nao exercer o voto e nao apresentar justificativa dentro do prazo previsto no calendário eleitoral podera estar sujeito a penalidades previstas no regulamento eleitoral e na legislacao do conselho. A justificativa de ausencia deve ser feita por meio do proprio sistema eleitoral ou pelos canais indicados no edital da eleicao. Recomenda-se que o eleitor fique atento ao período de votação e exerça seu direito e dever de voto dentro do prazo estipulado.',
     categoria: 'votação',
   },
   // Candidatura
   {
     id: '5',
     pergunta: 'O que é uma chapa eleitoral?',
-    resposta: 'Uma chapa eleitoral e o conjunto de candidatos que se apresentam de forma unificada para concorrer aos cargos eletivos do CAU. Cada chapa e composta por membros titulares e suplentes que ocuparao os cargos de conselheiros no CAU/UF ou no CAU/BR, conforme a eleição em questao. A chapa deve atender aos requisitos estabelecidos no edital, incluindo o número mínimo e máximo de membros, a representatividade regional quando exigida, e a conformidade de todos os seus integrantes com os criterios de elegibilidade. As chapas são registradas durante o período de inscrições e, após análise pela Comissão Eleitoral, são homologadas ou indeferidas.',
+    resposta: 'Uma chapa eleitoral e o conjunto de candidatos que se apresentam de forma unificada para concorrer aos cargos eletivos do CAU. Cada chapa e composta por membros titulares e suplentes que ocuparao os cargos de conselheiros no CAU/UF ou no CAU/BR, conforme a eleição em questao. A chapa deve atender aos requisitos estabelecidos no edital, incluindo o numero mínimo e máximo de membros, a representatividade regional quando exigida, e a conformidade de todos os seus integrantes com os criterios de elegibilidade. As chapas são registradas durante o período de inscrições e, após análise pela Comissão Eleitoral, são homologadas ou indeferidas.',
     categoria: 'candidatura',
   },
   {
@@ -88,13 +88,13 @@ const faqs: FaqItem[] = [
   {
     id: '8',
     pergunta: 'Como acompanhar o calendário eleitoral?',
-    resposta: 'O calendário eleitoral contem todas as datas e prazos relevantes do processo eleitoral, como o período de inscrição de chapas, os prazos para impugnações, o período de campanha, as datas de votação, a apuração e a proclamação dos resultados. Para acompanhar o calendário, acesse a seção "Calendário" no menu principal do portal público. Todas as etapas são listadas em ordem cronológica com suas respectivas datas de início e término. E recomendável que eleitores e candidatos consultem o calendário regularmente para nao perder prazos importantes. As datas são definidas pela Comissão Eleitoral e publicadas no edital de cada eleição.',
+    resposta: 'O calendário eleitoral contem todas as datas e prazos relevantes do processo eleitoral, como o período de inscrição de chapas, os prazos para impugnações, o período de campanha, as datas de votação, a apuração e a proclamação dos resultados. Para acompanhar o calendário, acesse a seção "Calendário" no menu principal do portal público. Todas as etapas são listadas em ordem cronológica com suas respectivas datas de início e término. E recomendável que eleitores e candidatos consultem o calendário regularmente para nao perder prazos importantes. As datas são definidas pela Comissão Eleitoral e publicadas no edital de cada eleicao.',
     categoria: 'processo',
   },
   {
     id: '9',
-    pergunta: 'Como posso fazer uma denúncia eleitoral?',
-    resposta: 'Se você identificar qualquer irregularidade durante o processo eleitoral, como praticas vedadas de campanha, uso indevido de recursos do conselho, coacao de eleitores ou qualquer outra conduta contraria ao regulamento, você pode registrar uma denúncia pelo sistema. Acesse a seção de denúncias no portal ou entre em contato com a Comissão Eleitoral responsavel. A denúncia deve conter a descrição detalhada dos fatos, indicacao de data e local (quando aplicavel) e, sempre que possível, provas ou evidencias que sustentem a alegacao. A Comissão Eleitoral analisara o caso e adotara as providencias cabiveis conforme o regulamento. A identidade do denunciante será tratada com sigilo.',
+    pergunta: 'Como posso fazer uma denuncia eleitoral?',
+    resposta: 'Se você identificar qualquer irregularidade durante o processo eleitoral, como praticas vedadas de campanha, uso indevido de recursos do conselho, coacao de eleitores ou qualquer outra conduta contraria ao regulamento, você pode registrar uma denuncia pelo sistema. Acesse a seção de denuncias no portal ou entre em contato com a Comissão Eleitoral responsavel. A denuncia deve conter a descrição detalhada dos fatos, indicacao de data e local (quando aplicavel) e, sempre que possível, provas ou evidencias que sustentem a alegacao. A Comissão Eleitoral analisara o caso e adotara as providencias cabiveis conforme o regulamento. A identidade do denunciante será tratada com sigilo.',
     categoria: 'processo',
   },
   {
@@ -164,7 +164,7 @@ export function FaqPage() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
           <input
             type="text"
-            placeholder="Digite sua duvida..."
+            placeholder="Digite sua dúvida..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-lg"

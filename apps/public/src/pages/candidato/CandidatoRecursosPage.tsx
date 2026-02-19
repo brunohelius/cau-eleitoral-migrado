@@ -29,7 +29,7 @@ interface Recurso {
   impugnacaoId: string
   tipo?: string
   tipoNome?: string
-  fundamentação: string
+  fundamentacao: string
   dataApresentacao: string
   status?: string
   statusNome?: string
@@ -107,7 +107,7 @@ export function CandidatoRecursosPage() {
     const recursos = recursosMap[imp.id] || []
     return recursos.map(r => ({
       ...r,
-      impugnacaoDescricao: imp.descrição,
+      impugnacaoDescricao: imp.descricao,
       impugnacaoTipo: imp.tipoNome || 'Impugnação',
       impugnacaoStatus: imp.status,
     }))

@@ -14,7 +14,7 @@ import { eleicoesService, CreateEleicaoRequest, UpdateEleicaoRequest } from '@/s
 
 const eleicaoSchema = z.object({
   nome: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
-  descrição: z.string().optional(),
+  descricao: z.string().optional(),
   tipo: z.number().min(0, 'Selecione um tipo'),
   ano: z.number().min(2020, 'Ano inválido').max(2100, 'Ano inválido'),
   mandato: z.number().optional(),
@@ -50,7 +50,7 @@ export function EleicaoFormPage() {
   const isEditing = !!id
 
   const { data: eleicao, isLoading: isLoadingEleicao } = useQuery({
-    queryKey: ['eleição', id],
+    queryKey: ['eleicao', id],
     queryFn: () => eleicoesService.getById(id!),
     enabled: isEditing,
   })
@@ -72,19 +72,19 @@ export function EleicaoFormPage() {
   useEffect(() => {
     if (eleicao) {
       reset({
-        nome: eleição.nome,
-        descrição: eleição.descrição || '',
-        tipo: eleição.tipo,
-        ano: eleição.ano,
-        mandato: eleição.mandato,
-        dataInicio: eleição.dataInicio.split('T')[0],
-        dataFim: eleição.dataFim.split('T')[0],
-        dataVotacaoInicio: eleição.dataVotacaoInicio?.split('T')[0] || '',
-        dataVotacaoFim: eleição.dataVotacaoFim?.split('T')[0] || '',
-        regionalId: eleição.regionalId || '',
-        modoVotacao: eleição.modoVotacao,
-        quantidadeVagas: eleição.quantidadeVagas,
-        quantidadeSuplentes: eleição.quantidadeSuplentes,
+        nome: eleicao.nome,
+        descricao: eleicao.descricao || '',
+        tipo: eleicao.tipo,
+        ano: eleicao.ano,
+        mandato: eleicao.mandato,
+        dataInicio: eleicao.dataInicio.split('T')[0],
+        dataFim: eleicao.dataFim.split('T')[0],
+        dataVotacaoInicio: eleicao.dataVotacaoInicio?.split('T')[0] || '',
+        dataVotacaoFim: eleicao.dataVotacaoFim?.split('T')[0] || '',
+        regionalId: eleicao.regionalId || '',
+        modoVotacao: eleicao.modoVotacao,
+        quantidadeVagas: eleicao.quantidadeVagas,
+        quantidadeSuplentes: eleicao.quantidadeSuplentes,
       })
     }
   }, [eleicao, reset])

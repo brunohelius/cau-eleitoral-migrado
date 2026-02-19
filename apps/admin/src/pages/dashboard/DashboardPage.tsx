@@ -6,7 +6,7 @@ import { eleicoesService } from '@/services/eleicoes'
 const stats = [
   { name: 'Eleições Ativas', value: '3', icon: Vote, color: 'text-blue-600' },
   { name: 'Chapas Registradas', value: '12', icon: Users, color: 'text-green-600' },
-  { name: 'Denúncias Pendentes', value: '5', icon: AlertTriangle, color: 'text-yellow-600' },
+  { name: 'Denuncias Pendentes', value: '5', icon: AlertTriangle, color: 'text-yellow-600' },
   { name: 'Impugnações', value: '2', icon: Flag, color: 'text-red-600' },
 ]
 

@@ -268,7 +268,7 @@ export function ChapaDetailPage() {
           description: (
             <>
               Tem certeza que deseja excluir a chapa <strong>"{chapa?.nome}"</strong>?
-              Esta acao não pode ser desfeita.
+              Esta ação não pode ser desfeita.
             </>
           ),
           confirmLabel: 'Excluir',
@@ -474,7 +474,7 @@ export function ChapaDetailPage() {
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">Número</dt>
+                  <dt className="text-sm font-medium text-gray-500">Numero</dt>
                   <dd className="mt-1 text-lg font-bold text-blue-600">{chapa.numero}</dd>
                 </div>
                 <div>

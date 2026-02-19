@@ -31,7 +31,7 @@ const impugnacaoSchema = z.object({
   tipo: z.string().min(1, 'Selecione o tipo de impugnação'),
   chapaId: z.string().optional(),
   candidatoId: z.string().optional(),
-  fundamentação: z.string().min(100, 'Fundamentação deve ter no mínimo 100 caracteres'),
+  fundamentacao: z.string().min(100, 'Fundamentação deve ter no mínimo 100 caracteres'),
   normasVioladas: z.string().optional(),
   pedido: z.string().min(20, 'Pedido deve ter no mínimo 20 caracteres'),
 })
@@ -95,7 +95,7 @@ export function ImpugnacaoFormPage() {
       const request: CreateImpugnacaoRequest = {
         eleicaoId: data.eleicaoId,
         tipo: Number(data.tipo),
-        fundamentação: data.fundamentação,
+        fundamentacao: data.fundamentacao,
         normasVioladas: data.normasVioladas,
         pedido: data.pedido,
         chapaId: data.chapaId || undefined,
@@ -107,7 +107,7 @@ export function ImpugnacaoFormPage() {
       // Upload anexos if any
       if (anexos.length > 0) {
         for (const anexo of anexos) {
-          await impugnacoesService.uploadAnexo(impugnação.id, anexo)
+          await impugnacoesService.uploadAnexo(impugnacao.id, anexo)
         }
       }
 
@@ -117,7 +117,7 @@ export function ImpugnacaoFormPage() {
       queryClient.invalidateQueries({ queryKey: ['impugnacoes'] })
       toast({
         title: 'Impugnação registrada com sucesso!',
-        description: `Protocolo: ${data.protocolo}. A impugnacao sera analisada pela Comissao Eleitoral.`,
+        description: `Protocolo: ${data.protocolo}. A impugnacao sera analisada pela Comissão Eleitoral.`,
       })
       navigate(`/impugnacoes/${data.id}`)
     },
@@ -273,7 +273,7 @@ export function ImpugnacaoFormPage() {
                     {...register('candidatoId')}
                   />
                   <p className="text-xs text-gray-500">
-                    Em producao, este será um campo de busca de candidatos.
+                    Em produção, este será um campo de busca de candidatos.
                   </p>
                 </div>
               )}
@@ -285,7 +285,7 @@ export function ImpugnacaoFormPage() {
             <CardHeader>
               <CardTitle>Fundamentação</CardTitle>
               <CardDescription>
-                Descreva detalhadamente os fatos e fundamentos juridicos da impugnação
+                Descreva detalhadamente os fatos e fundamentos jurídicos da impugnação
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

@@ -21,7 +21,7 @@ import api from '@/services/api'
 interface Julgamento {
   id: string
   protocolo: string
-  tipo: 'denúncia' | 'impugnação' | 'recurso'
+  tipo: 'denuncia' | 'impugnação' | 'recurso'
   titulo: string
   status: 'aguardando' | 'em_julgamento' | 'julgado'
   decisao?: 'deferida' | 'indeferida' | 'arquivada'
@@ -164,7 +164,7 @@ export function JulgamentosPage() {
   const getTipoBadge = (tipo: string) => {
     const tipoConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
       denuncia: {
-        label: 'Denúncia',
+        label: 'Denuncia',
         color: 'bg-orange-100 text-orange-800',
         icon: <AlertTriangle className="h-3 w-3" />,
       },
@@ -294,7 +294,7 @@ export function JulgamentosPage() {
                 onChange={(e) => setFilterTipo(e.target.value)}
               >
                 <option value="all">Todos os Tipos</option>
-                <option value="denuncia">Denúncias</option>
+                <option value="denuncia">Denuncias</option>
                 <option value="impugnacao">Impugnações</option>
                 <option value="recurso">Recursos</option>
               </select>

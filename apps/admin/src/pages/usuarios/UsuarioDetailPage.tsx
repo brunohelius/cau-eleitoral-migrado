@@ -412,7 +412,7 @@ export function UsuarioDetailPage() {
                 variant="outline"
                 className="border-red-300 text-red-600 hover:bg-red-50"
                 onClick={() => {
-                  if (confirm('Tem certeza que deseja excluir este usuario? Esta acao e irreversivel.')) {
+                  if (confirm('Tem certeza que deseja excluir este usuario? Esta ação e irreversivel.')) {
                     deleteMutation.mutate()
                   }
                 }}

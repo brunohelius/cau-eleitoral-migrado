@@ -82,7 +82,7 @@ export function VotacaoCedulaPage() {
       setChapas(response)
 
       if (!response.length) {
-        const message = 'Nao existem chapas disponiveis para esta eleicao no momento.'
+        const message = 'Não existem chapas disponíveis para esta eleição no momento.'
         setLoadError(message)
         setStoreError(message)
       }
@@ -154,7 +154,7 @@ export function VotacaoCedulaPage() {
   const handleSelectChapa = (chapa: ChapaVotacao) => {
     selecionarChapa({
       id: chapa.id,
-      número: chapa.número,
+      numero: chapa.numero,
       nome: chapa.nome,
       sigla: chapa.sigla,
       logoUrl: chapa.logoUrl,
@@ -282,7 +282,7 @@ export function VotacaoCedulaPage() {
               <li>Selecione uma chapa para votar, ou escolha Voto em Branco ou Voto Nulo.</li>
               <li>Clique em "Ver composicao" para ver os membros de cada chapa.</li>
               <li>Revise sua escolha com atencao antes de confirmar.</li>
-              <li>Apos confirmar, seu voto não podera ser alterado.</li>
+              <li>Após confirmar, seu voto não podera ser alterado.</li>
             </ul>
           </div>
         </div>
@@ -489,7 +489,7 @@ export function VotacaoCedulaPage() {
             <div className="text-sm">
               <p className="font-medium text-yellow-800">Atencao</p>
               <p className="text-yellow-700">
-                Apos confirmar, seu voto não podera ser alterado. Certifique-se de que sua escolha esta correta.
+                Após confirmar, seu voto não podera ser alterado. Certifique-se de que sua escolha esta correta.
               </p>
             </div>
           </div>

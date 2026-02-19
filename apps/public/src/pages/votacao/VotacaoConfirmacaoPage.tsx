@@ -300,7 +300,7 @@ export function VotacaoConfirmacaoPage() {
             </div>
 
             <p className="text-gray-600 mb-6">
-              Você tem certeza que deseja confirmar seu voto? Esta acao e <strong>irreversivel</strong>.
+              Você tem certeza que deseja confirmar seu voto? Esta ação e <strong>irreversivel</strong>.
             </p>
 
             <div className="p-4 bg-gray-50 rounded-lg mb-6">

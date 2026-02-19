@@ -75,7 +75,7 @@ interface DocumentoDto {
   categoriaNome: string
   status: StatusDocumento
   statusNome: string
-  número: string
+  numero: string
   ano: number | null
   titulo: string
   ementa: string | null

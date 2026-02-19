@@ -151,8 +151,8 @@ export function DeleteConfirmDialog({
 }: DeleteConfirmDialogProps) {
   const title = `Excluir ${itemType}?`
   const description = itemName
-    ? `Tem certeza que deseja excluir "${itemName}"? Esta acao nao pode ser desfeita.`
-    : `Tem certeza que deseja excluir este ${itemType}? Esta acao nao pode ser desfeita.`
+    ? `Tem certeza que deseja excluir "${itemName}"? Esta ação nao pode ser desfeita.`
+    : `Tem certeza que deseja excluir este ${itemType}? Esta ação nao pode ser desfeita.`
 
   return (
     <ConfirmDialog

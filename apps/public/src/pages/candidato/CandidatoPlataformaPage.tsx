@@ -17,7 +17,7 @@ import { useCandidatoStore } from '../../stores/candidato'
 // Types
 interface Plataforma {
   titulo: string
-  descrição: string
+  descricao: string
   propostas: string[]
   video?: string
   imagem?: string
@@ -27,7 +27,7 @@ interface Plataforma {
 
 const emptyPlataforma: Plataforma = {
   titulo: '',
-  descrição: '',
+  descricao: '',
   propostas: [],
   video: '',
   publicada: false,

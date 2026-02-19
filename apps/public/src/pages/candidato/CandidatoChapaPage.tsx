@@ -179,7 +179,7 @@ export function CandidatoChapaPage() {
             <div>
               <p className="font-medium text-green-800">Chapa Aprovada</p>
               <p className="text-sm text-green-700">
-                Sua chapa foi aprovada pela Comissão Eleitoral e está apta a participar da eleição.
+                Sua chapa foi aprovada pela Comissão Eleitoral e está apta a participar da eleicao.
               </p>
             </div>
           </div>
@@ -207,7 +207,7 @@ export function CandidatoChapaPage() {
             <div>
               <p className="font-medium text-red-800">Chapa Impugnada</p>
               <p className="text-sm text-red-700">
-                Sua chapa recebeu uma impugnação. Verifique a area de denúncias e defesas.
+                Sua chapa recebeu uma impugnacao. Verifique a area de denuncias e defesas.
               </p>
               <Link
                 to="/candidato/defesas"

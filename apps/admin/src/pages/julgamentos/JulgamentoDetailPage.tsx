@@ -22,12 +22,12 @@ import api from '@/services/api'
 interface Julgamento {
   id: string
   protocolo: string
-  tipo: 'denúncia' | 'impugnação' | 'recurso'
+  tipo: 'denuncia' | 'impugnação' | 'recurso'
   titulo: string
-  descrição: string
+  descricao: string
   status: 'aguardando' | 'em_julgamento' | 'julgado'
   decisao?: 'deferida' | 'indeferida' | 'arquivada'
-  fundamentação?: string
+  fundamentacao?: string
   penalidade?: string
   relatorNome: string
   relatorVoto?: string
@@ -39,7 +39,7 @@ interface Julgamento {
     id: string
     membroNome: string
     voto: 'deferido' | 'indeferido' | 'abstencao'
-    fundamentação?: string
+    fundamentacao?: string
   }>
   documentos: Array<{
     id: string
@@ -129,10 +129,10 @@ export function JulgamentoDetailPage() {
           protocolo: j.protocolo || `JUL-${String(j.id).substring(0, 8).toUpperCase()}`,
           tipo: mapTipo(j.tipo),
           titulo: j.ementa || 'Julgamento eleitoral',
-          descrição: j.relatório || j.ementa || 'Detalhes do julgamento',
+          descricao: j.relatório || j.ementa || 'Detalhes do julgamento',
           status: mapStatus(j.status),
           decisao: mapDecisao(j.decisao),
-          fundamentação: j.fundamentação,
+          fundamentacao: j.fundamentacao,
           penalidade: undefined,
           relatorNome: j.relatorNome || 'Nao definido',
           relatorVoto: undefined,
@@ -143,13 +143,13 @@ export function JulgamentoDetailPage() {
             id: v.id,
             membroNome: v.membroNome,
             voto: mapVoto(v.voto),
-            fundamentação: v.fundamentação,
+            fundamentacao: v.fundamentacao,
           })),
           documentos: [],
-          histórico: [
+          historico: [
             { id: '1', data: j.createdAt, acao: 'Julgamento criado', usuario: 'Sistema' },
-            ...(j.dataInicio ? [{ id: '2', data: j.dataInicio, acao: 'Julgamento iniciado', usuario: 'Comissao Eleitoral' }] : []),
-            ...(j.dataFim ? [{ id: '3', data: j.dataFim, acao: `Julgamento concluido${j.decisao ? ' - ' + j.decisao : ''}`, usuario: 'Comissao Eleitoral' }] : []),
+            ...(j.dataInicio ? [{ id: '2', data: j.dataInicio, acao: 'Julgamento iniciado', usuario: 'Comissão Eleitoral' }] : []),
+            ...(j.dataFim ? [{ id: '3', data: j.dataFim, acao: `Julgamento concluido${j.decisao ? ' - ' + j.decisao : ''}`, usuario: 'Comissão Eleitoral' }] : []),
           ],
         } as Julgamento
       } catch {
@@ -205,7 +205,7 @@ export function JulgamentoDetailPage() {
   const getTipoBadge = (tipo: string) => {
     const tipoConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
       denuncia: {
-        label: 'Denúncia',
+        label: 'Denuncia',
         color: 'bg-orange-100 text-orange-800',
         icon: <AlertTriangle className="h-4 w-4" />,
       },

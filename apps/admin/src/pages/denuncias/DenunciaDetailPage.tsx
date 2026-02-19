@@ -45,7 +45,7 @@ export function DenunciaDetailPage() {
 
   // Fetch denuncia
   const { data: denuncia, isLoading, error } = useQuery({
-    queryKey: ['denúncia', id],
+    queryKey: ['denuncia', id],
     queryFn: () => denunciasService.getById(id!),
     enabled: !!id,
   })
@@ -58,7 +58,7 @@ export function DenunciaDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['denuncias'] })
       toast({
         title: 'Análise iniciada',
-        description: 'A denúncia foi movida para análise.',
+        description: 'A denuncia foi movida para análise.',
       })
     },
     onError: () => {
@@ -76,8 +76,8 @@ export function DenunciaDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['denuncia', id] })
       queryClient.invalidateQueries({ queryKey: ['denuncias'] })
       toast({
-        title: 'Denúncia arquivada',
-        description: 'A denúncia foi arquivada com sucesso.',
+        title: 'Denuncia arquivada',
+        description: 'A denuncia foi arquivada com sucesso.',
       })
       setActionModal({ type: null })
       setActionMotivo('')
@@ -86,7 +86,7 @@ export function DenunciaDetailPage() {
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Não foi possível arquivar a denúncia.',
+        description: 'Não foi possível arquivar a denuncia.',
       })
     },
   })
@@ -97,8 +97,8 @@ export function DenunciaDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['denuncia', id] })
       queryClient.invalidateQueries({ queryKey: ['denuncias'] })
       toast({
-        title: 'Denúncia reaberta',
-        description: 'A denúncia foi reaberta com sucesso.',
+        title: 'Denuncia reaberta',
+        description: 'A denuncia foi reaberta com sucesso.',
       })
       setActionModal({ type: null })
       setActionMotivo('')
@@ -107,7 +107,7 @@ export function DenunciaDetailPage() {
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Não foi possível reabrir a denúncia.',
+        description: 'Não foi possível reabrir a denuncia.',
       })
     },
   })
@@ -117,8 +117,8 @@ export function DenunciaDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['denuncias'] })
       toast({
-        title: 'Denúncia excluida',
-        description: 'A denúncia foi excluida com sucesso.',
+        title: 'Denuncia excluida',
+        description: 'A denuncia foi excluida com sucesso.',
       })
       navigate('/denuncias')
     },
@@ -126,7 +126,7 @@ export function DenunciaDetailPage() {
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Não foi possível excluir a denúncia.',
+        description: 'Não foi possível excluir a denuncia.',
       })
     },
   })
@@ -217,7 +217,7 @@ export function DenunciaDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <AlertTriangle className="h-12 w-12 text-gray-300 mb-4" />
-        <p className="text-gray-500">Denúncia não encontrada.</p>
+        <p className="text-gray-500">Denuncia não encontrada.</p>
         <Link to="/denuncias">
           <Button variant="link" className="mt-2">
             Voltar para lista
@@ -300,7 +300,7 @@ export function DenunciaDetailPage() {
             <Link to={`/denuncias/${id}/julgamento`}>
               <Button>
                 <Gavel className="mr-2 h-4 w-4" />
-                Julgar Denúncia
+                Julgar Denuncia
               </Button>
             </Link>
           )}
@@ -313,7 +313,7 @@ export function DenunciaDetailPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-orange-500" />
-              Descrição da Denúncia
+              Descrição da Denuncia
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -328,7 +328,7 @@ export function DenunciaDetailPage() {
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <div>
-                <dt className="text-sm font-medium text-gray-500">Tipo de Denúncia</dt>
+                <dt className="text-sm font-medium text-gray-500">Tipo de Denuncia</dt>
                 <dd className="mt-1 text-sm text-gray-900">{tipoLabel}</dd>
               </div>
               <div>
@@ -336,7 +336,7 @@ export function DenunciaDetailPage() {
                 <dd className="mt-1 text-sm text-gray-900">{denuncia.eleicaoNome || '-'}</dd>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500">Data da Denúncia</dt>
+                <dt className="text-sm font-medium text-gray-500">Data da Denuncia</dt>
                 <dd className="mt-1 text-sm text-gray-900">
                   {new Date(denuncia.dataDenuncia).toLocaleString('pt-BR')}
                 </dd>
@@ -545,7 +545,7 @@ export function DenunciaDetailPage() {
 
               {actionModal.type === 'delete' ? (
                 <p className="text-sm text-gray-600 mb-4">
-                  Tem certeza que deseja excluir esta denúncia? Esta acao não pode ser desfeita.
+                  Tem certeza que deseja excluir esta denuncia? Esta ação não pode ser desfeita.
                 </p>
               ) : (
                 <>

@@ -43,7 +43,7 @@ interface EleitorProfile {
   telefone: string
   regional: string
   tipo: string
-  situação: 'apto' | 'inapto' | 'pendente'
+  situacao: 'apto' | 'inapto' | 'pendente'
   notificacoesEmail: boolean
   notificacoesSms: boolean
 }
@@ -103,7 +103,7 @@ export function PerfilPage() {
       telefone: (extraClaims.telefone as string) || '',
       regional: voter.regional || (extraClaims.regional as string) || '',
       tipo: (extraClaims.tipo as string) || 'Eleitor',
-      situação: voter.podeVotar ? 'apto' : 'inapto',
+      situacao: voter.podeVotar ? 'apto' : 'inapto',
       notificacoesEmail: true,
       notificacoesSms: false,
     }

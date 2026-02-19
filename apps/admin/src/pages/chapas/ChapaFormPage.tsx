@@ -21,10 +21,10 @@ import { eleicoesService } from '@/services/eleicoes'
 // Validation schema
 const chapaSchema = z.object({
   nome: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
-  número: z.number().min(1, 'Número é obrigatório'),
+  numero: z.number().min(1, 'Numero é obrigatório'),
   sigla: z.string().max(10, 'Sigla muito longa').optional().or(z.literal('')),
   lema: z.string().optional().or(z.literal('')),
-  descrição: z.string().optional().or(z.literal('')),
+  descricao: z.string().optional().or(z.literal('')),
   eleicaoId: z.string().min(1, 'Selecione uma eleição'),
 })
 
@@ -62,11 +62,11 @@ export function ChapaFormPage() {
   } = useForm<ChapaFormData>({
     resolver: zodResolver(chapaSchema),
     defaultValues: {
-      número: 1,
+      numero: 1,
       nome: '',
       sigla: '',
       lema: '',
-      descrição: '',
+      descricao: '',
       eleicaoId: '',
     },
   })
@@ -76,10 +76,10 @@ export function ChapaFormPage() {
     if (chapa) {
       reset({
         nome: chapa.nome,
-        número: chapa.número,
+        numero: chapa.numero,
         sigla: chapa.sigla || '',
         lema: chapa.lema || '',
-        descrição: chapa.descrição || '',
+        descricao: chapa.descricao || '',
         eleicaoId: chapa.eleicaoId,
       })
       if (chapa.logoUrl) {
@@ -150,17 +150,17 @@ export function ChapaFormPage() {
         nome: data.nome,
         sigla: data.sigla || undefined,
         lema: data.lema || undefined,
-        descrição: data.descrição || undefined,
+        descricao: data.descricao || undefined,
       }
       updateMutation.mutate(updateData)
     } else {
       const createData: CreateChapaRequest = {
         eleicaoId: data.eleicaoId,
-        número: data.número,
+        numero: data.numero,
         nome: data.nome,
         sigla: data.sigla || undefined,
         lema: data.lema || undefined,
-        descrição: data.descrição || undefined,
+        descricao: data.descricao || undefined,
       }
       createMutation.mutate(createData)
     }
@@ -291,7 +291,7 @@ export function ChapaFormPage() {
 
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
-                  <Label htmlFor="numero">Número *</Label>
+                  <Label htmlFor="numero">Numero *</Label>
                   <Input
                     id="numero"
                     type="number"
@@ -305,7 +305,7 @@ export function ChapaFormPage() {
                   )}
                   {isEditing && (
                     <p className="text-xs text-gray-500">
-                      O número não pode ser alterado
+                      O numero não pode ser alterado
                     </p>
                   )}
                 </div>
@@ -389,7 +389,7 @@ export function ChapaFormPage() {
                     disabled={isSubmitting}
                   />
                   <p className="text-xs text-gray-500">
-                    Formatos aceitos: JPG, PNG, WebP. Tamanho máximo: 2MB
+                    Formatos aceitos: JPG, PNG, WebP. Tamanho maximo: 2MB
                   </p>
                 </div>
               </div>

@@ -38,19 +38,19 @@ const complexidadeOptions = [
   {
     value: 'baixa',
     label: 'Baixa',
-    descrição: 'Mínimo 6 caracteres',
+    descricao: 'Mínimo 6 caracteres',
     color: 'bg-yellow-100 text-yellow-800',
   },
   {
     value: 'media',
     label: 'Media',
-    descrição: 'Letras maiusculas, minusculas e numeros',
+    descricao: 'Letras maiusculas, minusculas e numeros',
     color: 'bg-blue-100 text-blue-800',
   },
   {
     value: 'alta',
     label: 'Alta',
-    descrição: 'Maiusculas, minusculas, numeros e simbolos',
+    descricao: 'Maiusculas, minusculas, numeros e simbolos',
     color: 'bg-green-100 text-green-800',
   },
 ]
@@ -59,17 +59,17 @@ const hashOptions = [
   {
     value: 'bcrypt',
     label: 'BCrypt',
-    descrição: 'Algoritmo padrao, recomendado para maioria dos casos',
+    descricao: 'Algoritmo padrao, recomendado para maioria dos casos',
   },
   {
     value: 'argon2',
     label: 'Argon2',
-    descrição: 'Algoritmo mais moderno, maior segurança',
+    descricao: 'Algoritmo mais moderno, maior segurança',
   },
   {
     value: 'scrypt',
     label: 'Scrypt',
-    descrição: 'Alto consumo de memoria, resistente a ataques',
+    descricao: 'Alto consumo de memoria, resistente a ataques',
   },
 ]
 

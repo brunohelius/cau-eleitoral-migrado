@@ -53,7 +53,7 @@ export function ApuracaoPage() {
   }>({ open: false, type: null })
 
   const { data: eleicao, isLoading: isLoadingEleicao } = useQuery({
-    queryKey: ['eleição', eleicaoId],
+    queryKey: ['eleicao', eleicaoId],
     queryFn: () => eleicoesService.getById(eleicaoId!),
     enabled: !!eleicaoId,
   })
@@ -63,7 +63,7 @@ export function ApuracaoPage() {
     isLoading: isLoadingResultado,
     refetch,
   } = useQuery({
-    queryKey: ['apuração', eleicaoId],
+    queryKey: ['apuracao', eleicaoId],
     queryFn: () => votacaoService.getResultados(eleicaoId!),
     enabled: !!eleicaoId,
   })
@@ -474,13 +474,13 @@ export function ApuracaoPage() {
                 <>
                   Tem certeza que deseja iniciar a apuração dos votos?
                   <br /><br />
-                  Este processo contabilizara todos os votos registrados e calculara os resultados da eleição.
+                  Este processo contabilizara todos os votos registrados e calculara os resultados da eleicao.
                 </>
               ) : (
                 <>
                   Tem certeza que deseja publicar os resultados?
                   <br /><br />
-                  Esta acao tornara os resultados visiveis publicamente e não pode ser desfeita.
+                  Esta ação tornara os resultados visiveis publicamente e não pode ser desfeita.
                 </>
               )}
             </AlertDialogDescription>

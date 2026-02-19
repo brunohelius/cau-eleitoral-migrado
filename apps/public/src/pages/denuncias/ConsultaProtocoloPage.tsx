@@ -50,7 +50,7 @@ export function ConsultaProtocoloPage() {
     e.preventDefault()
 
     if (!protocolo.trim()) {
-      setError('Digite o número do protocolo')
+      setError('Digite o numero do protocolo')
       return
     }
 
@@ -65,7 +65,7 @@ export function ConsultaProtocoloPage() {
     } catch (err) {
       const apiError = extractApiError(err)
       if (apiError.message.includes('nao encontrado')) {
-        setError('Protocolo não encontrado. Verifique o número e tente novamente.')
+        setError('Protocolo não encontrado. Verifique o numero e tente novamente.')
       } else {
         setError(apiError.message)
       }
@@ -101,10 +101,10 @@ export function ConsultaProtocoloPage() {
           <span>Voltar</span>
         </Link>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Consultar Denúncia
+          Consultar Denuncia
         </h1>
         <p className="text-gray-600 mt-2">
-          Digite o número do protocolo para consultar o andamento da sua denúncia.
+          Digite o numero do protocolo para consultar o andamento da sua denuncia.
         </p>
       </div>
 
@@ -113,7 +113,7 @@ export function ConsultaProtocoloPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="protocolo" className="block text-sm font-medium text-gray-700 mb-2">
-              Número do Protocolo
+              Numero do Protocolo
             </label>
             <div className="flex gap-3">
               <input
@@ -222,20 +222,20 @@ export function ConsultaProtocoloPage() {
           <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-500">Nenhum resultado encontrado</p>
           <p className="text-sm text-gray-400 mt-2">
-            Verifique se o número do protocolo esta correto e tente novamente.
+            Verifique se o numero do protocolo esta correto e tente novamente.
           </p>
         </div>
       )}
 
       {/* Quick Links */}
       <div className="mt-8 text-center">
-        <p className="text-gray-600 mb-4">Ainda não registrou sua denúncia?</p>
+        <p className="text-gray-600 mb-4">Ainda não registrou sua denuncia?</p>
         <Link
           to="/denuncias/nova"
           className="inline-flex items-center gap-2 text-primary font-medium hover:underline"
         >
           <FileText className="h-5 w-5" />
-          Registrar Nova Denúncia
+          Registrar Nova Denuncia
         </Link>
       </div>
     </div>

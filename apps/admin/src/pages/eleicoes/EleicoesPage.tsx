@@ -57,7 +57,7 @@ export function EleicoesPage() {
       toast({
         variant: 'destructive',
         title: 'Erro ao excluir eleição',
-        description: error.response?.data?.message || 'Não foi possível excluir a eleição. Tente novamente mais tarde.',
+        description: error.response?.data?.message || 'Não foi possível excluir a eleicao. Tente novamente mais tarde.',
       })
     },
   })
@@ -107,7 +107,7 @@ export function EleicoesPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input
-                placeholder="Buscar eleicoes..."
+                placeholder="Buscar eleições..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-10"
@@ -141,7 +141,7 @@ export function EleicoesPage() {
                       <td className="py-3 px-4">
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            statusLabels[eleição.status]?.color || 'bg-gray-100 text-gray-800'
+                            statusLabels[eleicao.status]?.color || 'bg-gray-100 text-gray-800'
                           }`}
                         >
                           {statusLabels[eleicao.status]?.label || 'Desconhecido'}
@@ -195,10 +195,10 @@ export function EleicoesPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir a eleicao "{eleicaoToDelete?.nome}"?
+              Tem certeza que deseja excluir a eleição "{eleicaoToDelete?.nome}"?
               <br />
               <br />
-              Esta acao não pode ser desfeita. Todos os dados relacionados a esta eleição serao permanentemente removidos.
+              Esta ação não pode ser desfeita. Todos os dados relacionados a esta eleição serão permanentemente removidos.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

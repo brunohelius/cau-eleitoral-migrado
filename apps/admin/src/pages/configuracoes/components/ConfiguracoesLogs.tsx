@@ -56,7 +56,7 @@ export function ConfiguracoesLogs({ isLoading: parentLoading }: ConfiguracoesLog
       sistema: 'Sistema',
       segurança: 'Segurança',
       notificação: 'Notificação',
-      eleição: 'Eleição',
+      eleicao: 'Eleição',
       aparencia: 'Aparencia',
       integracao: 'Integracao',
     }
@@ -72,7 +72,7 @@ export function ConfiguracoesLogs({ isLoading: parentLoading }: ConfiguracoesLog
       sistema: 'bg-gray-100 text-gray-800',
       segurança: 'bg-red-100 text-red-800',
       notificação: 'bg-blue-100 text-blue-800',
-      eleição: 'bg-green-100 text-green-800',
+      eleicao: 'bg-green-100 text-green-800',
       aparencia: 'bg-purple-100 text-purple-800',
       integracao: 'bg-yellow-100 text-yellow-800',
     }

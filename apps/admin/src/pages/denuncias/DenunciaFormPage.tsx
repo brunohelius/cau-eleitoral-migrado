@@ -24,9 +24,9 @@ import { chapasService } from '@/services/chapas'
 
 const denunciaSchema = z.object({
   titulo: z.string().min(10, 'Titulo deve ter no mínimo 10 caracteres'),
-  descrição: z.string().min(50, 'Descrição deve ter no mínimo 50 caracteres'),
-  fundamentação: z.string().optional(),
-  tipo: z.string().min(1, 'Selecione um tipo de denúncia'),
+  descricao: z.string().min(50, 'Descrição deve ter no mínimo 50 caracteres'),
+  fundamentacao: z.string().optional(),
+  tipo: z.string().min(1, 'Selecione um tipo de denuncia'),
   prioridade: z.string().min(1, 'Selecione uma prioridade'),
   eleicaoId: z.string().min(1, 'Selecione uma eleição'),
   chapaId: z.string().optional(),
@@ -34,7 +34,7 @@ const denunciaSchema = z.object({
   denuncianteNome: z.string().optional(),
   denuncianteEmail: z.string().email('Email inválido').optional().or(z.literal('')),
   denuncianteTelefone: z.string().optional(),
-  anônima: z.boolean().default(false),
+  anonima: z.boolean().default(false),
 })
 
 type DenunciaFormData = z.infer<typeof denunciaSchema>
@@ -42,7 +42,7 @@ type DenunciaFormData = z.infer<typeof denunciaSchema>
 interface Chapa {
   id: string
   nome: string
-  número: number
+  numero: number
   eleicaoId: string
 }
 
@@ -84,7 +84,7 @@ export function DenunciaFormPage() {
 
   // Fetch existing denuncia if editing
   const { data: existingDenuncia, isLoading: isLoadingDenuncia } = useQuery({
-    queryKey: ['denúncia', id],
+    queryKey: ['denuncia', id],
     queryFn: () => denunciasService.getById(id!),
     enabled: isEditing,
   })
@@ -107,7 +107,7 @@ export function DenunciaFormPage() {
     defaultValues: {
       prioridade: String(PrioridadeDenuncia.NORMAL),
       tipo: '',
-      anônima: false,
+      anonima: false,
     },
   })
 
@@ -116,8 +116,8 @@ export function DenunciaFormPage() {
     if (existingDenuncia) {
       reset({
         titulo: existingDenuncia.titulo,
-        descrição: existingDenuncia.descrição,
-        fundamentação: existingDenuncia.fundamentação || '',
+        descricao: existingDenuncia.descricao,
+        fundamentacao: existingDenuncia.fundamentacao || '',
         tipo: String(existingDenuncia.tipo),
         prioridade: String(existingDenuncia.prioridade || PrioridadeDenuncia.NORMAL),
         eleicaoId: existingDenuncia.eleicaoId,
@@ -126,7 +126,7 @@ export function DenunciaFormPage() {
         denuncianteNome: existingDenuncia.denuncianteNome || '',
         denuncianteEmail: existingDenuncia.denuncianteEmail || '',
         denuncianteTelefone: existingDenuncia.denuncianteTelefone || '',
-        anônima: existingDenuncia.anônima,
+        anonima: existingDenuncia.anonima,
       })
       setIsAnonimo(existingDenuncia.anonima)
     }
@@ -136,13 +136,13 @@ export function DenunciaFormPage() {
   const selectedChapaId = watch('chapaId')
 
   const { data: chapas = [], isLoading: isLoadingChapas } = useQuery({
-    queryKey: ['chapas-denúncia', selectedEleicaoId],
+    queryKey: ['chapas-denuncia', selectedEleicaoId],
     queryFn: async () => {
       const result = await chapasService.getByEleicao(selectedEleicaoId!)
       return result.map((c) => ({
         id: c.id,
         nome: c.nome,
-        número: c.número,
+        numero: c.numero,
         eleicaoId: c.eleicaoId,
       })) as Chapa[]
     },
@@ -150,7 +150,7 @@ export function DenunciaFormPage() {
   })
 
   const { data: membros = [], isLoading: isLoadingMembros } = useQuery({
-    queryKey: ['membros-denúncia', selectedChapaId],
+    queryKey: ['membros-denuncia', selectedChapaId],
     queryFn: async () => {
       const result = await chapasService.getMembros(selectedChapaId!)
       return result.map((m) => ({
@@ -183,22 +183,22 @@ export function DenunciaFormPage() {
       const denuncia = await denunciasService.create(data)
       // Upload anexos if any
       for (const file of anexos) {
-        await denunciasService.uploadAnexo(denúncia.id, file)
+        await denunciasService.uploadAnexo(denuncia.id, file)
       }
       return denuncia
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['denuncias'] })
       toast({
-        title: 'Denúncia registrada com sucesso!',
-        description: 'A denúncia foi registrada e será analisada pela Comissão Eleitoral.',
+        title: 'Denuncia registrada com sucesso!',
+        description: 'A denuncia foi registrada e será analisada pela Comissão Eleitoral.',
       })
       navigate('/denuncias')
     },
     onError: (error: Error & { response?: { data?: { message?: string } } }) => {
       toast({
         variant: 'destructive',
-        title: 'Erro ao registrar denúncia',
+        title: 'Erro ao registrar denuncia',
         description: error.response?.data?.message || 'Tente novamente mais tarde.',
       })
     },
@@ -212,7 +212,7 @@ export function DenunciaFormPage() {
       queryClient.invalidateQueries({ queryKey: ['denuncias'] })
       queryClient.invalidateQueries({ queryKey: ['denuncia', id] })
       toast({
-        title: 'Denúncia atualizada com sucesso!',
+        title: 'Denuncia atualizada com sucesso!',
         description: 'As alterações foram salvas.',
       })
       navigate(`/denuncias/${id}`)
@@ -220,7 +220,7 @@ export function DenunciaFormPage() {
     onError: (error: Error & { response?: { data?: { message?: string } } }) => {
       toast({
         variant: 'destructive',
-        title: 'Erro ao atualizar denúncia',
+        title: 'Erro ao atualizar denuncia',
         description: error.response?.data?.message || 'Tente novamente mais tarde.',
       })
     },
@@ -230,8 +230,8 @@ export function DenunciaFormPage() {
     if (isEditing) {
       const updateData: UpdateDenunciaRequest = {
         titulo: data.titulo,
-        descrição: data.descrição,
-        fundamentação: data.fundamentação,
+        descricao: data.descricao,
+        fundamentacao: data.fundamentacao,
         tipo: Number(data.tipo) as TipoDenuncia,
         prioridade: Number(data.prioridade) as PrioridadeDenuncia,
       }
@@ -243,10 +243,10 @@ export function DenunciaFormPage() {
         membroId: data.membroId || undefined,
         tipo: Number(data.tipo) as TipoDenuncia,
         titulo: data.titulo,
-        descrição: data.descrição,
-        fundamentação: data.fundamentação,
+        descricao: data.descricao,
+        fundamentacao: data.fundamentacao,
         prioridade: Number(data.prioridade) as PrioridadeDenuncia,
-        anônima: isAnonimo,
+        anonima: isAnonimo,
         denuncianteNome: isAnonimo ? undefined : data.denuncianteNome,
         denuncianteEmail: isAnonimo ? undefined : data.denuncianteEmail,
         denuncianteTelefone: isAnonimo ? undefined : data.denuncianteTelefone,
@@ -310,7 +310,7 @@ export function DenunciaFormPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-orange-500" />
-                Informações da Denúncia
+                Informações da Denuncia
               </CardTitle>
               <CardDescription>Descreva detalhadamente a irregularidade</CardDescription>
             </CardHeader>
@@ -336,7 +336,7 @@ export function DenunciaFormPage() {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="tipo">Tipo de Denúncia *</Label>
+                  <Label htmlFor="tipo">Tipo de Denuncia *</Label>
                   <select
                     id="tipo"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
@@ -456,7 +456,7 @@ export function DenunciaFormPage() {
                     className="h-4 w-4 rounded border-gray-300"
                   />
                   <Label htmlFor="anonimo" className="font-normal">
-                    Denúncia anônima (seus dados não seráo registrados)
+                    Denuncia anônima (seus dados não seráo registrados)
                   </Label>
                 </div>
 

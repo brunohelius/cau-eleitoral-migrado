@@ -58,7 +58,7 @@ const relatorioCategories = [
   {
     id: 'juridico',
     title: 'Relatórios Juridicos',
-    description: 'Denúncias, impugnações e julgamentos',
+    description: 'Denuncias, impugnações e julgamentos',
     icon: FileText,
     color: 'bg-orange-100 text-orange-600',
     link: '/relatórios/juridico',
@@ -206,7 +206,7 @@ export function RelatoriosPage() {
                   </td>
                 </tr>
                 <tr className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4">Denúncias Julgadas - Fevereiro 2024</td>
+                  <td className="py-3 px-4">Denuncias Julgadas - Fevereiro 2024</td>
                   <td className="py-3 px-4">
                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">
                       Juridico

@@ -22,7 +22,7 @@ const navigation = [
   { name: 'Minha Chapa', href: '/candidato', icon: Users },
   { name: 'Documentos', href: '/candidato/documentos', icon: FileText },
   { name: 'Plataforma', href: '/candidato/plataforma', icon: Megaphone },
-  { name: 'Denúncias', href: '/candidato/denuncias', icon: AlertTriangle },
+  { name: 'Denuncias', href: '/candidato/denuncias', icon: AlertTriangle },
   { name: 'Defesas', href: '/candidato/defesas', icon: Shield },
   { name: 'Recursos', href: '/candidato/recursos', icon: Scale },
   { name: 'Histórico', href: '/candidato/historico', icon: History },

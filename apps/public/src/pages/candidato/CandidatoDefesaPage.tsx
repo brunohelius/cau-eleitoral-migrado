@@ -167,7 +167,7 @@ export function CandidatoDefesaPage() {
           className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
         >
           <AlertTriangle className="h-4 w-4" />
-          Ver Denúncias
+          Ver Denuncias
         </Link>
       </div>
 
@@ -300,7 +300,7 @@ export function CandidatoDefesaPage() {
                       ))
                     ) : (
                       <div className="text-center py-4 text-gray-500 text-sm">
-                        Nenhuma defesa enviada para esta impugnação.
+                        Nenhuma defesa enviada para esta impugnacao.
                       </div>
                     )}
 

@@ -26,7 +26,7 @@ const navigation = [
   { name: 'Eleições', href: '/eleicoes', icon: Vote },
   { name: 'Votação', href: '/votacao', icon: CheckSquare },
   { name: 'Chapas', href: '/chapas', icon: Users },
-  { name: 'Denúncias', href: '/denuncias', icon: AlertTriangle },
+  { name: 'Denuncias', href: '/denuncias', icon: AlertTriangle },
   { name: 'Impugnações', href: '/impugnacoes', icon: Flag },
   { name: 'Julgamentos', href: '/julgamentos', icon: Gavel },
   { name: 'Usuarios', href: '/usuarios', icon: UserCog },

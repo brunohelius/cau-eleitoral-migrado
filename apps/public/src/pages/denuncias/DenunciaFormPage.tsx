@@ -28,7 +28,7 @@ interface EleicaoParaDenuncia {
 interface TipoDenuncia {
   valor: number
   nome: string
-  descrição: string
+  descricao: string
 }
 
 interface CaptchaData {
@@ -48,15 +48,15 @@ interface ArquivoAnexo {
 interface FormData {
   eleicaoId: string
   tipo: number
-  descrição: string
-  fundamentação: string
+  descricao: string
+  fundamentacao: string
   captchaValue: string
 }
 
 interface FormErrors {
   eleicaoId?: string
   tipo?: string
-  descrição?: string
+  descricao?: string
   captchaValue?: string
   arquivos?: string
   general?: string
@@ -90,8 +90,8 @@ export function DenunciaFormPage() {
   const [formData, setFormData] = useState<FormData>({
     eleicaoId: preselectedEleicaoId,
     tipo: -1,
-    descrição: '',
-    fundamentação: '',
+    descricao: '',
+    fundamentacao: '',
     captchaValue: '',
   })
 
@@ -249,7 +249,7 @@ export function DenunciaFormPage() {
     setTouched({
       eleicaoId: true,
       tipo: true,
-      descrição: true,
+      descricao: true,
       captchaValue: true,
     })
 
@@ -264,8 +264,8 @@ export function DenunciaFormPage() {
       const payload = {
         eleicaoId: formData.eleicaoId,
         tipo: formData.tipo,
-        descrição: formData.descrição.trim(),
-        fundamentação: formData.fundamentação.trim() || null,
+        descricao: formData.descricao.trim(),
+        fundamentacao: formData.fundamentacao.trim() || null,
         captchaValue: parseInt(formData.captchaValue),
         captchaExpected: captcha?.expectedValue || 0,
         // Note: File upload would require multipart/form-data in production
@@ -317,14 +317,14 @@ export function DenunciaFormPage() {
             <CheckCircle className="h-8 w-8 text-green-600" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Denúncia Registrada com Sucesso
+            Denuncia Registrada com Sucesso
           </h1>
           <p className="text-gray-600 mb-6">
-            Sua denúncia foi recebida e será analisada pela Comissão Eleitoral.
+            Sua denuncia foi recebida e será analisada pela Comissão Eleitoral.
           </p>
 
           <div className="bg-gray-50 rounded-lg p-6 mb-6">
-            <p className="text-sm text-gray-500 mb-2">Número do Protocolo</p>
+            <p className="text-sm text-gray-500 mb-2">Numero do Protocolo</p>
             <p className="text-2xl font-mono font-bold text-primary">
               {submitSuccess.protocolo}
             </p>
@@ -339,7 +339,7 @@ export function DenunciaFormPage() {
               <div className="text-left">
                 <p className="text-sm font-medium text-yellow-800">Importante</p>
                 <p className="text-sm text-yellow-700 mt-1">
-                  Guarde este número de protocolo para acompanhar o andamento da sua denúncia.
+                  Guarde este numero de protocolo para acompanhar o andamento da sua denuncia.
                 </p>
               </div>
             </div>
@@ -358,8 +358,8 @@ export function DenunciaFormPage() {
                 setFormData({
                   eleicaoId: preselectedEleicaoId,
                   tipo: -1,
-                  descrição: '',
-                  fundamentação: '',
+                  descricao: '',
+                  fundamentacao: '',
                   captchaValue: '',
                 })
                 setArquivos([])
@@ -369,7 +369,7 @@ export function DenunciaFormPage() {
               }}
               className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50"
             >
-              Enviar Nova Denúncia
+              Enviar Nova Denuncia
             </button>
           </div>
         </div>
@@ -389,11 +389,11 @@ export function DenunciaFormPage() {
           <span>Voltar</span>
         </Link>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Registrar Denúncia Eleitoral
+          Registrar Denuncia Eleitoral
         </h1>
         <p className="text-gray-600 mt-2">
           Utilize este formulário para denunciar irregularidades no processo eleitoral.
-          Sua denúncia será analisada pela Comissão Eleitoral.
+          Sua denuncia será analisada pela Comissão Eleitoral.
         </p>
       </div>
 
@@ -402,12 +402,12 @@ export function DenunciaFormPage() {
         <div className="flex items-start gap-3">
           <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-blue-800">Antes de enviar sua denúncia</p>
+            <p className="text-sm font-medium text-blue-800">Antes de enviar sua denuncia</p>
             <ul className="text-sm text-blue-700 mt-2 list-disc list-inside space-y-1">
               <li>Descreva os fatos com clareza e objetividade</li>
               <li>Inclua datas, locais e envolvidos, se possível</li>
               <li>Anexe evidencias que comprovem a irregularidade</li>
-              <li>A denúncia pode ser feita de forma anônima</li>
+              <li>A denuncia pode ser feita de forma anônima</li>
             </ul>
           </div>
         </div>
@@ -419,7 +419,7 @@ export function DenunciaFormPage() {
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-red-800">Erro ao enviar denúncia</p>
+              <p className="text-sm font-medium text-red-800">Erro ao enviar denuncia</p>
               <p className="text-sm text-red-700 mt-1">{errors.general}</p>
             </div>
           </div>
@@ -432,7 +432,7 @@ export function DenunciaFormPage() {
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <FileText className="h-5 w-5 text-primary" />
-            Informações da Denúncia
+            Informações da Denuncia
           </h2>
 
           {/* Election */}
@@ -499,7 +499,7 @@ export function DenunciaFormPage() {
                 aria-invalid={!!errors.tipo}
                 aria-describedby={errors.tipo ? 'tipo-error' : undefined}
               >
-                <option value={-1}>Selecione o tipo de denúncia</option>
+                <option value={-1}>Selecione o tipo de denuncia</option>
                 {tiposDenuncia.map(t => (
                   <option key={t.valor} value={t.valor}>
                     {t.nome}
@@ -523,7 +523,7 @@ export function DenunciaFormPage() {
           {/* Tipo Info Panel */}
           {showTipoInfo && (
             <div className="mb-6 bg-gray-50 rounded-lg p-4">
-              <h3 className="text-sm font-medium text-gray-900 mb-3">Tipos de Denúncia</h3>
+              <h3 className="text-sm font-medium text-gray-900 mb-3">Tipos de Denuncia</h3>
               <div className="space-y-3">
                 {tiposDenuncia.map(t => (
                   <div key={t.valor} className="text-sm">
@@ -548,7 +548,7 @@ export function DenunciaFormPage() {
               rows={6}
               placeholder="Descreva detalhadamente a irregularidade observada, incluindo quando, onde e quem esta envolvido..."
               className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none ${
-                errors.descrição && touched.descrição
+                errors.descricao && touched.descricao
                   ? 'border-red-500 bg-red-50'
                   : 'border-gray-300'
               }`}
@@ -566,7 +566,7 @@ export function DenunciaFormPage() {
                 </p>
               )}
               <span className={`text-sm ${
-                formData.descrição.length > 5000 ? 'text-red-600' : 'text-gray-500'
+                formData.descricao.length > 5000 ? 'text-red-600' : 'text-gray-500'
               }`}>
                 {formData.descricao.length}/5000
               </span>
@@ -711,7 +711,7 @@ export function DenunciaFormPage() {
             <span className="font-medium">Aviso de Privacidade:</span> Sua denuncia sera tratada com
             confidencialidade. A identificação do denunciante não será divulgada, exceto em casos
             previstos em lei. Os dados fornecidos serao utilizados exclusivamente para análise e
-            processamento da denúncia.
+            processamento da denuncia.
           </p>
         </div>
 
@@ -730,7 +730,7 @@ export function DenunciaFormPage() {
             ) : (
               <>
                 <Send className="h-5 w-5" />
-                Enviar Denúncia
+                Enviar Denuncia
               </>
             )}
           </button>

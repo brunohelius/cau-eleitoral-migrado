@@ -26,7 +26,7 @@ export function ConfiguracoesPage() {
       const defaults = {
         nomeSistema: 'CAU Sistema Eleitoral',
         sigla: 'CAU-SE',
-        descrição: 'Sistema de votação eletronica do Conselho de Arquitetura e Urbanismo',
+        descricao: 'Sistema de votação eletronica do Conselho de Arquitetura e Urbanismo',
         logoUrl: '',
         faviconUrl: '',
         emailContato: 'contato@cau.org.br',
@@ -214,7 +214,7 @@ export function ConfiguracoesPage() {
   }
 
   const handleResetarPadrao = async () => {
-    if (!confirm('Tem certeza que deseja restaurar todas as configuracoes para os valores padrao? Esta acao nao pode ser desfeita.')) {
+    if (!confirm('Tem certeza que deseja restaurar todas as configuracoes para os valores padrao? Esta ação nao pode ser desfeita.')) {
       return
     }
 

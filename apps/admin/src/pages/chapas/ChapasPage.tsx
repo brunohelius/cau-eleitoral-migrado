@@ -237,7 +237,7 @@ export function ChapasPage() {
           description: (
             <>
               Tem certeza que deseja excluir a chapa <strong>"{selectedChapa?.nome}"</strong>?
-              Esta acao não pode ser desfeita.
+              Esta ação não pode ser desfeita.
               {selectedChapa?.membros && selectedChapa.membros.length > 0 && (
                 <span className="block mt-2 text-orange-600">
                   Atencao: Esta chapa possui {selectedChapa.membros.length} membro(s) cadastrado(s)
@@ -255,7 +255,7 @@ export function ChapasPage() {
           description: (
             <>
               Confirma a aprovacao da chapa <strong>"{selectedChapa?.nome}"</strong>?
-              Apos aprovada, a chapa estara apta a participar da eleição.
+              Apos aprovada, a chapa estara apta a participar da eleicao.
             </>
           ),
           confirmLabel: 'Aprovar',

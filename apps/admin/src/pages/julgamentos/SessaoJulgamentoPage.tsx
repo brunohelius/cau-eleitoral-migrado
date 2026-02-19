@@ -22,7 +22,7 @@ import api from '@/services/api'
 interface ProcessoPauta {
   id: string
   protocolo: string
-  tipo: 'denúncia' | 'impugnação' | 'recurso'
+  tipo: 'denuncia' | 'impugnacao' | 'recurso'
   titulo: string
   relatorNome: string
   status: 'pendente' | 'em_julgamento' | 'julgado'
@@ -285,14 +285,14 @@ export function SessaoJulgamentoPage() {
         await api.post(`/julgamento/${processoAtual.id}/votos`, {
           membroId: membro.id,
           voto: mapVotoToApi(voto),
-          fundamentação: null,
+          fundamentacao: null,
         })
       }
 
       await api.post(`/julgamento/${processoAtual.id}/concluir`, {
         tipoDecisao: tipoDecisaoApi,
         decisao: decisaoTexto,
-        fundamentação: fundamentação || null,
+        fundamentacao: fundamentacao || null,
       })
 
       setProcessos((prev) =>
@@ -323,7 +323,7 @@ export function SessaoJulgamentoPage() {
 
   const getTipoBadge = (tipo: string) => {
     const config: Record<string, { label: string; color: string }> = {
-      denuncia: { label: 'Denúncia', color: 'bg-orange-100 text-orange-800' },
+      denuncia: { label: 'Denuncia', color: 'bg-orange-100 text-orange-800' },
       impugnacao: { label: 'Impugnação', color: 'bg-red-100 text-red-800' },
       recurso: { label: 'Recurso', color: 'bg-purple-100 text-purple-800' },
     }
@@ -510,7 +510,7 @@ export function SessaoJulgamentoPage() {
               {!votacaoAberta ? (
                 <div className="text-center py-8">
                   <p className="text-gray-500 mb-4">
-                    Relator: {processoAtual.relatorNome}. Clique para iniciar a votacao.
+                    Relator: {processoAtual.relatorNome}. Clique para iniciar a votação.
                   </p>
                   <Button onClick={handleIniciarVotacao}>
                     <Play className="mr-2 h-4 w-4" />

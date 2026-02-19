@@ -32,13 +32,13 @@ export function EleicaoDetailPage() {
   const { id } = useParams<{ id: string }>()
 
   const { data: eleicao, isLoading, error } = useQuery({
-    queryKey: ['eleição-detail', id],
+    queryKey: ['eleicao-detail', id],
     queryFn: () => eleicoesPublicService.getById(id!),
     enabled: !!id,
   })
 
   const { data: fases } = useQuery({
-    queryKey: ['eleição-calendário', id],
+    queryKey: ['eleicao-calendário', id],
     queryFn: () => eleicoesPublicService.getCalendario(id!),
     enabled: !!id,
   })
@@ -47,7 +47,7 @@ export function EleicaoDetailPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2 text-gray-500">Carregando eleição...</span>
+        <span className="ml-2 text-gray-500">Carregando eleicao...</span>
       </div>
     )
   }
@@ -261,7 +261,7 @@ export function EleicaoDetailPage() {
             >
               <div className="flex items-center gap-3">
                 <AlertTriangle className="h-5 w-5 text-red-600" />
-                <span className="font-medium text-red-700">Registrar Denúncia</span>
+                <span className="font-medium text-red-700">Registrar Denuncia</span>
               </div>
               <ChevronRight className="h-5 w-5 text-red-400" />
             </Link>

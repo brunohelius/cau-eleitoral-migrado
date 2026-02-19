@@ -19,7 +19,7 @@ import api, { extractApiError, setTokenType } from '@/services/api'
 interface EleicaoDisponivel {
   id: string
   nome: string
-  descrição: string
+  descricao: string
   dataInicioVotacao: string
   dataFimVotacao: string
   totalChapas: number
@@ -142,7 +142,7 @@ export function VotacaoEleicaoPage() {
 
     if (days > 0) return `${days} dia(s) restante(s)`
     if (hours > 0) return `${hours} hora(s) restante(s)`
-    return 'Ultimo dia!'
+    return 'Último dia!'
   }
 
   const eleicoesDisponiveis = eleicoes.filter(e => e.status === 'disponivel')
@@ -243,7 +243,7 @@ export function VotacaoEleicaoPage() {
                         <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-500">
                           <span className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
-                            Ate {new Date(eleicao.dataFimVotacao).toLocaleDateString('pt-BR')} as {new Date(eleicao.dataFimVotacao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                            Até {new Date(eleicao.dataFimVotacao).toLocaleDateString('pt-BR')} as {new Date(eleicao.dataFimVotacao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                           </span>
                           {eleicao.totalChapas > 0 && (
                             <span className="flex items-center gap-1">
@@ -279,7 +279,7 @@ export function VotacaoEleicaoPage() {
             <div>
               <h3 className="font-semibold text-yellow-800">Nenhuma eleição disponível</h3>
               <p className="text-yellow-700 mt-1">
-                No momento não há eleições abertas para votação. Verifique o calendário eleitoral para saber as proximas datas.
+                No momento não há eleições abertas para votação. Verifique o calendário eleitoral para saber as próximas datas.
               </p>
               <Link
                 to="/calendario"
@@ -342,7 +342,7 @@ export function VotacaoEleicaoPage() {
         </section>
       )}
 
-      {/* Outras Eleicoes */}
+      {/* Outras Eleições */}
       {outrasEleicoes.length > 0 && (
         <section>
           <div className="flex items-center gap-2 mb-4">
@@ -377,7 +377,7 @@ export function VotacaoEleicaoPage() {
                         <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-500">
                           <span className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
-                            Inicio: {new Date(eleicao.dataInicioVotacao).toLocaleDateString('pt-BR')}
+                            Início: {new Date(eleicao.dataInicioVotacao).toLocaleDateString('pt-BR')}
                           </span>
                         </div>
                       </div>
@@ -405,7 +405,7 @@ export function VotacaoEleicaoPage() {
           <div className="text-sm">
             <p className="font-medium text-blue-800">Lembre-se</p>
             <p className="text-blue-700">
-              Cada eleitor pode votar apenas uma vez por eleição. Após confirmar seu voto, não será possível altera-lo.
+              Cada eleitor pode votar apenas uma vez por eleicao. Após confirmar seu voto, não será possível altera-lo.
               Guarde seu comprovante de votação.
             </p>
           </div>

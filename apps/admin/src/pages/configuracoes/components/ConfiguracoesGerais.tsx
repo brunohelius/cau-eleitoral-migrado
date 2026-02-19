@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 const configGeralSchema = z.object({
   nomeSistema: z.string().min(1, 'Nome do sistema é obrigatório'),
   sigla: z.string().min(1, 'Sigla é obrigatoria'),
-  descrição: z.string().optional(),
+  descricao: z.string().optional(),
   logoUrl: z.string().optional(),
   faviconUrl: z.string().optional(),
   emailContato: z.string().email('Email inválido').optional().or(z.literal('')),
@@ -45,7 +45,7 @@ export function ConfiguracoesGerais({ data, isLoading, onSave }: ConfiguracoesGe
     defaultValues: {
       nomeSistema: 'CAU Sistema Eleitoral',
       sigla: 'CAU-SE',
-      descrição: '',
+      descricao: '',
       logoUrl: '',
       faviconUrl: '',
       emailContato: '',

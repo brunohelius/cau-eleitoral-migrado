@@ -51,7 +51,7 @@ export function VotacaoPage() {
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean
     type: 'iniciar' | 'encerrar' | null
-    eleição: EleicaoVotacao | null
+    eleicao: EleicaoVotacao | null
   }>({ open: false, type: null, eleicao: null })
 
   const navigate = useNavigate()
@@ -59,7 +59,7 @@ export function VotacaoPage() {
   const queryClient = useQueryClient()
 
   const { data: eleicoes, isLoading } = useQuery({
-    queryKey: ['votação-eleições'],
+    queryKey: ['votacao-eleições'],
     queryFn: votacaoService.getAll,
   })
 
@@ -188,7 +188,7 @@ export function VotacaoPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totals.emAndamento}</div>
-            <p className="text-xs text-gray-500">Votacoes ativas agora</p>
+            <p className="text-xs text-gray-500">Votações ativas agora</p>
           </CardContent>
         </Card>
 
@@ -210,7 +210,7 @@ export function VotacaoPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input
-                placeholder="Buscar eleicoes..."
+                placeholder="Buscar eleições..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-10"
@@ -218,7 +218,7 @@ export function VotacaoPage() {
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Status da Votacao" />
+                <SelectValue placeholder="Status da Votação" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos os Status</SelectItem>
@@ -293,7 +293,7 @@ export function VotacaoPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              title="Iniciar Votacao"
+                              title="Iniciar Votação"
                               onClick={() => handleIniciarClick(eleicao)}
                               disabled={iniciarMutation.isPending}
                             >
@@ -305,7 +305,7 @@ export function VotacaoPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              title="Encerrar Votacao"
+                              title="Encerrar Votação"
                               onClick={() => handleEncerrarClick(eleicao)}
                               disabled={encerrarMutation.isPending}
                             >
@@ -315,7 +315,7 @@ export function VotacaoPage() {
 
                           {(eleicao.statusVotacao === 'encerrada' || eleicao.statusVotacao === 'apurada') && (
                             <Link to={`/votacao/${eleicao.id}/apuracao`}>
-                              <Button variant="ghost" size="icon" title="Ver Apuracao">
+                              <Button variant="ghost" size="icon" title="Ver Apuração">
                                 <Calculator className="h-4 w-4 text-purple-600" />
                               </Button>
                             </Link>
@@ -341,20 +341,20 @@ export function VotacaoPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {confirmDialog.type === 'iniciar' ? 'Iniciar Votacao' : 'Encerrar Votacao'}
+              {confirmDialog.type === 'iniciar' ? 'Iniciar Votação' : 'Encerrar Votação'}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {confirmDialog.type === 'iniciar' ? (
                 <>
-                  Tem certeza que deseja iniciar a votacao para "{confirmDialog.eleicao?.nome}"?
+                  Tem certeza que deseja iniciar a votação para "{confirmDialog.eleicao?.nome}"?
                   <br /><br />
-                  Esta acao permitira que os eleitores comecem a votar.
+                  Esta ação permitira que os eleitores comecem a votar.
                 </>
               ) : (
                 <>
-                  Tem certeza que deseja encerrar a votacao para "{confirmDialog.eleicao?.nome}"?
+                  Tem certeza que deseja encerrar a votação para "{confirmDialog.eleicao?.nome}"?
                   <br /><br />
-                  Esta acao impedira novos votos e não pode ser desfeita.
+                  Esta ação impedira novos votos e não pode ser desfeita.
                 </>
               )}
             </AlertDialogDescription>

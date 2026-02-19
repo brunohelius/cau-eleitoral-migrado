@@ -121,12 +121,12 @@ export function AuditoriaPage() {
   const getEntidadeLabel = (entidade: string) => {
     const entidades: Record<string, string> = {
       auth: 'Autenticacao',
-      eleição: 'Eleição',
+      eleicao: 'Eleição',
       chapa: 'Chapa',
       usuario: 'Usuario',
       voto: 'Voto',
-      denúncia: 'Denúncia',
-      impugnação: 'Impugnação',
+      denuncia: 'Denuncia',
+      impugnacao: 'Impugnação',
       relatório: 'Relatório',
       sistema: 'Sistema',
     }
@@ -293,7 +293,7 @@ export function AuditoriaPage() {
                 <option value="chapa">Chapa</option>
                 <option value="usuario">Usuario</option>
                 <option value="voto">Voto</option>
-                <option value="denuncia">Denúncia</option>
+                <option value="denuncia">Denuncia</option>
                 <option value="relatorio">Relatório</option>
               </select>
             </div>

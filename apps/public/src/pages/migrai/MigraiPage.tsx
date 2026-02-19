@@ -48,7 +48,7 @@ const functionPointData = {
     items: [
       { name: 'Core (Eleições, Votos, Resultados)', count: 25, complexity: 'high' as const, points: 15 },
       { name: 'Chapas (Candidaturas)', count: 8, complexity: 'medium' as const, points: 10 },
-      { name: 'Denúncias (Reclamações)', count: 26, complexity: 'high' as const, points: 15 },
+      { name: 'Denuncias (Reclamações)', count: 26, complexity: 'high' as const, points: 15 },
       { name: 'Documentos (Atas, Editais, etc)', count: 42, complexity: 'high' as const, points: 15 },
       { name: 'Impugnações (Contestações)', count: 16, complexity: 'high' as const, points: 15 },
       { name: 'Julgamentos (Processos)', count: 35, complexity: 'high' as const, points: 15 },
@@ -74,7 +74,7 @@ const functionPointData = {
       { name: 'Eleições (CRUD + Config)', count: 13, complexity: 'high' as const, points: 6 },
       { name: 'Chapas (CRUD + Membros)', count: 19, complexity: 'high' as const, points: 6 },
       { name: 'Votação (Registro de Votos)', count: 14, complexity: 'high' as const, points: 6 },
-      { name: 'Denúncias (CRUD + Análise)', count: 25, complexity: 'high' as const, points: 6 },
+      { name: 'Denuncias (CRUD + Análise)', count: 25, complexity: 'high' as const, points: 6 },
       { name: 'Documentos (Upload, CRUD)', count: 14, complexity: 'medium' as const, points: 4 },
       { name: 'Impugnações (CRUD)', count: 43, complexity: 'high' as const, points: 6 },
       { name: 'Julgamentos (CRUD + Sessões)', count: 15, complexity: 'high' as const, points: 6 },
@@ -201,7 +201,7 @@ const endpointsByController = [
   { name: 'MembroChapaController', endpoints: 11, description: 'Membros de chapa' },
   { name: 'NotificacaoController', endpoints: 11, description: 'Notificações' },
   { name: 'DashboardController', endpoints: 9, description: 'Painel administrativo' },
-  { name: 'PublicDenunciaController', endpoints: 5, description: 'Denúncias públicas' },
+  { name: 'PublicDenunciaController', endpoints: 5, description: 'Denuncias públicas' },
 ]
 
 // ============================================================================
@@ -328,11 +328,11 @@ const migratedFeatures = [
     ],
   },
   {
-    category: 'Denúncias',
+    category: 'Denuncias',
     icon: Shield,
     color: 'bg-red-500',
     features: [
-      'Registro de denúncias',
+      'Registro de denuncias',
       'Análise de admissibilidade',
       'Defesa e contra-alegações',
       'Recursos e pareceres',
@@ -513,7 +513,7 @@ const migrationTimeline: Array<{
       '40 páginas de administração',
       '22 componentes reutilizáveis (shadcn/ui)',
       'Dashboard com estatísticas em tempo real',
-      'Gestão completa: Eleições, Chapas, Denúncias, Julgamentos',
+      'Gestão completa: Eleições, Chapas, Denuncias, Julgamentos',
       '20.323 linhas de código TypeScript',
     ],
   },
@@ -525,7 +525,7 @@ const migrationTimeline: Array<{
       '31 páginas do portal público',
       'Portal do Eleitor com votação online',
       'Portal do Candidato com gestão de chapa',
-      'Sistema de denúncias públicas',
+      'Sistema de denuncias públicas',
       '13.771 linhas de código TypeScript',
     ],
   },
@@ -638,7 +638,7 @@ export function MigraiPage() {
             </p>
             <p className="text-base text-slate-500 mb-8 max-w-2xl mx-auto">
               Conselho de Arquitetura e Urbanismo do Brasil - Sistema de gestão de
-              eleições, votação, denúncias, impugnações e julgamentos
+              eleições, votação, denuncias, impugnações e julgamentos
             </p>
 
             <div className="flex flex-wrap justify-center gap-3 mb-8">
@@ -1176,7 +1176,7 @@ export function MigraiPage() {
               color="purple"
             />
             <EntityCard
-              name="Denúncias"
+              name="Denuncias"
               count={26}
               description="Sistema completo de reclamações"
               items={['Denuncia', 'AnaliseDenuncia', 'DefesaDenuncia', 'RecursoDenuncia', 'JulgamentoDenuncia', 'ParecerDenuncia']}
@@ -1444,7 +1444,7 @@ export function MigraiPage() {
                   'Dashboard com estatísticas',
                   'Navegação: Eleições (listagem)',
                   'Navegação: Chapas (listagem)',
-                  'Navegação: Denúncias (listagem)',
+                  'Navegação: Denuncias (listagem)',
                   'Navegação: Usuários (listagem)',
                   'Sidebar navigation completa',
                   'Sessão autenticada persistente',
@@ -1498,7 +1498,7 @@ export function MigraiPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-white mb-2">Resumo da Migração</h2>
-            <p className="text-slate-400">Números que demonstram a escala do projeto</p>
+            <p className="text-slate-400">Numeros que demonstram a escala do projeto</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">

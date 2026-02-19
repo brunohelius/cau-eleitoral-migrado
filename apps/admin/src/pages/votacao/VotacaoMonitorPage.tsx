@@ -29,7 +29,7 @@ export function VotacaoMonitorPage() {
   const [lastUpdate, setLastUpdate] = useState(new Date())
 
   const { data: eleicao, isLoading: isLoadingEleicao } = useQuery({
-    queryKey: ['eleição', eleicaoId],
+    queryKey: ['eleicao', eleicaoId],
     queryFn: () => eleicoesService.getById(eleicaoId!),
     enabled: !!eleicaoId,
   })
@@ -39,7 +39,7 @@ export function VotacaoMonitorPage() {
     isLoading: isLoadingEstatisticas,
     refetch,
   } = useQuery({
-    queryKey: ['votação-estatisticas', eleicaoId],
+    queryKey: ['votacao-estatisticas', eleicaoId],
     queryFn: () => votacaoService.getEstatisticas(eleicaoId!),
     enabled: !!eleicaoId,
     refetchInterval: autoRefresh ? 30000 : false, // Refresh every 30 seconds if auto-refresh enabled

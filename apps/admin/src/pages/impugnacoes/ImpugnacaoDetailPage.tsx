@@ -134,14 +134,14 @@ export function ImpugnacaoDetailPage() {
 
   // Fetch impugnacao
   const { data: impugnacao, isLoading } = useQuery({
-    queryKey: ['impugnação', id],
+    queryKey: ['impugnacao', id],
     queryFn: () => impugnacoesService.getById(id!),
     enabled: !!id,
   })
 
   // Fetch timeline
   const { data: timeline } = useQuery({
-    queryKey: ['impugnação-timeline', id],
+    queryKey: ['impugnacao-timeline', id],
     queryFn: () => impugnacoesService.getTimeline(id!),
     enabled: !!id,
   })
@@ -335,7 +335,7 @@ export function ImpugnacaoDetailPage() {
                   {canSolicitarDefesa && 'Aguardando solicitacao de defesa'}
                   {canEmitirParecer && 'Aguardando parecer'}
                   {canEncaminharJulgamento && 'Aguardando encaminhamento para julgamento'}
-                  {canProferirDecisao && 'Aguardando decisao final'}
+                  {canProferirDecisao && 'Aguardando decisão final'}
                 </span>
               </div>
               <div className="flex gap-2">
@@ -869,7 +869,7 @@ export function ImpugnacaoDetailPage() {
           <DialogHeader>
             <DialogTitle>Proferir Decisao</DialogTitle>
             <DialogDescription>
-              Profira a decisao final sobre esta impugnação.
+              Profira a decisão final sobre esta impugnacao.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -906,7 +906,7 @@ export function ImpugnacaoDetailPage() {
               <div>
                 <h4 className="font-medium text-yellow-800">Atencao</h4>
                 <p className="text-sm text-yellow-700">
-                  Esta acao e definitiva e encerrara o processo. O impugnante podera interpor recurso.
+                  Esta ação e definitiva e encerrara o processo. O impugnante podera interpor recurso.
                 </p>
               </div>
             </div>
@@ -934,7 +934,7 @@ export function ImpugnacaoDetailPage() {
           <DialogHeader>
             <DialogTitle>Arquivar Impugnação</DialogTitle>
             <DialogDescription>
-              Informe o motivo do arquivamento desta impugnação.
+              Informe o motivo do arquivamento desta impugnacao.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -973,7 +973,7 @@ export function ImpugnacaoDetailPage() {
           <DialogHeader>
             <DialogTitle>Atribuir Relator</DialogTitle>
             <DialogDescription>
-              Selecione o relator responsavel por esta impugnação.
+              Selecione o relator responsável por esta impugnacao.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -986,7 +986,7 @@ export function ImpugnacaoDetailPage() {
                 onChange={(e) => setRelatorId(e.target.value)}
               />
               <p className="text-xs text-gray-500">
-                Em producao, este campo será um select com os membros da comissão eleitoral.
+                Em produção, este campo será um select com os membros da comissão eleitoral.
               </p>
             </div>
           </div>

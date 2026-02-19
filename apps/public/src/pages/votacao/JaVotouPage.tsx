@@ -31,7 +31,7 @@ export function JaVotouPage() {
   const [hashInput, setHashInput] = useState('')
   const [isVerifying, setIsVerifying] = useState(false)
   const [verificationResult, setVerificationResult] = useState<{
-    válido: boolean
+    valido: boolean
     mensagem: string
     dataVoto?: string
     eleicaoNome?: string
@@ -84,7 +84,7 @@ export function JaVotouPage() {
     } catch (err) {
       const apiError = extractApiError(err)
       setVerificationResult({
-        válido: false,
+        valido: false,
         mensagem: apiError.message || 'Não foi possível verificar o codigo.',
       })
     } finally {
@@ -240,12 +240,12 @@ export function JaVotouPage() {
               )}
               <div>
                 <p className={`font-medium ${
-                  verificationResult.válido ? 'text-green-800' : 'text-red-800'
+                  verificationResult.valido ? 'text-green-800' : 'text-red-800'
                 }`}>
                   {verificationResult.valido ? 'Voto Verificado' : 'Verificacao Falhou'}
                 </p>
                 <p className={`text-sm mt-1 ${
-                  verificationResult.válido ? 'text-green-700' : 'text-red-600'
+                  verificationResult.valido ? 'text-green-700' : 'text-red-600'
                 }`}>
                   {verificationResult.mensagem}
                 </p>

@@ -22,7 +22,7 @@ import api from '@/services/api'
 
 interface ResultadoChapa {
   id: string
-  número: number
+  numero: number
   nome: string
   votos: number
   percentual: number
@@ -35,7 +35,7 @@ interface DadosApuracao {
   votosValidos: number
   votosBrancos: number
   votosNulos: number
-  participação: number
+  participacao: number
   chapas: ResultadoChapa[]
   ultimaAtualizacao: string
   status: 'em_andamento' | 'finalizada' | 'aguardando'
@@ -58,13 +58,13 @@ export function EleicaoApuracaoPage() {
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   const { data: eleicao, isLoading: isLoadingEleicao } = useQuery({
-    queryKey: ['eleição', id],
+    queryKey: ['eleicao', id],
     queryFn: () => eleicoesService.getById(id!),
     enabled: !!id,
   })
 
   const { data: dadosApuracao, isLoading: isLoadingApuracao, refetch } = useQuery({
-    queryKey: ['apuração', id],
+    queryKey: ['apuracao', id],
     queryFn: async (): Promise<DadosApuracao> => {
       try {
         const response = await api.get(`/apuracao/${id}`)
@@ -75,13 +75,13 @@ export function EleicaoApuracaoPage() {
           votosValidos: r.votosValidos || 0,
           votosBrancos: r.votosBrancos || 0,
           votosNulos: r.votosNulos || 0,
-          participação: Number(r.percentualParticipacao) || 0,
+          participacao: Number(r.percentualParticipacao) || 0,
           percentualApurado: r.statusApuracao === 3 ? 100 : 0,
           status: mapStatusApuracao(r.statusApuracao),
           ultimaAtualizacao: r.dataApuracao || r.dataPublicacao || new Date().toISOString(),
           chapas: (r.resultadosChapas || []).map((c: any) => ({
             id: c.chapaId,
-            número: c.número,
+            numero: c.numero,
             nome: c.nome,
             votos: c.totalVotos,
             percentual: Number(c.percentualVotosValidos) || Number(c.percentual) || 0,
@@ -95,7 +95,7 @@ export function EleicaoApuracaoPage() {
           votosValidos: 0,
           votosBrancos: 0,
           votosNulos: 0,
-          participação: 0,
+          participacao: 0,
           percentualApurado: 0,
           status: 'aguardando',
           ultimaAtualizacao: new Date().toISOString(),

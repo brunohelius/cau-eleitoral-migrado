@@ -492,7 +492,7 @@ export function ChapaDocumentosPage() {
             <AlertDialogTitle>Excluir Documento</AlertDialogTitle>
             <AlertDialogDescription>
               Tem certeza que deseja excluir o documento{' '}
-              <strong>"{documentoToDelete?.nome}"</strong>? Esta acao nao pode ser desfeita.
+              <strong>"{documentoToDelete?.nome}"</strong>? Esta ação nao pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

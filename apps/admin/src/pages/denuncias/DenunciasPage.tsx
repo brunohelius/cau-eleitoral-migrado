@@ -74,7 +74,7 @@ export function DenunciasPage() {
   // Action modal state
   const [actionModal, setActionModal] = useState<{
     type: 'analisar' | 'arquivar' | 'reabrir' | null
-    denúncia: Denúncia | null
+    denuncia: Denuncia | null
   }>({ type: null, denuncia: null })
   const [actionMotivo, setActionMotivo] = useState('')
 
@@ -86,7 +86,7 @@ export function DenunciasPage() {
 
   // Fetch denuncias
   const { data: denunciasResponse, isLoading, refetch } = useQuery({
-    queryKey: ['denúncias', page, pageSize, statusFilter, tipoFilter, eleicaoFilter, search],
+    queryKey: ['denuncias', page, pageSize, statusFilter, tipoFilter, eleicaoFilter, search],
     queryFn: async () => {
       const params: Record<string, unknown> = {
         page,
@@ -108,7 +108,7 @@ export function DenunciasPage() {
       queryClient.invalidateQueries({ queryKey: ['denuncias'] })
       toast({
         title: 'Análise iniciada',
-        description: 'A denúncia foi movida para análise.',
+        description: 'A denuncia foi movida para análise.',
       })
       setActionModal({ type: null, denuncia: null })
     },
@@ -127,8 +127,8 @@ export function DenunciasPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['denuncias'] })
       toast({
-        title: 'Denúncia arquivada',
-        description: 'A denúncia foi arquivada com sucesso.',
+        title: 'Denuncia arquivada',
+        description: 'A denuncia foi arquivada com sucesso.',
       })
       setActionModal({ type: null, denuncia: null })
       setActionMotivo('')
@@ -137,7 +137,7 @@ export function DenunciasPage() {
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Não foi possível arquivar a denúncia.',
+        description: 'Não foi possível arquivar a denuncia.',
       })
     },
   })
@@ -148,8 +148,8 @@ export function DenunciasPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['denuncias'] })
       toast({
-        title: 'Denúncia reaberta',
-        description: 'A denúncia foi reaberta com sucesso.',
+        title: 'Denuncia reaberta',
+        description: 'A denuncia foi reaberta com sucesso.',
       })
       setActionModal({ type: null, denuncia: null })
       setActionMotivo('')
@@ -158,7 +158,7 @@ export function DenunciasPage() {
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Não foi possível reabrir a denúncia.',
+        description: 'Não foi possível reabrir a denuncia.',
       })
     },
   })
@@ -289,7 +289,7 @@ export function DenunciasPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Denúncias</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Denuncias</h1>
           <p className="text-gray-600">Gerencie as denuncias eleitorais ({total} registros)</p>
         </div>
         <div className="flex gap-2">
@@ -300,7 +300,7 @@ export function DenunciasPage() {
           <Link to="/denuncias/nova">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Nova Denúncia
+              Nova Denuncia
             </Button>
           </Link>
         </div>
@@ -505,7 +505,7 @@ export function DenunciasPage() {
                             {denuncia.anonima ? (
                               <span className="text-gray-400 italic">Anonimo</span>
                             ) : (
-                              denúncia.denuncianteNome || '-'
+                              denuncia.denuncianteNome || '-'
                             )}
                           </td>
                           <td className="py-3 px-4">
@@ -605,7 +605,7 @@ export function DenunciasPage() {
           ) : (
             <div className="text-center py-12">
               <AlertTriangle className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">Nenhuma denúncia encontrada.</p>
+              <p className="text-gray-500">Nenhuma denuncia encontrada.</p>
               {hasActiveFilters && (
                 <Button variant="link" onClick={clearFilters} className="mt-2">
                   Limpar filtros

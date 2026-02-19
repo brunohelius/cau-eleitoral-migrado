@@ -28,10 +28,10 @@ interface DadosVotacao {
   votosValidos: number
   votosBrancos: number
   votosNulos: number
-  participação: number
+  participacao: number
   chapas: Array<{
     id: string
-    número: number
+    numero: number
     nome: string
     votos: number
     percentual: number
@@ -43,7 +43,7 @@ interface DadosVotacao {
   votosPorRegional: Array<{
     regional: string
     votos: number
-    participação: number
+    participacao: number
   }>
 }
 
@@ -69,7 +69,7 @@ export function RelatorioVotacaoPage() {
 
   // Load voting data for selected election
   const { data: dadosVotacao, isLoading } = useQuery({
-    queryKey: ['votação-relatório', selectedEleicao],
+    queryKey: ['votacao-relatório', selectedEleicao],
     queryFn: async (): Promise<DadosVotacao | null> => {
       try {
         // Try to get apuracao results first
@@ -78,7 +78,7 @@ export function RelatorioVotacaoPage() {
 
         const chapas = (r.resultadosChapas || []).map((c: any) => ({
           id: c.chapaId,
-          número: c.número,
+          numero: c.numero,
           nome: c.nome,
           votos: c.totalVotos,
           percentual: Number(c.percentualVotosValidos) || Number(c.percentual) || 0,
@@ -98,7 +98,7 @@ export function RelatorioVotacaoPage() {
           votosPorRegional = (stats.votosPorRegiao || []).map((v: any) => ({
             regional: v.nomeRegiao || v.uf || '',
             votos: v.totalVotantes || 0,
-            participação: Number(v.taxaParticipacao) || 0,
+            participacao: Number(v.taxaParticipacao) || 0,
           }))
         } catch {
           // Statistics endpoint may require auth or return empty
@@ -114,7 +114,7 @@ export function RelatorioVotacaoPage() {
           votosValidos: r.votosValidos || 0,
           votosBrancos: r.votosBrancos || 0,
           votosNulos: r.votosNulos || 0,
-          participação: Number(r.percentualParticipacao) || 0,
+          participacao: Number(r.percentualParticipacao) || 0,
           chapas,
           votosPorHora,
           votosPorRegional,
