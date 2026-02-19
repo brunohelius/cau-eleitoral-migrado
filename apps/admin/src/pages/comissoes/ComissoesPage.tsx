@@ -65,7 +65,7 @@ export default function ComissoesPage() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      await api.delete(\`/comissao/\${id}\`);
+      await api.delete(`/comissao/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['comissoes'] });

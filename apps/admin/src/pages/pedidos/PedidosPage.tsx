@@ -12,12 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { api } from '@/lib/api'
 
 interface Pedido {
@@ -148,19 +142,14 @@ export function PedidosPage() {
                       <TableCell>{getStatusBadge(pedido.status)}</TableCell>
                       <TableCell>{new Date(pedido.dataCriacao).toLocaleDateString('pt-BR')}</TableCell>
                       <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">Ações</Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem asChild>
-                              <Link to={`/pedidos/${pedido.id}`}>Ver Detalhes</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link to={`/pedidos/${pedido.id}/editar`}>Editar</Link>
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className="flex gap-2">
+                          <Button variant="ghost" size="sm" asChild>
+                            <Link to={`/pedidos/${pedido.id}`}>Ver</Link>
+                          </Button>
+                          <Button variant="ghost" size="sm" asChild>
+                            <Link to={`/pedidos/${pedido.id}/editar`}>Editar</Link>
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))

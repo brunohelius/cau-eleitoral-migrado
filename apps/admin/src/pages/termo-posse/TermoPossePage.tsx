@@ -12,12 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { api } from '@/lib/api'
 
 interface TermoPosse {
@@ -138,18 +132,9 @@ export function TermoPossePage() {
                       <TableCell>{getStatusBadge(termo.status)}</TableCell>
                       <TableCell>{termo.termosAssinados}/2</TableCell>
                       <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">Ações</Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem asChild>
-                              <Link to={`/termoposse/${termo.id}`}>Ver Detalhes</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>Baixar PDF</DropdownMenuItem>
-                            <DropdownMenuItem>Enviar para Assinatura</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <Button variant="ghost" size="sm" asChild>
+                          <Link to={`/termoposse/${termo.id}`}>Ver</Link>
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))

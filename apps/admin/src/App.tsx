@@ -61,29 +61,7 @@ import { VotacaoPage, VotacaoMonitorPage, ApuracaoPage } from '@/pages/votacao'
 import { AuditoriaPage } from '@/pages/auditoria/AuditoriaPage'
 
 // Comissoes
-import { ComissoesPage } from '@/pages/comissoes/ComissoesPage'
-
-// Pedidos
-import { PedidosPage } from '@/pages/pedidos/PedidosPage'
-
-// Usuarios
-import { UsuariosPage } from '@/pages/usuarios/UsuariosPage'
-import { UsuarioDetailPage } from '@/pages/usuarios/UsuarioDetailPage'
-import { UsuarioFormPage } from '@/pages/usuarios/UsuarioFormPage'
-
-// Relatorios
-import { RelatoriosPage } from '@/pages/relatorios/RelatoriosPage'
-import { RelatorioEleicaoPage } from '@/pages/relatorios/RelatorioEleicaoPage'
-import { RelatorioVotacaoPage } from '@/pages/relatorios/RelatorioVotacaoPage'
-
-// Votacao
-import { VotacaoPage, VotacaoMonitorPage, ApuracaoPage } from '@/pages/votacao'
-
-// Auditoria
-import { AuditoriaPage } from '@/pages/auditoria/AuditoriaPage'
-
-// Comissoes
-import { ComissoesPage } from '@/pages/comissoes/ComissoesPage'
+import ComissoesPage from '@/pages/comissoes/ComissoesPage'
 
 // Pedidos
 import { PedidosPage } from '@/pages/pedidos/PedidosPage'

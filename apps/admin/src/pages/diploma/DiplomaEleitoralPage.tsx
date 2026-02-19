@@ -12,12 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { api } from '@/lib/api'
 
 interface Diploma {
@@ -140,18 +134,9 @@ export function DiplomaEleitoralPage() {
                           : '-'}
                       </TableCell>
                       <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">Ações</Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem asChild>
-                              <Link to={`/diploma/${diploma.id}`}>Ver Detalhes</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>Baixar PDF</DropdownMenuItem>
-                            <DropdownMenuItem>Enviar por Email</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <Button variant="ghost" size="sm" asChild>
+                          <Link to={`/diploma/${diploma.id}`}>Ver Detalhes</Link>
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))
