@@ -560,8 +560,8 @@ public class UsuarioService : IUsuarioService
         var saltBytes = RandomNumberGenerator.GetBytes(16);
         var salt = Convert.ToBase64String(saltBytes);
 
-        using var pbkdf2 = new Rfc2898DeriveBytes(password, saltBytes, 100000, HashAlgorithmName.SHA256);
-        var hash = Convert.ToBase64String(pbkdf2.GetBytes(32));
+        var hashBytes = Rfc2898DeriveBytes.Pbkdf2(password, saltBytes, 100000, HashAlgorithmName.SHA256, 32);
+        var hash = Convert.ToBase64String(hashBytes);
 
         return (hash, salt);
     }
@@ -571,8 +571,8 @@ public class UsuarioService : IUsuarioService
         if (string.IsNullOrEmpty(salt)) return false;
 
         var saltBytes = Convert.FromBase64String(salt);
-        using var pbkdf2 = new Rfc2898DeriveBytes(password, saltBytes, 100000, HashAlgorithmName.SHA256);
-        var computedHash = Convert.ToBase64String(pbkdf2.GetBytes(32));
+        var computedHashBytes = Rfc2898DeriveBytes.Pbkdf2(password, saltBytes, 100000, HashAlgorithmName.SHA256, 32);
+        var computedHash = Convert.ToBase64String(computedHashBytes);
 
         return hash == computedHash;
     }

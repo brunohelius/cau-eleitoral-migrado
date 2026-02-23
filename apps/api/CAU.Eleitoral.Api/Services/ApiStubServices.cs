@@ -570,7 +570,7 @@ public class DocumentoApiService : Controllers.IDocumentoService
         {
             EleicaoId = dto.EleicaoId ?? Guid.Empty, Titulo = dto.Titulo, Ementa = dto.Descricao,
             Tipo = dto.Tipo, Categoria = dto.Categoria, Status = StatusDocumento.Rascunho,
-            Numero = dto.Numero, DataDocumento = dto.DataDocumento ?? DateTime.UtcNow
+            Numero = dto.Numero ?? string.Empty, DataDocumento = dto.DataDocumento ?? DateTime.UtcNow
         };
         await _db.Documentos.AddAsync(doc, ct);
         await _db.SaveChangesAsync(ct);

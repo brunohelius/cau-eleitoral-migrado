@@ -532,7 +532,7 @@ public class DocumentoService : IDocumentoService
             Nome = arquivo.Nome,
             Descricao = arquivo.Descricao,
             Url = arquivo.ArquivoUrl,
-            Tipo = arquivo.ArquivoTipo,
+            Tipo = arquivo.ArquivoTipo ?? string.Empty,
             Tamanho = arquivo.ArquivoTamanho ?? 0,
             Versao = arquivo.Ordem,
             Principal = arquivo.Ordem == 1,

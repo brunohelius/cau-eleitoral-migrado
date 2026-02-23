@@ -327,7 +327,7 @@ public class DenunciaService : IDenunciaService
                     DenunciaId = denuncia.Id,
                     Tipo = provaDto.Tipo,
                     Descricao = provaDto.Descricao,
-                    ArquivoUrl = provaDto.ArquivoUrl,
+                    ArquivoUrl = provaDto.ArquivoUrl ?? string.Empty,
                     ArquivoNome = provaDto.ArquivoNome,
                     DataEnvio = DateTime.UtcNow
                 };
@@ -1641,7 +1641,7 @@ public class DenunciaService : IDenunciaService
             DenunciaId = denunciaId,
             Tipo = dto.Tipo,
             Descricao = dto.Descricao,
-            ArquivoUrl = dto.ArquivoUrl,
+            ArquivoUrl = dto.ArquivoUrl ?? string.Empty,
             ArquivoNome = dto.ArquivoNome,
             DataEnvio = DateTime.UtcNow
         };
@@ -1691,7 +1691,7 @@ public class DenunciaService : IDenunciaService
             DenunciaId = p.DenunciaId,
             Tipo = p.Tipo,
             TipoNome = p.Tipo.ToString(),
-            Descricao = p.Descricao,
+            Descricao = p.Descricao ?? string.Empty,
             ArquivoUrl = p.ArquivoUrl,
             ArquivoNome = p.ArquivoNome,
             DataEnvio = p.DataEnvio
@@ -1764,7 +1764,7 @@ public class DenunciaService : IDenunciaService
         {
             Id = h.Id,
             DenunciaId = h.DenunciaId,
-            Descricao = h.Descricao,
+            Descricao = h.Descricao ?? string.Empty,
             DataAlteracao = h.DataAlteracao
         });
     }
@@ -1876,7 +1876,7 @@ public class DenunciaService : IDenunciaService
                 DenunciaId = p.DenunciaId,
                 Tipo = p.Tipo,
                 TipoNome = p.Tipo.ToString(),
-                Descricao = p.Descricao,
+                Descricao = p.Descricao ?? string.Empty,
                 ArquivoUrl = p.ArquivoUrl,
                 ArquivoNome = p.ArquivoNome,
                 DataEnvio = p.DataEnvio
@@ -1894,7 +1894,7 @@ public class DenunciaService : IDenunciaService
             {
                 Id = h.Id,
                 DenunciaId = h.DenunciaId,
-                Descricao = h.Descricao,
+                Descricao = h.Descricao ?? string.Empty,
                 DataAlteracao = h.DataAlteracao
             }).ToList() ?? new(),
             CreatedAt = denuncia.CreatedAt,

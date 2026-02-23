@@ -125,7 +125,7 @@ export interface PaginatedResponse<T> {
 
 export const usuariosService = {
   getAll: async (params?: UsuarioListParams): Promise<PaginatedResponse<Usuario>> => {
-    const response = await api.get('/usuario/paged', { params })
+    const response = await api.get('/usuario', { params })
     return mapPagedResponse<Usuario>(response.data)
   },
 

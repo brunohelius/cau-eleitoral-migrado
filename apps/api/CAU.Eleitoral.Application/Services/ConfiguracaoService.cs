@@ -342,11 +342,11 @@ public class ConfiguracaoService : IConfiguracaoService
 
         return new InfoSistemaDto
         {
-            Nome = GetValue(configuracoes, ChavesConfiguracao.NomeSistema, "CAU Sistema Eleitoral"),
-            Versao = GetValue(configuracoes, ChavesConfiguracao.Versao, "1.0.0"),
+            Nome = GetValue(configuracoes, ChavesConfiguracao.NomeSistema, "CAU Sistema Eleitoral") ?? "CAU Sistema Eleitoral",
+            Versao = GetValue(configuracoes, ChavesConfiguracao.Versao, "1.0.0") ?? "1.0.0",
             Ambiente = ambiente,
             DataHoraServidor = DateTime.UtcNow,
-            TimeZone = GetValue(configuracoes, ChavesConfiguracao.TimeZone, "America/Sao_Paulo"),
+            TimeZone = GetValue(configuracoes, ChavesConfiguracao.TimeZone, "America/Sao_Paulo") ?? "America/Sao_Paulo",
             EmManutencao = GetBoolValue(configuracoes, ChavesConfiguracao.ModoManutencao, false),
             MensagemManutencao = GetValue(configuracoes, ChavesConfiguracao.MensagemManutencao, null)
         };
@@ -581,16 +581,16 @@ public class ConfiguracaoService : IConfiguracaoService
     {
         return new ConfiguracaoGeralDto
         {
-            NomeSistema = GetValue(configuracoes, ChavesConfiguracao.NomeSistema, "CAU Sistema Eleitoral"),
-            Versao = GetValue(configuracoes, ChavesConfiguracao.Versao, "1.0.0"),
+            NomeSistema = GetValue(configuracoes, ChavesConfiguracao.NomeSistema, "CAU Sistema Eleitoral") ?? "CAU Sistema Eleitoral",
+            Versao = GetValue(configuracoes, ChavesConfiguracao.Versao, "1.0.0") ?? "1.0.0",
             LogoUrl = GetValue(configuracoes, ChavesConfiguracao.LogoUrl, null),
             FaviconUrl = GetValue(configuracoes, ChavesConfiguracao.FaviconUrl, null),
             CorPrimaria = GetValue(configuracoes, ChavesConfiguracao.CorPrimaria, "#1E40AF"),
             CorSecundaria = GetValue(configuracoes, ChavesConfiguracao.CorSecundaria, "#3B82F6"),
             ModoManutencao = GetBoolValue(configuracoes, ChavesConfiguracao.ModoManutencao, false),
             MensagemManutencao = GetValue(configuracoes, ChavesConfiguracao.MensagemManutencao, null),
-            TimeZone = GetValue(configuracoes, ChavesConfiguracao.TimeZone, "America/Sao_Paulo"),
-            Locale = GetValue(configuracoes, ChavesConfiguracao.Locale, "pt-BR")
+            TimeZone = GetValue(configuracoes, ChavesConfiguracao.TimeZone, "America/Sao_Paulo") ?? "America/Sao_Paulo",
+            Locale = GetValue(configuracoes, ChavesConfiguracao.Locale, "pt-BR") ?? "pt-BR"
         };
     }
 
@@ -598,13 +598,13 @@ public class ConfiguracaoService : IConfiguracaoService
     {
         return new ConfiguracaoEmailDto
         {
-            SmtpHost = GetValue(configuracoes, ChavesConfiguracao.SmtpHost, ""),
+            SmtpHost = GetValue(configuracoes, ChavesConfiguracao.SmtpHost, "") ?? "",
             SmtpPort = GetIntValue(configuracoes, ChavesConfiguracao.SmtpPort, 587),
             SmtpUseSsl = GetBoolValue(configuracoes, ChavesConfiguracao.SmtpUseSsl, true),
             SmtpUsername = GetValue(configuracoes, ChavesConfiguracao.SmtpUsername, null),
             SmtpPassword = GetValue(configuracoes, ChavesConfiguracao.SmtpPassword, null),
-            EmailRemetente = GetValue(configuracoes, ChavesConfiguracao.EmailRemetente, "noreply@cau.org.br"),
-            NomeRemetente = GetValue(configuracoes, ChavesConfiguracao.NomeRemetente, "CAU Sistema Eleitoral"),
+            EmailRemetente = GetValue(configuracoes, ChavesConfiguracao.EmailRemetente, "noreply@cau.org.br") ?? "noreply@cau.org.br",
+            NomeRemetente = GetValue(configuracoes, ChavesConfiguracao.NomeRemetente, "CAU Sistema Eleitoral") ?? "CAU Sistema Eleitoral",
             EmailHabilitado = GetBoolValue(configuracoes, ChavesConfiguracao.EmailHabilitado, false)
         };
     }

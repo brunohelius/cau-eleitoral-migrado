@@ -1,0 +1,10 @@
+bin/
+obj/
+.git/
+.gitignore
+*.md
+.vs/
+.vscode/
+*.user
+*.sln.DotSettings*
+TestResults/

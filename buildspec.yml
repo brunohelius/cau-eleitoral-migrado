@@ -21,15 +21,15 @@ phases:
 
       # Build API
       - echo Building API...
-      - docker build -t $ECR_REGISTRY/cau-eleitoral/api:$IMAGE_TAG -t $ECR_REGISTRY/cau-eleitoral/api:latest -f infrastructure/docker/Dockerfile.api apps/api
+      - docker build --platform linux/amd64 -t $ECR_REGISTRY/cau-eleitoral/api:$IMAGE_TAG -t $ECR_REGISTRY/cau-eleitoral/api:latest -f infrastructure/docker/Dockerfile.api apps/api
 
       # Build Admin
       - echo Building Admin...
-      - docker build -t $ECR_REGISTRY/cau-eleitoral/admin:$IMAGE_TAG -t $ECR_REGISTRY/cau-eleitoral/admin:latest -f infrastructure/docker/Dockerfile.admin apps/admin
+      - docker build --platform linux/amd64 -t $ECR_REGISTRY/cau-eleitoral/admin:$IMAGE_TAG -t $ECR_REGISTRY/cau-eleitoral/admin:latest -f infrastructure/docker/Dockerfile.admin apps/admin
 
       # Build Public
       - echo Building Public...
-      - docker build -t $ECR_REGISTRY/cau-eleitoral/public:$IMAGE_TAG -t $ECR_REGISTRY/cau-eleitoral/public:latest -f infrastructure/docker/Dockerfile.public apps/public
+      - docker build --platform linux/amd64 -t $ECR_REGISTRY/cau-eleitoral/public:$IMAGE_TAG -t $ECR_REGISTRY/cau-eleitoral/public:latest -f infrastructure/docker/Dockerfile.public apps/public
 
   post_build:
     commands:

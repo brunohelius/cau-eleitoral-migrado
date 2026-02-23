@@ -1,20 +1,35 @@
 import { useQuery } from '@tanstack/react-query'
-import { Vote, Users, AlertTriangle, Flag, Calendar } from 'lucide-react'
+import { Vote, Users, AlertTriangle, Flag, Calendar, Loader2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { eleicoesService } from '@/services/eleicoes'
+import api from '@/services/api'
 
-const stats = [
-  { name: 'Eleições Ativas', value: '3', icon: Vote, color: 'text-blue-600' },
-  { name: 'Chapas Registradas', value: '12', icon: Users, color: 'text-green-600' },
-  { name: 'Denuncias Pendentes', value: '5', icon: AlertTriangle, color: 'text-yellow-600' },
-  { name: 'Impugnações', value: '2', icon: Flag, color: 'text-red-600' },
-]
+interface DiagData {
+  tables?: Record<string, number>
+  [key: string]: unknown
+}
 
 export function DashboardPage() {
   const { data: eleicoes, isLoading } = useQuery({
     queryKey: ['eleições-ativas'],
     queryFn: eleicoesService.getAtivas,
   })
+
+  const { data: diag, isLoading: isDiagLoading } = useQuery<DiagData>({
+    queryKey: ['admin-diag'],
+    queryFn: async () => {
+      const response = await api.get('/admin/diag')
+      return response.data
+    },
+  })
+
+  const tables = diag?.tables || {}
+  const stats = [
+    { name: 'Eleicoes Ativas', value: tables['Eleicoes'] ?? '-', icon: Vote, color: 'text-blue-600' },
+    { name: 'Chapas Registradas', value: tables['ChapasEleicao'] ?? '-', icon: Users, color: 'text-green-600' },
+    { name: 'Denuncias Pendentes', value: tables['Denuncias'] ?? '-', icon: AlertTriangle, color: 'text-yellow-600' },
+    { name: 'Impugnacoes', value: tables['Impugnacoes'] ?? '-', icon: Flag, color: 'text-red-600' },
+  ]
 
   return (
     <div className="space-y-6">
@@ -32,7 +47,9 @@ export function DashboardPage() {
               <stat.icon className={`h-4 w-4 ${stat.color}`} />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
+              <div className="text-2xl font-bold">
+                {isDiagLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : String(stat.value)}
+              </div>
             </CardContent>
           </Card>
         ))}

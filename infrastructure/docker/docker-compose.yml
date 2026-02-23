@@ -34,7 +34,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=cau_eleitoral;Username=postgres;Password=postgres
     ports:
-      - "${CAU_API_PORT:-5000}:8080"
+      - "${CAU_API_PORT:-5001}:8080"
     depends_on:
       postgres:
         condition: service_healthy

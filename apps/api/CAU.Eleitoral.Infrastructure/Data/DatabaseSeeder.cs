@@ -1916,8 +1916,8 @@ public class DatabaseSeeder
     {
         var saltBytes = RandomNumberGenerator.GetBytes(16);
         var salt = Convert.ToBase64String(saltBytes);
-        using var pbkdf2 = new Rfc2898DeriveBytes(password, saltBytes, 100000, HashAlgorithmName.SHA256);
-        var hash = Convert.ToBase64String(pbkdf2.GetBytes(32));
+        var hashBytes = Rfc2898DeriveBytes.Pbkdf2(password, saltBytes, 100000, HashAlgorithmName.SHA256, 32);
+        var hash = Convert.ToBase64String(hashBytes);
         return (hash, salt);
     }
 }

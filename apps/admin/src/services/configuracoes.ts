@@ -154,12 +154,66 @@ export interface BackupConfiguracao {
   createdAt: string
 }
 
+// Response from GET /configuracao - matches backend ConfiguracaoSistemaDto
+export interface ConfiguracaoGeral {
+  nomeSistema: string
+  versao: string
+  logoUrl?: string
+  faviconUrl?: string
+  corPrimaria?: string
+  corSecundaria?: string
+  modoManutencao: boolean
+  mensagemManutencao?: string
+  timeZone: string
+  locale: string
+}
+
+export interface ConfiguracaoEmail {
+  smtpHost: string
+  smtpPort: number
+  smtpUseSsl: boolean
+  smtpUsername?: string
+  smtpPassword?: string
+  emailRemetente: string
+  nomeRemetente: string
+  emailHabilitado: boolean
+}
+
+export interface ConfiguracaoVotacao {
+  permitirVotoBranco: boolean
+  permitirVotoNulo: boolean
+  mostrarResultadoParcial: boolean
+  notificarVotoRegistrado: boolean
+  tempoSessaoVotacaoEmMinutos: number
+  confirmacaoVotoObrigatoria: boolean
+  mensagemVotacao?: string
+  mensagemConfirmacao?: string
+}
+
+export interface ConfiguracaoSegurancaSistema {
+  tentativasLoginMax: number
+  tempoBloqueioConta: number
+  expiracaoSenhaEmDias: number
+  tamanhoMinimoSenha: number
+  requerLetraMaiuscula: boolean
+  requerNumero: boolean
+  requerCaractereEspecial: boolean
+  expiracaoTokenEmMinutos: number
+  expiracaoRefreshTokenEmDias: number
+  doisFatoresObrigatorio: boolean
+}
+
+export interface ConfiguracaoResponse {
+  geral: ConfiguracaoGeral
+  email: ConfiguracaoEmail
+  seguranca: ConfiguracaoSegurancaSistema
+  votacao: ConfiguracaoVotacao
+}
+
 export const configuracoesService = {
   // Configuracoes Gerais
-  getAll: async (tipo?: TipoConfiguracao): Promise<ConfiguracaoSistema[]> => {
-    const response = await api.get<ConfiguracaoSistema[]>('/configuracao', {
-      params: tipo !== undefined ? { tipo } : undefined,
-    })
+  getAll: async (): Promise<ConfiguracaoResponse> => {
+    const response = await api.get<ConfiguracaoResponse>('/configuracao')
     return response.data
   },
 

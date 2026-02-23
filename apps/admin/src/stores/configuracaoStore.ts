@@ -11,11 +11,11 @@ import type {
   BackupConfiguracao,
   TipoConfiguracao,
 } from '@/types'
-import { configuracoesService } from '@/services/configuracoes'
+import { configuracoesService, type ConfiguracaoResponse } from '@/services/configuracoes'
 
 interface ConfiguracaoState {
   // Data
-  configuracoes: ConfiguracaoSistema[]
+  configuracoes: ConfiguracaoResponse | null
   configEleicao: ConfiguracoesEleicao | null
   configNotificacao: ConfiguracoesNotificacao | null
   configSeguranca: ConfiguracoesSeguranca | null
@@ -44,7 +44,7 @@ interface ConfiguracaoState {
   error: string | null
 
   // Actions - Sistema
-  fetchConfiguracoes: (tipo?: TipoConfiguracao) => Promise<void>
+  fetchConfiguracoes: () => Promise<void>
   getConfiguracaoByChave: (chave: string) => Promise<ConfiguracaoSistema>
   updateConfiguracao: (chave: string, valor: string) => Promise<ConfiguracaoSistema>
   updateMultiplasConfiguracoes: (configuracoes: { chave: string; valor: string }[]) => Promise<ConfiguracaoSistema[]>
@@ -103,7 +103,7 @@ interface ConfiguracaoState {
 }
 
 const initialState = {
-  configuracoes: [],
+  configuracoes: null,
   configEleicao: null,
   configNotificacao: null,
   configSeguranca: null,
@@ -133,10 +133,10 @@ export const useConfiguracaoStore = create<ConfiguracaoState>()(
         ...initialState,
 
         // Sistema Actions
-        fetchConfiguracoes: async (tipo?: TipoConfiguracao) => {
+        fetchConfiguracoes: async () => {
           set({ isLoading: true, error: null })
           try {
-            const configuracoes = await configuracoesService.getAll(tipo)
+            const configuracoes = await configuracoesService.getAll()
             set({ configuracoes, isLoading: false })
           } catch (error) {
             const message = error instanceof Error ? error.message : 'Erro ao carregar configuracoes'
@@ -159,12 +159,7 @@ export const useConfiguracaoStore = create<ConfiguracaoState>()(
           set({ isSaving: true, error: null })
           try {
             const config = await configuracoesService.update(chave, valor)
-            set((state) => ({
-              configuracoes: state.configuracoes.map((c) =>
-                c.chave === chave ? config : c
-              ),
-              isSaving: false,
-            }))
+            set({ isSaving: false })
             return config
           } catch (error) {
             const message = error instanceof Error ? error.message : 'Erro ao atualizar configuracao'
@@ -523,7 +518,7 @@ export const useConfiguracaoStore = create<ConfiguracaoState>()(
                 get().fetchConfiguracoesAparencia(),
               ])
             } else {
-              await get().fetchConfiguracoes(tipo)
+              await get().fetchConfiguracoes()
             }
           } catch (error) {
             const message = error instanceof Error ? error.message : 'Erro ao resetar configuracoes'

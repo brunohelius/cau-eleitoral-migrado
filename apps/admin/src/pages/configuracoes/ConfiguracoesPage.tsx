@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/hooks/use-toast'
-import { configuracoesService } from '@/services/configuracoes'
+import { configuracoesService, type ConfiguracaoResponse } from '@/services/configuracoes'
 import {
   ConfiguracoesGerais,
   ConfiguracoesEleicoes,
@@ -38,7 +38,7 @@ export function ConfiguracoesPage() {
         versao: '1.0.0',
       }
       try {
-        const response = await configuracoesService.getAll() as any
+        const response: ConfiguracaoResponse = await configuracoesService.getAll()
         const geral = response?.geral || {}
         return {
           ...defaults,
