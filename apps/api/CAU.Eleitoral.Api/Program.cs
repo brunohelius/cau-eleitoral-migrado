@@ -1,14 +1,20 @@
 using System.Text;
+using Amazon;
+using Amazon.S3;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using QuestPDF.Infrastructure;
 using Serilog;
 using CAU.Eleitoral.Application.Interfaces;
 using CAU.Eleitoral.Application.Services;
 using CAU.Eleitoral.Domain.Interfaces.Repositories;
 using CAU.Eleitoral.Infrastructure.Data;
 using CAU.Eleitoral.Infrastructure.Repositories;
+using CAU.Eleitoral.Infrastructure.Services.Email;
+using CAU.Eleitoral.Infrastructure.Services.Pdf;
+using CAU.Eleitoral.Infrastructure.Services.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +26,9 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Host.UseSerilog();
+
+// Configure QuestPDF license
+QuestPDF.Settings.License = LicenseType.Community;
 
 // Add services to the container
 builder.Services.AddControllers();
@@ -129,6 +138,14 @@ builder.Services.AddCors(options =>
 // Register Repositories
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// Register Infrastructure Services (S3, PDF, Excel, Email)
+var awsRegion = builder.Configuration["AWS:Region"] ?? "us-east-1";
+builder.Services.AddSingleton<IAmazonS3>(new AmazonS3Client(RegionEndpoint.GetBySystemName(awsRegion)));
+builder.Services.AddSingleton<IS3StorageService, S3StorageService>();
+builder.Services.AddSingleton<IPdfExportService, PdfExportService>();
+builder.Services.AddSingleton<IExcelExportService, ExcelExportService>();
+builder.Services.AddSingleton<IEmailService, EmailService>();
 
 // Register Services
 builder.Services.AddScoped<IEleicaoService, EleicaoService>();

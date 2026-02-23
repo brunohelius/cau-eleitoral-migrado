@@ -6,6 +6,9 @@ using CAU.Eleitoral.Domain.Entities.Julgamentos;
 using CAU.Eleitoral.Domain.Entities.Usuarios;
 using CAU.Eleitoral.Domain.Enums;
 using CAU.Eleitoral.Infrastructure.Data;
+using CAU.Eleitoral.Infrastructure.Services.Email;
+using CAU.Eleitoral.Infrastructure.Services.Pdf;
+using CAU.Eleitoral.Infrastructure.Services.Storage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
@@ -344,7 +347,9 @@ public class FilialApiService : Controllers.IFilialService
 public class NotificacaoApiService : Controllers.INotificacaoService
 {
     private readonly AppDbContext _db;
-    public NotificacaoApiService(AppDbContext db) => _db = db;
+    private readonly IEmailService _email;
+    private readonly ILogger<NotificacaoApiService> _logger;
+    public NotificacaoApiService(AppDbContext db, IEmailService email, ILogger<NotificacaoApiService> logger) { _db = db; _email = email; _logger = logger; }
 
     private static TipoNotificacao ParseTipoNotificacao(string? tipo) => tipo switch
     {
@@ -425,6 +430,17 @@ public class NotificacaoApiService : Controllers.INotificacaoService
         };
         await _db.Notificacoes.AddAsync(n, ct);
         await _db.SaveChangesAsync(ct);
+
+        // Send email notification
+        var user = await _db.Usuarios.IgnoreQueryFilters().Where(u => !u.IsDeleted && u.Id == dto.UsuarioId).FirstOrDefaultAsync(ct);
+        if (user != null && !string.IsNullOrEmpty(user.Email))
+        {
+            var htmlBody = $"<h2>{dto.Titulo}</h2><p>{dto.Mensagem}</p>" +
+                (string.IsNullOrEmpty(dto.Link) ? "" : $"<p><a href=\"{dto.Link}\">Acessar</a></p>") +
+                "<hr/><p style=\"font-size:12px;color:#888;\">CAU Sistema Eleitoral</p>";
+            _ = _email.SendAsync(user.Email, $"[CAU Eleitoral] {dto.Titulo}", htmlBody, ct);
+        }
+
         return MapToDto(n);
     }
 
@@ -520,8 +536,9 @@ public class NotificacaoApiService : Controllers.INotificacaoService
 public class DocumentoApiService : Controllers.IDocumentoService
 {
     private readonly AppDbContext _db;
-    private readonly IWebHostEnvironment _env;
-    public DocumentoApiService(AppDbContext db, IWebHostEnvironment env) { _db = db; _env = env; }
+    private readonly IS3StorageService _s3;
+    private readonly ILogger<DocumentoApiService> _logger;
+    public DocumentoApiService(AppDbContext db, IS3StorageService s3, ILogger<DocumentoApiService> logger) { _db = db; _s3 = s3; _logger = logger; }
 
     private static Controllers.DocumentoDto MapToDto(CAU.Eleitoral.Domain.Entities.Documentos.Documento d) => new()
     {
@@ -579,22 +596,21 @@ public class DocumentoApiService : Controllers.IDocumentoService
 
     public async Task<Controllers.DocumentoDto> UploadAsync(IFormFile file, Guid eleicaoId, TipoDocumento tipo, CategoriaDocumento categoria, Guid userId, CancellationToken ct = default)
     {
-        var uploadsDir = Path.Combine(_env.ContentRootPath, "uploads", "documentos");
-        Directory.CreateDirectory(uploadsDir);
+        var docId = Guid.NewGuid();
+        var s3Key = $"documentos/{docId}/{file.FileName}";
 
-        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-        var filePath = Path.Combine(uploadsDir, fileName);
-
-        using (var stream = new FileStream(filePath, FileMode.Create))
+        using (var stream = file.OpenReadStream())
         {
-            await file.CopyToAsync(stream, ct);
+            await _s3.UploadAsync(stream, s3Key, file.ContentType, ct);
         }
+
+        _logger.LogInformation("Document uploaded to S3: {Key}", s3Key);
 
         var doc = new CAU.Eleitoral.Domain.Entities.Documentos.Documento
         {
-            EleicaoId = eleicaoId, Titulo = Path.GetFileNameWithoutExtension(file.FileName),
+            Id = docId, EleicaoId = eleicaoId, Titulo = Path.GetFileNameWithoutExtension(file.FileName),
             Tipo = tipo, Categoria = categoria, Status = StatusDocumento.Rascunho,
-            DataDocumento = DateTime.UtcNow, ArquivoUrl = $"/uploads/documentos/{fileName}",
+            DataDocumento = DateTime.UtcNow, ArquivoUrl = s3Key,
             ArquivoNome = file.FileName, ArquivoTipo = file.ContentType, ArquivoTamanho = file.Length
         };
         await _db.Documentos.AddAsync(doc, ct);
@@ -624,17 +640,14 @@ public class DocumentoApiService : Controllers.IDocumentoService
         var d = await _db.Documentos.IgnoreQueryFilters().Where(x => !x.IsDeleted).FirstOrDefaultAsync(x => x.Id == id, ct)
             ?? throw new KeyNotFoundException("Documento nao encontrado");
 
-        if (!string.IsNullOrEmpty(d.ArquivoUrl))
-        {
-            var filePath = Path.Combine(_env.ContentRootPath, d.ArquivoUrl.TrimStart('/'));
-            if (File.Exists(filePath))
-            {
-                var content = await File.ReadAllBytesAsync(filePath, ct);
-                return (content, d.ArquivoTipo ?? "application/octet-stream", d.ArquivoNome ?? "documento");
-            }
-        }
+        if (string.IsNullOrEmpty(d.ArquivoUrl))
+            throw new KeyNotFoundException("Arquivo do documento nao encontrado");
 
-        throw new KeyNotFoundException("Arquivo do documento nao encontrado");
+        var s3Key = d.ArquivoUrl.StartsWith("s3://") ? d.ArquivoUrl.Split('/', 4).Last() : d.ArquivoUrl;
+        using var stream = await _s3.DownloadAsync(s3Key, ct);
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms, ct);
+        return (ms.ToArray(), d.ArquivoTipo ?? "application/octet-stream", d.ArquivoNome ?? "documento");
     }
 
     public async Task<Controllers.DocumentoDto> EnviarParaRevisaoAsync(Guid id, CancellationToken ct = default)
@@ -903,7 +916,9 @@ public class JulgamentoApiService : Controllers.IJulgamentoService
 public class RelatorioApiService : Controllers.IRelatorioService
 {
     private readonly AppDbContext _db;
-    public RelatorioApiService(AppDbContext db) => _db = db;
+    private readonly IPdfExportService _pdf;
+    private readonly IExcelExportService _excel;
+    public RelatorioApiService(AppDbContext db, IPdfExportService pdf, IExcelExportService excel) { _db = db; _pdf = pdf; _excel = excel; }
 
     public Task<IEnumerable<TipoRelatorioDto>> GetTiposDisponiveisAsync(CancellationToken ct = default)
     {
@@ -986,6 +1001,42 @@ public class RelatorioApiService : Controllers.IRelatorioService
         return sb.ToString();
     }
 
+    private (Dictionary<string, string> Summary, List<string> Headers, List<List<string>> Rows) ParseJsonToTableData(string jsonData)
+    {
+        var summary = new Dictionary<string, string>();
+        var headers = new List<string>();
+        var rows = new List<List<string>>();
+
+        using var doc = JsonDocument.Parse(jsonData);
+        var root = doc.RootElement;
+
+        if (root.TryGetProperty("eleicaoNome", out var nome)) summary["Eleicao"] = nome.GetString() ?? "";
+        if (root.TryGetProperty("totalEleitores", out var te)) summary["Total Eleitores"] = te.GetInt32().ToString();
+        if (root.TryGetProperty("totalAptos", out var ta)) summary["Eleitores Aptos"] = ta.GetInt32().ToString();
+        if (root.TryGetProperty("totalVotos", out var tv)) summary["Total Votos"] = tv.GetInt32().ToString();
+        if (root.TryGetProperty("votosValidos", out var vv)) summary["Votos Validos"] = vv.GetInt32().ToString();
+        if (root.TryGetProperty("votosBrancos", out var vb)) summary["Votos Brancos"] = vb.GetInt32().ToString();
+        if (root.TryGetProperty("votosNulos", out var vn)) summary["Votos Nulos"] = vn.GetInt32().ToString();
+        if (root.TryGetProperty("participacao", out var part)) summary["Participacao"] = $"{part.GetDecimal()}%";
+
+        if (root.TryGetProperty("chapas", out var chapas) && chapas.ValueKind == JsonValueKind.Array)
+        {
+            headers.AddRange(new[] { "Nome", "Numero", "Votos", "Percentual" });
+            foreach (var chapa in chapas.EnumerateArray())
+            {
+                rows.Add(new List<string>
+                {
+                    chapa.TryGetProperty("nome", out var cn) ? cn.GetString() ?? "" : "",
+                    chapa.TryGetProperty("numero", out var cnum) ? cnum.ToString() : "",
+                    chapa.TryGetProperty("votos", out var cv) ? cv.GetInt32().ToString() : "0",
+                    chapa.TryGetProperty("percentual", out var cp) ? $"{cp.GetDecimal():F2}%" : "0%"
+                });
+            }
+        }
+
+        return (summary, headers, rows);
+    }
+
     private async Task<(byte[] Content, string ContentType, string FileName)> GenerateReport(string tipo, Guid eleicaoId, string formato, CancellationToken ct)
     {
         var json = await BuildJsonReport(tipo, eleicaoId, ct);
@@ -993,16 +1044,21 @@ public class RelatorioApiService : Controllers.IRelatorioService
         if (formato == "json")
             return (Encoding.UTF8.GetBytes(json), "application/json", $"{tipo}_{eleicaoId:N}.json");
 
+        var eleicao = await _db.Eleicoes.IgnoreQueryFilters().Where(e => !e.IsDeleted).FirstOrDefaultAsync(e => e.Id == eleicaoId, ct);
+        var eleicaoNome = eleicao?.Nome ?? "Eleicao";
+        var titulo = $"Relatorio de {char.ToUpper(tipo[0])}{tipo[1..]}";
+        var (summary, headers, rows) = ParseJsonToTableData(json);
+
         if (formato == "xlsx")
         {
-            var csv = BuildCsvReport(json, tipo);
-            return (Encoding.UTF8.GetBytes(csv), "text/csv", $"{tipo}_{eleicaoId:N}.csv");
+            var bytes = _excel.GenerateReport(titulo, eleicaoNome, DateTime.UtcNow, summary, headers, rows);
+            return (bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{tipo}_{eleicaoId:N}.xlsx");
         }
 
-        // PDF format - return formatted text report
-        var report = BuildCsvReport(json, tipo);
-        var header = $"=== CAU SISTEMA ELEITORAL ===\n=== RELATORIO: {tipo.ToUpper()} ===\n\n";
-        return (Encoding.UTF8.GetBytes(header + report), "application/pdf", $"{tipo}_{eleicaoId:N}.pdf");
+        // PDF format
+        var reportData = new ReportData { Summary = summary, TableHeaders = headers, TableRows = rows };
+        var pdfBytes = _pdf.GenerateReport(titulo, eleicaoNome, DateTime.UtcNow, reportData);
+        return (pdfBytes, "application/pdf", $"{tipo}_{eleicaoId:N}.pdf");
     }
 
     public Task<(byte[] Content, string ContentType, string FileName)> GerarRelatorioParticipacaoAsync(Guid eleicaoId, string formato, CancellationToken ct = default) => GenerateReport("participacao", eleicaoId, formato, ct);
