@@ -31,7 +31,10 @@ const julgamentoSchema = z.object({
   }),
   fundamentacao: z.string().min(50, 'A fundamentacao deve ter no mínimo 50 caracteres'),
   penalidade: z.string().optional(),
-  prazoRecurso: z.number().min(0).optional(),
+  prazoRecurso: z.preprocess(
+    (val) => (typeof val === 'number' && Number.isNaN(val) ? undefined : val),
+    z.number().min(0).optional()
+  ),
   notificarPartes: z.boolean().default(true),
 })
 
@@ -353,6 +356,9 @@ export function DenunciaJulgamentoPage() {
                     min={0}
                     {...register('prazoRecurso', { valueAsNumber: true })}
                   />
+                  {errors.prazoRecurso && (
+                    <p className="text-sm text-red-500">{errors.prazoRecurso.message}</p>
+                  )}
                 </div>
                 <div className="flex items-center gap-2 pt-8">
                   <input

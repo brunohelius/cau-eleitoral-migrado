@@ -892,6 +892,34 @@ public class VotacaoService : IVotacaoService
         return await _votoRepository.AnyAsync(v => v.HashVoto == hashVoto, cancellationToken);
     }
 
+    /// <summary>
+    /// Verifica um voto pelo codigo de comprovante ou hash (busca publica).
+    /// </summary>
+    public async Task<ComprovanteVotoLegadoDto?> VerificarVotoPorCodigoAsync(
+        string codigo,
+        CancellationToken cancellationToken = default)
+    {
+        var voto = await _votoRepository.Query()
+            .Include(v => v.Eleicao)
+            .Include(v => v.Chapa)
+            .FirstOrDefaultAsync(
+                v => v.Comprovante == codigo || v.HashVoto == codigo,
+                cancellationToken);
+
+        if (voto == null) return null;
+
+        return new ComprovanteVotoLegadoDto
+        {
+            Comprovante = voto.Comprovante ?? "",
+            HashVoto = voto.HashVoto,
+            DataVoto = voto.DataVoto,
+            EleicaoNome = voto.Eleicao?.Nome ?? "",
+            ChapaNome = voto.Chapa?.Nome,
+            TipoVoto = voto.Tipo,
+            Mensagem = "Voto verificado com sucesso"
+        };
+    }
+
     #endregion
 
     #region Eleitor Management

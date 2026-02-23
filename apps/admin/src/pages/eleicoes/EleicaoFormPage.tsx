@@ -12,20 +12,25 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useToast } from '@/hooks/use-toast'
 import { eleicoesService, CreateEleicaoRequest, UpdateEleicaoRequest } from '@/services/eleicoes'
 
+const nanToUndefined = z.preprocess(
+  (val) => (typeof val === 'number' && Number.isNaN(val) ? undefined : val),
+  z.number().optional()
+)
+
 const eleicaoSchema = z.object({
   nome: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
   descricao: z.string().optional(),
   tipo: z.number().min(0, 'Selecione um tipo'),
   ano: z.number().min(2020, 'Ano inválido').max(2100, 'Ano inválido'),
-  mandato: z.number().optional(),
+  mandato: nanToUndefined,
   dataInicio: z.string().min(1, 'Data de início é obrigatoria'),
   dataFim: z.string().min(1, 'Data de fim é obrigatoria'),
   dataVotacaoInicio: z.string().optional(),
   dataVotacaoFim: z.string().optional(),
   regionalId: z.string().optional(),
   modoVotacao: z.number().min(0, 'Selecione um modo de votação'),
-  quantidadeVagas: z.number().optional(),
-  quantidadeSuplentes: z.number().optional(),
+  quantidadeVagas: nanToUndefined,
+  quantidadeSuplentes: nanToUndefined,
 })
 
 type EleicaoFormData = z.infer<typeof eleicaoSchema>
@@ -313,6 +318,9 @@ export function EleicaoFormPage() {
                     placeholder="Ex: 4"
                     {...register('mandato', { valueAsNumber: true })}
                   />
+                  {errors.mandato && (
+                    <p className="text-sm text-red-500">{errors.mandato.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="quantidadeVagas">Quantidade de Vagas</Label>
@@ -322,6 +330,9 @@ export function EleicaoFormPage() {
                     placeholder="Ex: 10"
                     {...register('quantidadeVagas', { valueAsNumber: true })}
                   />
+                  {errors.quantidadeVagas && (
+                    <p className="text-sm text-red-500">{errors.quantidadeVagas.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="quantidadeSuplentes">Quantidade de Suplentes</Label>
@@ -331,6 +342,9 @@ export function EleicaoFormPage() {
                     placeholder="Ex: 5"
                     {...register('quantidadeSuplentes', { valueAsNumber: true })}
                   />
+                  {errors.quantidadeSuplentes && (
+                    <p className="text-sm text-red-500">{errors.quantidadeSuplentes.message}</p>
+                  )}
                 </div>
               </div>
             </CardContent>

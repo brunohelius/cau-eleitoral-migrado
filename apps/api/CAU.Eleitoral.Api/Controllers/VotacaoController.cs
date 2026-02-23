@@ -213,6 +213,45 @@ public class VotacaoController : BaseController
     }
 
     /// <summary>
+    /// Verifica um voto pelo codigo de comprovante ou hash (publico)
+    /// </summary>
+    /// <param name="hash">Codigo de comprovante ou hash do voto</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Resultado da verificacao</returns>
+    [HttpGet("verificar/{hash}")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> VerificarVotoHash(string hash, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var resultado = await _votacaoService.VerificarVotoPorCodigoAsync(hash, cancellationToken);
+
+            if (resultado == null)
+            {
+                return Ok(new
+                {
+                    valido = false,
+                    mensagem = "Voto nao encontrado"
+                });
+            }
+
+            return Ok(new
+            {
+                valido = true,
+                dataVoto = resultado.DataVoto,
+                eleicaoNome = resultado.EleicaoNome,
+                mensagem = "Voto verificado com sucesso"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao verificar voto com hash {Hash}", hash);
+            return InternalError("Erro ao verificar voto");
+        }
+    }
+
+    /// <summary>
     /// Obtem as chapas de uma eleicao para votacao (formato simplificado)
     /// </summary>
     /// <param name="eleicaoId">ID da eleicao</param>

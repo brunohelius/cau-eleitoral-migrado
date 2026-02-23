@@ -302,22 +302,47 @@ public class DatabaseSeeder
             .ToListAsync();
 
         var regionais = await _context.RegionaisCAU.ToListAsync();
+
+        // Fixed RegistroCAU assignments for documented test credentials
+        var fixedRegistroCAU = new Dictionary<string, (string RegistroCAU, string UF)>
+        {
+            { "45555555551", ("A000018-DF", "DF") },  // Candidato 1
+            { "45555555552", ("A000019-SP", "SP") },   // Candidato 2
+            { "45555555553", ("A000020-RJ", "RJ") },   // Candidato 3
+            { "60000000003", ("A000005-SP", "SP") },   // Eleitor documented in CLAUDE.md
+        };
+
         var counter = 1;
 
         foreach (var usuario in usuariosProfissionais)
         {
-            var regional = regionais[counter % regionais.Count];
+            string registroCAU;
+            Guid regionalId;
+
+            if (usuario.Cpf != null && fixedRegistroCAU.TryGetValue(usuario.Cpf, out var fixedData))
+            {
+                registroCAU = fixedData.RegistroCAU;
+                var matchedRegional = regionais.FirstOrDefault(r => r.UF == fixedData.UF) ?? regionais[counter % regionais.Count];
+                regionalId = matchedRegional.Id;
+            }
+            else
+            {
+                var regional = regionais[counter % regionais.Count];
+                registroCAU = $"A{counter:D6}-{regional.UF}";
+                regionalId = regional.Id;
+            }
+
             await _context.Profissionais.AddAsync(new Profissional
             {
                 UsuarioId = usuario.Id,
-                RegistroCAU = $"A{counter:D6}-{regional.UF}",
+                RegistroCAU = registroCAU,
                 Nome = usuario.Nome,
                 NomeCompleto = usuario.Nome,
                 Cpf = usuario.Cpf ?? $"000{counter:D8}",
                 Email = usuario.Email,
                 Tipo = counter % 2 == 0 ? TipoProfissional.Arquiteto : TipoProfissional.ArquitetoUrbanista,
                 Status = StatusProfissional.Ativo,
-                RegionalId = regional.Id,
+                RegionalId = regionalId,
                 EleitorApto = true,
                 DataRegistro = DateTime.UtcNow.AddYears(-(counter % 10))
             });

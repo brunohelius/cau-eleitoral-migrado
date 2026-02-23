@@ -86,6 +86,11 @@ public interface IVotacaoService
     /// </summary>
     Task<bool> VerificarVotoAsync(string hashVoto, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Verifica um voto pelo codigo de comprovante ou hash (busca publica)
+    /// </summary>
+    Task<ComprovanteVotoLegadoDto?> VerificarVotoPorCodigoAsync(string codigo, CancellationToken cancellationToken = default);
+
     // ===== Eleitor Management =====
 
     Task<EleitorDto?> GetEleitorByIdAsync(Guid id, CancellationToken cancellationToken = default);

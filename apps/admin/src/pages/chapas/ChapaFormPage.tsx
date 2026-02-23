@@ -21,7 +21,10 @@ import { eleicoesService } from '@/services/eleicoes'
 // Validation schema
 const chapaSchema = z.object({
   nome: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
-  numero: z.number().min(1, 'Numero é obrigatório'),
+  numero: z.preprocess(
+    (val) => (typeof val === 'number' && Number.isNaN(val) ? undefined : val),
+    z.number({ required_error: 'Numero é obrigatório' }).min(1, 'Numero é obrigatório')
+  ),
   sigla: z.string().max(10, 'Sigla muito longa').optional().or(z.literal('')),
   lema: z.string().optional().or(z.literal('')),
   descricao: z.string().optional().or(z.literal('')),
