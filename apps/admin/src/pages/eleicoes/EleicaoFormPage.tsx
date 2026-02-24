@@ -134,10 +134,17 @@ export function EleicaoFormPage() {
   })
 
   const onSubmit = (data: EleicaoFormData) => {
+    const payload = {
+      ...data,
+      dataInicio: data.dataInicio ? `${data.dataInicio}T00:00:00Z` : data.dataInicio,
+      dataFim: data.dataFim ? `${data.dataFim}T00:00:00Z` : data.dataFim,
+      dataVotacaoInicio: data.dataVotacaoInicio ? `${data.dataVotacaoInicio}T00:00:00Z` : undefined,
+      dataVotacaoFim: data.dataVotacaoFim ? `${data.dataVotacaoFim}T00:00:00Z` : undefined,
+    }
     if (isEditing) {
-      updateMutation.mutate(data)
+      updateMutation.mutate(payload)
     } else {
-      createMutation.mutate(data as CreateEleicaoRequest)
+      createMutation.mutate(payload as CreateEleicaoRequest)
     }
   }
 
