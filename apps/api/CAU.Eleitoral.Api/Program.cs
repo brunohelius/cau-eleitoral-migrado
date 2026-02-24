@@ -257,6 +257,18 @@ if (adminMaintenanceRequested && !string.IsNullOrWhiteSpace(adminSeedKey))
         var chapaCount = await db.Chapas.CountAsync();
         var membroCount = await db.MembrosChapa.CountAsync();
 
+        // Check test credential profissionais
+        var testCpfs = new[] { "45555555551", "45555555552", "60000000003" };
+        var testProfissionais = await db.Profissionais
+            .IgnoreQueryFilters()
+            .Where(p => testCpfs.Contains(p.Cpf))
+            .Select(p => new { p.Cpf, p.RegistroCAU, p.Nome, p.UsuarioId, p.IsDeleted })
+            .ToListAsync();
+
+        var profCount = await db.Profissionais.CountAsync();
+        var profTotal = await db.Profissionais.IgnoreQueryFilters().CountAsync();
+        var usuarioCount = await db.Usuarios.CountAsync();
+
         return Results.Ok(new
         {
             calendarios = new { filtered = calFiltered, total = calTotal, deleted = calDeleted },
@@ -264,7 +276,10 @@ if (adminMaintenanceRequested && !string.IsNullOrWhiteSpace(adminSeedKey))
             editais = editalCount,
             eleicoes = eleicaoCount,
             chapas = chapaCount,
-            membrosChapa = membroCount
+            membrosChapa = membroCount,
+            profissionais = new { filtered = profCount, total = profTotal },
+            usuarios = usuarioCount,
+            testCredentials = testProfissionais
         });
     });
 
