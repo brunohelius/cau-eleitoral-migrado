@@ -252,6 +252,48 @@ public class VotacaoController : BaseController
     }
 
     /// <summary>
+    /// Valida um comprovante de voto por protocolo e/ou hash (publico)
+    /// </summary>
+    [HttpPost("validar-comprovante")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> ValidarComprovante(
+        [FromBody] ValidarComprovanteRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var codigo = !string.IsNullOrWhiteSpace(request.Protocolo) ? request.Protocolo : request.Hash;
+            if (string.IsNullOrWhiteSpace(codigo))
+                return Ok(new { valido = false, mensagem = "Codigo de verificacao nao informado" });
+
+            var resultado = await _votacaoService.VerificarVotoPorCodigoAsync(codigo, cancellationToken);
+
+            if (resultado == null)
+            {
+                return Ok(new
+                {
+                    valido = false,
+                    mensagem = "Comprovante nao encontrado"
+                });
+            }
+
+            return Ok(new
+            {
+                valido = true,
+                dataVoto = resultado.DataVoto,
+                eleicaoNome = resultado.EleicaoNome,
+                mensagem = "Voto verificado com sucesso"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao validar comprovante");
+            return InternalError("Erro ao validar comprovante");
+        }
+    }
+
+    /// <summary>
     /// Obtem as chapas de uma eleicao para votacao (formato simplificado)
     /// </summary>
     /// <param name="eleicaoId">ID da eleicao</param>
@@ -495,3 +537,4 @@ public class VotacaoController : BaseController
 
 // Request DTOs (simple records for request bodies)
 public record AnularVotoRequest(string Motivo);
+public record ValidarComprovanteRequest(string? Protocolo, string? Hash);
