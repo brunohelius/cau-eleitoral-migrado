@@ -293,16 +293,6 @@ public class DatabaseSeeder
 
     private async Task SeedProfissionaisAsync()
     {
-        if (await _context.Profissionais.AnyAsync()) return;
-
-        _logger.LogInformation("Criando profissionais...");
-
-        var usuariosProfissionais = await _context.Usuarios
-            .Where(u => u.Tipo == TipoUsuario.Profissional || u.Tipo == TipoUsuario.Eleitor || u.Tipo == TipoUsuario.Candidato)
-            .ToListAsync();
-
-        var regionais = await _context.RegionaisCAU.ToListAsync();
-
         // Fixed RegistroCAU assignments for documented test credentials
         var fixedRegistroCAU = new Dictionary<string, (string RegistroCAU, string UF)>
         {
@@ -312,6 +302,35 @@ public class DatabaseSeeder
             { "60000000003", ("A000005-SP", "SP") },   // Eleitor documented in CLAUDE.md
         };
 
+        // Always fix RegistroCAU for documented test credentials (even if profissionais already exist)
+        if (await _context.Profissionais.AnyAsync())
+        {
+            var existingRegionais = await _context.RegionaisCAU.ToListAsync();
+            var updated = false;
+            foreach (var (cpf, fixedData) in fixedRegistroCAU)
+            {
+                var prof = await _context.Profissionais.FirstOrDefaultAsync(p => p.Cpf == cpf);
+                if (prof != null && prof.RegistroCAU != fixedData.RegistroCAU)
+                {
+                    _logger.LogInformation("Corrigindo RegistroCAU de {Cpf}: {Old} -> {New}", cpf, prof.RegistroCAU, fixedData.RegistroCAU);
+                    prof.RegistroCAU = fixedData.RegistroCAU;
+                    var matchedRegional = existingRegionais.FirstOrDefault(r => r.UF == fixedData.UF);
+                    if (matchedRegional != null)
+                        prof.RegionalId = matchedRegional.Id;
+                    updated = true;
+                }
+            }
+            if (updated) await _context.SaveChangesAsync();
+            return;
+        }
+
+        _logger.LogInformation("Criando profissionais...");
+
+        var usuariosProfissionais = await _context.Usuarios
+            .Where(u => u.Tipo == TipoUsuario.Profissional || u.Tipo == TipoUsuario.Eleitor || u.Tipo == TipoUsuario.Candidato)
+            .ToListAsync();
+
+        var regionais = await _context.RegionaisCAU.ToListAsync();
         var counter = 1;
 
         foreach (var usuario in usuariosProfissionais)
