@@ -2,6 +2,7 @@ using CAU.Eleitoral.Api.Controllers;
 using CAU.Eleitoral.Application.DTOs;
 using CAU.Eleitoral.Domain.Entities.Chapas;
 using CAU.Eleitoral.Domain.Entities.Core;
+using CAU.Eleitoral.Domain.Entities.Documentos;
 using CAU.Eleitoral.Domain.Entities.Julgamentos;
 using CAU.Eleitoral.Domain.Entities.Usuarios;
 using CAU.Eleitoral.Domain.Enums;
@@ -11,6 +12,7 @@ using CAU.Eleitoral.Infrastructure.Services.Pdf;
 using CAU.Eleitoral.Infrastructure.Services.Storage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json;
 
@@ -349,6 +351,7 @@ public class NotificacaoApiService : Controllers.INotificacaoService
     private readonly AppDbContext _db;
     private readonly IEmailService _email;
     private readonly ILogger<NotificacaoApiService> _logger;
+    private static readonly ConcurrentDictionary<Guid, ConfiguracaoNotificacaoDto> _configuracoesUsuario = new();
     public NotificacaoApiService(AppDbContext db, IEmailService email, ILogger<NotificacaoApiService> logger) { _db = db; _email = email; _logger = logger; }
 
     private static TipoNotificacao ParseTipoNotificacao(string? tipo) => tipo switch
@@ -384,8 +387,29 @@ public class NotificacaoApiService : Controllers.INotificacaoService
 
     public async Task<ContagemNotificacoesDto> GetContagemNaoLidasAsync(Guid userId, CancellationToken ct = default)
     {
-        var count = await _db.Notificacoes.IgnoreQueryFilters().Where(n => !n.IsDeleted && n.UsuarioId == userId && !n.Lida).CountAsync(ct);
-        return new ContagemNotificacoesDto { Total = count, NaoLidas = count };
+        var total = await _db.Notificacoes.IgnoreQueryFilters().Where(n => !n.IsDeleted && n.UsuarioId == userId).CountAsync(ct);
+        var naoLidas = await _db.Notificacoes.IgnoreQueryFilters().Where(n => !n.IsDeleted && n.UsuarioId == userId && !n.Lida).CountAsync(ct);
+        return new ContagemNotificacoesDto { Total = total, NaoLidas = naoLidas, AltaPrioridade = 0 };
+    }
+
+    private static string BuildEmailBody(string titulo, string mensagem, string? link)
+    {
+        return $"<h2>{titulo}</h2><p>{mensagem}</p>" +
+               (string.IsNullOrEmpty(link) ? "" : $"<p><a href=\"{link}\">Acessar</a></p>") +
+               "<hr/><p style=\"font-size:12px;color:#888;\">CAU Sistema Eleitoral</p>";
+    }
+
+    private async Task EnviarEmailSeDisponivelAsync(Guid userId, string titulo, string mensagem, string? link, CancellationToken ct)
+    {
+        var user = await _db.Usuarios.IgnoreQueryFilters()
+            .Where(u => !u.IsDeleted && u.Id == userId)
+            .FirstOrDefaultAsync(ct);
+
+        if (user == null || string.IsNullOrWhiteSpace(user.Email))
+            return;
+
+        var htmlBody = BuildEmailBody(titulo, mensagem, link);
+        await _email.SendAsync(user.Email, $"[CAU Eleitoral] {titulo}", htmlBody, ct);
     }
 
     public async Task<NotificacaoDto> MarcarComoLidaAsync(Guid id, Guid userId, CancellationToken ct = default)
@@ -431,15 +455,7 @@ public class NotificacaoApiService : Controllers.INotificacaoService
         await _db.Notificacoes.AddAsync(n, ct);
         await _db.SaveChangesAsync(ct);
 
-        // Send email notification
-        var user = await _db.Usuarios.IgnoreQueryFilters().Where(u => !u.IsDeleted && u.Id == dto.UsuarioId).FirstOrDefaultAsync(ct);
-        if (user != null && !string.IsNullOrEmpty(user.Email))
-        {
-            var htmlBody = $"<h2>{dto.Titulo}</h2><p>{dto.Mensagem}</p>" +
-                (string.IsNullOrEmpty(dto.Link) ? "" : $"<p><a href=\"{dto.Link}\">Acessar</a></p>") +
-                "<hr/><p style=\"font-size:12px;color:#888;\">CAU Sistema Eleitoral</p>";
-            _ = _email.SendAsync(user.Email, $"[CAU Eleitoral] {dto.Titulo}", htmlBody, ct);
-        }
+        await EnviarEmailSeDisponivelAsync(dto.UsuarioId, dto.Titulo, dto.Mensagem, dto.Link, ct);
 
         return MapToDto(n);
     }
@@ -495,7 +511,22 @@ public class NotificacaoApiService : Controllers.INotificacaoService
             }
         }
 
-        if (sucesso > 0) await _db.SaveChangesAsync(ct);
+        if (sucesso > 0)
+        {
+            await _db.SaveChangesAsync(ct);
+
+            foreach (var userId in userIds)
+            {
+                try
+                {
+                    await EnviarEmailSeDisponivelAsync(userId, dto.Titulo, dto.Mensagem, dto.Link, ct);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Falha no envio de email para notificacao em massa (usuario {UserId})", userId);
+                }
+            }
+        }
 
         return new ResultadoEnvioMassaDto
         {
@@ -505,30 +536,48 @@ public class NotificacaoApiService : Controllers.INotificacaoService
     }
 
     public Task<ConfiguracaoNotificacaoDto> GetConfiguracoesAsync(Guid userId, CancellationToken ct = default)
-        => Task.FromResult(new ConfiguracaoNotificacaoDto
-        {
-            EmailHabilitado = true, NotificacaoEleicao = true, NotificacaoVotacao = true,
-            NotificacaoResultado = true, NotificacaoSistema = true, NotificacaoDenuncia = true,
-            NotificacaoImpugnacao = true, FrequenciaResumo = "diario"
-        });
-
-    public Task<ConfiguracaoNotificacaoDto> UpdateConfiguracoesAsync(Guid userId, UpdateConfiguracaoNotificacaoDto dto, CancellationToken ct = default)
     {
+        if (_configuracoesUsuario.TryGetValue(userId, out var config))
+            return Task.FromResult(config);
+
+        var padrao = new ConfiguracaoNotificacaoDto
+        {
+            EmailHabilitado = true,
+            PushHabilitado = false,
+            SmsHabilitado = false,
+            NotificacaoEleicao = true,
+            NotificacaoVotacao = true,
+            NotificacaoResultado = true,
+            NotificacaoSistema = true,
+            NotificacaoDenuncia = true,
+            NotificacaoImpugnacao = true,
+            ResumoDigital = false,
+            FrequenciaResumo = "diario"
+        };
+
+        _configuracoesUsuario[userId] = padrao;
+        return Task.FromResult(padrao);
+    }
+
+    public async Task<ConfiguracaoNotificacaoDto> UpdateConfiguracoesAsync(Guid userId, UpdateConfiguracaoNotificacaoDto dto, CancellationToken ct = default)
+    {
+        var atual = await GetConfiguracoesAsync(userId, ct);
         var config = new ConfiguracaoNotificacaoDto
         {
-            EmailHabilitado = dto.EmailHabilitado ?? true,
-            PushHabilitado = dto.PushHabilitado ?? false,
-            SmsHabilitado = dto.SmsHabilitado ?? false,
-            NotificacaoEleicao = dto.NotificacaoEleicao ?? true,
-            NotificacaoDenuncia = dto.NotificacaoDenuncia ?? true,
-            NotificacaoImpugnacao = dto.NotificacaoImpugnacao ?? true,
-            NotificacaoVotacao = dto.NotificacaoVotacao ?? true,
-            NotificacaoResultado = dto.NotificacaoResultado ?? true,
-            NotificacaoSistema = dto.NotificacaoSistema ?? true,
-            ResumoDigital = dto.ResumoDigital ?? false,
-            FrequenciaResumo = dto.FrequenciaResumo ?? "diario"
+            EmailHabilitado = dto.EmailHabilitado ?? atual.EmailHabilitado,
+            PushHabilitado = dto.PushHabilitado ?? atual.PushHabilitado,
+            SmsHabilitado = dto.SmsHabilitado ?? atual.SmsHabilitado,
+            NotificacaoEleicao = dto.NotificacaoEleicao ?? atual.NotificacaoEleicao,
+            NotificacaoDenuncia = dto.NotificacaoDenuncia ?? atual.NotificacaoDenuncia,
+            NotificacaoImpugnacao = dto.NotificacaoImpugnacao ?? atual.NotificacaoImpugnacao,
+            NotificacaoVotacao = dto.NotificacaoVotacao ?? atual.NotificacaoVotacao,
+            NotificacaoResultado = dto.NotificacaoResultado ?? atual.NotificacaoResultado,
+            NotificacaoSistema = dto.NotificacaoSistema ?? atual.NotificacaoSistema,
+            ResumoDigital = dto.ResumoDigital ?? atual.ResumoDigital,
+            FrequenciaResumo = dto.FrequenciaResumo ?? atual.FrequenciaResumo
         };
-        return Task.FromResult(config);
+        _configuracoesUsuario[userId] = config;
+        return config;
     }
 }
 
@@ -539,6 +588,13 @@ public class DocumentoApiService : Controllers.IDocumentoService
     private readonly IS3StorageService _s3;
     private readonly ILogger<DocumentoApiService> _logger;
     public DocumentoApiService(AppDbContext db, IS3StorageService s3, ILogger<DocumentoApiService> logger) { _db = db; _s3 = s3; _logger = logger; }
+
+    private static string GetLocalDocumentDirectory(Guid docId)
+    {
+        var directory = Path.Combine(AppContext.BaseDirectory, "documentos", docId.ToString("N"));
+        Directory.CreateDirectory(directory);
+        return directory;
+    }
 
     private static Controllers.DocumentoDto MapToDto(CAU.Eleitoral.Domain.Entities.Documentos.Documento d) => new()
     {
@@ -597,21 +653,34 @@ public class DocumentoApiService : Controllers.IDocumentoService
     public async Task<Controllers.DocumentoDto> UploadAsync(IFormFile file, Guid eleicaoId, TipoDocumento tipo, CategoriaDocumento categoria, Guid userId, CancellationToken ct = default)
     {
         var docId = Guid.NewGuid();
-        var s3Key = $"documentos/{docId}/{file.FileName}";
+        var safeFileName = Path.GetFileName(file.FileName);
+        var s3Key = $"documentos/{docId}/{safeFileName}";
+        string arquivoUrl;
 
-        using (var stream = file.OpenReadStream())
+        try
         {
-            await _s3.UploadAsync(stream, s3Key, file.ContentType, ct);
+            using var stream = file.OpenReadStream();
+            arquivoUrl = await _s3.UploadAsync(stream, s3Key, file.ContentType, ct);
+            _logger.LogInformation("Document uploaded to S3: {Key}", s3Key);
         }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Falha no upload S3 para documento {DocumentId}. Aplicando fallback para arquivo local.", docId);
 
-        _logger.LogInformation("Document uploaded to S3: {Key}", s3Key);
+            var localDirectory = GetLocalDocumentDirectory(docId);
+            var localPath = Path.Combine(localDirectory, safeFileName);
+            await using var output = File.Create(localPath);
+            await using var input = file.OpenReadStream();
+            await input.CopyToAsync(output, ct);
+            arquivoUrl = localPath;
+        }
 
         var doc = new CAU.Eleitoral.Domain.Entities.Documentos.Documento
         {
             Id = docId, EleicaoId = eleicaoId, Titulo = Path.GetFileNameWithoutExtension(file.FileName),
             Tipo = tipo, Categoria = categoria, Status = StatusDocumento.Rascunho,
-            DataDocumento = DateTime.UtcNow, ArquivoUrl = s3Key,
-            ArquivoNome = file.FileName, ArquivoTipo = file.ContentType, ArquivoTamanho = file.Length
+            DataDocumento = DateTime.UtcNow, ArquivoUrl = arquivoUrl,
+            ArquivoNome = safeFileName, ArquivoTipo = file.ContentType, ArquivoTamanho = file.Length
         };
         await _db.Documentos.AddAsync(doc, ct);
         await _db.SaveChangesAsync(ct);
@@ -643,7 +712,16 @@ public class DocumentoApiService : Controllers.IDocumentoService
         if (string.IsNullOrEmpty(d.ArquivoUrl))
             throw new KeyNotFoundException("Arquivo do documento nao encontrado");
 
-        var s3Key = d.ArquivoUrl.StartsWith("s3://") ? d.ArquivoUrl.Split('/', 4).Last() : d.ArquivoUrl;
+        if (Path.IsPathRooted(d.ArquivoUrl) && File.Exists(d.ArquivoUrl))
+        {
+            var localBytes = await File.ReadAllBytesAsync(d.ArquivoUrl, ct);
+            return (localBytes, d.ArquivoTipo ?? "application/octet-stream", d.ArquivoNome ?? "documento");
+        }
+
+        var s3Key = d.ArquivoUrl.StartsWith("s3://", StringComparison.OrdinalIgnoreCase)
+            ? d.ArquivoUrl.Split('/', 4).Last()
+            : d.ArquivoUrl;
+
         using var stream = await _s3.DownloadAsync(s3Key, ct);
         using var ms = new MemoryStream();
         await stream.CopyToAsync(ms, ct);
@@ -918,18 +996,49 @@ public class RelatorioApiService : Controllers.IRelatorioService
     private readonly AppDbContext _db;
     private readonly IPdfExportService _pdf;
     private readonly IExcelExportService _excel;
-    public RelatorioApiService(AppDbContext db, IPdfExportService pdf, IExcelExportService excel) { _db = db; _pdf = pdf; _excel = excel; }
+    private readonly ILogger<RelatorioApiService> _logger;
+
+    private const string ExportDirectoryName = "exports";
+    private static readonly ConcurrentDictionary<Guid, ReportArtifact> _artifacts = new();
+
+    private sealed record ReportArtifact(
+        Guid Id,
+        Guid? EleicaoId,
+        string Tipo,
+        string Formato,
+        string ContentType,
+        string FileName,
+        string FilePath,
+        long Size,
+        DateTime GeneratedAt,
+        int? TotalRegistros
+    );
+
+    public RelatorioApiService(
+        AppDbContext db,
+        IPdfExportService pdf,
+        IExcelExportService excel,
+        ILogger<RelatorioApiService> logger)
+    {
+        _db = db;
+        _pdf = pdf;
+        _excel = excel;
+        _logger = logger;
+    }
 
     public Task<IEnumerable<TipoRelatorioDto>> GetTiposDisponiveisAsync(CancellationToken ct = default)
     {
         var tipos = new List<TipoRelatorioDto>
         {
-            new() { Codigo = "participacao", Nome = "Participacao", FormatosDisponiveis = new() { "pdf", "xlsx", "json" }, RequerEleicao = true },
-            new() { Codigo = "resultado", Nome = "Resultado", FormatosDisponiveis = new() { "pdf", "xlsx", "json" }, RequerEleicao = true },
-            new() { Codigo = "chapas", Nome = "Chapas", FormatosDisponiveis = new() { "pdf", "xlsx", "json" }, RequerEleicao = true },
-            new() { Codigo = "eleitores", Nome = "Eleitores", FormatosDisponiveis = new() { "pdf", "xlsx", "json" }, RequerEleicao = true },
-            new() { Codigo = "denuncias", Nome = "Denuncias", FormatosDisponiveis = new() { "pdf", "xlsx", "json" }, RequerEleicao = true },
-            new() { Codigo = "consolidado", Nome = "Consolidado", FormatosDisponiveis = new() { "pdf", "json" }, RequerEleicao = true },
+            new() { Codigo = "participacao", Nome = "Participacao", FormatosDisponiveis = new() { "pdf", "xlsx", "csv", "json" }, RequerEleicao = true },
+            new() { Codigo = "resultado", Nome = "Resultado", FormatosDisponiveis = new() { "pdf", "xlsx", "csv", "json" }, RequerEleicao = true },
+            new() { Codigo = "chapas", Nome = "Chapas", FormatosDisponiveis = new() { "pdf", "xlsx", "csv", "json" }, RequerEleicao = true },
+            new() { Codigo = "eleitores", Nome = "Eleitores", FormatosDisponiveis = new() { "pdf", "xlsx", "csv", "json" }, RequerEleicao = true },
+            new() { Codigo = "denuncias", Nome = "Denuncias", FormatosDisponiveis = new() { "pdf", "xlsx", "csv", "json" }, RequerEleicao = true },
+            new() { Codigo = "impugnacoes", Nome = "Impugnacoes", FormatosDisponiveis = new() { "pdf", "xlsx", "csv", "json" }, RequerEleicao = true },
+            new() { Codigo = "auditoria", Nome = "Auditoria", FormatosDisponiveis = new() { "pdf", "xlsx", "csv", "json" }, RequerEleicao = true },
+            new() { Codigo = "consolidado", Nome = "Consolidado", FormatosDisponiveis = new() { "pdf", "xlsx", "csv", "json" }, RequerEleicao = true },
+            new() { Codigo = "comparativo", Nome = "Comparativo", FormatosDisponiveis = new() { "pdf", "xlsx", "csv", "json" }, RequerEleicao = true },
         };
         return Task.FromResult<IEnumerable<TipoRelatorioDto>>(tipos);
     }
@@ -966,6 +1075,63 @@ public class RelatorioApiService : Controllers.IRelatorioService
         });
     }
 
+    private async Task<string> BuildJsonComparativoReport(IReadOnlyCollection<Guid> eleicaoIds, CancellationToken ct)
+    {
+        var ids = eleicaoIds.Where(id => id != Guid.Empty).Distinct().ToList();
+        if (!ids.Any())
+            return "{}";
+
+        var eleicoes = await _db.Eleicoes.IgnoreQueryFilters()
+            .Where(e => !e.IsDeleted && ids.Contains(e.Id))
+            .OrderBy(e => e.Ano)
+            .ThenBy(e => e.Nome)
+            .ToListAsync(ct);
+
+        var comparativo = new List<object>();
+        var totalAptos = 0;
+        var totalVotos = 0;
+
+        foreach (var eleicao in eleicoes)
+        {
+            var votos = await _db.Votos.IgnoreQueryFilters()
+                .Where(v => !v.IsDeleted && v.EleicaoId == eleicao.Id)
+                .CountAsync(ct);
+            var aptos = await _db.Eleitores.IgnoreQueryFilters()
+                .Where(e => !e.IsDeleted && e.EleicaoId == eleicao.Id && e.Apto)
+                .CountAsync(ct);
+            var chapas = await _db.Chapas.IgnoreQueryFilters()
+                .Where(c => !c.IsDeleted && c.EleicaoId == eleicao.Id)
+                .CountAsync(ct);
+
+            totalAptos += aptos;
+            totalVotos += votos;
+
+            comparativo.Add(new
+            {
+                eleicaoId = eleicao.Id,
+                eleicaoNome = eleicao.Nome,
+                ano = eleicao.Ano,
+                totalAptos = aptos,
+                totalVotos = votos,
+                totalChapas = chapas,
+                participacao = aptos > 0 ? Math.Round((decimal)votos / aptos * 100, 2) : 0
+            });
+        }
+
+        var participacaoMedia = totalAptos > 0 ? Math.Round((decimal)totalVotos / totalAptos * 100, 2) : 0;
+
+        return JsonSerializer.Serialize(new
+        {
+            tipo = "comparativo",
+            totalEleicoes = comparativo.Count,
+            totalAptos,
+            totalVotos,
+            participacaoMedia,
+            eleicoesComparadas = comparativo,
+            geradoEm = DateTime.UtcNow
+        });
+    }
+
     private string BuildCsvReport(string jsonData, string tipo)
     {
         var sb = new StringBuilder();
@@ -986,7 +1152,21 @@ public class RelatorioApiService : Controllers.IRelatorioService
         if (root.TryGetProperty("participacao", out var part)) sb.AppendLine($"Participacao: {part.GetDecimal()}%");
         sb.AppendLine();
 
-        if (root.TryGetProperty("chapas", out var chapas) && chapas.ValueKind == JsonValueKind.Array)
+        if (root.TryGetProperty("eleicoesComparadas", out var comparativo) && comparativo.ValueKind == JsonValueKind.Array)
+        {
+            sb.AppendLine("Eleicao;Ano;Aptos;Votos;Chapas;Participacao");
+            foreach (var item in comparativo.EnumerateArray())
+            {
+                var nomeEleicao = item.TryGetProperty("eleicaoNome", out var n) ? n.GetString() : "";
+                var ano = item.TryGetProperty("ano", out var a) ? a.GetInt32().ToString() : "";
+                var aptos = item.TryGetProperty("totalAptos", out var ap) ? ap.GetInt32().ToString() : "0";
+                var votos = item.TryGetProperty("totalVotos", out var v) ? v.GetInt32().ToString() : "0";
+                var chapas = item.TryGetProperty("totalChapas", out var c) ? c.GetInt32().ToString() : "0";
+                var participacao = item.TryGetProperty("participacao", out var p) ? p.GetDecimal().ToString("F2") : "0.00";
+                sb.AppendLine($"{nomeEleicao};{ano};{aptos};{votos};{chapas};{participacao}%");
+            }
+        }
+        else if (root.TryGetProperty("chapas", out var chapas) && chapas.ValueKind == JsonValueKind.Array)
         {
             sb.AppendLine("Nome;Numero;Votos;Percentual");
             foreach (var chapa in chapas.EnumerateArray())
@@ -1019,7 +1199,28 @@ public class RelatorioApiService : Controllers.IRelatorioService
         if (root.TryGetProperty("votosNulos", out var vn)) summary["Votos Nulos"] = vn.GetInt32().ToString();
         if (root.TryGetProperty("participacao", out var part)) summary["Participacao"] = $"{part.GetDecimal()}%";
 
-        if (root.TryGetProperty("chapas", out var chapas) && chapas.ValueKind == JsonValueKind.Array)
+        if (root.TryGetProperty("totalEleicoes", out var totalEleicoes))
+            summary["Total Eleicoes"] = totalEleicoes.GetInt32().ToString();
+        if (root.TryGetProperty("participacaoMedia", out var participacaoMedia))
+            summary["Participacao Media"] = $"{participacaoMedia.GetDecimal():F2}%";
+
+        if (root.TryGetProperty("eleicoesComparadas", out var comparativo) && comparativo.ValueKind == JsonValueKind.Array)
+        {
+            headers.AddRange(new[] { "Eleicao", "Ano", "Aptos", "Votos", "Chapas", "Participacao" });
+            foreach (var item in comparativo.EnumerateArray())
+            {
+                rows.Add(new List<string>
+                {
+                    item.TryGetProperty("eleicaoNome", out var e) ? e.GetString() ?? "" : "",
+                    item.TryGetProperty("ano", out var a) ? a.GetInt32().ToString() : "",
+                    item.TryGetProperty("totalAptos", out var ap) ? ap.GetInt32().ToString() : "0",
+                    item.TryGetProperty("totalVotos", out var v) ? v.GetInt32().ToString() : "0",
+                    item.TryGetProperty("totalChapas", out var c) ? c.GetInt32().ToString() : "0",
+                    item.TryGetProperty("participacao", out var p) ? $"{p.GetDecimal():F2}%" : "0%"
+                });
+            }
+        }
+        else if (root.TryGetProperty("chapas", out var chapas) && chapas.ValueKind == JsonValueKind.Array)
         {
             headers.AddRange(new[] { "Nome", "Numero", "Votos", "Percentual" });
             foreach (var chapa in chapas.EnumerateArray())
@@ -1037,28 +1238,180 @@ public class RelatorioApiService : Controllers.IRelatorioService
         return (summary, headers, rows);
     }
 
-    private async Task<(byte[] Content, string ContentType, string FileName)> GenerateReport(string tipo, Guid eleicaoId, string formato, CancellationToken ct)
+    private static (string Normalized, string ContentType, string Extension, FormatoExportacao EnumValue) ResolveFormato(string formato)
     {
-        var json = await BuildJsonReport(tipo, eleicaoId, ct);
+        var normalized = (formato ?? "pdf").Trim().ToLowerInvariant();
+        if (normalized == "excel")
+            normalized = "xlsx";
 
-        if (formato == "json")
-            return (Encoding.UTF8.GetBytes(json), "application/json", $"{tipo}_{eleicaoId:N}.json");
-
-        var eleicao = await _db.Eleicoes.IgnoreQueryFilters().Where(e => !e.IsDeleted).FirstOrDefaultAsync(e => e.Id == eleicaoId, ct);
-        var eleicaoNome = eleicao?.Nome ?? "Eleicao";
-        var titulo = $"Relatorio de {char.ToUpper(tipo[0])}{tipo[1..]}";
-        var (summary, headers, rows) = ParseJsonToTableData(json);
-
-        if (formato == "xlsx")
+        return normalized switch
         {
-            var bytes = _excel.GenerateReport(titulo, eleicaoNome, DateTime.UtcNow, summary, headers, rows);
-            return (bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{tipo}_{eleicaoId:N}.xlsx");
+            "xlsx" => ("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xlsx", FormatoExportacao.Excel),
+            "csv" => ("csv", "text/csv; charset=utf-8", "csv", FormatoExportacao.CSV),
+            "json" => ("json", "application/json", "json", FormatoExportacao.JSON),
+            _ => ("pdf", "application/pdf", "pdf", FormatoExportacao.PDF)
+        };
+    }
+
+    private static TipoExportacao MapTipoExportacao(string tipo)
+    {
+        return tipo.ToLowerInvariant() switch
+        {
+            "participacao" => TipoExportacao.Eleitores,
+            "eleitores" => TipoExportacao.Eleitores,
+            "chapas" => TipoExportacao.Chapas,
+            "resultado" => TipoExportacao.Resultados,
+            "denuncias" => TipoExportacao.Resultados,
+            "impugnacoes" => TipoExportacao.Resultados,
+            "auditoria" => TipoExportacao.Resultados,
+            _ => TipoExportacao.Completa
+        };
+    }
+
+    private static string GetExportDirectoryPath()
+    {
+        var directory = Path.Combine(AppContext.BaseDirectory, ExportDirectoryName);
+        Directory.CreateDirectory(directory);
+        return directory;
+    }
+
+    private static string GetTipoNome(string tipo) => tipo switch
+    {
+        "participacao" => "Relatorio de Participacao",
+        "resultado" => "Relatorio de Resultado",
+        "chapas" => "Relatorio de Chapas",
+        "eleitores" => "Relatorio de Eleitores",
+        "denuncias" => "Relatorio de Denuncias",
+        "impugnacoes" => "Relatorio de Impugnacoes",
+        "auditoria" => "Relatorio de Auditoria",
+        "consolidado" => "Relatorio Consolidado",
+        "comparativo" => "Relatorio Comparativo",
+        _ => "Relatorio Personalizado"
+    };
+
+    private async Task PersistExportMetadataAsync(ReportArtifact artifact, CancellationToken ct)
+    {
+        try
+        {
+            var solicitanteId = await _db.Usuarios.IgnoreQueryFilters()
+                .Where(u => !u.IsDeleted)
+                .Select(u => u.Id)
+                .FirstOrDefaultAsync(ct);
+
+            if (solicitanteId == Guid.Empty)
+            {
+                _logger.LogWarning("Historico de relatorio {ReportId} nao persistido: usuario solicitante nao encontrado", artifact.Id);
+                return;
+            }
+
+            var exportacao = new ExportacaoDados
+            {
+                Id = artifact.Id,
+                EleicaoId = artifact.EleicaoId,
+                SolicitanteId = solicitanteId,
+                Nome = GetTipoNome(artifact.Tipo),
+                Descricao = $"Exportacao {artifact.Tipo} em formato {artifact.Formato.ToUpperInvariant()}",
+                Tipo = MapTipoExportacao(artifact.Tipo),
+                Formato = ResolveFormato(artifact.Formato).EnumValue,
+                Status = StatusExportacao.Concluida,
+                DataSolicitacao = artifact.GeneratedAt,
+                DataInicio = artifact.GeneratedAt,
+                DataConclusao = artifact.GeneratedAt,
+                DataExpiracao = artifact.GeneratedAt.AddDays(30),
+                TotalRegistros = artifact.TotalRegistros,
+                RegistrosExportados = artifact.TotalRegistros,
+                ArquivoUrl = artifact.FilePath,
+                ArquivoNome = artifact.FileName,
+                ArquivoTamanho = artifact.Size,
+                DownloadsRealizados = 0
+            };
+
+            await _db.ExportacoesDados.AddAsync(exportacao, ct);
+            await _db.SaveChangesAsync(ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Falha ao persistir historico do relatorio {ReportId}", artifact.Id);
+        }
+    }
+
+    private async Task<(byte[] Content, string ContentType, string FileName)> GenerateReport(
+        string tipo,
+        Guid eleicaoId,
+        string formato,
+        CancellationToken ct,
+        IReadOnlyCollection<Guid>? eleicaoIdsComparativo = null)
+    {
+        var formatoInfo = ResolveFormato(formato);
+        var json = tipo == "comparativo"
+            ? await BuildJsonComparativoReport(eleicaoIdsComparativo ?? new[] { eleicaoId }, ct)
+            : await BuildJsonReport(tipo, eleicaoId, ct);
+
+        byte[] content;
+        string contentType;
+
+        if (formatoInfo.Normalized == "json")
+        {
+            content = Encoding.UTF8.GetBytes(json);
+            contentType = formatoInfo.ContentType;
+        }
+        else if (formatoInfo.Normalized == "csv")
+        {
+            content = Encoding.UTF8.GetBytes(BuildCsvReport(json, tipo));
+            contentType = formatoInfo.ContentType;
+        }
+        else
+        {
+            var eleicaoNome = "Multiplas eleicoes";
+            if (tipo != "comparativo")
+            {
+                var eleicao = await _db.Eleicoes.IgnoreQueryFilters()
+                    .Where(e => !e.IsDeleted)
+                    .FirstOrDefaultAsync(e => e.Id == eleicaoId, ct);
+                eleicaoNome = eleicao?.Nome ?? "Eleicao";
+            }
+
+            var titulo = $"Relatorio de {char.ToUpper(tipo[0])}{tipo[1..]}";
+            var (summary, headers, rows) = ParseJsonToTableData(json);
+
+            if (formatoInfo.Normalized == "xlsx")
+            {
+                content = _excel.GenerateReport(titulo, eleicaoNome, DateTime.UtcNow, summary, headers, rows);
+                contentType = formatoInfo.ContentType;
+            }
+            else
+            {
+                var reportData = new ReportData { Summary = summary, TableHeaders = headers, TableRows = rows };
+                content = _pdf.GenerateReport(titulo, eleicaoNome, DateTime.UtcNow, reportData);
+                contentType = formatoInfo.ContentType;
+            }
         }
 
-        // PDF format
-        var reportData = new ReportData { Summary = summary, TableHeaders = headers, TableRows = rows };
-        var pdfBytes = _pdf.GenerateReport(titulo, eleicaoNome, DateTime.UtcNow, reportData);
-        return (pdfBytes, "application/pdf", $"{tipo}_{eleicaoId:N}.pdf");
+        var id = Guid.NewGuid();
+        var fileName = $"{tipo}_{id:N}.{formatoInfo.Extension}";
+        var filePath = Path.Combine(GetExportDirectoryPath(), fileName);
+        await File.WriteAllBytesAsync(filePath, content, ct);
+
+        var totalRegistros = tipo == "comparativo"
+            ? eleicaoIdsComparativo?.Count
+            : (eleicaoId == Guid.Empty ? null : 1);
+
+        var artifact = new ReportArtifact(
+            id,
+            eleicaoId == Guid.Empty ? null : eleicaoId,
+            tipo,
+            formatoInfo.Normalized,
+            contentType,
+            fileName,
+            filePath,
+            content.LongLength,
+            DateTime.UtcNow,
+            totalRegistros);
+
+        _artifacts[id] = artifact;
+        await PersistExportMetadataAsync(artifact, ct);
+
+        return (content, contentType, fileName);
     }
 
     public Task<(byte[] Content, string ContentType, string FileName)> GerarRelatorioParticipacaoAsync(Guid eleicaoId, string formato, CancellationToken ct = default) => GenerateReport("participacao", eleicaoId, formato, ct);
@@ -1069,13 +1422,98 @@ public class RelatorioApiService : Controllers.IRelatorioService
     public Task<(byte[] Content, string ContentType, string FileName)> GerarRelatorioImpugnacoesAsync(Guid eleicaoId, string formato, CancellationToken ct = default) => GenerateReport("impugnacoes", eleicaoId, formato, ct);
     public Task<(byte[] Content, string ContentType, string FileName)> GerarRelatorioAuditoriaAsync(Guid eleicaoId, string formato, CancellationToken ct = default) => GenerateReport("auditoria", eleicaoId, formato, ct);
     public Task<(byte[] Content, string ContentType, string FileName)> GerarRelatorioConsolidadoAsync(Guid eleicaoId, string formato, CancellationToken ct = default) => GenerateReport("consolidado", eleicaoId, formato, ct);
-    public Task<(byte[] Content, string ContentType, string FileName)> GerarRelatorioComparativoAsync(List<Guid> eleicaoIds, string formato, CancellationToken ct = default) => GenerateReport("comparativo", eleicaoIds.FirstOrDefault(), formato, ct);
+    public Task<(byte[] Content, string ContentType, string FileName)> GerarRelatorioComparativoAsync(List<Guid> eleicaoIds, string formato, CancellationToken ct = default) => GenerateReport("comparativo", Guid.Empty, formato, ct, eleicaoIds);
     public Task<(byte[] Content, string ContentType, string FileName)> GerarRelatorioPersonalizadoAsync(RelatorioPersonalizadoDto dto, CancellationToken ct = default) => GenerateReport("personalizado", dto.EleicaoId, dto.Formato, ct);
 
-    public Task<IEnumerable<RelatorioGeradoDto>> GetHistoricoAsync(Guid? eleicaoId, CancellationToken ct = default)
-        => Task.FromResult<IEnumerable<RelatorioGeradoDto>>(new List<RelatorioGeradoDto>());
-    public Task<(byte[] Content, string ContentType, string FileName)> DownloadAsync(Guid id, CancellationToken ct = default)
-        => throw new KeyNotFoundException("Relatorio nao encontrado");
+    public async Task<IEnumerable<RelatorioGeradoDto>> GetHistoricoAsync(Guid? eleicaoId, CancellationToken ct = default)
+    {
+        var query = _db.ExportacoesDados.IgnoreQueryFilters()
+            .Include(e => e.Eleicao)
+            .Include(e => e.Solicitante)
+            .Where(e => !e.IsDeleted);
+
+        if (eleicaoId.HasValue)
+            query = query.Where(e => e.EleicaoId == eleicaoId.Value);
+
+        var persisted = await query
+            .OrderByDescending(e => e.DataSolicitacao)
+            .ToListAsync(ct);
+
+        if (persisted.Any())
+        {
+            return persisted.Select(e => new RelatorioGeradoDto
+            {
+                Id = e.Id,
+                EleicaoId = e.EleicaoId,
+                EleicaoNome = e.Eleicao?.Nome,
+                Tipo = e.Tipo.ToString().ToLowerInvariant(),
+                TipoNome = e.Nome,
+                Formato = e.Formato.ToString().ToLowerInvariant(),
+                NomeArquivo = e.ArquivoNome,
+                Tamanho = e.ArquivoTamanho,
+                GeradoPor = e.SolicitanteId,
+                GeradoPorNome = e.Solicitante?.NomeCompleto ?? e.Solicitante?.Nome ?? "Sistema",
+                DataGeracao = e.DataConclusao ?? e.DataSolicitacao
+            }).ToList();
+        }
+
+        return _artifacts.Values
+            .OrderByDescending(a => a.GeneratedAt)
+            .Where(a => !eleicaoId.HasValue || a.EleicaoId == eleicaoId.Value)
+            .Select(a => new RelatorioGeradoDto
+            {
+                Id = a.Id,
+                EleicaoId = a.EleicaoId,
+                Tipo = a.Tipo,
+                TipoNome = GetTipoNome(a.Tipo),
+                Formato = a.Formato,
+                NomeArquivo = a.FileName,
+                Tamanho = a.Size,
+                GeradoPor = Guid.Empty,
+                GeradoPorNome = "Sistema",
+                DataGeracao = a.GeneratedAt
+            })
+            .ToList();
+    }
+
+    public async Task<(byte[] Content, string ContentType, string FileName)> DownloadAsync(Guid id, CancellationToken ct = default)
+    {
+        var exportacao = await _db.ExportacoesDados.IgnoreQueryFilters()
+            .Where(e => !e.IsDeleted && e.Id == id)
+            .FirstOrDefaultAsync(ct);
+
+        if (exportacao != null)
+        {
+            byte[] persistedBytes;
+
+            if (!string.IsNullOrWhiteSpace(exportacao.ArquivoUrl) && File.Exists(exportacao.ArquivoUrl))
+            {
+                persistedBytes = await File.ReadAllBytesAsync(exportacao.ArquivoUrl, ct);
+            }
+            else if (_artifacts.TryGetValue(id, out var fallbackArtifact))
+            {
+                persistedBytes = await File.ReadAllBytesAsync(fallbackArtifact.FilePath, ct);
+            }
+            else
+            {
+                throw new KeyNotFoundException("Arquivo do relatorio nao encontrado");
+            }
+
+            exportacao.DownloadsRealizados += 1;
+            await _db.SaveChangesAsync(ct);
+
+            var contentType = ResolveFormato(exportacao.Formato.ToString().ToLowerInvariant()).ContentType;
+            return (persistedBytes, contentType, exportacao.ArquivoNome ?? $"relatorio_{id:N}");
+        }
+
+        if (_artifacts.TryGetValue(id, out var artifact) && File.Exists(artifact.FilePath))
+        {
+            var bytes = await File.ReadAllBytesAsync(artifact.FilePath, ct);
+            return (bytes, artifact.ContentType, artifact.FileName);
+        }
+
+        throw new KeyNotFoundException("Relatorio nao encontrado");
+    }
 }
 
 // ── MembroChapaService ──
