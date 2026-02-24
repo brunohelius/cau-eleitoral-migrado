@@ -258,7 +258,7 @@ if (adminMaintenanceRequested && !string.IsNullOrWhiteSpace(adminSeedKey))
         var membroCount = await db.MembrosChapa.CountAsync();
 
         // Check test credential profissionais
-        var testCpfs = new[] { "45555555551", "45555555552", "60000000003" };
+        var testCpfs = new List<string> { "45555555551", "45555555552", "60000000003" };
         var testProfissionais = await db.Profissionais
             .IgnoreQueryFilters()
             .Where(p => testCpfs.Contains(p.Cpf))
