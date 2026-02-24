@@ -303,13 +303,14 @@ public class DatabaseSeeder
         };
 
         // Always fix RegistroCAU for documented test credentials (even if profissionais already exist)
-        if (await _context.Profissionais.AnyAsync())
+        if (await _context.Profissionais.IgnoreQueryFilters().Where(p => !p.IsDeleted).AnyAsync())
         {
-            var existingRegionais = await _context.RegionaisCAU.ToListAsync();
+            var existingRegionais = await _context.RegionaisCAU.IgnoreQueryFilters().Where(r => !r.IsDeleted).ToListAsync();
             var updated = false;
             foreach (var (cpf, fixedData) in fixedRegistroCAU)
             {
-                var prof = await _context.Profissionais.FirstOrDefaultAsync(p => p.Cpf == cpf);
+                var prof = await _context.Profissionais.IgnoreQueryFilters().Where(p => !p.IsDeleted).FirstOrDefaultAsync(p => p.Cpf == cpf);
+                _logger.LogInformation("Buscando profissional com CPF {Cpf}: {Found}", cpf, prof != null ? prof.RegistroCAU : "NAO ENCONTRADO");
                 if (prof != null && prof.RegistroCAU != fixedData.RegistroCAU)
                 {
                     _logger.LogInformation("Corrigindo RegistroCAU de {Cpf}: {Old} -> {New}", cpf, prof.RegistroCAU, fixedData.RegistroCAU);
