@@ -56,6 +56,9 @@ public class DatabaseSeeder
             // Always run: fixes missing roles and user-role assignments
             await PatchUserRolesAsync();
 
+            // Always run: ensures test credentials exist even on partial seeds
+            await EnsureTestCredentialsAsync();
+
             _logger.LogInformation("Seed do banco de dados concluído com sucesso!");
         }
         catch (Exception ex)
@@ -1955,6 +1958,81 @@ public class DatabaseSeeder
 
         await _context.SaveChangesAsync();
         _logger.LogInformation("User roles patched successfully.");
+    }
+
+    /// <summary>
+    /// Ensures documented test credentials exist, even if DB was seeded by an older version
+    /// </summary>
+    private async Task EnsureTestCredentialsAsync()
+    {
+        var testUsers = new[]
+        {
+            new { Nome = "Roberto Arquiteto Candidato", Email = "candidato1@email.com", Cpf = "45555555551", Senha = "Candidato@123", Tipo = TipoUsuario.Candidato, RegistroCAU = "A000018-DF", UF = "DF" },
+            new { Nome = "Fernanda Urbanista Candidata", Email = "candidato2@email.com", Cpf = "45555555552", Senha = "Candidato@123", Tipo = TipoUsuario.Candidato, RegistroCAU = "A000019-SP", UF = "SP" },
+            new { Nome = "Lucas Designer Candidato", Email = "candidato3@email.com", Cpf = "45555555553", Senha = "Candidato@123", Tipo = TipoUsuario.Candidato, RegistroCAU = "A000020-RJ", UF = "RJ" },
+            new { Nome = "Eleitor Teste 003", Email = "eleitor3@email.com", Cpf = "60000000003", Senha = "Eleitor@123", Tipo = TipoUsuario.Eleitor, RegistroCAU = "A000005-SP", UF = "SP" },
+        };
+
+        var regionais = await _context.RegionaisCAU.IgnoreQueryFilters().Where(r => !r.IsDeleted).ToListAsync();
+        var created = false;
+
+        foreach (var testUser in testUsers)
+        {
+            // Check if user exists
+            var usuario = await _context.Usuarios.IgnoreQueryFilters().Where(u => !u.IsDeleted).FirstOrDefaultAsync(u => u.Cpf == testUser.Cpf);
+            if (usuario == null)
+            {
+                _logger.LogInformation("Criando usuario de teste: {Cpf} ({Nome})", testUser.Cpf, testUser.Nome);
+                var (hash, salt) = HashPassword(testUser.Senha);
+                usuario = new Usuario
+                {
+                    Nome = testUser.Nome,
+                    Email = testUser.Email,
+                    Cpf = testUser.Cpf,
+                    PasswordHash = hash,
+                    PasswordSalt = salt,
+                    Status = StatusUsuario.Ativo,
+                    EmailConfirmado = true,
+                    Tipo = testUser.Tipo
+                };
+                await _context.Usuarios.AddAsync(usuario);
+                await _context.SaveChangesAsync();
+                created = true;
+            }
+
+            // Check if profissional exists
+            var prof = await _context.Profissionais.IgnoreQueryFilters().Where(p => !p.IsDeleted).FirstOrDefaultAsync(p => p.Cpf == testUser.Cpf);
+            if (prof == null)
+            {
+                _logger.LogInformation("Criando profissional de teste: {Cpf} -> {RegistroCAU}", testUser.Cpf, testUser.RegistroCAU);
+                var regional = regionais.FirstOrDefault(r => r.UF == testUser.UF) ?? regionais.FirstOrDefault();
+                await _context.Profissionais.AddAsync(new Profissional
+                {
+                    UsuarioId = usuario.Id,
+                    RegistroCAU = testUser.RegistroCAU,
+                    Nome = testUser.Nome,
+                    NomeCompleto = testUser.Nome,
+                    Cpf = testUser.Cpf,
+                    Email = testUser.Email,
+                    Tipo = TipoProfissional.Arquiteto,
+                    Status = StatusProfissional.Ativo,
+                    RegionalId = regional!.Id,
+                    EleitorApto = true,
+                    DataRegistro = DateTime.UtcNow.AddYears(-3)
+                });
+                created = true;
+            }
+            else if (prof.RegistroCAU != testUser.RegistroCAU)
+            {
+                _logger.LogInformation("Corrigindo RegistroCAU: {Cpf} {Old} -> {New}", testUser.Cpf, prof.RegistroCAU, testUser.RegistroCAU);
+                prof.RegistroCAU = testUser.RegistroCAU;
+                var regional = regionais.FirstOrDefault(r => r.UF == testUser.UF);
+                if (regional != null) prof.RegionalId = regional.Id;
+                created = true;
+            }
+        }
+
+        if (created) await _context.SaveChangesAsync();
     }
 
     private static (string Hash, string Salt) HashPassword(string password)
