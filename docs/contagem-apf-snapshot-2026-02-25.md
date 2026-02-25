@@ -1,7 +1,7 @@
 # Recontagem APF - Snapshot do Codigo Migrado
 
-- Data/hora do snapshot: **2026-02-25 20:11:05 -0300**
-- Commit analisado: **`25f75e8`**
+- Data/hora do snapshot: **2026-02-25 20:22:23 -0300**
+- Commit analisado: **`ab051fb`**
 - Fonte baseline: `docs/contagem-apf.md`
 - Status da reconciliacao: **OK**
 
@@ -84,4 +84,4 @@
 
 ## 4. Conclusao
 
-A recontagem total e completa para o snapshot de hoje (commit `25f75e8`) confirma o baseline APF em **2.474 PF nao ajustados** e **2.870 PF ajustados**.
+A recontagem total e completa para o snapshot de hoje (commit `ab051fb`) confirma o baseline APF em **2.474 PF nao ajustados** e **2.870 PF ajustados**.
