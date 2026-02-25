@@ -9,7 +9,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "vitest",
-    "e2e": "PLAYWRIGHT_START_API=1 PLAYWRIGHT_API_URL=http://localhost:5001 pnpm exec playwright test",
+    "e2e": "PLAYWRIGHT_START_API=1 PLAYWRIGHT_API_PORT=7779 PLAYWRIGHT_WEB_PORT=7777 PLAYWRIGHT_API_URL=http://localhost:7779 pnpm exec playwright test --workers=1",
     "e2e:prod": "PLAYWRIGHT_API_URL=https://cau-api.migrai.com.br pnpm exec playwright test -c playwright.production.config.ts",
     "e2e:cloudfront": "PLAYWRIGHT_API_URL=https://cau-api.migrai.com.br pnpm exec playwright test -c playwright.prod.config.ts"
   },

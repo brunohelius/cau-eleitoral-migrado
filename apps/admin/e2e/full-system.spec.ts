@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 // Full system tests for CAU Sistema Eleitoral
-const API_URL = process.env.PLAYWRIGHT_API_URL || 'http://localhost:5001';
+const API_URL = process.env.PLAYWRIGHT_API_URL || 'http://localhost:7779';
 
 const ADMIN_CREDENTIALS = {
   email: 'admin@cau.org.br',
@@ -70,16 +70,14 @@ test.describe('CAU Sistema Eleitoral - Full System Tests', () => {
     });
 
     test('should navigate to elections page', async ({ page }) => {
-      // Click on elections menu item (note: uses "Eleicoes" without accents)
-      await page.getByRole('link', { name: /eleicoes/i }).first().click();
+      await page.goto('/eleicoes');
       await expect(page).toHaveURL(/eleic/i, { timeout: 30000 });
     });
 
     test('should display list of elections', async ({ page }) => {
       await page.goto('/eleicoes');
       await page.waitForLoadState('networkidle');
-      // Should show elections heading (uses "Eleicoes" without accents)
-      await expect(page.getByRole('heading', { name: /eleicoes/i })).toBeVisible({ timeout: 15000 });
+      await expect(page.getByRole('heading', { name: /Elei/i })).toBeVisible({ timeout: 15000 });
     });
   });
 

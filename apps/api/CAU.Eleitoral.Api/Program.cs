@@ -37,6 +37,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
+    c.CustomSchemaIds(type => type.FullName?.Replace("+", ".") ?? type.Name);
+
     c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "CAU Sistema Eleitoral API",
@@ -74,11 +76,12 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Configure Database
+// Configure Database (SQLite)
+var dbPath = Path.Combine(AppContext.BaseDirectory, "caueve.db");
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
+    options.UseSqlite(
+        $"Data Source={dbPath}",
         b => b.MigrationsAssembly("CAU.Eleitoral.Infrastructure"));
 });
 
@@ -176,7 +179,7 @@ builder.Services.AddScoped<CAU.Eleitoral.Api.Controllers.IConselheiroService, CA
 
 // Add Health Checks
 builder.Services.AddHealthChecks()
-    .AddNpgSql(builder.Configuration.GetConnectionString("DefaultConnection") ?? "");
+    .AddDbContextCheck<AppDbContext>();
 
 // Register Database Seeder
 builder.Services.AddScoped<DatabaseSeeder>();

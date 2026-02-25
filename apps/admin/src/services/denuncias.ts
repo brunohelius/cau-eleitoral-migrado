@@ -185,6 +185,44 @@ export interface PaginatedResponse<T> {
   totalPages: number
 }
 
+function toPagedResult<T>(
+  payload: unknown,
+  fallbackPage = 1,
+  fallbackPageSize = 20
+): PaginatedResponse<T> {
+  if (Array.isArray(payload)) {
+    return {
+      data: payload as T[],
+      total: payload.length,
+      page: fallbackPage,
+      pageSize: fallbackPageSize,
+      totalPages: 1,
+    }
+  }
+
+  return mapPagedResponse<T>(payload as Record<string, unknown>)
+}
+
+function mapProvaToAnexo(prova: any): AnexoDenuncia {
+  return {
+    id: prova.id,
+    denunciaId: prova.denunciaId,
+    nome: prova.arquivoNome || prova.descricao || 'Anexo',
+    tipo: prova.arquivoTipo || String(prova.tipo ?? ''),
+    arquivoUrl: prova.arquivoUrl || '',
+    tamanho: Number(prova.arquivoTamanho || 0),
+    createdAt: prova.dataEnvio || prova.createdAt || new Date().toISOString(),
+  }
+}
+
+function mapDecisaoToRecomendacao(decisao: StatusDenuncia): boolean {
+  return [
+    StatusDenuncia.ADMISSIBILIDADE_ACEITA,
+    StatusDenuncia.PROCEDENTE,
+    StatusDenuncia.PARCIALMENTE_PROCEDENTE,
+  ].includes(decisao)
+}
+
 export const denunciasService = {
   // CRUD Operations
   getAll: async (params?: DenunciaListParams): Promise<PaginatedResponse<Denuncia>> => {
@@ -204,11 +242,16 @@ export const denunciasService = {
 
   getByEleicao: async (eleicaoId: string, params?: Omit<DenunciaListParams, 'eleicaoId'>): Promise<PaginatedResponse<Denuncia>> => {
     const response = await api.get(`/denuncia/eleicao/${eleicaoId}`, { params })
-    return mapPagedResponse<Denuncia>(response.data)
+    return toPagedResult<Denuncia>(response.data, params?.page || 1, params?.pageSize || 20)
   },
 
   getByChapa: async (chapaId: string): Promise<Denuncia[]> => {
     const response = await api.get<Denuncia[]>(`/denuncia/chapa/${chapaId}`)
+    return response.data
+  },
+
+  getMinhas: async (): Promise<Denuncia[]> => {
+    const response = await api.get<Denuncia[]>('/denuncia/minhas')
     return response.data
   },
 
@@ -228,27 +271,40 @@ export const denunciasService = {
 
   // Status Operations
   iniciarAnalise: async (id: string): Promise<Denuncia> => {
-    const response = await api.post<Denuncia>(`/denuncia/${id}/iniciar-analise`)
+    const response = await api.post<Denuncia>(`/denuncia/${id}/analisar`, {})
     return response.data
   },
 
   aceitarAdmissibilidade: async (id: string, fundamentacao: string): Promise<Denuncia> => {
-    const response = await api.post<Denuncia>(`/denuncia/${id}/admissibilidade/aceitar`, { fundamentacao })
+    const response = await api.post<Denuncia>(`/denuncia/${id}/aceitar-admissibilidade`, {
+      parecer: fundamentacao,
+    })
     return response.data
   },
 
   rejeitarAdmissibilidade: async (id: string, fundamentacao: string): Promise<Denuncia> => {
-    const response = await api.post<Denuncia>(`/denuncia/${id}/admissibilidade/rejeitar`, { fundamentacao })
+    const response = await api.post<Denuncia>(`/denuncia/${id}/rejeitar-admissibilidade`, {
+      parecer: fundamentacao,
+    })
     return response.data
   },
 
   emitirParecer: async (id: string, data: EmitirParecerRequest): Promise<Denuncia> => {
-    const response = await api.post<Denuncia>(`/denuncia/${id}/parecer`, data)
-    return response.data
+    await api.post(`/denuncia/${id}/concluir-analise`, {
+      parecer: data.parecer,
+      recomendacao: mapDecisaoToRecomendacao(data.decisao),
+    })
+
+    const refreshed = await api.get<Denuncia>(`/denuncia/${id}`)
+    return refreshed.data
   },
 
   julgar: async (id: string, data: { decisao: StatusDenuncia; fundamentacao: string; penalidade?: string }): Promise<Denuncia> => {
-    const response = await api.post<Denuncia>(`/denuncia/${id}/julgar`, data)
+    const response = await api.post<Denuncia>(`/denuncia/${id}/julgar`, {
+      resultado: data.decisao,
+      decisao: data.fundamentacao,
+      fundamentacao: data.fundamentacao,
+    })
     return response.data
   },
 
@@ -263,34 +319,67 @@ export const denunciasService = {
   },
 
   atribuirAnalista: async (id: string, analistaId: string): Promise<Denuncia> => {
-    const response = await api.post<Denuncia>(`/denuncia/${id}/atribuir`, { analistaId })
+    const response = await api.post<Denuncia>(`/denuncia/${id}/atribuir-relator`, { relatorId: analistaId })
     return response.data
   },
 
   // Anexos Operations
   getAnexos: async (denunciaId: string): Promise<AnexoDenuncia[]> => {
-    const response = await api.get<AnexoDenuncia[]>(`/denuncia/${denunciaId}/anexos`)
-    return response.data
+    const response = await api.get<any[]>(`/denuncia/${denunciaId}/provas`)
+    return (response.data || []).map(mapProvaToAnexo)
   },
 
   uploadAnexo: async (denunciaId: string, arquivo: File, nome?: string): Promise<AnexoDenuncia> => {
-    const formData = new FormData()
-    formData.append('arquivo', arquivo)
-    if (nome) formData.append('nome', nome)
-
-    const response = await api.post<AnexoDenuncia>(`/denuncia/${denunciaId}/anexos`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+    const arquivoNome = nome || arquivo.name
+    const descricaoBase = `Arquivo anexado: ${arquivoNome}`
+    const descricao = descricaoBase.length >= 10 ? descricaoBase : `${descricaoBase} (comprovante)`
+    const response = await api.post<any>(`/denuncia/${denunciaId}/provas`, {
+      tipo: 0,
+      descricao,
+      arquivoNome,
+      arquivoTipo: arquivo.type || 'application/octet-stream',
+      arquivoTamanho: arquivo.size,
     })
-    return response.data
+    return mapProvaToAnexo(response.data)
   },
 
   removeAnexo: async (denunciaId: string, anexoId: string): Promise<void> => {
-    await api.delete(`/denuncia/${denunciaId}/anexos/${anexoId}`)
+    await api.delete(`/denuncia/${denunciaId}/provas/${anexoId}`)
   },
 
   downloadAnexo: async (denunciaId: string, anexoId: string): Promise<Blob> => {
-    const response = await api.get(`/denuncia/${denunciaId}/anexos/${anexoId}/download`, {
-      responseType: 'blob',
+    const provas = await api.get<any[]>(`/denuncia/${denunciaId}/provas`)
+    const prova = (provas.data || []).find((item) => item.id === anexoId)
+    if (!prova?.arquivoUrl) {
+      throw new Error('Arquivo nao disponivel para download')
+    }
+
+    const response = await fetch(prova.arquivoUrl)
+    if (!response.ok) {
+      throw new Error('Falha ao baixar arquivo da prova')
+    }
+    return await response.blob()
+  },
+
+  getHistorico: async (denunciaId: string): Promise<HistoricoDenuncia[]> => {
+    const response = await api.get<HistoricoDenuncia[]>(`/denuncia/${denunciaId}/historico`)
+    return response.data
+  },
+
+  getDefesas: async (denunciaId: string): Promise<any[]> => {
+    const response = await api.get<any[]>(`/denuncia/${denunciaId}/defesas`)
+    return response.data
+  },
+
+  enviarParaJulgamento: async (id: string): Promise<Denuncia> => {
+    const response = await api.post<Denuncia>(`/denuncia/${id}/enviar-julgamento`)
+    return response.data
+  },
+
+  concluirAnalise: async (id: string, parecer: string, recomendacao: boolean): Promise<any> => {
+    const response = await api.post(`/denuncia/${id}/concluir-analise`, {
+      parecer,
+      recomendacao,
     })
     return response.data
   },
@@ -320,8 +409,17 @@ export const denunciasService = {
     dataFim?: string
     formato?: 'pdf' | 'xlsx'
   }): Promise<Blob> => {
-    const response = await api.get('/denuncia/relatorio', {
-      params,
+    let eleicaoId = params.eleicaoId
+    if (!eleicaoId) {
+      const eleicoesAtivas = await api.get<any[]>('/eleicao/ativas')
+      eleicaoId = eleicoesAtivas.data?.[0]?.id
+    }
+    if (!eleicaoId) {
+      throw new Error('Selecione uma eleicao para exportar o relatorio de denuncias')
+    }
+
+    const response = await api.get(`/relatorio/denuncias/${eleicaoId}`, {
+      params: { formato: params.formato || 'pdf' },
       responseType: 'blob',
     })
     return response.data

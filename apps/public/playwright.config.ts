@@ -1,6 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:4201';
+const PUBLIC_TEST_PORT = process.env.PLAYWRIGHT_WEB_PORT || '7778';
+const API_TEST_PORT = process.env.PLAYWRIGHT_API_PORT || '7779';
+const baseURL = process.env.PLAYWRIGHT_BASE_URL || `http://localhost:${PUBLIC_TEST_PORT}`;
 const isLocalBaseUrl = /^https?:\/\/localhost(?::\d+)?/i.test(baseURL);
 const shouldStartApi = process.env.PLAYWRIGHT_START_API === '1';
 
@@ -14,7 +16,7 @@ const webServer: Array<{
 
 if (isLocalBaseUrl) {
   webServer.push({
-    command: 'pnpm dev --port 4201',
+    command: `VITE_API_URL=http://localhost:${API_TEST_PORT}/api VITE_PROXY_API_TARGET=http://localhost:${API_TEST_PORT} pnpm dev --port ${PUBLIC_TEST_PORT}`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
@@ -23,8 +25,8 @@ if (isLocalBaseUrl) {
 
 if (isLocalBaseUrl && shouldStartApi) {
   webServer.push({
-    command: 'dotnet run --urls http://localhost:5001',
-    url: 'http://localhost:5001/health',
+    command: `dotnet run --urls http://localhost:${API_TEST_PORT}`,
+    url: `http://localhost:${API_TEST_PORT}/health`,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
     cwd: '../api/CAU.Eleitoral.Api',

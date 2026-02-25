@@ -22,11 +22,14 @@ RUN dotnet publish CAU.Eleitoral.Api/CAU.Eleitoral.Api.csproj -c Release -o /app
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
+# Copy published app
+COPY --from=build --chown=app:app /app/publish .
+
+# Ensure runtime user can create/update SQLite database and WAL files.
+RUN mkdir -p /app && chown -R app:app /app
+
 # Use built-in app user
 USER app
-
-# Copy published app
-COPY --from=build /app/publish .
 
 # Set environment variables
 ENV ASPNETCORE_URLS=http://+:8080

@@ -1967,10 +1967,12 @@ public class DatabaseSeeder
     {
         var testUsers = new[]
         {
-            new { Nome = "Roberto Arquiteto Candidato", Email = "candidato1@email.com", Cpf = "45555555551", Senha = "Candidato@123", Tipo = TipoUsuario.Candidato, RegistroCAU = "A000018-DF", UF = "DF" },
-            new { Nome = "Fernanda Urbanista Candidata", Email = "candidato2@email.com", Cpf = "45555555552", Senha = "Candidato@123", Tipo = TipoUsuario.Candidato, RegistroCAU = "A000019-SP", UF = "SP" },
-            new { Nome = "Lucas Designer Candidato", Email = "candidato3@email.com", Cpf = "45555555553", Senha = "Candidato@123", Tipo = TipoUsuario.Candidato, RegistroCAU = "A000020-RJ", UF = "RJ" },
-            new { Nome = "Eleitor Teste 003", Email = "eleitor3@email.com", Cpf = "60000000003", Senha = "Eleitor@123", Tipo = TipoUsuario.Eleitor, RegistroCAU = "A000005-SP", UF = "SP" },
+            new { Nome = "Admin Sistema", Email = "admin@cau.org.br", Cpf = "11111111111", Senha = "Admin@123", Tipo = TipoUsuario.Administrador, RegistroCAU = (string?)null, UF = (string?)null },
+            new { Nome = "Super Admin", Email = "superadmin@cau.org.br", Cpf = "11111111112", Senha = "Admin@123", Tipo = TipoUsuario.Administrador, RegistroCAU = (string?)null, UF = (string?)null },
+            new { Nome = "Roberto Arquiteto Candidato", Email = "candidato1@email.com", Cpf = "45555555551", Senha = "Candidato@123", Tipo = TipoUsuario.Candidato, RegistroCAU = (string?)"A000018-DF", UF = (string?)"DF" },
+            new { Nome = "Fernanda Urbanista Candidata", Email = "candidato2@email.com", Cpf = "45555555552", Senha = "Candidato@123", Tipo = TipoUsuario.Candidato, RegistroCAU = (string?)"A000019-SP", UF = (string?)"SP" },
+            new { Nome = "Lucas Designer Candidato", Email = "candidato3@email.com", Cpf = "45555555553", Senha = "Candidato@123", Tipo = TipoUsuario.Candidato, RegistroCAU = (string?)"A000020-RJ", UF = (string?)"RJ" },
+            new { Nome = "Eleitor Teste 003", Email = "eleitor3@email.com", Cpf = "60000000003", Senha = "Eleitor@123", Tipo = TipoUsuario.Eleitor, RegistroCAU = (string?)"A000005-SP", UF = (string?)"SP" },
         };
 
         var regionais = await _context.RegionaisCAU.IgnoreQueryFilters().Where(r => !r.IsDeleted).ToListAsync();
@@ -1979,7 +1981,10 @@ public class DatabaseSeeder
         foreach (var testUser in testUsers)
         {
             // Check if user exists
-            var usuario = await _context.Usuarios.IgnoreQueryFilters().Where(u => !u.IsDeleted).FirstOrDefaultAsync(u => u.Cpf == testUser.Cpf);
+            var usuario = await _context.Usuarios
+                .IgnoreQueryFilters()
+                .Where(u => !u.IsDeleted)
+                .FirstOrDefaultAsync(u => u.Cpf == testUser.Cpf || u.Email == testUser.Email);
             if (usuario == null)
             {
                 _logger.LogInformation("Criando usuario de teste: {Cpf} ({Nome})", testUser.Cpf, testUser.Nome);
@@ -1999,36 +2004,97 @@ public class DatabaseSeeder
                 await _context.SaveChangesAsync();
                 created = true;
             }
+            else
+            {
+                if (!VerifyPassword(testUser.Senha, usuario.PasswordHash, usuario.PasswordSalt))
+                {
+                    var (hash, salt) = HashPassword(testUser.Senha);
+                    usuario.PasswordHash = hash;
+                    usuario.PasswordSalt = salt;
+                    created = true;
+                }
+
+                if (usuario.Status != StatusUsuario.Ativo)
+                {
+                    usuario.Status = StatusUsuario.Ativo;
+                    created = true;
+                }
+
+                if (!usuario.EmailConfirmado)
+                {
+                    usuario.EmailConfirmado = true;
+                    created = true;
+                }
+
+                if (usuario.TentativasLogin != 0)
+                {
+                    usuario.TentativasLogin = 0;
+                    created = true;
+                }
+
+                if (usuario.BloqueadoAte != null)
+                {
+                    usuario.BloqueadoAte = null;
+                    created = true;
+                }
+
+                if (!string.Equals(usuario.Email, testUser.Email, StringComparison.OrdinalIgnoreCase))
+                {
+                    usuario.Email = testUser.Email;
+                    created = true;
+                }
+
+                if (!string.Equals(usuario.Nome, testUser.Nome, StringComparison.Ordinal))
+                {
+                    usuario.Nome = testUser.Nome;
+                    created = true;
+                }
+
+                if (!string.Equals(usuario.Cpf, testUser.Cpf, StringComparison.Ordinal))
+                {
+                    usuario.Cpf = testUser.Cpf;
+                    created = true;
+                }
+
+                if (usuario.Tipo != testUser.Tipo)
+                {
+                    usuario.Tipo = testUser.Tipo;
+                    created = true;
+                }
+            }
 
             // Check if profissional exists
-            var prof = await _context.Profissionais.IgnoreQueryFilters().Where(p => !p.IsDeleted).FirstOrDefaultAsync(p => p.Cpf == testUser.Cpf);
-            if (prof == null)
+            if (!string.IsNullOrWhiteSpace(testUser.RegistroCAU) && !string.IsNullOrWhiteSpace(testUser.UF))
             {
-                _logger.LogInformation("Criando profissional de teste: {Cpf} -> {RegistroCAU}", testUser.Cpf, testUser.RegistroCAU);
-                var regional = regionais.FirstOrDefault(r => r.UF == testUser.UF) ?? regionais.FirstOrDefault();
-                await _context.Profissionais.AddAsync(new Profissional
+                var prof = await _context.Profissionais.IgnoreQueryFilters().Where(p => !p.IsDeleted).FirstOrDefaultAsync(p => p.Cpf == testUser.Cpf);
+                if (prof == null)
                 {
-                    UsuarioId = usuario.Id,
-                    RegistroCAU = testUser.RegistroCAU,
-                    Nome = testUser.Nome,
-                    NomeCompleto = testUser.Nome,
-                    Cpf = testUser.Cpf,
-                    Email = testUser.Email,
-                    Tipo = TipoProfissional.Arquiteto,
-                    Status = StatusProfissional.Ativo,
-                    RegionalId = regional!.Id,
-                    EleitorApto = true,
-                    DataRegistro = DateTime.UtcNow.AddYears(-3)
-                });
-                created = true;
-            }
-            else if (prof.RegistroCAU != testUser.RegistroCAU)
-            {
-                _logger.LogInformation("Corrigindo RegistroCAU: {Cpf} {Old} -> {New}", testUser.Cpf, prof.RegistroCAU, testUser.RegistroCAU);
-                prof.RegistroCAU = testUser.RegistroCAU;
-                var regional = regionais.FirstOrDefault(r => r.UF == testUser.UF);
-                if (regional != null) prof.RegionalId = regional.Id;
-                created = true;
+                    _logger.LogInformation("Criando profissional de teste: {Cpf} -> {RegistroCAU}", testUser.Cpf, testUser.RegistroCAU);
+                    var regional = regionais.FirstOrDefault(r => r.UF == testUser.UF) ?? regionais.FirstOrDefault();
+                    await _context.Profissionais.AddAsync(new Profissional
+                    {
+                        UsuarioId = usuario.Id,
+                        RegistroCAU = testUser.RegistroCAU,
+                        Nome = testUser.Nome,
+                        NomeCompleto = testUser.Nome,
+                        Cpf = testUser.Cpf,
+                        Email = testUser.Email,
+                        Tipo = TipoProfissional.Arquiteto,
+                        Status = StatusProfissional.Ativo,
+                        RegionalId = regional!.Id,
+                        EleitorApto = true,
+                        DataRegistro = DateTime.UtcNow.AddYears(-3)
+                    });
+                    created = true;
+                }
+                else if (prof.RegistroCAU != testUser.RegistroCAU)
+                {
+                    _logger.LogInformation("Corrigindo RegistroCAU: {Cpf} {Old} -> {New}", testUser.Cpf, prof.RegistroCAU, testUser.RegistroCAU);
+                    prof.RegistroCAU = testUser.RegistroCAU;
+                    var regional = regionais.FirstOrDefault(r => r.UF == testUser.UF);
+                    if (regional != null) prof.RegionalId = regional.Id;
+                    created = true;
+                }
             }
         }
 
@@ -2042,5 +2108,14 @@ public class DatabaseSeeder
         var hashBytes = Rfc2898DeriveBytes.Pbkdf2(password, saltBytes, 100000, HashAlgorithmName.SHA256, 32);
         var hash = Convert.ToBase64String(hashBytes);
         return (hash, salt);
+    }
+
+    private static bool VerifyPassword(string password, string hash, string? salt)
+    {
+        if (string.IsNullOrWhiteSpace(salt)) return false;
+        var saltBytes = Convert.FromBase64String(salt);
+        var computedHashBytes = Rfc2898DeriveBytes.Pbkdf2(password, saltBytes, 100000, HashAlgorithmName.SHA256, 32);
+        var computedHash = Convert.ToBase64String(computedHashBytes);
+        return hash == computedHash;
     }
 }

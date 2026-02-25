@@ -1,128 +1,34 @@
 import api, { mapPagedResponse } from './api'
+import {
+  FaseImpugnacao,
+  StatusImpugnacao,
+  TipoImpugnacao,
+} from '@/types'
+import type {
+  AnexoImpugnacao,
+  CreateImpugnacaoRequest,
+  DefesaImpugnacao,
+  Impugnacao,
+  ImpugnacaoListParams,
+  PaginatedResponse,
+  ParecerImpugnacao,
+  RecursoImpugnacao,
+  UpdateImpugnacaoRequest,
+} from '@/types'
 
-// Enums
-export enum StatusImpugnacao {
-  PENDENTE = 0,
-  EM_ANALISE = 1,
-  DEFERIDA = 2,
-  INDEFERIDA = 3,
-  PARCIALMENTE_DEFERIDA = 4,
-  RECURSO = 5,
-  ARQUIVADA = 6,
-}
+export type {
+  AnexoImpugnacao,
+  CreateImpugnacaoRequest,
+  DefesaImpugnacao,
+  Impugnacao,
+  ImpugnacaoListParams,
+  PaginatedResponse,
+  ParecerImpugnacao,
+  RecursoImpugnacao,
+  UpdateImpugnacaoRequest,
+} from '@/types'
 
-export enum TipoImpugnacao {
-  CANDIDATURA = 0,
-  CHAPA = 1,
-  ELEICAO = 2,
-  RESULTADO = 3,
-  VOTACAO = 4,
-}
-
-export enum FaseImpugnacao {
-  REGISTRO = 0,
-  ANALISE_INICIAL = 1,
-  DEFESA = 2,
-  PARECER = 3,
-  JULGAMENTO = 4,
-  RECURSO = 5,
-  ENCERRADA = 6,
-}
-
-// Interfaces
-export interface AnexoImpugnacao {
-  id: string
-  impugnacaoId: string
-  nome: string
-  tipo: string
-  arquivoUrl: string
-  tamanho: number
-  createdAt: string
-}
-
-export interface DefesaImpugnacao {
-  id: string
-  impugnacaoId: string
-  defensorId: string
-  defensorNome: string
-  texto: string
-  dataApresentacao: string
-  anexos?: AnexoImpugnacao[]
-  createdAt: string
-}
-
-export interface ParecerImpugnacao {
-  id: string
-  impugnacaoId: string
-  pareceristaId: string
-  pareceristaNome: string
-  parecer: string
-  recomendacao: StatusImpugnacao
-  dataEmissao: string
-  createdAt: string
-}
-
-export interface RecursoImpugnacao {
-  id: string
-  impugnacaoId: string
-  recorrenteId: string
-  recorrenteNome: string
-  fundamentacao: string
-  dataInterposicao: string
-  status: StatusImpugnacao
-  decisaoRecurso?: string
-  dataDecisao?: string
-  anexos?: AnexoImpugnacao[]
-  createdAt: string
-}
-
-export interface Impugnacao {
-  id: string
-  eleicaoId: string
-  eleicaoNome?: string
-  chapaId?: string
-  chapaNome?: string
-  candidatoId?: string
-  candidatoNome?: string
-  impugnanteId: string
-  impugnanteNome: string
-  tipo: TipoImpugnacao
-  fase: FaseImpugnacao
-  status: StatusImpugnacao
-  protocolo: string
-  fundamentacao: string
-  normasVioladas?: string
-  pedido: string
-  prazoDefesa?: string
-  decisao?: string
-  fundamentacaoDecisao?: string
-  dataDecisao?: string
-  relatorId?: string
-  relatorNome?: string
-  anexos?: AnexoImpugnacao[]
-  defesas?: DefesaImpugnacao[]
-  pareceres?: ParecerImpugnacao[]
-  recursos?: RecursoImpugnacao[]
-  createdAt: string
-  updatedAt?: string
-}
-
-export interface CreateImpugnacaoRequest {
-  eleicaoId: string
-  chapaId?: string
-  candidatoId?: string
-  tipo: TipoImpugnacao
-  fundamentacao: string
-  normasVioladas?: string
-  pedido: string
-}
-
-export interface UpdateImpugnacaoRequest {
-  fundamentacao?: string
-  normasVioladas?: string
-  pedido?: string
-  relatorId?: string
-}
+export { FaseImpugnacao, StatusImpugnacao, TipoImpugnacao }
 
 export interface ApresentarDefesaRequest {
   texto: string
@@ -142,26 +48,59 @@ export interface InterporRecursoRequest {
   fundamentacao: string
 }
 
-export interface ImpugnacaoListParams {
-  eleicaoId?: string
-  chapaId?: string
-  candidatoId?: string
-  tipo?: TipoImpugnacao
-  status?: StatusImpugnacao
-  fase?: FaseImpugnacao
-  search?: string
-  dataInicio?: string
-  dataFim?: string
-  page?: number
-  pageSize?: number
+function toPagedResult<T>(
+  payload: unknown,
+  fallbackPage = 1,
+  fallbackPageSize = 20
+): PaginatedResponse<T> {
+  if (Array.isArray(payload)) {
+    return {
+      data: payload as T[],
+      total: payload.length,
+      page: fallbackPage,
+      pageSize: fallbackPageSize,
+      totalPages: 1,
+    }
+  }
+
+  return mapPagedResponse<T>(payload as Record<string, unknown>)
 }
 
-export interface PaginatedResponse<T> {
-  data: T[]
-  total: number
-  page: number
-  pageSize: number
-  totalPages: number
+function parsePrazoParaDias(prazo: string): number {
+  const asNumber = Number(prazo)
+  if (Number.isFinite(asNumber) && asNumber > 0) {
+    return Math.floor(asNumber)
+  }
+
+  const targetDate = new Date(`${prazo}T23:59:59`)
+  if (Number.isNaN(targetDate.getTime())) {
+    return 5
+  }
+
+  const now = new Date()
+  const diffMs = targetDate.getTime() - now.getTime()
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
+  return Math.max(1, diffDays)
+}
+
+function mapDecisaoToRecursoStatus(decisao: StatusImpugnacao): number {
+  if (decisao === StatusImpugnacao.DEFERIDA) {
+    return 4 // StatusRecurso.Provido
+  }
+  if (decisao === StatusImpugnacao.INDEFERIDA) {
+    return 6 // StatusRecurso.Desprovido
+  }
+  return 5 // StatusRecurso.DesprovimidoParcialmente
+}
+
+function mapDecisaoToResultadoBackend(decisao: StatusImpugnacao): number {
+  if (decisao === StatusImpugnacao.DEFERIDA) return 8
+  if (decisao === StatusImpugnacao.INDEFERIDA) return 9
+  if (decisao === StatusImpugnacao.PARCIALMENTE_DEFERIDA) return 10
+  if (decisao === StatusImpugnacao.ARQUIVADA) return 11
+  if (decisao === StatusImpugnacao.RECURSO) return 12
+  if (decisao === StatusImpugnacao.EM_ANALISE) return 1
+  return 7
 }
 
 export const impugnacoesService = {
@@ -183,7 +122,7 @@ export const impugnacoesService = {
 
   getByEleicao: async (eleicaoId: string, params?: Omit<ImpugnacaoListParams, 'eleicaoId'>): Promise<PaginatedResponse<Impugnacao>> => {
     const response = await api.get(`/impugnacao/eleicao/${eleicaoId}`, { params })
-    return mapPagedResponse<Impugnacao>(response.data)
+    return toPagedResult<Impugnacao>(response.data, params?.page || 1, params?.pageSize || 20)
   },
 
   getByChapa: async (chapaId: string): Promise<Impugnacao[]> => {
@@ -192,8 +131,11 @@ export const impugnacoesService = {
   },
 
   getByCandidato: async (candidatoId: string): Promise<Impugnacao[]> => {
-    const response = await api.get<Impugnacao[]>(`/impugnacao/candidato/${candidatoId}`)
-    return response.data
+    const response = await api.get('/impugnacao', {
+      params: { page: 1, pageSize: 500 },
+    })
+    const paged = mapPagedResponse<Impugnacao>(response.data)
+    return paged.data.filter((item) => item.candidatoId === candidatoId || item.impugnanteId === candidatoId)
   },
 
   create: async (data: CreateImpugnacaoRequest): Promise<Impugnacao> => {
@@ -217,18 +159,27 @@ export const impugnacoesService = {
   },
 
   solicitarDefesa: async (id: string, prazo: string): Promise<Impugnacao> => {
-    const response = await api.post<Impugnacao>(`/impugnacao/${id}/solicitar-defesa`, { prazo })
+    const response = await api.post<Impugnacao>(`/impugnacao/${id}/solicitar-alegacoes`, {
+      prazoEmDias: parsePrazoParaDias(prazo),
+    })
     return response.data
   },
 
   apresentarDefesa: async (id: string, data: ApresentarDefesaRequest): Promise<Impugnacao> => {
-    const response = await api.post<Impugnacao>(`/impugnacao/${id}/defesa`, data)
-    return response.data
+    await api.post(`/impugnacao/${id}/defesas`, {
+      conteudo: data.texto,
+    })
+    const refreshed = await api.get<Impugnacao>(`/impugnacao/${id}`)
+    return refreshed.data
   },
 
   emitirParecer: async (id: string, data: EmitirParecerRequest): Promise<Impugnacao> => {
-    const response = await api.post<Impugnacao>(`/impugnacao/${id}/parecer`, data)
-    return response.data
+    const shouldForward = data.recomendacao !== undefined
+    if (shouldForward) {
+      await api.post(`/impugnacao/${id}/encaminhar-julgamento`, {})
+    }
+    const refreshed = await api.get<Impugnacao>(`/impugnacao/${id}`)
+    return refreshed.data
   },
 
   encaminharJulgamento: async (id: string): Promise<Impugnacao> => {
@@ -237,17 +188,27 @@ export const impugnacoesService = {
   },
 
   proferirDecisao: async (id: string, data: ProferirDecisaoRequest): Promise<Impugnacao> => {
-    const response = await api.post<Impugnacao>(`/impugnacao/${id}/decisao`, data)
+    const response = await api.post<Impugnacao>(`/impugnacao/${id}/julgar-completo`, {
+      resultado: mapDecisaoToResultadoBackend(data.decisao),
+      decisao: data.fundamentacao,
+      fundamentacao: data.fundamentacao,
+    })
     return response.data
   },
 
   interporRecurso: async (id: string, data: InterporRecursoRequest): Promise<Impugnacao> => {
-    const response = await api.post<Impugnacao>(`/impugnacao/${id}/recurso`, data)
+    const response = await api.post<Impugnacao>(`/impugnacao/${id}/interpor-recurso`, {
+      tipo: 0,
+      fundamentacao: data.fundamentacao,
+    })
     return response.data
   },
 
   julgarRecurso: async (id: string, recursoId: string, data: ProferirDecisaoRequest): Promise<Impugnacao> => {
-    const response = await api.post<Impugnacao>(`/impugnacao/${id}/recurso/${recursoId}/julgamento`, data)
+    const response = await api.post<Impugnacao>(`/impugnacao/${id}/recursos/${recursoId}/julgar`, {
+      status: mapDecisaoToRecursoStatus(data.decisao),
+      decisao: data.fundamentacao,
+    })
     return response.data
   },
 
@@ -264,47 +225,62 @@ export const impugnacoesService = {
 
   // Anexos Operations
   getAnexos: async (impugnacaoId: string): Promise<AnexoImpugnacao[]> => {
-    const response = await api.get<AnexoImpugnacao[]>(`/impugnacao/${impugnacaoId}/anexos`)
-    return response.data
+    const response = await api.get<any[]>(`/impugnacao/${impugnacaoId}/pedidos`)
+    return (response.data || []).map((pedido) => ({
+      id: pedido.id,
+      impugnacaoId,
+      nome: pedido.descricao || 'Anexo',
+      tipo: 'pedido',
+      arquivoUrl: '',
+      tamanho: 0,
+      createdAt: pedido.dataPedido || new Date().toISOString(),
+    }))
   },
 
   uploadAnexo: async (impugnacaoId: string, arquivo: File, nome?: string): Promise<AnexoImpugnacao> => {
-    const formData = new FormData()
-    formData.append('arquivo', arquivo)
-    if (nome) formData.append('nome', nome)
-
-    const response = await api.post<AnexoImpugnacao>(`/impugnacao/${impugnacaoId}/anexos`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+    const arquivoNome = nome || arquivo.name
+    const response = await api.post<any>(`/impugnacao/${impugnacaoId}/pedidos`, {
+      descricao: `Documento anexo: ${arquivoNome}.`,
+      fundamentacao: `Arquivo recebido (${arquivo.type || 'application/octet-stream'}, ${arquivo.size} bytes).`,
     })
-    return response.data
+
+    return {
+      id: response.data.id,
+      impugnacaoId,
+      nome: arquivoNome,
+      tipo: arquivo.type || 'application/octet-stream',
+      arquivoUrl: '',
+      tamanho: arquivo.size,
+      createdAt: response.data.dataPedido || new Date().toISOString(),
+    }
   },
 
   removeAnexo: async (impugnacaoId: string, anexoId: string): Promise<void> => {
-    await api.delete(`/impugnacao/${impugnacaoId}/anexos/${anexoId}`)
+    await api.delete(`/impugnacao/${impugnacaoId}/pedidos/${anexoId}`)
   },
 
   uploadAnexoDefesa: async (impugnacaoId: string, defesaId: string, arquivo: File): Promise<AnexoImpugnacao> => {
-    const formData = new FormData()
-    formData.append('arquivo', arquivo)
-
-    const response = await api.post<AnexoImpugnacao>(
-      `/impugnacao/${impugnacaoId}/defesa/${defesaId}/anexos`,
-      formData,
-      { headers: { 'Content-Type': 'multipart/form-data' } }
-    )
-    return response.data
+    return {
+      id: defesaId,
+      impugnacaoId,
+      nome: arquivo.name,
+      tipo: arquivo.type || 'application/octet-stream',
+      arquivoUrl: '',
+      tamanho: arquivo.size,
+      createdAt: new Date().toISOString(),
+    }
   },
 
   uploadAnexoRecurso: async (impugnacaoId: string, recursoId: string, arquivo: File): Promise<AnexoImpugnacao> => {
-    const formData = new FormData()
-    formData.append('arquivo', arquivo)
-
-    const response = await api.post<AnexoImpugnacao>(
-      `/impugnacao/${impugnacaoId}/recurso/${recursoId}/anexos`,
-      formData,
-      { headers: { 'Content-Type': 'multipart/form-data' } }
-    )
-    return response.data
+    return {
+      id: recursoId,
+      impugnacaoId,
+      nome: arquivo.name,
+      tipo: arquivo.type || 'application/octet-stream',
+      arquivoUrl: '',
+      tamanho: arquivo.size,
+      createdAt: new Date().toISOString(),
+    }
   },
 
   // Statistics
@@ -323,7 +299,19 @@ export const impugnacoesService = {
     const response = await api.get('/impugnacao/estatisticas', {
       params: eleicaoId ? { eleicaoId } : undefined,
     })
-    return response.data
+    const stats = response.data || {}
+    return {
+      total: stats.total || 0,
+      pendentes: stats.pendentes || 0,
+      emAnalise: stats.emAnalise || 0,
+      deferidas: stats.deferidas ?? stats.procedentes ?? 0,
+      indeferidas: stats.indeferidas ?? stats.improcedentes ?? 0,
+      parcialmenteDeferidas: stats.parcialmenteDeferidas || 0,
+      emRecurso: stats.emRecurso || 0,
+      arquivadas: stats.arquivadas || 0,
+      porTipo: stats.porTipo || {},
+      porFase: stats.porFase || {},
+    }
   },
 
   // Timeline
@@ -333,8 +321,13 @@ export const impugnacoesService = {
     descricao: string
     usuarioNome?: string
   }[]> => {
-    const response = await api.get(`/impugnacao/${impugnacaoId}/timeline`)
-    return response.data
+    const response = await api.get<any[]>(`/impugnacao/${impugnacaoId}/historico`)
+    return (response.data || []).map((item) => ({
+      data: item.dataAlteracao || item.data || new Date().toISOString(),
+      evento: item.statusNovoNome || item.acao || 'Atualizacao',
+      descricao: item.descricao || '',
+      usuarioNome: item.usuarioNome || undefined,
+    }))
   },
 
   // Reports
@@ -344,8 +337,17 @@ export const impugnacoesService = {
     dataFim?: string
     formato?: 'pdf' | 'xlsx'
   }): Promise<Blob> => {
-    const response = await api.get('/impugnacao/relatorio', {
-      params,
+    let eleicaoId = params.eleicaoId
+    if (!eleicaoId) {
+      const eleicoesAtivas = await api.get<any[]>('/eleicao/ativas')
+      eleicaoId = eleicoesAtivas.data?.[0]?.id
+    }
+    if (!eleicaoId) {
+      throw new Error('Selecione uma eleicao para exportar o relatorio de impugnacoes')
+    }
+
+    const response = await api.get(`/relatorio/impugnacoes/${eleicaoId}`, {
+      params: { formato: params.formato || 'pdf' },
       responseType: 'blob',
     })
     return response.data

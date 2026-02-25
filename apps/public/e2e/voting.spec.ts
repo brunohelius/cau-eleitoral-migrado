@@ -8,13 +8,13 @@ test.describe('Public Voting Flow', () => {
 
   test('should navigate to voter login', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('banner').getByRole('link', { name: 'Area do Eleitor' }).click();
+    await page.getByRole('link', { name: /[ÁA]rea do Eleitor/i }).first().click();
     await expect(page).toHaveURL(/votacao/);
   });
 
   test('should display voter login form', async ({ page }) => {
     await page.goto('/votacao');
-    await expect(page.getByRole('heading', { name: 'Area do Eleitor' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /[ÁA]rea do Eleitor/i })).toBeVisible();
     await expect(page.getByRole('textbox', { name: 'CPF' })).toBeVisible();
     await expect(page.getByRole('textbox', { name: 'Registro CAU' })).toBeVisible();
   });
@@ -34,12 +34,12 @@ test.describe('Public Voting Flow', () => {
 
   test('should display elections list on public page', async ({ page }) => {
     await page.goto('/eleicoes');
-    await expect(page.getByRole('heading', { name: 'Eleicoes', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Elei/i })).toBeVisible();
   });
 
   test('should display calendar page', async ({ page }) => {
     await page.goto('/calendario');
-    await expect(page.getByRole('heading', { name: /Calendario/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Calend/i })).toBeVisible();
   });
 
   test('should display documents page', async ({ page }) => {

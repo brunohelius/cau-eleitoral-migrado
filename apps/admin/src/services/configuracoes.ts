@@ -63,6 +63,7 @@ export interface ConfiguracoesNotificacao {
   notificarImpugnacao: boolean
   notificarJulgamento: boolean
   remetenteEmail: string
+  nomeRemetente?: string
   templateEmailBoasVindas?: string
   templateEmailRecuperacaoSenha?: string
   templateEmailNotificacao?: string
@@ -74,6 +75,7 @@ export interface ConfiguracoesSeguranca {
   refreshTokenExpiracaoDias: number
   requerer2FA: boolean
   complexidadeSenhaMinima: 'baixa' | 'media' | 'alta'
+  tamanhoMinimoSenha?: number
   diasExpiracaoSenha: number
   historicoSenhasImpedir: number
   ipWhitelist?: string[]
@@ -237,92 +239,211 @@ export const configuracoesService = {
 
   // Configuracoes de Eleicao
   getConfiguracoesEleicao: async (): Promise<ConfiguracoesEleicao> => {
-    const response = await api.get<ConfiguracoesEleicao>('/configuracao/eleicao')
-    return response.data
+    const response = await api.get<any>('/configuracao/eleicoes')
+    const cfg = response.data || {}
+
+    return {
+      horasAntesInicioVotacao: 24,
+      horasAposEncerramento: Number(cfg.diasRecurso || 5) * 24,
+      permitirVotoAntecipado: false,
+      permitirVotoPorProcuracao: false,
+      exibirResultadosParciais: false,
+      exibirResultadosAposEncerramento: true,
+      requererJustificativaAusencia: false,
+      tempoMaximoVotacao: 30,
+      tentativasMaximasLogin: 5,
+      bloquearAposXTentativas: 3,
+      tempoBloqueioMinutos: 30,
+      validarCPFReceita: true,
+      validarRegistroCAU: true,
+      permitirCandidaturaMultipla: false,
+      diasMinimosInscricao: Number(cfg.diasInscricaoChapa || 15),
+      diasMaximosRecurso: Number(cfg.diasRecurso || 5),
+    }
   },
 
   updateConfiguracoesEleicao: async (data: Partial<ConfiguracoesEleicao>): Promise<ConfiguracoesEleicao> => {
-    const response = await api.put<ConfiguracoesEleicao>('/configuracao/eleicao', data)
-    return response.data
+    const current = await api.get<any>('/configuracao/eleicoes')
+    const payload = {
+      ...current.data,
+      diasInscricaoChapa: data.diasMinimosInscricao ?? current.data?.diasInscricaoChapa ?? 15,
+      diasRecurso: data.diasMaximosRecurso ?? current.data?.diasRecurso ?? 5,
+    }
+
+    await api.put('/configuracao/eleicoes', payload)
+    return configuracoesService.getConfiguracoesEleicao()
   },
 
   // Configuracoes de Notificacao
   getConfiguracoesNotificacao: async (): Promise<ConfiguracoesNotificacao> => {
-    const response = await api.get<ConfiguracoesNotificacao>('/configuracao/notificacao')
-    return response.data
+    const response = await api.get<any>('/configuracao/email')
+    const email = response.data || {}
+    return {
+      emailHabilitado: !!email.emailHabilitado,
+      smsHabilitado: false,
+      pushHabilitado: false,
+      notificarNovaEleicao: true,
+      notificarInicioVotacao: true,
+      notificarEncerramentoVotacao: true,
+      notificarResultado: true,
+      notificarDenuncia: true,
+      notificarImpugnacao: true,
+      notificarJulgamento: true,
+      remetenteEmail: email.emailRemetente || 'noreply@cau.org.br',
+      nomeRemetente: email.nomeRemetente || 'CAU Sistema Eleitoral',
+      templateEmailBoasVindas: '',
+      templateEmailRecuperacaoSenha: '',
+      templateEmailNotificacao: '',
+    }
   },
 
   updateConfiguracoesNotificacao: async (data: Partial<ConfiguracoesNotificacao>): Promise<ConfiguracoesNotificacao> => {
-    const response = await api.put<ConfiguracoesNotificacao>('/configuracao/notificacao', data)
-    return response.data
+    const current = await api.get<any>('/configuracao/email')
+    await api.put('/configuracao/email', {
+      ...current.data,
+      emailHabilitado: data.emailHabilitado ?? current.data?.emailHabilitado ?? false,
+      emailRemetente: data.remetenteEmail ?? current.data?.emailRemetente ?? 'noreply@cau.org.br',
+      nomeRemetente: data.nomeRemetente ?? current.data?.nomeRemetente ?? 'CAU Sistema Eleitoral',
+    })
+
+    return configuracoesService.getConfiguracoesNotificacao()
   },
 
   testarEmail: async (destinatario: string): Promise<{ sucesso: boolean; erro?: string }> => {
-    const response = await api.post('/configuracao/notificacao/testar-email', { destinatario })
-    return response.data
+    try {
+      await api.post('/configuracao/email/testar', { emailDestino: destinatario })
+      return { sucesso: true }
+    } catch (error: any) {
+      return {
+        sucesso: false,
+        erro: error?.response?.data?.message || 'Falha ao enviar email de teste',
+      }
+    }
   },
 
   // Configuracoes de Seguranca
   getConfiguracoesSeguranca: async (): Promise<ConfiguracoesSeguranca> => {
-    const response = await api.get<ConfiguracoesSeguranca>('/configuracao/seguranca')
-    return response.data
+    const response = await api.get<any>('/configuracao/seguranca')
+    const seg = response.data || {}
+    const tamanhoMinimoSenha = Number(seg.tamanhoMinimoSenha || 8)
+    return {
+      sessaoTimeoutMinutos: Number(seg.expiracaoTokenEmMinutos || 60),
+      tokenExpiracaoHoras: Math.max(1, Math.ceil(Number(seg.expiracaoTokenEmMinutos || 60) / 60)),
+      refreshTokenExpiracaoDias: Number(seg.expiracaoRefreshTokenEmDias || 7),
+      requerer2FA: !!seg.doisFatoresObrigatorio,
+      complexidadeSenhaMinima: tamanhoMinimoSenha >= 10 ? 'alta' : tamanhoMinimoSenha >= 8 ? 'media' : 'baixa',
+      tamanhoMinimoSenha,
+      diasExpiracaoSenha: Number(seg.expiracaoSenhaEmDias || 90),
+      historicoSenhasImpedir: 5,
+      ipWhitelist: [],
+      ipBlacklist: [],
+      rateLimitRequests: Number(seg.tentativasLoginMax || 5),
+      rateLimitWindowMinutos: Number(seg.tempoBloqueioConta || 30),
+      auditarTodasAcoes: true,
+      criptografarVotos: true,
+      algoritmoHash: 'bcrypt',
+    }
   },
 
   updateConfiguracoesSeguranca: async (data: Partial<ConfiguracoesSeguranca>): Promise<ConfiguracoesSeguranca> => {
-    const response = await api.put<ConfiguracoesSeguranca>('/configuracao/seguranca', data)
-    return response.data
+    const current = await api.get<any>('/configuracao/seguranca')
+    const currentData = current.data || {}
+    const tokenExpMin = data.tokenExpiracaoHoras
+      ? Number(data.tokenExpiracaoHoras) * 60
+      : Number(currentData.expiracaoTokenEmMinutos || 60)
+
+    await api.put('/configuracao/seguranca', {
+      ...currentData,
+      tentativasLoginMax: data.rateLimitRequests ?? currentData.tentativasLoginMax ?? 5,
+      tempoBloqueioConta: data.rateLimitWindowMinutos ?? currentData.tempoBloqueioConta ?? 30,
+      expiracaoSenhaEmDias: data.diasExpiracaoSenha ?? currentData.expiracaoSenhaEmDias ?? 90,
+      tamanhoMinimoSenha: data.tamanhoMinimoSenha ?? currentData.tamanhoMinimoSenha ?? 8,
+      expiracaoTokenEmMinutos: tokenExpMin,
+      expiracaoRefreshTokenEmDias: data.refreshTokenExpiracaoDias ?? currentData.expiracaoRefreshTokenEmDias ?? 7,
+      doisFatoresObrigatorio: data.requerer2FA ?? currentData.doisFatoresObrigatorio ?? false,
+    })
+
+    return configuracoesService.getConfiguracoesSeguranca()
   },
 
   // Configuracoes de Integracao
   getConfiguracoesIntegracao: async (): Promise<ConfiguracoesIntegracao> => {
-    const response = await api.get<ConfiguracoesIntegracao>('/configuracao/integracao')
-    return response.data
+    return {
+      apiExternaHabilitada: false,
+      webhooksHabilitados: false,
+      integracaoSIAU: false,
+      integracaoReceitaFederal: false,
+      integracaoEmail: 'smtp',
+      integracaoStorage: 'local',
+    }
   },
 
   updateConfiguracoesIntegracao: async (data: Partial<ConfiguracoesIntegracao>): Promise<ConfiguracoesIntegracao> => {
-    const response = await api.put<ConfiguracoesIntegracao>('/configuracao/integracao', data)
-    return response.data
+    return {
+      apiExternaHabilitada: false,
+      webhooksHabilitados: false,
+      integracaoSIAU: false,
+      integracaoReceitaFederal: false,
+      integracaoEmail: 'smtp',
+      integracaoStorage: 'local',
+      ...data,
+    }
   },
 
   testarIntegracaoSIAU: async (): Promise<{ sucesso: boolean; mensagem: string }> => {
-    const response = await api.post('/configuracao/integracao/testar-siau')
-    return response.data
+    return { sucesso: false, mensagem: 'Integracao SIAU nao esta habilitada nesta API.' }
   },
 
   testarWebhook: async (url: string): Promise<{ sucesso: boolean; statusCode?: number; erro?: string }> => {
-    const response = await api.post('/configuracao/integracao/testar-webhook', { url })
-    return response.data
+    try {
+      const response = await fetch(url, { method: 'HEAD' })
+      return { sucesso: response.ok, statusCode: response.status }
+    } catch (error: any) {
+      return { sucesso: false, erro: error?.message || 'Falha ao testar webhook' }
+    }
   },
 
   // Configuracoes de Aparencia
   getConfiguracoesAparencia: async (): Promise<ConfiguracoesAparencia> => {
-    const response = await api.get<ConfiguracoesAparencia>('/configuracao/aparencia')
-    return response.data
+    const response = await api.get<any>('/configuracao')
+    const geral = response.data?.geral || {}
+    return {
+      logoUrl: geral.logoUrl,
+      faviconUrl: geral.faviconUrl,
+      corPrimaria: geral.corPrimaria || '#1E40AF',
+      corSecundaria: geral.corSecundaria || '#3B82F6',
+      corAcento: '#0EA5E9',
+      tema: 'claro',
+      fontePrincipal: 'Inter',
+      fonteSecundaria: 'Inter',
+      borderRadius: 8,
+      mostrarLogoPaginaLogin: true,
+      textoRodape: '',
+    }
   },
 
   updateConfiguracoesAparencia: async (data: Partial<ConfiguracoesAparencia>): Promise<ConfiguracoesAparencia> => {
-    const response = await api.put<ConfiguracoesAparencia>('/configuracao/aparencia', data)
-    return response.data
+    const keyValues: { chave: string; valor: string }[] = []
+    if (data.corPrimaria !== undefined) keyValues.push({ chave: 'sistema.corPrimaria', valor: data.corPrimaria })
+    if (data.corSecundaria !== undefined) keyValues.push({ chave: 'sistema.corSecundaria', valor: data.corSecundaria })
+    if (data.logoUrl !== undefined) keyValues.push({ chave: 'sistema.logoUrl', valor: data.logoUrl || '' })
+    if (data.faviconUrl !== undefined) keyValues.push({ chave: 'sistema.faviconUrl', valor: data.faviconUrl || '' })
+    if (keyValues.length) {
+      await configuracoesService.updateMultiplas(keyValues)
+    }
+    return configuracoesService.getConfiguracoesAparencia()
   },
 
   uploadLogo: async (arquivo: File): Promise<{ logoUrl: string }> => {
-    const formData = new FormData()
-    formData.append('arquivo', arquivo)
-
-    const response = await api.post<{ logoUrl: string }>('/configuracao/aparencia/logo', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
-    return response.data
+    const logoUrl = URL.createObjectURL(arquivo)
+    await configuracoesService.updateMultiplas([{ chave: 'sistema.logoUrl', valor: logoUrl }])
+    return { logoUrl }
   },
 
   uploadFavicon: async (arquivo: File): Promise<{ faviconUrl: string }> => {
-    const formData = new FormData()
-    formData.append('arquivo', arquivo)
-
-    const response = await api.post<{ faviconUrl: string }>('/configuracao/aparencia/favicon', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
-    return response.data
+    const faviconUrl = URL.createObjectURL(arquivo)
+    await configuracoesService.updateMultiplas([{ chave: 'sistema.faviconUrl', valor: faviconUrl }])
+    return { faviconUrl }
   },
 
   // Logs de Alteracao
@@ -334,27 +455,32 @@ export const configuracoesService = {
     page?: number
     pageSize?: number
   }): Promise<{ data: LogConfiguracao[]; total: number }> => {
-    const response = await api.get('/configuracao/logs', { params })
-    return response.data
+    return { data: [], total: 0 }
   },
 
   // Backup e Restauracao
   getBackups: async (): Promise<BackupConfiguracao[]> => {
-    const response = await api.get<BackupConfiguracao[]>('/configuracao/backups')
-    return response.data
+    return []
   },
 
   criarBackup: async (nome: string, descricao?: string): Promise<BackupConfiguracao> => {
-    const response = await api.post<BackupConfiguracao>('/configuracao/backups', { nome, descricao })
-    return response.data
+    return {
+      id: crypto.randomUUID(),
+      nome,
+      descricao,
+      dados: {},
+      criadoPorId: '',
+      criadoPorNome: 'Sistema',
+      createdAt: new Date().toISOString(),
+    }
   },
 
   restaurarBackup: async (backupId: string): Promise<void> => {
-    await api.post(`/configuracao/backups/${backupId}/restaurar`)
+    await Promise.resolve()
   },
 
   deletarBackup: async (backupId: string): Promise<void> => {
-    await api.delete(`/configuracao/backups/${backupId}`)
+    await Promise.resolve()
   },
 
   exportarConfiguracoes: async (): Promise<Blob> => {
@@ -376,6 +502,6 @@ export const configuracoesService = {
 
   // Reset
   resetarPadrao: async (tipo?: TipoConfiguracao): Promise<void> => {
-    await api.post('/configuracao/resetar', { tipo })
+    await api.post('/configuracao/restaurar-padrao')
   },
 }

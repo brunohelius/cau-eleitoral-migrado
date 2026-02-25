@@ -359,6 +359,42 @@ public class ImpugnacaoController : BaseController
     }
 
     /// <summary>
+    /// Atribui relator e inicia analise da impugnacao
+    /// </summary>
+    /// <param name="id">ID da impugnacao</param>
+    /// <param name="request">Dados do relator</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Impugnacao atualizada</returns>
+    [HttpPost("{id:guid}/relator")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral,Analista")]
+    [ProducesResponseType(typeof(ImpugnacaoDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ImpugnacaoDto>> AtribuirRelator(
+        Guid id,
+        [FromBody] AtribuirRelatorImpugnacaoRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var impugnacao = await _impugnacaoService.IniciarAnaliseAsync(id, request.RelatorId, cancellationToken);
+            return Ok(impugnacao);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Impugnacao nao encontrada" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao atribuir relator da impugnacao {Id}", id);
+            return InternalError("Erro ao atribuir relator");
+        }
+    }
+
+    /// <summary>
     /// Abre prazo para alegacoes
     /// </summary>
     /// <param name="id">ID da impugnacao</param>
@@ -1463,6 +1499,11 @@ public record EstatisticasImpugnacaoResponse
 public record EncaminharJulgamentoRequest
 {
     public Guid? ComissaoId { get; init; }
+}
+
+public record AtribuirRelatorImpugnacaoRequest
+{
+    public Guid RelatorId { get; init; }
 }
 
 public record ValidacaoPeriodoResponse

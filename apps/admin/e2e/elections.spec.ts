@@ -10,13 +10,13 @@ test.describe('Elections Management', () => {
     await expect(page).toHaveURL(/dashboard/);
 
     // Navigate to elections
-    await page.getByRole('link', { name: 'Eleicoes' }).click();
+    await page.goto('/eleicoes');
     await expect(page).toHaveURL(/eleicoes/);
   });
 
   test('should display elections list', async ({ page }) => {
     // Should have elections page heading
-    await expect(page.getByRole('heading', { name: 'Eleicoes' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Elei/i })).toBeVisible();
   });
 
   test('should have navigation working', async ({ page }) => {

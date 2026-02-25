@@ -1,0 +1,5452 @@
+{
+  "generated_at": "2026-02-25T23:10:56.551762+00:00",
+  "source_requirements": "docs/documentacao-qa.md",
+  "summary": {
+    "total_cases": 138,
+    "covered": 78,
+    "partial": 60,
+    "uncovered": 0
+  },
+  "domain_summary": {
+    "AUD": {
+      "total_cases": 4,
+      "covered": 0,
+      "partial": 4,
+      "uncovered": 0,
+      "mapped_files": [
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/api/CAU.Eleitoral.Tests/EmailServiceTests.cs"
+      ],
+      "detected_tests": 7
+    },
+    "AUTH": {
+      "total_cases": 8,
+      "covered": 7,
+      "partial": 1,
+      "uncovered": 0,
+      "mapped_files": [
+        "apps/admin/e2e/auth.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts"
+      ],
+      "detected_tests": 33
+    },
+    "CFG": {
+      "total_cases": 4,
+      "covered": 0,
+      "partial": 4,
+      "uncovered": 0,
+      "mapped_files": [
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/api/CAU.Eleitoral.Tests/EmailServiceTests.cs"
+      ],
+      "detected_tests": 6
+    },
+    "CHA": {
+      "total_cases": 14,
+      "covered": 11,
+      "partial": 3,
+      "uncovered": 0,
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_tests": 35
+    },
+    "DASH": {
+      "total_cases": 3,
+      "covered": 1,
+      "partial": 2,
+      "uncovered": 0,
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_tests": 21
+    },
+    "DEN": {
+      "total_cases": 12,
+      "covered": 10,
+      "partial": 2,
+      "uncovered": 0,
+      "mapped_files": [
+        "apps/admin/src/services/__tests__/denuncias.test.ts"
+      ],
+      "detected_tests": 12
+    },
+    "ELE": {
+      "total_cases": 14,
+      "covered": 11,
+      "partial": 3,
+      "uncovered": 0,
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/elections.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/admin/src/services/__tests__/eleicoes.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_tests": 41
+    },
+    "IMP": {
+      "total_cases": 4,
+      "covered": 2,
+      "partial": 2,
+      "uncovered": 0,
+      "mapped_files": [
+        "apps/admin/src/services/__tests__/impugnacoes.test.ts"
+      ],
+      "detected_tests": 4
+    },
+    "JUL": {
+      "total_cases": 4,
+      "covered": 3,
+      "partial": 1,
+      "uncovered": 0,
+      "mapped_files": [
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_tests": 7
+    },
+    "PUB-AUTH": {
+      "total_cases": 5,
+      "covered": 5,
+      "partial": 0,
+      "uncovered": 0,
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts"
+      ],
+      "detected_tests": 20
+    },
+    "PUB-CAND": {
+      "total_cases": 11,
+      "covered": 4,
+      "partial": 7,
+      "uncovered": 0,
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_tests": 23
+    },
+    "PUB-PAG": {
+      "total_cases": 10,
+      "covered": 0,
+      "partial": 10,
+      "uncovered": 0,
+      "mapped_files": [
+        "apps/public/e2e/responsividade.spec.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_tests": 40
+    },
+    "PUB-VOT": {
+      "total_cases": 12,
+      "covered": 8,
+      "partial": 4,
+      "uncovered": 0,
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_tests": 27
+    },
+    "REL": {
+      "total_cases": 3,
+      "covered": 2,
+      "partial": 1,
+      "uncovered": 0,
+      "mapped_files": [
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/api/CAU.Eleitoral.Tests/ExcelExportServiceTests.cs",
+        "apps/api/CAU.Eleitoral.Tests/PdfExportServiceTests.cs"
+      ],
+      "detected_tests": 16
+    },
+    "RESP": {
+      "total_cases": 5,
+      "covered": 5,
+      "partial": 0,
+      "uncovered": 0,
+      "mapped_files": [
+        "apps/admin/e2e/responsividade.spec.ts",
+        "apps/public/e2e/responsividade.spec.ts"
+      ],
+      "detected_tests": 5
+    },
+    "SEC": {
+      "total_cases": 10,
+      "covered": 1,
+      "partial": 9,
+      "uncovered": 0,
+      "mapped_files": [
+        "apps/admin/e2e/auth.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts",
+        "apps/api/CAU.Eleitoral.Tests/ExcelExportServiceTests.cs",
+        "apps/api/CAU.Eleitoral.Tests/PdfExportServiceTests.cs",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_tests": 78
+    },
+    "USR": {
+      "total_cases": 5,
+      "covered": 2,
+      "partial": 3,
+      "uncovered": 0,
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts"
+      ],
+      "detected_tests": 6
+    },
+    "VOT": {
+      "total_cases": 10,
+      "covered": 6,
+      "partial": 4,
+      "uncovered": 0,
+      "mapped_files": [
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_tests": 22
+    }
+  },
+  "module_summary": {
+    "Módulo: Auditoria": {
+      "total_cases": 4,
+      "covered": 0,
+      "partial": 4,
+      "uncovered": 0
+    },
+    "Módulo: Autenticação Admin": {
+      "total_cases": 8,
+      "covered": 7,
+      "partial": 1,
+      "uncovered": 0
+    },
+    "Módulo: Chapas": {
+      "total_cases": 14,
+      "covered": 11,
+      "partial": 3,
+      "uncovered": 0
+    },
+    "Módulo: Configurações": {
+      "total_cases": 4,
+      "covered": 0,
+      "partial": 4,
+      "uncovered": 0
+    },
+    "Módulo: Dashboard": {
+      "total_cases": 3,
+      "covered": 1,
+      "partial": 2,
+      "uncovered": 0
+    },
+    "Módulo: Denúncias": {
+      "total_cases": 12,
+      "covered": 10,
+      "partial": 2,
+      "uncovered": 0
+    },
+    "Módulo: Eleições": {
+      "total_cases": 14,
+      "covered": 11,
+      "partial": 3,
+      "uncovered": 0
+    },
+    "Módulo: Impugnações": {
+      "total_cases": 4,
+      "covered": 2,
+      "partial": 2,
+      "uncovered": 0
+    },
+    "Módulo: Julgamentos": {
+      "total_cases": 4,
+      "covered": 3,
+      "partial": 1,
+      "uncovered": 0
+    },
+    "Módulo: Relatórios": {
+      "total_cases": 3,
+      "covered": 2,
+      "partial": 1,
+      "uncovered": 0
+    },
+    "Módulo: Usuários": {
+      "total_cases": 5,
+      "covered": 2,
+      "partial": 3,
+      "uncovered": 0
+    },
+    "Módulo: Votação (Admin)": {
+      "total_cases": 10,
+      "covered": 6,
+      "partial": 4,
+      "uncovered": 0
+    },
+    "Portal Público - Autenticação Eleitor": {
+      "total_cases": 5,
+      "covered": 5,
+      "partial": 0,
+      "uncovered": 0
+    },
+    "Portal Público - Páginas Públicas": {
+      "total_cases": 10,
+      "covered": 0,
+      "partial": 10,
+      "uncovered": 0
+    },
+    "Portal Público - Votação Eleitor": {
+      "total_cases": 12,
+      "covered": 8,
+      "partial": 4,
+      "uncovered": 0
+    },
+    "Portal Público - Área do Candidato": {
+      "total_cases": 11,
+      "covered": 4,
+      "partial": 7,
+      "uncovered": 0
+    },
+    "Testes de Responsividade": {
+      "total_cases": 5,
+      "covered": 5,
+      "partial": 0,
+      "uncovered": 0
+    },
+    "Testes de Segurança": {
+      "total_cases": 10,
+      "covered": 1,
+      "partial": 9,
+      "uncovered": 0
+    }
+  },
+  "test_inventory": {
+    "total_tests_detected": 168,
+    "files": {
+      "apps/admin/e2e/auth.spec.ts": 4,
+      "apps/admin/e2e/dashboard.spec.ts": 6,
+      "apps/admin/e2e/elections.spec.ts": 2,
+      "apps/admin/e2e/full-system.spec.ts": 12,
+      "apps/admin/e2e/login-test.prod.spec.ts": 1,
+      "apps/admin/e2e/modules-pages.spec.ts": 5,
+      "apps/admin/e2e/modules-smoke.prod.spec.ts": 2,
+      "apps/admin/e2e/responsividade.spec.ts": 3,
+      "apps/admin/src/services/__tests__/auth.test.ts": 9,
+      "apps/admin/src/services/__tests__/chapas.test.ts": 18,
+      "apps/admin/src/services/__tests__/denuncias.test.ts": 12,
+      "apps/admin/src/services/__tests__/eleicoes.test.ts": 12,
+      "apps/admin/src/services/__tests__/impugnacoes.test.ts": 4,
+      "apps/admin/src/services/__tests__/votacao.test.ts": 10,
+      "apps/admin/src/stores/__tests__/auth.test.ts": 7,
+      "apps/api/CAU.Eleitoral.Tests/EmailServiceTests.cs": 6,
+      "apps/api/CAU.Eleitoral.Tests/ExcelExportServiceTests.cs": 4,
+      "apps/api/CAU.Eleitoral.Tests/PdfExportServiceTests.cs": 4,
+      "apps/api/CAU.Eleitoral.Tests/S3StorageServiceTests.cs": 7,
+      "apps/public/e2e/responsividade.spec.ts": 2,
+      "apps/public/e2e/voting.spec.ts": 9,
+      "apps/public/src/services/__tests__/auth.test.ts": 11,
+      "apps/public/src/services/__tests__/votacao.test.ts": 18
+    }
+  },
+  "command_results": [
+    {
+      "name": "api-unit",
+      "command": "dotnet test apps/api/CAU.Eleitoral.Tests/CAU.Eleitoral.Tests.csproj --nologo",
+      "cwd": ".",
+      "ok": true,
+      "exit_code": 0,
+      "duration_sec": 2.12,
+      "output_tail": [
+        "  Determining projects to restore...",
+        "  All projects are up-to-date for restore.",
+        "  CAU.Eleitoral.Domain -> /Users/brunosouza/Development/cau-eleitoral-migrado/apps/api/CAU.Eleitoral.Domain/bin/Debug/net10.0/CAU.Eleitoral.Domain.dll",
+        "  CAU.Eleitoral.Application -> /Users/brunosouza/Development/cau-eleitoral-migrado/apps/api/CAU.Eleitoral.Application/bin/Debug/net10.0/CAU.Eleitoral.Application.dll",
+        "  CAU.Eleitoral.Infrastructure -> /Users/brunosouza/Development/cau-eleitoral-migrado/apps/api/CAU.Eleitoral.Infrastructure/bin/Debug/net10.0/CAU.Eleitoral.Infrastructure.dll",
+        "  CAU.Eleitoral.Tests -> /Users/brunosouza/Development/cau-eleitoral-migrado/apps/api/CAU.Eleitoral.Tests/bin/Debug/net10.0/CAU.Eleitoral.Tests.dll",
+        "Test run for /Users/brunosouza/Development/cau-eleitoral-migrado/apps/api/CAU.Eleitoral.Tests/bin/Debug/net10.0/CAU.Eleitoral.Tests.dll (.NETCoreApp,Version=v10.0)",
+        "A total of 1 test files matched the specified pattern.",
+        "Passed!  - Failed:     0, Passed:    21, Skipped:     0, Total:    21, Duration: 447 ms - CAU.Eleitoral.Tests.dll (net10.0)"
+      ]
+    },
+    {
+      "name": "admin-unit",
+      "command": "pnpm exec vitest run",
+      "cwd": "apps/admin",
+      "ok": true,
+      "exit_code": 0,
+      "duration_sec": 1.44,
+      "output_tail": [
+        " RUN  v2.1.9 /Users/brunosouza/Development/cau-eleitoral-migrado/apps/admin",
+        " ✓ src/stores/__tests__/auth.test.ts (7 tests) 2ms",
+        " ✓ src/services/__tests__/votacao.test.ts (10 tests) 15ms",
+        " ✓ src/services/__tests__/auth.test.ts (9 tests) 17ms",
+        " ✓ src/services/__tests__/denuncias.test.ts (12 tests) 18ms",
+        " ✓ src/services/__tests__/eleicoes.test.ts (12 tests) 19ms",
+        " ✓ src/services/__tests__/chapas.test.ts (18 tests) 18ms",
+        " ✓ src/services/__tests__/impugnacoes.test.ts (4 tests) 23ms",
+        " Test Files  7 passed (7)",
+        "      Tests  72 passed (72)",
+        "   Start at  20:10:26",
+        "   Duration  1.04s (transform 252ms, setup 435ms, collect 368ms, tests 112ms, environment 4.04s, prepare 992ms)"
+      ]
+    },
+    {
+      "name": "public-unit",
+      "command": "pnpm exec vitest run",
+      "cwd": "apps/public",
+      "ok": true,
+      "exit_code": 0,
+      "duration_sec": 0.92,
+      "output_tail": [
+        " RUN  v2.1.9 /Users/brunosouza/Development/cau-eleitoral-migrado/apps/public",
+        " ✓ src/services/__tests__/auth.test.ts (11 tests) 10ms",
+        " ✓ src/services/__tests__/votacao.test.ts (18 tests) 11ms",
+        " Test Files  2 passed (2)",
+        "      Tests  29 passed (29)",
+        "   Start at  20:10:27",
+        "   Duration  556ms (transform 67ms, setup 68ms, collect 70ms, tests 20ms, environment 488ms, prepare 95ms)"
+      ]
+    },
+    {
+      "name": "admin-build",
+      "command": "pnpm --filter @cau-eleitoral/admin build",
+      "cwd": ".",
+      "ok": true,
+      "exit_code": 0,
+      "duration_sec": 6.11,
+      "output_tail": [
+        "> @cau-eleitoral/admin@1.0.0 build /Users/brunosouza/Development/cau-eleitoral-migrado/apps/admin",
+        "> tsc && vite build",
+        "vite v5.4.21 building for production...",
+        "transforming...",
+        "✓ 1829 modules transformed.",
+        "rendering chunks...",
+        "computing gzip size...",
+        "dist/index.html                   0.48 kB │ gzip:   0.32 kB",
+        "dist/assets/index-FB0VXOag.css   46.64 kB │ gzip:   8.58 kB",
+        "dist/assets/index-C6_0JbtV.js   905.21 kB │ gzip: 231.51 kB │ map: 3,405.01 kB",
+        "✓ built in 1.87s",
+        "(!) Some chunks are larger than 500 kB after minification. Consider:",
+        "- Using dynamic import() to code-split the application",
+        "- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks",
+        "- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit."
+      ]
+    },
+    {
+      "name": "public-build",
+      "command": "pnpm --filter @cau-eleitoral/public build",
+      "cwd": ".",
+      "ok": true,
+      "exit_code": 0,
+      "duration_sec": 4.44,
+      "output_tail": [
+        "> @cau-eleitoral/public@1.0.0 build /Users/brunosouza/Development/cau-eleitoral-migrado/apps/public",
+        "> tsc && vite build",
+        "vite v5.4.21 building for production...",
+        "transforming...",
+        "✓ 1747 modules transformed.",
+        "rendering chunks...",
+        "computing gzip size...",
+        "dist/index.html                   0.47 kB │ gzip:   0.31 kB",
+        "dist/assets/index-6Wi7xtRZ.css   54.27 kB │ gzip:   9.11 kB",
+        "dist/assets/index-C-t43WOd.js   677.46 kB │ gzip: 174.66 kB │ map: 2,354.26 kB",
+        "✓ built in 1.58s",
+        "(!) Some chunks are larger than 500 kB after minification. Consider:",
+        "- Using dynamic import() to code-split the application",
+        "- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks",
+        "- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit."
+      ]
+    },
+    {
+      "name": "admin-e2e",
+      "command": "pkill -f \"dotnet run --urls http://localhost:7779\" || true; pkill -f \"vite.*7777\" || true; pnpm --filter @cau-eleitoral/admin e2e",
+      "cwd": ".",
+      "ok": true,
+      "exit_code": 0,
+      "duration_sec": 13.82,
+      "output_tail": [
+        "\u001b[1A\u001b[2K[22/32] [chromium] › e2e/full-system.spec.ts:107:5 › CAU Sistema Eleitoral - Full System Tests › API Endpoints › should authenticate via API",
+        "\u001b[1A\u001b[2K[23/32] [chromium] › e2e/full-system.spec.ts:116:5 › CAU Sistema Eleitoral - Full System Tests › API Endpoints › should fetch elections via API",
+        "\u001b[1A\u001b[2K[24/32] [chromium] › e2e/full-system.spec.ts:135:5 › CAU Sistema Eleitoral - Full System Tests › API Endpoints › should fetch slates via API",
+        "\u001b[1A\u001b[2K[25/32] [chromium] › e2e/modules-pages.spec.ts:21:3 › Admin Modules (Local/API) › should load Auditoria page",
+        "\u001b[1A\u001b[2K[26/32] [chromium] › e2e/modules-pages.spec.ts:27:3 › Admin Modules (Local/API) › should load Julgamentos list and open a detail page",
+        "\u001b[1A\u001b[2K[27/32] [chromium] › e2e/modules-pages.spec.ts:40:3 › Admin Modules (Local/API) › should load Relatorios pages and allow selecting an eleicao",
+        "\u001b[1A\u001b[2K[28/32] [chromium] › e2e/modules-pages.spec.ts:65:3 › Admin Modules (Local/API) › should load Eleicao calendario page for first eleicao",
+        "\u001b[1A\u001b[2K[29/32] [chromium] › e2e/modules-pages.spec.ts:82:3 › Admin Modules (Local/API) › should render Sessao de Julgamento page",
+        "\u001b[1A\u001b[2K[30/32] [chromium] › e2e/responsividade.spec.ts:11:3 › Testes de Responsividade Admin › CT-RESP-001 Admin Desktop 1920x1080 deve renderizar sem quebra de layout",
+        "\u001b[1A\u001b[2K[31/32] [chromium] › e2e/responsividade.spec.ts:21:3 › Testes de Responsividade Admin › CT-RESP-002 Admin Tablet 768x1024 deve manter usabilidade no formulario",
+        "\u001b[1A\u001b[2K[32/32] [chromium] › e2e/responsividade.spec.ts:32:3 › Testes de Responsividade Admin › CT-RESP-003 Admin Mobile 375x667 deve funcionar sem overflow horizontal",
+        "\u001b[1A\u001b[2K  32 passed (12.9s)",
+        "\u001b[1A\u001b[2K\u001b[2m[WebServer] \u001b[22m(node:98967) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.",
+        "\u001b[2m[WebServer] \u001b[22m(Use `node --trace-warnings ...` to show where the warning was created)",
+        "\u001b[1A\u001b[2K\u001b[2m[WebServer] \u001b[22m(node:98979) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.",
+        "\u001b[2m[WebServer] \u001b[22m(Use `node --trace-warnings ...` to show where the warning was created)",
+        "\u001b[1A\u001b[2K(node:98986) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.",
+        "(Use `node --trace-warnings ...` to show where the warning was created)",
+        "\u001b[1A\u001b[2K(node:98986) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.",
+        "(Use `node --trace-warnings ...` to show where the warning was created)"
+      ]
+    },
+    {
+      "name": "public-e2e",
+      "command": "pkill -f \"dotnet run --urls http://localhost:7779\" || true; pkill -f \"vite.*7778\" || true; pnpm --filter @cau-eleitoral/public e2e",
+      "cwd": ".",
+      "ok": true,
+      "exit_code": 0,
+      "duration_sec": 4.16,
+      "output_tail": [
+        "\u001b[1A\u001b[2K[1/11] [chromium] › e2e/responsividade.spec.ts:11:3 › Testes de Responsividade Public › CT-RESP-004 Public Desktop 1920x1080 deve exibir home sem quebra",
+        "\u001b[1A\u001b[2K[2/11] [chromium] › e2e/responsividade.spec.ts:19:3 › Testes de Responsividade Public › CT-RESP-005 Public Mobile 375x667 deve manter navegacao funcional",
+        "\u001b[1A\u001b[2K[3/11] [chromium] › e2e/voting.spec.ts:4:3 › Public Voting Flow › should display home page",
+        "\u001b[1A\u001b[2K[4/11] [chromium] › e2e/voting.spec.ts:9:3 › Public Voting Flow › should navigate to voter login",
+        "\u001b[1A\u001b[2K[5/11] [chromium] › e2e/voting.spec.ts:15:3 › Public Voting Flow › should display voter login form",
+        "\u001b[1A\u001b[2K[6/11] [chromium] › e2e/voting.spec.ts:22:3 › Public Voting Flow › should enable continue button after filling CPF and CAU",
+        "\u001b[1A\u001b[2K[7/11] [chromium] › e2e/voting.spec.ts:35:3 › Public Voting Flow › should display elections list on public page",
+        "\u001b[1A\u001b[2K[8/11] [chromium] › e2e/voting.spec.ts:40:3 › Public Voting Flow › should display calendar page",
+        "\u001b[1A\u001b[2K[9/11] [chromium] › e2e/voting.spec.ts:45:3 › Public Voting Flow › should display documents page",
+        "\u001b[1A\u001b[2K[10/11] [chromium] › e2e/voting.spec.ts:50:3 › Public Voting Flow › should display FAQ page",
+        "\u001b[1A\u001b[2K[11/11] [chromium] › e2e/voting.spec.ts:57:3 › Candidate Portal › should display candidate login page",
+        "\u001b[1A\u001b[2K  11 passed (3.3s)",
+        "\u001b[1A\u001b[2K\u001b[2m[WebServer] \u001b[22m(node:99408) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.",
+        "\u001b[2m[WebServer] \u001b[22m(Use `node --trace-warnings ...` to show where the warning was created)",
+        "\u001b[1A\u001b[2K\u001b[2m[WebServer] \u001b[22m(node:99421) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.",
+        "\u001b[2m[WebServer] \u001b[22m(Use `node --trace-warnings ...` to show where the warning was created)",
+        "\u001b[1A\u001b[2K(node:99428) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.",
+        "(Use `node --trace-warnings ...` to show where the warning was created)",
+        "\u001b[1A\u001b[2K(node:99428) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.",
+        "(Use `node --trace-warnings ...` to show where the warning was created)"
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "CT-AUTH-001",
+      "title": "Login com credenciais válidas",
+      "module": "Módulo: Autenticação Admin",
+      "domain": "AUTH",
+      "expected_result": "Redireciona para `/dashboard`, token JWT armazenado",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/auth.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts"
+      ],
+      "detected_test_count": 33,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve fazer login com credenciais válidas",
+          "score": 6,
+          "shared_tokens": [
+            "admin",
+            "credenciais",
+            "login",
+            "validas"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/full-system.spec.ts",
+          "title": "should display dashboard after login",
+          "score": 6,
+          "shared_tokens": [
+            "admin",
+            "dashboard",
+            "login"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/login-test.prod.spec.ts",
+          "title": "should login and show dashboard",
+          "score": 6,
+          "shared_tokens": [
+            "admin",
+            "dashboard",
+            "login"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-AUTH-002",
+      "title": "Login com credenciais inválidas",
+      "module": "Módulo: Autenticação Admin",
+      "domain": "AUTH",
+      "expected_result": "Mensagem de erro exibida, permanece na tela de login",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/auth.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts"
+      ],
+      "detected_test_count": 33,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve fazer login com credenciais válidas",
+          "score": 4,
+          "shared_tokens": [
+            "credenciais",
+            "login"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/auth.spec.ts",
+          "title": "should display login page",
+          "score": 3,
+          "shared_tokens": [
+            "login"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-AUTH-003",
+      "title": "Login com campos vazios",
+      "module": "Módulo: Autenticação Admin",
+      "domain": "AUTH",
+      "expected_result": "Validação dos campos obrigatórios exibida",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/auth.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts"
+      ],
+      "detected_test_count": 33,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/auth.spec.ts",
+          "title": "should display login page",
+          "score": 3,
+          "shared_tokens": [
+            "login"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/auth.spec.ts",
+          "title": "should login with valid credentials",
+          "score": 3,
+          "shared_tokens": [
+            "login"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/full-system.spec.ts",
+          "title": "should display login page",
+          "score": 3,
+          "shared_tokens": [
+            "login"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-AUTH-004",
+      "title": "Logout",
+      "module": "Módulo: Autenticação Admin",
+      "domain": "AUTH",
+      "expected_result": "Redireciona para `/login`, tokens removidos",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/auth.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts"
+      ],
+      "detected_test_count": 33,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/auth.spec.ts",
+          "title": "should display login page",
+          "score": 3,
+          "shared_tokens": [
+            "login"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/auth.spec.ts",
+          "title": "should login with valid credentials",
+          "score": 3,
+          "shared_tokens": [
+            "login"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-AUTH-005",
+      "title": "Recuperação de senha",
+      "module": "Módulo: Autenticação Admin",
+      "domain": "AUTH",
+      "expected_result": "Mensagem de sucesso, email enviado com link de recuperação",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/auth.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts"
+      ],
+      "detected_test_count": 33,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve solicitar recuperação de senha",
+          "score": 3,
+          "shared_tokens": [
+            "recuperar",
+            "senha"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/auth.spec.ts",
+          "title": "should display login page",
+          "score": 3,
+          "shared_tokens": [
+            "login"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/auth.spec.ts",
+          "title": "should login with valid credentials",
+          "score": 3,
+          "shared_tokens": [
+            "login"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-AUTH-006",
+      "title": "Redefinição de senha",
+      "module": "Módulo: Autenticação Admin",
+      "domain": "AUTH",
+      "expected_result": "Senha alterada com sucesso, redireciona para login",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/auth.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts"
+      ],
+      "detected_test_count": 33,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve solicitar recuperação de senha",
+          "score": 3,
+          "shared_tokens": [
+            "recuperar",
+            "senha"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve redefinir senha com token válido",
+          "score": 3,
+          "shared_tokens": [
+            "redefinir",
+            "senha"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/auth.spec.ts",
+          "title": "should display login page",
+          "score": 3,
+          "shared_tokens": [
+            "login"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-AUTH-007",
+      "title": "Acesso a rota protegida sem autenticação",
+      "module": "Módulo: Autenticação Admin",
+      "domain": "AUTH",
+      "expected_result": "Redireciona para `/login`",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/auth.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts"
+      ],
+      "detected_test_count": 33,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/auth.spec.ts",
+          "title": "should display login page",
+          "score": 5,
+          "shared_tokens": [
+            "auth",
+            "login"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/auth.spec.ts",
+          "title": "should login with valid credentials",
+          "score": 5,
+          "shared_tokens": [
+            "auth",
+            "login"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/full-system.spec.ts",
+          "title": "should display dashboard after login",
+          "score": 5,
+          "shared_tokens": [
+            "dashboard",
+            "login"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-AUTH-008",
+      "title": "Renovação automática de token (Refresh Token)",
+      "module": "Módulo: Autenticação Admin",
+      "domain": "AUTH",
+      "expected_result": "Token renovado automaticamente sem interrupção",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/auth.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts"
+      ],
+      "detected_test_count": 33,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve redefinir senha com token válido",
+          "score": 2,
+          "shared_tokens": [
+            "token"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve renovar token de acesso",
+          "score": 2,
+          "shared_tokens": [
+            "token"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-DASH-001",
+      "title": "Carregamento do Dashboard",
+      "module": "Módulo: Dashboard",
+      "domain": "DASH",
+      "expected_result": "Exibe cards com estatísticas: eleições ativas, total de chapas, total de votos, denúncias pendentes",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 21,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/dashboard.spec.ts",
+          "title": "should navigate to elections page",
+          "score": 4,
+          "shared_tokens": [
+            "dashboard",
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/dashboard.spec.ts",
+          "title": "should navigate to slates page",
+          "score": 4,
+          "shared_tokens": [
+            "chapa",
+            "dashboard"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-DASH-002",
+      "title": "Estatísticas em tempo real",
+      "module": "Módulo: Dashboard",
+      "domain": "DASH",
+      "expected_result": "Os contadores refletem os dados atuais do sistema",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 21,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve retornar estatísticas de chapas por eleição",
+          "score": 1,
+          "shared_tokens": [
+            "estatisticas"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve retornar estatísticas de votação de uma eleição",
+          "score": 1,
+          "shared_tokens": [
+            "estatisticas"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-DASH-003",
+      "title": "Navegação rápida via Dashboard",
+      "module": "Módulo: Dashboard",
+      "domain": "DASH",
+      "expected_result": "Navega para a página correspondente",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 21,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/dashboard.spec.ts",
+          "title": "should display dashboard statistics",
+          "score": 2,
+          "shared_tokens": [
+            "dashboard"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/dashboard.spec.ts",
+          "title": "should navigate to elections page",
+          "score": 2,
+          "shared_tokens": [
+            "dashboard"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/dashboard.spec.ts",
+          "title": "should navigate to slates page",
+          "score": 2,
+          "shared_tokens": [
+            "dashboard"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-ELE-001",
+      "title": "Listagem de eleições",
+      "module": "Módulo: Eleições",
+      "domain": "ELE",
+      "expected_result": "Lista todas as eleições com nome, ano, status, e ações disponíveis",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/elections.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/admin/src/services/__tests__/eleicoes.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 41,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/dashboard.spec.ts",
+          "title": "should navigate to elections page",
+          "score": 2,
+          "shared_tokens": [
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/dashboard.spec.ts",
+          "title": "should display elections in progress",
+          "score": 2,
+          "shared_tokens": [
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/elections.spec.ts",
+          "title": "should display elections list",
+          "score": 2,
+          "shared_tokens": [
+            "eleicao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-ELE-002",
+      "title": "Criar nova eleição",
+      "module": "Módulo: Eleições",
+      "domain": "ELE",
+      "expected_result": "Eleição criada com status \"Planejada\", exibida na listagem",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/elections.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/admin/src/services/__tests__/eleicoes.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 41,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/eleicoes.test.ts",
+          "title": "deve criar uma nova eleição",
+          "score": 5,
+          "shared_tokens": [
+            "criar",
+            "eleicao",
+            "nova"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve retornar estatísticas de votação de uma eleição",
+          "score": 4,
+          "shared_tokens": [
+            "eleicao",
+            "votacao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve abrir votação para uma eleição",
+          "score": 4,
+          "shared_tokens": [
+            "eleicao",
+            "votacao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-ELE-003",
+      "title": "Visualizar detalhes da eleição",
+      "module": "Módulo: Eleições",
+      "domain": "ELE",
+      "expected_result": "Exibe dados completos: informações gerais, chapas vinculadas, calendário, estatísticas",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/elections.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/admin/src/services/__tests__/eleicoes.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 41,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve retornar estatísticas de chapas por eleição",
+          "score": 5,
+          "shared_tokens": [
+            "chapa",
+            "eleicao",
+            "estatisticas"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/modules-pages.spec.ts",
+          "title": "should load Eleicao calendario page for first eleicao",
+          "score": 4,
+          "shared_tokens": [
+            "calendario",
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve filtrar chapas por eleição",
+          "score": 4,
+          "shared_tokens": [
+            "chapa",
+            "eleicao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-ELE-004",
+      "title": "Editar eleição",
+      "module": "Módulo: Eleições",
+      "domain": "ELE",
+      "expected_result": "Dados atualizados com sucesso",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/elections.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/admin/src/services/__tests__/eleicoes.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 41,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/dashboard.spec.ts",
+          "title": "should navigate to elections page",
+          "score": 2,
+          "shared_tokens": [
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/dashboard.spec.ts",
+          "title": "should display elections in progress",
+          "score": 2,
+          "shared_tokens": [
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/elections.spec.ts",
+          "title": "should display elections list",
+          "score": 2,
+          "shared_tokens": [
+            "eleicao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-ELE-005",
+      "title": "Validação de edição - Eleição com votos",
+      "module": "Módulo: Eleições",
+      "domain": "ELE",
+      "expected_result": "Campos bloqueados ou aviso de que não podem ser alterados",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/elections.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/admin/src/services/__tests__/eleicoes.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 41,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve retornar estatísticas de votação de uma eleição",
+          "score": 4,
+          "shared_tokens": [
+            "eleicao",
+            "votacao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve abrir votação para uma eleição",
+          "score": 4,
+          "shared_tokens": [
+            "eleicao",
+            "votacao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve encerrar votação de uma eleição",
+          "score": 4,
+          "shared_tokens": [
+            "eleicao",
+            "votacao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-ELE-006",
+      "title": "Iniciar eleição",
+      "module": "Módulo: Eleições",
+      "domain": "ELE",
+      "expected_result": "Status muda para \"Em Andamento\"",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/elections.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/admin/src/services/__tests__/eleicoes.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 41,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/eleicoes.test.ts",
+          "title": "deve iniciar uma eleição",
+          "score": 4,
+          "shared_tokens": [
+            "eleicao",
+            "iniciar"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-ELE-007",
+      "title": "Encerrar eleição",
+      "module": "Módulo: Eleições",
+      "domain": "ELE",
+      "expected_result": "Status muda para \"Encerrada\"",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/elections.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/admin/src/services/__tests__/eleicoes.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 41,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/eleicoes.test.ts",
+          "title": "deve encerrar uma eleição",
+          "score": 4,
+          "shared_tokens": [
+            "eleicao",
+            "encerrar"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve encerrar votação de uma eleição",
+          "score": 4,
+          "shared_tokens": [
+            "eleicao",
+            "encerrar"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-ELE-008",
+      "title": "Suspender eleição",
+      "module": "Módulo: Eleições",
+      "domain": "ELE",
+      "expected_result": "Status muda para \"Suspensa\", motivo registrado",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/elections.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/admin/src/services/__tests__/eleicoes.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 41,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/eleicoes.test.ts",
+          "title": "deve suspender uma eleição com motivo",
+          "score": 5,
+          "shared_tokens": [
+            "eleicao",
+            "motivo",
+            "suspender"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/eleicoes.test.ts",
+          "title": "deve cancelar uma eleição com motivo",
+          "score": 3,
+          "shared_tokens": [
+            "eleicao",
+            "motivo"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-ELE-009",
+      "title": "Cancelar eleição",
+      "module": "Módulo: Eleições",
+      "domain": "ELE",
+      "expected_result": "Status muda para \"Cancelada\", motivo registrado",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/elections.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/admin/src/services/__tests__/eleicoes.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 41,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/eleicoes.test.ts",
+          "title": "deve cancelar uma eleição com motivo",
+          "score": 5,
+          "shared_tokens": [
+            "cancelar",
+            "eleicao",
+            "motivo"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/eleicoes.test.ts",
+          "title": "deve suspender uma eleição com motivo",
+          "score": 3,
+          "shared_tokens": [
+            "eleicao",
+            "motivo"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-ELE-010",
+      "title": "Excluir eleição",
+      "module": "Módulo: Eleições",
+      "domain": "ELE",
+      "expected_result": "Eleição removida (soft delete), chapas associadas também removidas",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/elections.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/admin/src/services/__tests__/eleicoes.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 41,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve filtrar chapas por eleição",
+          "score": 4,
+          "shared_tokens": [
+            "chapa",
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve listar chapas de uma eleição",
+          "score": 4,
+          "shared_tokens": [
+            "chapa",
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve retornar estatísticas de chapas por eleição",
+          "score": 4,
+          "shared_tokens": [
+            "chapa",
+            "eleicao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-ELE-011",
+      "title": "Excluir eleição com restrição",
+      "module": "Módulo: Eleições",
+      "domain": "ELE",
+      "expected_result": "Mensagem de erro indicando que não pode ser excluída",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/elections.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/admin/src/services/__tests__/eleicoes.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 41,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/eleicoes.test.ts",
+          "title": "deve excluir uma eleição",
+          "score": 4,
+          "shared_tokens": [
+            "eleicao",
+            "excluir"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-ELE-012",
+      "title": "Verificar editabilidade (CanEdit)",
+      "module": "Módulo: Eleições",
+      "domain": "ELE",
+      "expected_result": "API retorna se pode editar, warnings sobre restrições, qtd de votos/chapas",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/elections.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/admin/src/services/__tests__/eleicoes.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 41,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/full-system.spec.ts",
+          "title": "should fetch slates via API",
+          "score": 3,
+          "shared_tokens": [
+            "api",
+            "chapa"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/full-system.spec.ts",
+          "title": "should navigate to slates page",
+          "score": 2,
+          "shared_tokens": [
+            "chapa"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve filtrar chapas por eleição",
+          "score": 2,
+          "shared_tokens": [
+            "chapa"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-ELE-013",
+      "title": "Visualizar calendário da eleição",
+      "module": "Módulo: Eleições",
+      "domain": "ELE",
+      "expected_result": "Calendário com prazos e eventos da eleição",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/elections.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/admin/src/services/__tests__/eleicoes.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 41,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/modules-pages.spec.ts",
+          "title": "should load Eleicao calendario page for first eleicao",
+          "score": 4,
+          "shared_tokens": [
+            "calendario",
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve verificar elegibilidade com eleicaoId",
+          "score": 3,
+          "shared_tokens": [
+            "eleicao",
+            "id"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve verificar elegibilidade sem eleicaoId",
+          "score": 3,
+          "shared_tokens": [
+            "eleicao",
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-ELE-014",
+      "title": "Visualizar apuração da eleição",
+      "module": "Módulo: Eleições",
+      "domain": "ELE",
+      "expected_result": "Resultados da apuração com gráficos",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/elections.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/admin/src/services/__tests__/eleicoes.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 41,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve verificar elegibilidade com eleicaoId",
+          "score": 3,
+          "shared_tokens": [
+            "eleicao",
+            "id"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve verificar elegibilidade sem eleicaoId",
+          "score": 3,
+          "shared_tokens": [
+            "eleicao",
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-CHA-001",
+      "title": "Listagem de chapas com filtros",
+      "module": "Módulo: Chapas",
+      "domain": "CHA",
+      "expected_result": "Lista paginada com chapas filtradas",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 35,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve filtrar chapas por eleição",
+          "score": 6,
+          "shared_tokens": [
+            "chapa",
+            "eleicao",
+            "filtrar"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve listar chapas de uma eleição",
+          "score": 4,
+          "shared_tokens": [
+            "chapa",
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve retornar estatísticas de chapas por eleição",
+          "score": 4,
+          "shared_tokens": [
+            "chapa",
+            "eleicao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-CHA-002",
+      "title": "Criar nova chapa",
+      "module": "Módulo: Chapas",
+      "domain": "CHA",
+      "expected_result": "Chapa criada com status \"Rascunho\"",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 35,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve criar uma nova chapa",
+          "score": 5,
+          "shared_tokens": [
+            "chapa",
+            "criar",
+            "nova"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve filtrar chapas por eleição",
+          "score": 4,
+          "shared_tokens": [
+            "chapa",
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve listar chapas de uma eleição",
+          "score": 4,
+          "shared_tokens": [
+            "chapa",
+            "eleicao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-CHA-003",
+      "title": "Visualizar detalhes da chapa",
+      "module": "Módulo: Chapas",
+      "domain": "CHA",
+      "expected_result": "Exibe dados completos incluindo membros e documentos",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 35,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve listar documentos da chapa",
+          "score": 4,
+          "shared_tokens": [
+            "chapa",
+            "documento"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve remover documento da chapa",
+          "score": 4,
+          "shared_tokens": [
+            "chapa",
+            "documento"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve retornar detalhes da chapa com membros",
+          "score": 3,
+          "shared_tokens": [
+            "chapa",
+            "membro"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-CHA-004",
+      "title": "Editar chapa",
+      "module": "Módulo: Chapas",
+      "domain": "CHA",
+      "expected_result": "Dados atualizados",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 35,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/dashboard.spec.ts",
+          "title": "should navigate to slates page",
+          "score": 2,
+          "shared_tokens": [
+            "chapa"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/full-system.spec.ts",
+          "title": "should navigate to slates page",
+          "score": 2,
+          "shared_tokens": [
+            "chapa"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/full-system.spec.ts",
+          "title": "should fetch slates via API",
+          "score": 2,
+          "shared_tokens": [
+            "chapa"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-CHA-005",
+      "title": "Adicionar membro à chapa",
+      "module": "Módulo: Chapas",
+      "domain": "CHA",
+      "expected_result": "Membro adicionado com sucesso",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 35,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve adicionar membro à chapa",
+          "score": 4,
+          "shared_tokens": [
+            "adicionar",
+            "chapa",
+            "membro"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve retornar detalhes da chapa com membros",
+          "score": 3,
+          "shared_tokens": [
+            "chapa",
+            "membro"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve listar membros de uma chapa",
+          "score": 3,
+          "shared_tokens": [
+            "chapa",
+            "membro"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-CHA-006",
+      "title": "Atualizar membro da chapa",
+      "module": "Módulo: Chapas",
+      "domain": "CHA",
+      "expected_result": "Dados do membro atualizados",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 35,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve retornar detalhes da chapa com membros",
+          "score": 3,
+          "shared_tokens": [
+            "chapa",
+            "membro"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve atualizar uma chapa",
+          "score": 3,
+          "shared_tokens": [
+            "atualizar",
+            "chapa"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve listar membros de uma chapa",
+          "score": 3,
+          "shared_tokens": [
+            "chapa",
+            "membro"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-CHA-007",
+      "title": "Remover membro da chapa",
+      "module": "Módulo: Chapas",
+      "domain": "CHA",
+      "expected_result": "Membro removido da chapa",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 35,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve remover membro da chapa",
+          "score": 4,
+          "shared_tokens": [
+            "chapa",
+            "membro",
+            "remover"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve retornar detalhes da chapa com membros",
+          "score": 3,
+          "shared_tokens": [
+            "chapa",
+            "membro"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve listar membros de uma chapa",
+          "score": 3,
+          "shared_tokens": [
+            "chapa",
+            "membro"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-CHA-008",
+      "title": "Submeter chapa para análise",
+      "module": "Módulo: Chapas",
+      "domain": "CHA",
+      "expected_result": "Status muda para \"Submetida\"",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 35,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/dashboard.spec.ts",
+          "title": "should navigate to slates page",
+          "score": 2,
+          "shared_tokens": [
+            "chapa"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/full-system.spec.ts",
+          "title": "should navigate to slates page",
+          "score": 2,
+          "shared_tokens": [
+            "chapa"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/full-system.spec.ts",
+          "title": "should fetch slates via API",
+          "score": 2,
+          "shared_tokens": [
+            "chapa"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-CHA-009",
+      "title": "Iniciar análise da chapa",
+      "module": "Módulo: Chapas",
+      "domain": "CHA",
+      "expected_result": "Status muda para \"Em Análise\"",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 35,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/dashboard.spec.ts",
+          "title": "should navigate to slates page",
+          "score": 2,
+          "shared_tokens": [
+            "chapa"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/full-system.spec.ts",
+          "title": "should navigate to slates page",
+          "score": 2,
+          "shared_tokens": [
+            "chapa"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/full-system.spec.ts",
+          "title": "should fetch slates via API",
+          "score": 2,
+          "shared_tokens": [
+            "chapa"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-CHA-010",
+      "title": "Deferir chapa",
+      "module": "Módulo: Chapas",
+      "domain": "CHA",
+      "expected_result": "Status muda para \"Deferida\"",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 35,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve adicionar membro à chapa",
+          "score": 3,
+          "shared_tokens": [
+            "adicionar",
+            "chapa"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-CHA-011",
+      "title": "Indeferir chapa",
+      "module": "Módulo: Chapas",
+      "domain": "CHA",
+      "expected_result": "Status muda para \"Indeferida\"",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 35,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve reprovar uma chapa com motivo",
+          "score": 3,
+          "shared_tokens": [
+            "chapa",
+            "motivo"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-CHA-012",
+      "title": "Solicitar documentos pendentes",
+      "module": "Módulo: Chapas",
+      "domain": "CHA",
+      "expected_result": "Chapa notificada sobre documentos pendentes",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 35,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve listar documentos da chapa",
+          "score": 4,
+          "shared_tokens": [
+            "chapa",
+            "documento"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve remover documento da chapa",
+          "score": 4,
+          "shared_tokens": [
+            "chapa",
+            "documento"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-CHA-013",
+      "title": "Excluir chapa (apenas rascunhos)",
+      "module": "Módulo: Chapas",
+      "domain": "CHA",
+      "expected_result": "Chapa removida",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 35,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve excluir uma chapa",
+          "score": 4,
+          "shared_tokens": [
+            "chapa",
+            "excluir"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-CHA-014",
+      "title": "Gerenciar documentos da chapa",
+      "module": "Módulo: Chapas",
+      "domain": "CHA",
+      "expected_result": "Lista documentos, permite upload e download",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/chapas.test.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 35,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve listar documentos da chapa",
+          "score": 4,
+          "shared_tokens": [
+            "chapa",
+            "documento"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/chapas.test.ts",
+          "title": "deve remover documento da chapa",
+          "score": 4,
+          "shared_tokens": [
+            "chapa",
+            "documento"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-VOT-001",
+      "title": "Listagem de eleições com status de votação",
+      "module": "Módulo: Votação (Admin)",
+      "domain": "VOT",
+      "expected_result": "Lista eleições com: status da votação, total de eleitores, votos computados, participação",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 22,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve listar eleições com status de votação",
+          "score": 4,
+          "shared_tokens": [
+            "eleicao",
+            "votacao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve retornar estatísticas de votação de uma eleição",
+          "score": 4,
+          "shared_tokens": [
+            "eleicao",
+            "votacao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve abrir votação para uma eleição",
+          "score": 4,
+          "shared_tokens": [
+            "eleicao",
+            "votacao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-VOT-002",
+      "title": "Monitor de votação em tempo real",
+      "module": "Módulo: Votação (Admin)",
+      "domain": "VOT",
+      "expected_result": "Exibe: total de votos, participação %, votos por hora, votos por região",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 22,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve listar eleições com status de votação",
+          "score": 4,
+          "shared_tokens": [
+            "eleicao",
+            "votacao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve retornar estatísticas de votação de uma eleição",
+          "score": 4,
+          "shared_tokens": [
+            "eleicao",
+            "votacao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve abrir votação para uma eleição",
+          "score": 4,
+          "shared_tokens": [
+            "eleicao",
+            "votacao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-VOT-003",
+      "title": "Abrir votação",
+      "module": "Módulo: Votação (Admin)",
+      "domain": "VOT",
+      "expected_result": "Votação aberta, eleitores podem votar",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 22,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve abrir votação para uma eleição",
+          "score": 3,
+          "shared_tokens": [
+            "abrir",
+            "votacao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-VOT-004",
+      "title": "Fechar votação",
+      "module": "Módulo: Votação (Admin)",
+      "domain": "VOT",
+      "expected_result": "Votação encerrada",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 22,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve listar eleições com status de votação",
+          "score": 2,
+          "shared_tokens": [
+            "votacao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve retornar estatísticas de votação de uma eleição",
+          "score": 2,
+          "shared_tokens": [
+            "votacao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve abrir votação para uma eleição",
+          "score": 2,
+          "shared_tokens": [
+            "votacao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-VOT-005",
+      "title": "Visualizar estatísticas de votação",
+      "module": "Módulo: Votação (Admin)",
+      "domain": "VOT",
+      "expected_result": "Exibe: votos válidos, brancos, nulos, participação por região",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 22,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve retornar estatísticas de votação de uma eleição",
+          "score": 3,
+          "shared_tokens": [
+            "estatisticas",
+            "votacao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve realizar apuração de votos",
+          "score": 3,
+          "shared_tokens": [
+            "votacao",
+            "votos"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-VOT-006",
+      "title": "Listar eleitores que votaram",
+      "module": "Módulo: Votação (Admin)",
+      "domain": "VOT",
+      "expected_result": "Lista paginada de eleitores com data/hora do voto (sem revelar em quem votaram)",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 22,
+      "direct_matches": []
+    },
+    {
+      "case_id": "CT-VOT-007",
+      "title": "Anular voto (Admin)",
+      "module": "Módulo: Votação (Admin)",
+      "domain": "VOT",
+      "expected_result": "Voto anulado com registro de auditoria",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 22,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/full-system.spec.ts",
+          "title": "should display login page",
+          "score": 1,
+          "shared_tokens": [
+            "admin"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/full-system.spec.ts",
+          "title": "should show error with invalid credentials",
+          "score": 1,
+          "shared_tokens": [
+            "admin"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/full-system.spec.ts",
+          "title": "should login successfully with valid credentials",
+          "score": 1,
+          "shared_tokens": [
+            "admin"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-VOT-008",
+      "title": "Apuração de votos",
+      "module": "Módulo: Votação (Admin)",
+      "domain": "VOT",
+      "expected_result": "Apuração realizada, resultado exibido com ranking de chapas",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 22,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve realizar apuração de votos",
+          "score": 5,
+          "shared_tokens": [
+            "apuracao",
+            "votacao",
+            "votos"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve listar eleições com status de votação",
+          "score": 4,
+          "shared_tokens": [
+            "eleicao",
+            "votacao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve retornar estatísticas de votação de uma eleição",
+          "score": 4,
+          "shared_tokens": [
+            "eleicao",
+            "votacao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-VOT-009",
+      "title": "Publicar resultados",
+      "module": "Módulo: Votação (Admin)",
+      "domain": "VOT",
+      "expected_result": "Resultados publicados, visíveis no portal público",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 22,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve publicar resultados da eleição",
+          "score": 2,
+          "shared_tokens": [
+            "publicar"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-VOT-010",
+      "title": "Exportar resultados",
+      "module": "Módulo: Votação (Admin)",
+      "domain": "VOT",
+      "expected_result": "Arquivo gerado e baixado com sucesso",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 22,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve exportar resultados em PDF",
+          "score": 3,
+          "shared_tokens": [
+            "exportar",
+            "pdf"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve exportar resultados em Excel",
+          "score": 3,
+          "shared_tokens": [
+            "excel",
+            "exportar"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/votacao.test.ts",
+          "title": "deve exportar resultados em CSV",
+          "score": 3,
+          "shared_tokens": [
+            "csv",
+            "exportar"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-DEN-001",
+      "title": "Listagem de denúncias com filtros",
+      "module": "Módulo: Denúncias",
+      "domain": "DEN",
+      "expected_result": "Lista paginada e filtrada",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/src/services/__tests__/denuncias.test.ts"
+      ],
+      "detected_test_count": 12,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-010 deve listar denuncias por eleicao",
+          "score": 4,
+          "shared_tokens": [
+            "denuncia",
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-011 deve listar denuncias por chapa",
+          "score": 4,
+          "shared_tokens": [
+            "chapa",
+            "denuncia"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-001 deve listar denuncias com filtros",
+          "score": 3,
+          "shared_tokens": [
+            "denuncia",
+            "filtros"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-DEN-002",
+      "title": "Criar nova denúncia",
+      "module": "Módulo: Denúncias",
+      "domain": "DEN",
+      "expected_result": "Denúncia criada com protocolo gerado automaticamente",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/src/services/__tests__/denuncias.test.ts"
+      ],
+      "detected_test_count": 12,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-002 deve criar nova denuncia",
+          "score": 5,
+          "shared_tokens": [
+            "criar",
+            "denuncia",
+            "nova"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-003 deve consultar denuncia por protocolo",
+          "score": 4,
+          "shared_tokens": [
+            "denuncia",
+            "protocolo"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-010 deve listar denuncias por eleicao",
+          "score": 4,
+          "shared_tokens": [
+            "denuncia",
+            "eleicao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-DEN-003",
+      "title": "Consultar denúncia por protocolo",
+      "module": "Módulo: Denúncias",
+      "domain": "DEN",
+      "expected_result": "Denúncia encontrada e exibida",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/src/services/__tests__/denuncias.test.ts"
+      ],
+      "detected_test_count": 12,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-003 deve consultar denuncia por protocolo",
+          "score": 6,
+          "shared_tokens": [
+            "consultar",
+            "denuncia",
+            "protocolo"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-DEN-004",
+      "title": "Visualizar detalhes da denúncia",
+      "module": "Módulo: Denúncias",
+      "domain": "DEN",
+      "expected_result": "Exibe todos os dados, histórico de status, documentos anexos",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/src/services/__tests__/denuncias.test.ts"
+      ],
+      "detected_test_count": 12,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-001 deve listar denuncias com filtros",
+          "score": 2,
+          "shared_tokens": [
+            "denuncia"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-002 deve criar nova denuncia",
+          "score": 2,
+          "shared_tokens": [
+            "denuncia"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-003 deve consultar denuncia por protocolo",
+          "score": 2,
+          "shared_tokens": [
+            "denuncia"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-DEN-005",
+      "title": "Iniciar análise da denúncia",
+      "module": "Módulo: Denúncias",
+      "domain": "DEN",
+      "expected_result": "Status muda para \"Em Análise\"",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/src/services/__tests__/denuncias.test.ts"
+      ],
+      "detected_test_count": 12,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-005 deve iniciar analise da denuncia",
+          "score": 5,
+          "shared_tokens": [
+            "analise",
+            "denuncia",
+            "iniciar"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-006 deve concluir analise com parecer",
+          "score": 3,
+          "shared_tokens": [
+            "analise",
+            "denuncia"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-DEN-006",
+      "title": "Concluir análise",
+      "module": "Módulo: Denúncias",
+      "domain": "DEN",
+      "expected_result": "Análise concluída com parecer registrado",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/src/services/__tests__/denuncias.test.ts"
+      ],
+      "detected_test_count": 12,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-006 deve concluir analise com parecer",
+          "score": 3,
+          "shared_tokens": [
+            "analise",
+            "concluir",
+            "parecer"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-005 deve iniciar analise da denuncia",
+          "score": 1,
+          "shared_tokens": [
+            "analise"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-DEN-007",
+      "title": "Aceitar admissibilidade",
+      "module": "Módulo: Denúncias",
+      "domain": "DEN",
+      "expected_result": "Denúncia aceita, segue para próxima etapa",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/src/services/__tests__/denuncias.test.ts"
+      ],
+      "detected_test_count": 12,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-007 deve aceitar admissibilidade",
+          "score": 4,
+          "shared_tokens": [
+            "aceitar",
+            "admissibilidade",
+            "denuncia"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-006 deve concluir analise com parecer",
+          "score": 3,
+          "shared_tokens": [
+            "denuncia",
+            "parecer"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-008 deve rejeitar admissibilidade",
+          "score": 3,
+          "shared_tokens": [
+            "admissibilidade",
+            "denuncia"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-DEN-008",
+      "title": "Rejeitar admissibilidade",
+      "module": "Módulo: Denúncias",
+      "domain": "DEN",
+      "expected_result": "Denúncia rejeitada",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/src/services/__tests__/denuncias.test.ts"
+      ],
+      "detected_test_count": 12,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-008 deve rejeitar admissibilidade",
+          "score": 4,
+          "shared_tokens": [
+            "admissibilidade",
+            "denuncia",
+            "rejeitar"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-007 deve aceitar admissibilidade",
+          "score": 3,
+          "shared_tokens": [
+            "admissibilidade",
+            "denuncia"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-DEN-009",
+      "title": "Enviar para julgamento",
+      "module": "Módulo: Denúncias",
+      "domain": "DEN",
+      "expected_result": "Denúncia encaminhada para sessão de julgamento",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/src/services/__tests__/denuncias.test.ts"
+      ],
+      "detected_test_count": 12,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-009 deve enviar para julgamento e registrar decisao",
+          "score": 5,
+          "shared_tokens": [
+            "denuncia",
+            "enviar",
+            "julgamento"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-DEN-010",
+      "title": "Listar denúncias por eleição",
+      "module": "Módulo: Denúncias",
+      "domain": "DEN",
+      "expected_result": "Filtra corretamente por eleição",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/src/services/__tests__/denuncias.test.ts"
+      ],
+      "detected_test_count": 12,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-010 deve listar denuncias por eleicao",
+          "score": 4,
+          "shared_tokens": [
+            "denuncia",
+            "eleicao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-DEN-011",
+      "title": "Listar denúncias por chapa",
+      "module": "Módulo: Denúncias",
+      "domain": "DEN",
+      "expected_result": "Filtra corretamente por chapa",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/src/services/__tests__/denuncias.test.ts"
+      ],
+      "detected_test_count": 12,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-011 deve listar denuncias por chapa",
+          "score": 4,
+          "shared_tokens": [
+            "chapa",
+            "denuncia"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-DEN-012",
+      "title": "Listar minhas denúncias (denunciante)",
+      "module": "Módulo: Denúncias",
+      "domain": "DEN",
+      "expected_result": "Lista apenas denúncias do usuário logado",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/src/services/__tests__/denuncias.test.ts"
+      ],
+      "detected_test_count": 12,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-012 deve listar minhas denuncias como denunciante",
+          "score": 4,
+          "shared_tokens": [
+            "denuncia",
+            "denunciante",
+            "minhas"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-IMP-001",
+      "title": "Listagem de impugnações",
+      "module": "Módulo: Impugnações",
+      "domain": "IMP",
+      "expected_result": "Lista todas as impugnações com status e eleição",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/src/services/__tests__/impugnacoes.test.ts"
+      ],
+      "detected_test_count": 4,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/impugnacoes.test.ts",
+          "title": "CT-IMP-001 deve listar impugnacoes",
+          "score": 2,
+          "shared_tokens": [
+            "impugnacao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/impugnacoes.test.ts",
+          "title": "CT-IMP-002 deve criar nova impugnacao",
+          "score": 2,
+          "shared_tokens": [
+            "impugnacao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/impugnacoes.test.ts",
+          "title": "CT-IMP-003 deve visualizar detalhes da impugnacao",
+          "score": 2,
+          "shared_tokens": [
+            "impugnacao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-IMP-002",
+      "title": "Criar nova impugnação",
+      "module": "Módulo: Impugnações",
+      "domain": "IMP",
+      "expected_result": "Impugnação criada com protocolo",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/src/services/__tests__/impugnacoes.test.ts"
+      ],
+      "detected_test_count": 4,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/impugnacoes.test.ts",
+          "title": "CT-IMP-002 deve criar nova impugnacao",
+          "score": 5,
+          "shared_tokens": [
+            "criar",
+            "impugnacao",
+            "nova"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-IMP-003",
+      "title": "Visualizar detalhes",
+      "module": "Módulo: Impugnações",
+      "domain": "IMP",
+      "expected_result": "Dados completos da impugnação com histórico",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/src/services/__tests__/impugnacoes.test.ts"
+      ],
+      "detected_test_count": 4,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/impugnacoes.test.ts",
+          "title": "CT-IMP-001 deve listar impugnacoes",
+          "score": 2,
+          "shared_tokens": [
+            "impugnacao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/impugnacoes.test.ts",
+          "title": "CT-IMP-002 deve criar nova impugnacao",
+          "score": 2,
+          "shared_tokens": [
+            "impugnacao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/impugnacoes.test.ts",
+          "title": "CT-IMP-003 deve visualizar detalhes da impugnacao",
+          "score": 2,
+          "shared_tokens": [
+            "impugnacao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-IMP-004",
+      "title": "Editar impugnação",
+      "module": "Módulo: Impugnações",
+      "domain": "IMP",
+      "expected_result": "Dados atualizados (apenas se em status editável)",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/src/services/__tests__/impugnacoes.test.ts"
+      ],
+      "detected_test_count": 4,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/impugnacoes.test.ts",
+          "title": "CT-IMP-004 deve editar impugnacao",
+          "score": 4,
+          "shared_tokens": [
+            "editar",
+            "impugnacao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-JUL-001",
+      "title": "Listagem de julgamentos",
+      "module": "Módulo: Julgamentos",
+      "domain": "JUL",
+      "expected_result": "Lista julgamentos com data, status e partes envolvidas",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 7,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/modules-pages.spec.ts",
+          "title": "should load Julgamentos list and open a detail page",
+          "score": 2,
+          "shared_tokens": [
+            "julgamento"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/modules-pages.spec.ts",
+          "title": "should render Sessao de Julgamento page",
+          "score": 2,
+          "shared_tokens": [
+            "julgamento"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-009 deve enviar para julgamento e registrar decisao",
+          "score": 2,
+          "shared_tokens": [
+            "julgamento"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-JUL-002",
+      "title": "Criar sessão de julgamento",
+      "module": "Módulo: Julgamentos",
+      "domain": "JUL",
+      "expected_result": "Sessão criada",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 7,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/modules-pages.spec.ts",
+          "title": "should render Sessao de Julgamento page",
+          "score": 3,
+          "shared_tokens": [
+            "julgamento",
+            "sessao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-JUL-003",
+      "title": "Visualizar detalhes do julgamento",
+      "module": "Módulo: Julgamentos",
+      "domain": "JUL",
+      "expected_result": "Dados completos: denúncia associada, comissão, decisão, ata",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 7,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-009 deve enviar para julgamento e registrar decisao",
+          "score": 5,
+          "shared_tokens": [
+            "decisao",
+            "denuncia",
+            "julgamento"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-JUL-004",
+      "title": "Registrar decisão do julgamento",
+      "module": "Módulo: Julgamentos",
+      "domain": "JUL",
+      "expected_result": "Decisão registrada com justificativa",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/denuncias.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 7,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/denuncias.test.ts",
+          "title": "CT-DEN-009 deve enviar para julgamento e registrar decisao",
+          "score": 5,
+          "shared_tokens": [
+            "decisao",
+            "julgamento",
+            "registrar"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-USR-001",
+      "title": "Listagem de usuários",
+      "module": "Módulo: Usuários",
+      "domain": "USR",
+      "expected_result": "Lista com nome, email, tipo, status",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts"
+      ],
+      "detected_test_count": 6,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/dashboard.spec.ts",
+          "title": "should navigate to users page",
+          "score": 2,
+          "shared_tokens": [
+            "usuario"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve registrar novo usuário com sucesso",
+          "score": 2,
+          "shared_tokens": [
+            "usuario"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve obter dados do usuário logado",
+          "score": 2,
+          "shared_tokens": [
+            "usuario"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-USR-002",
+      "title": "Criar novo usuário",
+      "module": "Módulo: Usuários",
+      "domain": "USR",
+      "expected_result": "Usuário criado",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts"
+      ],
+      "detected_test_count": 6,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve registrar novo usuário com sucesso",
+          "score": 4,
+          "shared_tokens": [
+            "admin",
+            "novo",
+            "usuario"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/dashboard.spec.ts",
+          "title": "should navigate to users page",
+          "score": 3,
+          "shared_tokens": [
+            "admin",
+            "usuario"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve obter dados do usuário logado",
+          "score": 3,
+          "shared_tokens": [
+            "admin",
+            "usuario"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-USR-003",
+      "title": "Editar usuário",
+      "module": "Módulo: Usuários",
+      "domain": "USR",
+      "expected_result": "Dados atualizados",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts"
+      ],
+      "detected_test_count": 6,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/dashboard.spec.ts",
+          "title": "should navigate to users page",
+          "score": 2,
+          "shared_tokens": [
+            "usuario"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve registrar novo usuário com sucesso",
+          "score": 2,
+          "shared_tokens": [
+            "usuario"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve obter dados do usuário logado",
+          "score": 2,
+          "shared_tokens": [
+            "usuario"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-USR-004",
+      "title": "Visualizar detalhes do usuário",
+      "module": "Módulo: Usuários",
+      "domain": "USR",
+      "expected_result": "Dados completos incluindo permissões e histórico",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts"
+      ],
+      "detected_test_count": 6,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/dashboard.spec.ts",
+          "title": "should navigate to users page",
+          "score": 2,
+          "shared_tokens": [
+            "usuario"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve registrar novo usuário com sucesso",
+          "score": 2,
+          "shared_tokens": [
+            "usuario"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve obter dados do usuário logado",
+          "score": 2,
+          "shared_tokens": [
+            "usuario"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-USR-005",
+      "title": "Tipos de usuário",
+      "module": "Módulo: Usuários",
+      "domain": "USR",
+      "expected_result": "Suporta: Admin, ComissaoEleitoral, Conselheiro, Profissional, Candidato, Eleitor",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/dashboard.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts"
+      ],
+      "detected_test_count": 6,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/dashboard.spec.ts",
+          "title": "should navigate to users page",
+          "score": 3,
+          "shared_tokens": [
+            "admin",
+            "usuario"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve registrar novo usuário com sucesso",
+          "score": 3,
+          "shared_tokens": [
+            "admin",
+            "usuario"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve obter dados do usuário logado",
+          "score": 3,
+          "shared_tokens": [
+            "admin",
+            "usuario"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-REL-001",
+      "title": "Página de relatórios",
+      "module": "Módulo: Relatórios",
+      "domain": "REL",
+      "expected_result": "Lista tipos de relatórios disponíveis",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/api/CAU.Eleitoral.Tests/ExcelExportServiceTests.cs",
+        "apps/api/CAU.Eleitoral.Tests/PdfExportServiceTests.cs"
+      ],
+      "detected_test_count": 16,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/modules-pages.spec.ts",
+          "title": "should load Relatorios pages and allow selecting an eleicao",
+          "score": 2,
+          "shared_tokens": [
+            "relatorio"
+          ]
+        },
+        {
+          "file_path": "apps/api/CAU.Eleitoral.Tests/ExcelExportServiceTests.cs",
+          "title": "Generate Report With Data Returns Valid Xlsx",
+          "score": 2,
+          "shared_tokens": [
+            "relatorio"
+          ]
+        },
+        {
+          "file_path": "apps/api/CAU.Eleitoral.Tests/ExcelExportServiceTests.cs",
+          "title": "Generate Report With Empty Data Returns Valid Xlsx",
+          "score": 2,
+          "shared_tokens": [
+            "relatorio"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-REL-002",
+      "title": "Relatório de eleição",
+      "module": "Módulo: Relatórios",
+      "domain": "REL",
+      "expected_result": "Relatório com dados da eleição, chapas, timeline",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/api/CAU.Eleitoral.Tests/ExcelExportServiceTests.cs",
+        "apps/api/CAU.Eleitoral.Tests/PdfExportServiceTests.cs"
+      ],
+      "detected_test_count": 16,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/modules-pages.spec.ts",
+          "title": "should load Relatorios pages and allow selecting an eleicao",
+          "score": 4,
+          "shared_tokens": [
+            "eleicao",
+            "relatorio"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-REL-003",
+      "title": "Relatório de votação",
+      "module": "Módulo: Relatórios",
+      "domain": "REL",
+      "expected_result": "Relatório com estatísticas de votação, participação, resultados",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/api/CAU.Eleitoral.Tests/ExcelExportServiceTests.cs",
+        "apps/api/CAU.Eleitoral.Tests/PdfExportServiceTests.cs"
+      ],
+      "detected_test_count": 16,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/modules-pages.spec.ts",
+          "title": "should load Relatorios pages and allow selecting an eleicao",
+          "score": 4,
+          "shared_tokens": [
+            "eleicao",
+            "relatorio"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-AUD-001",
+      "title": "Visualizar logs de auditoria",
+      "module": "Módulo: Auditoria",
+      "domain": "AUD",
+      "expected_result": "Lista ações do sistema com: usuário, ação, data/hora, IP, detalhes",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/api/CAU.Eleitoral.Tests/EmailServiceTests.cs"
+      ],
+      "detected_test_count": 7,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/modules-pages.spec.ts",
+          "title": "should load Auditoria page",
+          "score": 2,
+          "shared_tokens": [
+            "auditoria"
+          ]
+        },
+        {
+          "file_path": "apps/api/CAU.Eleitoral.Tests/EmailServiceTests.cs",
+          "title": "Send Async When Disabled Logs And Returns",
+          "score": 1,
+          "shared_tokens": [
+            "logs"
+          ]
+        },
+        {
+          "file_path": "apps/api/CAU.Eleitoral.Tests/EmailServiceTests.cs",
+          "title": "Send Async With Multiple Recipients When Disabled Logs All Recipients",
+          "score": 1,
+          "shared_tokens": [
+            "logs"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-AUD-002",
+      "title": "Filtrar por período",
+      "module": "Módulo: Auditoria",
+      "domain": "AUD",
+      "expected_result": "Filtra corretamente por intervalo de datas",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/api/CAU.Eleitoral.Tests/EmailServiceTests.cs"
+      ],
+      "detected_test_count": 7,
+      "direct_matches": []
+    },
+    {
+      "case_id": "CT-AUD-003",
+      "title": "Filtrar por usuário",
+      "module": "Módulo: Auditoria",
+      "domain": "AUD",
+      "expected_result": "Filtra ações de um usuário específico",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/api/CAU.Eleitoral.Tests/EmailServiceTests.cs"
+      ],
+      "detected_test_count": 7,
+      "direct_matches": []
+    },
+    {
+      "case_id": "CT-AUD-004",
+      "title": "Filtrar por tipo de ação",
+      "module": "Módulo: Auditoria",
+      "domain": "AUD",
+      "expected_result": "Filtra por categoria de ação (login, CRUD, votação, etc.)",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/api/CAU.Eleitoral.Tests/EmailServiceTests.cs"
+      ],
+      "detected_test_count": 7,
+      "direct_matches": []
+    },
+    {
+      "case_id": "CT-CFG-001",
+      "title": "Visualizar configurações da eleição",
+      "module": "Módulo: Configurações",
+      "domain": "CFG",
+      "expected_result": "Exibe configurações atuais do sistema eleitoral",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/api/CAU.Eleitoral.Tests/EmailServiceTests.cs"
+      ],
+      "detected_test_count": 6,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/modules-pages.spec.ts",
+          "title": "should load Relatorios pages and allow selecting an eleicao",
+          "score": 2,
+          "shared_tokens": [
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/modules-pages.spec.ts",
+          "title": "should load Eleicao calendario page for first eleicao",
+          "score": 2,
+          "shared_tokens": [
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/api/CAU.Eleitoral.Tests/EmailServiceTests.cs",
+          "title": "Constructor With Empty Smtp Host Disables Service",
+          "score": 1,
+          "shared_tokens": [
+            "eleitoral"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-CFG-002",
+      "title": "Alterar configurações de votação",
+      "module": "Módulo: Configurações",
+      "domain": "CFG",
+      "expected_result": "Configurações atualizadas",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/api/CAU.Eleitoral.Tests/EmailServiceTests.cs"
+      ],
+      "detected_test_count": 6,
+      "direct_matches": []
+    },
+    {
+      "case_id": "CT-CFG-003",
+      "title": "Configurações de email/notificação",
+      "module": "Módulo: Configurações",
+      "domain": "CFG",
+      "expected_result": "Configurações de SMTP e templates de email",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/api/CAU.Eleitoral.Tests/EmailServiceTests.cs"
+      ],
+      "detected_test_count": 6,
+      "direct_matches": [
+        {
+          "file_path": "apps/api/CAU.Eleitoral.Tests/EmailServiceTests.cs",
+          "title": "Constructor With Empty Smtp Host Disables Service",
+          "score": 2,
+          "shared_tokens": [
+            "email",
+            "smtp"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-CFG-004",
+      "title": "Configurações de segurança",
+      "module": "Módulo: Configurações",
+      "domain": "CFG",
+      "expected_result": "Configurações de senha, sessão, políticas de acesso",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/modules-pages.spec.ts",
+        "apps/api/CAU.Eleitoral.Tests/EmailServiceTests.cs"
+      ],
+      "detected_test_count": 6,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/modules-pages.spec.ts",
+          "title": "should render Sessao de Julgamento page",
+          "score": 1,
+          "shared_tokens": [
+            "sessao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-AUTH-001",
+      "title": "Login do eleitor",
+      "module": "Portal Público - Autenticação Eleitor",
+      "domain": "PUB-AUTH",
+      "expected_result": "Redireciona para área do eleitor",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts"
+      ],
+      "detected_test_count": 20,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should navigate to voter login",
+          "score": 7,
+          "shared_tokens": [
+            "eleitor",
+            "login",
+            "votacao"
+          ]
+        },
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display voter login form",
+          "score": 7,
+          "shared_tokens": [
+            "eleitor",
+            "login",
+            "votacao"
+          ]
+        },
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display candidate login page",
+          "score": 5,
+          "shared_tokens": [
+            "login",
+            "votacao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-AUTH-002",
+      "title": "Login com dados inválidos",
+      "module": "Portal Público - Autenticação Eleitor",
+      "domain": "PUB-AUTH",
+      "expected_result": "Mensagem de erro",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts"
+      ],
+      "detected_test_count": 20,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve rejeitar login com dados inválidos",
+          "score": 4,
+          "shared_tokens": [
+            "invalidos",
+            "login"
+          ]
+        },
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should navigate to voter login",
+          "score": 3,
+          "shared_tokens": [
+            "login"
+          ]
+        },
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display voter login form",
+          "score": 3,
+          "shared_tokens": [
+            "login"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-AUTH-003",
+      "title": "Solicitar código de verificação",
+      "module": "Portal Público - Autenticação Eleitor",
+      "domain": "PUB-AUTH",
+      "expected_result": "Código enviado por email ou SMS",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts"
+      ],
+      "detected_test_count": 20,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve solicitar código de verificação",
+          "score": 3,
+          "shared_tokens": [
+            "codigo",
+            "solicitar",
+            "verificacao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-AUTH-004",
+      "title": "Logout do eleitor",
+      "module": "Portal Público - Autenticação Eleitor",
+      "domain": "PUB-AUTH",
+      "expected_result": "Sessão encerrada, redireciona para página pública",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts"
+      ],
+      "detected_test_count": 20,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve fazer logout do eleitor",
+          "score": 5,
+          "shared_tokens": [
+            "eleitor",
+            "logout"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-AUTH-005",
+      "title": "Verificar elegibilidade do eleitor",
+      "module": "Portal Público - Autenticação Eleitor",
+      "domain": "PUB-AUTH",
+      "expected_result": "Retorna se eleitor pode votar, motivo caso não possa",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts"
+      ],
+      "detected_test_count": 20,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve verificar elegibilidade do eleitor",
+          "score": 4,
+          "shared_tokens": [
+            "elegibilidade",
+            "eleitor",
+            "verificar"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-VOT-001",
+      "title": "Listar eleições disponíveis",
+      "module": "Portal Público - Votação Eleitor",
+      "domain": "PUB-VOT",
+      "expected_result": "Lista eleições em que o eleitor pode votar",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 27,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should navigate to voter login",
+          "score": 2,
+          "shared_tokens": [
+            "eleitor"
+          ]
+        },
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display voter login form",
+          "score": 2,
+          "shared_tokens": [
+            "eleitor"
+          ]
+        },
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display elections list on public page",
+          "score": 2,
+          "shared_tokens": [
+            "eleicao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-VOT-002",
+      "title": "Iniciar sessão de votação",
+      "module": "Portal Público - Votação Eleitor",
+      "domain": "PUB-VOT",
+      "expected_result": "Exibe cédula de votação com chapas",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 27,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve votar em chapa usando método de conveniência",
+          "score": 6,
+          "shared_tokens": [
+            "chapa",
+            "votacao",
+            "votar"
+          ]
+        },
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display elections list on public page",
+          "score": 4,
+          "shared_tokens": [
+            "eleicao",
+            "votacao"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve registrar voto em chapa e retornar comprovante",
+          "score": 4,
+          "shared_tokens": [
+            "chapa",
+            "votacao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-VOT-003",
+      "title": "Votar em uma chapa",
+      "module": "Portal Público - Votação Eleitor",
+      "domain": "PUB-VOT",
+      "expected_result": "Voto registrado, exibe comprovante com protocolo e hash",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 27,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve registrar voto em chapa e retornar comprovante",
+          "score": 6,
+          "shared_tokens": [
+            "chapa",
+            "comprovante",
+            "voto"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve obter comprovante de voto",
+          "score": 4,
+          "shared_tokens": [
+            "comprovante",
+            "voto"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-VOT-004",
+      "title": "Voto em branco",
+      "module": "Portal Público - Votação Eleitor",
+      "domain": "PUB-VOT",
+      "expected_result": "Voto branco registrado",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 27,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve registrar voto em branco",
+          "score": 3,
+          "shared_tokens": [
+            "branco",
+            "voto"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve registrar voto branco com tipo string",
+          "score": 3,
+          "shared_tokens": [
+            "branco",
+            "voto"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-VOT-005",
+      "title": "Voto nulo",
+      "module": "Portal Público - Votação Eleitor",
+      "domain": "PUB-VOT",
+      "expected_result": "Voto nulo registrado",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 27,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve registrar voto nulo",
+          "score": 3,
+          "shared_tokens": [
+            "nulo",
+            "voto"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-VOT-006",
+      "title": "Impedir voto duplicado",
+      "module": "Portal Público - Votação Eleitor",
+      "domain": "PUB-VOT",
+      "expected_result": "Redireciona para `/ja-votou` com mensagem informativa",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 27,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve verificar se eleitor já votou",
+          "score": 2,
+          "shared_tokens": [
+            "ja",
+            "votou"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve retornar true se já votou",
+          "score": 2,
+          "shared_tokens": [
+            "ja",
+            "votou"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve registrar voto em chapa e retornar comprovante",
+          "score": 2,
+          "shared_tokens": [
+            "voto"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-VOT-007",
+      "title": "Comprovante de votação",
+      "module": "Portal Público - Votação Eleitor",
+      "domain": "PUB-VOT",
+      "expected_result": "Exibe protocolo, hash, QR Code, opções de download PDF e envio por email",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 27,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve registrar voto em chapa e retornar comprovante",
+          "score": 4,
+          "shared_tokens": [
+            "comprovante",
+            "votacao"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve obter comprovante de voto",
+          "score": 4,
+          "shared_tokens": [
+            "comprovante",
+            "votacao"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve validar comprovante de voto",
+          "score": 4,
+          "shared_tokens": [
+            "comprovante",
+            "votacao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-VOT-008",
+      "title": "Validar comprovante",
+      "module": "Portal Público - Votação Eleitor",
+      "domain": "PUB-VOT",
+      "expected_result": "Sistema confirma validade do comprovante",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 27,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve validar comprovante de voto",
+          "score": 4,
+          "shared_tokens": [
+            "comprovante",
+            "validar"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-VOT-009",
+      "title": "Histórico de votos",
+      "module": "Portal Público - Votação Eleitor",
+      "domain": "PUB-VOT",
+      "expected_result": "Lista todas as eleições em que participou com protocolo",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 27,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve retornar histórico de votos",
+          "score": 2,
+          "shared_tokens": [
+            "historico",
+            "votos"
+          ]
+        },
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should navigate to voter login",
+          "score": 2,
+          "shared_tokens": [
+            "eleitor"
+          ]
+        },
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display voter login form",
+          "score": 2,
+          "shared_tokens": [
+            "eleitor"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-VOT-010",
+      "title": "Justificar ausência",
+      "module": "Portal Público - Votação Eleitor",
+      "domain": "PUB-VOT",
+      "expected_result": "Justificativa registrada com protocolo",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 27,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display documents page",
+          "score": 2,
+          "shared_tokens": [
+            "documento"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve retornar não elegível com motivo",
+          "score": 1,
+          "shared_tokens": [
+            "motivo"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-VOT-011",
+      "title": "Cancelar sessão antes de votar",
+      "module": "Portal Público - Votação Eleitor",
+      "domain": "PUB-VOT",
+      "expected_result": "Sessão cancelada sem registro de voto",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 27,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve cancelar sessão de votação",
+          "score": 3,
+          "shared_tokens": [
+            "cancelar",
+            "sessao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-VOT-012",
+      "title": "Timeout da sessão de votação",
+      "module": "Portal Público - Votação Eleitor",
+      "domain": "PUB-VOT",
+      "expected_result": "Sessão expira após tempo máximo",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 27,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve cancelar sessão de votação",
+          "score": 3,
+          "shared_tokens": [
+            "sessao",
+            "votacao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-CAND-001",
+      "title": "Login do candidato",
+      "module": "Portal Público - Área do Candidato",
+      "domain": "PUB-CAND",
+      "expected_result": "Redireciona para área do candidato",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 23,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display candidate login page",
+          "score": 5,
+          "shared_tokens": [
+            "candidato",
+            "login"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve fazer login do candidato",
+          "score": 5,
+          "shared_tokens": [
+            "candidato",
+            "login"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve solicitar recuperação de senha do candidato",
+          "score": 4,
+          "shared_tokens": [
+            "candidato",
+            "senha"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-CAND-002",
+      "title": "Registro de novo candidato",
+      "module": "Portal Público - Área do Candidato",
+      "domain": "PUB-CAND",
+      "expected_result": "Conta criada, instruções dos próximos passos",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 23,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve solicitar recuperação de senha do candidato",
+          "score": 4,
+          "shared_tokens": [
+            "candidato",
+            "senha"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve redefinir senha do candidato",
+          "score": 4,
+          "shared_tokens": [
+            "candidato",
+            "senha"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve registrar novo candidato",
+          "score": 3,
+          "shared_tokens": [
+            "candidato",
+            "novo"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-CAND-003",
+      "title": "Visualizar chapa",
+      "module": "Portal Público - Área do Candidato",
+      "domain": "PUB-CAND",
+      "expected_result": "Exibe dados da chapa do candidato",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 23,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display candidate login page",
+          "score": 2,
+          "shared_tokens": [
+            "candidato"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve fazer login do candidato",
+          "score": 2,
+          "shared_tokens": [
+            "candidato"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve registrar novo candidato",
+          "score": 2,
+          "shared_tokens": [
+            "candidato"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-CAND-004",
+      "title": "Gerenciar documentos",
+      "module": "Portal Público - Área do Candidato",
+      "domain": "PUB-CAND",
+      "expected_result": "Upload, download e visualização de documentos",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 23,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display documents page",
+          "score": 2,
+          "shared_tokens": [
+            "documento"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-CAND-005",
+      "title": "Editar plataforma",
+      "module": "Portal Público - Área do Candidato",
+      "domain": "PUB-CAND",
+      "expected_result": "Candidato pode editar sua plataforma/proposta",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 23,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display candidate login page",
+          "score": 2,
+          "shared_tokens": [
+            "candidato"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve fazer login do candidato",
+          "score": 2,
+          "shared_tokens": [
+            "candidato"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve registrar novo candidato",
+          "score": 2,
+          "shared_tokens": [
+            "candidato"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-CAND-006",
+      "title": "Visualizar denúncias",
+      "module": "Portal Público - Área do Candidato",
+      "domain": "PUB-CAND",
+      "expected_result": "Lista denúncias relacionadas à chapa",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 23,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve registrar voto em chapa e retornar comprovante",
+          "score": 2,
+          "shared_tokens": [
+            "chapa"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve votar em chapa usando método de conveniência",
+          "score": 2,
+          "shared_tokens": [
+            "chapa"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve listar chapas disponíveis para votação",
+          "score": 2,
+          "shared_tokens": [
+            "chapa"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-CAND-007",
+      "title": "Apresentar defesa",
+      "module": "Portal Público - Área do Candidato",
+      "domain": "PUB-CAND",
+      "expected_result": "Candidato pode apresentar defesa a denúncias",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 23,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display candidate login page",
+          "score": 2,
+          "shared_tokens": [
+            "candidato"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve fazer login do candidato",
+          "score": 2,
+          "shared_tokens": [
+            "candidato"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve registrar novo candidato",
+          "score": 2,
+          "shared_tokens": [
+            "candidato"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-CAND-008",
+      "title": "Gerenciar recursos",
+      "module": "Portal Público - Área do Candidato",
+      "domain": "PUB-CAND",
+      "expected_result": "Candidato pode interpor recursos",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 23,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display candidate login page",
+          "score": 2,
+          "shared_tokens": [
+            "candidato"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve fazer login do candidato",
+          "score": 2,
+          "shared_tokens": [
+            "candidato"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve registrar novo candidato",
+          "score": 2,
+          "shared_tokens": [
+            "candidato"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-CAND-009",
+      "title": "Visualizar histórico",
+      "module": "Portal Público - Área do Candidato",
+      "domain": "PUB-CAND",
+      "expected_result": "Histórico de ações e eventos",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 23,
+      "direct_matches": []
+    },
+    {
+      "case_id": "CT-PUB-CAND-010",
+      "title": "Alterar senha do candidato",
+      "module": "Portal Público - Área do Candidato",
+      "domain": "PUB-CAND",
+      "expected_result": "Senha alterada com sucesso",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 23,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve solicitar recuperação de senha do candidato",
+          "score": 4,
+          "shared_tokens": [
+            "candidato",
+            "senha"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve redefinir senha do candidato",
+          "score": 4,
+          "shared_tokens": [
+            "candidato",
+            "senha"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-CAND-011",
+      "title": "Recuperação de senha do candidato",
+      "module": "Portal Público - Área do Candidato",
+      "domain": "PUB-CAND",
+      "expected_result": "Email de recuperação enviado",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 23,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve solicitar recuperação de senha do candidato",
+          "score": 5,
+          "shared_tokens": [
+            "candidato",
+            "recuperar",
+            "senha"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve redefinir senha do candidato",
+          "score": 4,
+          "shared_tokens": [
+            "candidato",
+            "senha"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-PAG-001",
+      "title": "Home page",
+      "module": "Portal Público - Páginas Públicas",
+      "domain": "PUB-PAG",
+      "expected_result": "Página inicial com informações do sistema eleitoral",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/responsividade.spec.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 40,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display home page",
+          "score": 2,
+          "shared_tokens": [
+            "home",
+            "page"
+          ]
+        },
+        {
+          "file_path": "apps/public/e2e/responsividade.spec.ts",
+          "title": "CT-RESP-004 Public Desktop 1920x1080 deve exibir home sem quebra",
+          "score": 1,
+          "shared_tokens": [
+            "home"
+          ]
+        },
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display elections list on public page",
+          "score": 1,
+          "shared_tokens": [
+            "page"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-PAG-002",
+      "title": "Lista de eleições públicas",
+      "module": "Portal Público - Páginas Públicas",
+      "domain": "PUB-PAG",
+      "expected_result": "Lista eleições públicas com status e informações gerais",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/responsividade.spec.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 40,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display elections list on public page",
+          "score": 2,
+          "shared_tokens": [
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve verificar elegibilidade com eleicaoId",
+          "score": 2,
+          "shared_tokens": [
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve verificar elegibilidade sem eleicaoId",
+          "score": 2,
+          "shared_tokens": [
+            "eleicao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-PAG-003",
+      "title": "Detalhes da eleição pública",
+      "module": "Portal Público - Páginas Públicas",
+      "domain": "PUB-PAG",
+      "expected_result": "Informações detalhadas da eleição",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/responsividade.spec.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 40,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display elections list on public page",
+          "score": 2,
+          "shared_tokens": [
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve verificar elegibilidade com eleicaoId",
+          "score": 2,
+          "shared_tokens": [
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve verificar elegibilidade sem eleicaoId",
+          "score": 2,
+          "shared_tokens": [
+            "eleicao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-PAG-004",
+      "title": "Chapas da eleição",
+      "module": "Portal Público - Páginas Públicas",
+      "domain": "PUB-PAG",
+      "expected_result": "Lista chapas com detalhes dos membros",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/responsividade.spec.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 40,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display elections list on public page",
+          "score": 2,
+          "shared_tokens": [
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve registrar voto em chapa e retornar comprovante",
+          "score": 2,
+          "shared_tokens": [
+            "chapa"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve votar em chapa usando método de conveniência",
+          "score": 2,
+          "shared_tokens": [
+            "chapa"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-PAG-005",
+      "title": "Resultados da eleição",
+      "module": "Portal Público - Páginas Públicas",
+      "domain": "PUB-PAG",
+      "expected_result": "Resultados publicados (gráficos e tabelas)",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/responsividade.spec.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 40,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display elections list on public page",
+          "score": 2,
+          "shared_tokens": [
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve verificar elegibilidade com eleicaoId",
+          "score": 2,
+          "shared_tokens": [
+            "eleicao"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve verificar elegibilidade sem eleicaoId",
+          "score": 2,
+          "shared_tokens": [
+            "eleicao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-PAG-006",
+      "title": "Calendário eleitoral",
+      "module": "Portal Público - Páginas Públicas",
+      "domain": "PUB-PAG",
+      "expected_result": "Cronograma com prazos e eventos",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/responsividade.spec.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 40,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display calendar page",
+          "score": 2,
+          "shared_tokens": [
+            "calendario"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-PAG-007",
+      "title": "Documentos públicos",
+      "module": "Portal Público - Páginas Públicas",
+      "domain": "PUB-PAG",
+      "expected_result": "Lista editais, resoluções e documentos do processo eleitoral",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/responsividade.spec.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 40,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display documents page",
+          "score": 2,
+          "shared_tokens": [
+            "documento"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-PAG-008",
+      "title": "FAQ",
+      "module": "Portal Público - Páginas Públicas",
+      "domain": "PUB-PAG",
+      "expected_result": "Perguntas frequentes com respostas",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/responsividade.spec.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 40,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display FAQ page",
+          "score": 1,
+          "shared_tokens": [
+            "faq"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-PAG-009",
+      "title": "Registrar denúncia pública",
+      "module": "Portal Público - Páginas Públicas",
+      "domain": "PUB-PAG",
+      "expected_result": "Formulário público para registro de denúncia",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/responsividade.spec.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 40,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/auth.test.ts",
+          "title": "deve registrar novo candidato",
+          "score": 2,
+          "shared_tokens": [
+            "registrar"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve registrar voto em chapa e retornar comprovante",
+          "score": 2,
+          "shared_tokens": [
+            "registrar"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve registrar voto em branco",
+          "score": 2,
+          "shared_tokens": [
+            "registrar"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-PUB-PAG-010",
+      "title": "Consultar denúncia por protocolo",
+      "module": "Portal Público - Páginas Públicas",
+      "domain": "PUB-PAG",
+      "expected_result": "Busca por protocolo retorna status da denúncia",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/public/e2e/responsividade.spec.ts",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/auth.test.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 40,
+      "direct_matches": []
+    },
+    {
+      "case_id": "CT-RESP-001",
+      "title": "Admin - Desktop (1920x1080)",
+      "module": "Testes de Responsividade",
+      "domain": "RESP",
+      "expected_result": "Layout adequado, sidebar visível, tabelas completas",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/responsividade.spec.ts",
+        "apps/public/e2e/responsividade.spec.ts"
+      ],
+      "detected_test_count": 5,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/responsividade.spec.ts",
+          "title": "CT-RESP-001 Admin Desktop 1920x1080 deve renderizar sem quebra de layout",
+          "score": 5,
+          "shared_tokens": [
+            "1920x1080",
+            "admin",
+            "desktop",
+            "layout"
+          ]
+        },
+        {
+          "file_path": "apps/public/e2e/responsividade.spec.ts",
+          "title": "CT-RESP-004 Public Desktop 1920x1080 deve exibir home sem quebra",
+          "score": 3,
+          "shared_tokens": [
+            "1920x1080",
+            "desktop"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-RESP-002",
+      "title": "Admin - Tablet (768x1024)",
+      "module": "Testes de Responsividade",
+      "domain": "RESP",
+      "expected_result": "Sidebar colapsável, tabelas com scroll horizontal",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/responsividade.spec.ts",
+        "apps/public/e2e/responsividade.spec.ts"
+      ],
+      "detected_test_count": 5,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/responsividade.spec.ts",
+          "title": "CT-RESP-002 Admin Tablet 768x1024 deve manter usabilidade no formulario",
+          "score": 4,
+          "shared_tokens": [
+            "768x1024",
+            "admin",
+            "tablet"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-RESP-003",
+      "title": "Admin - Mobile (375x667)",
+      "module": "Testes de Responsividade",
+      "domain": "RESP",
+      "expected_result": "Menu hamburger, cards empilhados, formulários em coluna única",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/responsividade.spec.ts",
+        "apps/public/e2e/responsividade.spec.ts"
+      ],
+      "detected_test_count": 5,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/responsividade.spec.ts",
+          "title": "CT-RESP-003 Admin Mobile 375x667 deve funcionar sem overflow horizontal",
+          "score": 4,
+          "shared_tokens": [
+            "375x667",
+            "admin",
+            "mobile"
+          ]
+        },
+        {
+          "file_path": "apps/public/e2e/responsividade.spec.ts",
+          "title": "CT-RESP-005 Public Mobile 375x667 deve manter navegacao funcional",
+          "score": 3,
+          "shared_tokens": [
+            "375x667",
+            "mobile"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-RESP-004",
+      "title": "Public - Desktop",
+      "module": "Testes de Responsividade",
+      "domain": "RESP",
+      "expected_result": "Layout em grid, navegação completa",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/responsividade.spec.ts",
+        "apps/public/e2e/responsividade.spec.ts"
+      ],
+      "detected_test_count": 5,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/responsividade.spec.ts",
+          "title": "CT-RESP-001 Admin Desktop 1920x1080 deve renderizar sem quebra de layout",
+          "score": 3,
+          "shared_tokens": [
+            "desktop",
+            "layout"
+          ]
+        },
+        {
+          "file_path": "apps/public/e2e/responsividade.spec.ts",
+          "title": "CT-RESP-004 Public Desktop 1920x1080 deve exibir home sem quebra",
+          "score": 3,
+          "shared_tokens": [
+            "desktop",
+            "public"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-RESP-005",
+      "title": "Public - Mobile",
+      "module": "Testes de Responsividade",
+      "domain": "RESP",
+      "expected_result": "Menu responsivo, fluxo de votação funcional em mobile",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/responsividade.spec.ts",
+        "apps/public/e2e/responsividade.spec.ts"
+      ],
+      "detected_test_count": 5,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/e2e/responsividade.spec.ts",
+          "title": "CT-RESP-005 Public Mobile 375x667 deve manter navegacao funcional",
+          "score": 4,
+          "shared_tokens": [
+            "funcional",
+            "mobile",
+            "public"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-SEC-001",
+      "title": "Acesso não autenticado às rotas admin",
+      "module": "Testes de Segurança",
+      "domain": "SEC",
+      "expected_result": "Redireciona para login",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/auth.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts",
+        "apps/api/CAU.Eleitoral.Tests/ExcelExportServiceTests.cs",
+        "apps/api/CAU.Eleitoral.Tests/PdfExportServiceTests.cs",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 78,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/e2e/auth.spec.ts",
+          "title": "should display login page",
+          "score": 6,
+          "shared_tokens": [
+            "admin",
+            "auth",
+            "login"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/auth.spec.ts",
+          "title": "should login with valid credentials",
+          "score": 6,
+          "shared_tokens": [
+            "admin",
+            "auth",
+            "login"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve fazer login com credenciais válidas",
+          "score": 6,
+          "shared_tokens": [
+            "admin",
+            "auth",
+            "login"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-SEC-002",
+      "title": "Acesso com token expirado",
+      "module": "Testes de Segurança",
+      "domain": "SEC",
+      "expected_result": "Refresh automático ou redirecionamento para login",
+      "status": "Coberto automatizado",
+      "mapped_files": [
+        "apps/admin/e2e/auth.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts",
+        "apps/api/CAU.Eleitoral.Tests/ExcelExportServiceTests.cs",
+        "apps/api/CAU.Eleitoral.Tests/PdfExportServiceTests.cs",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 78,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve renovar token de acesso",
+          "score": 3,
+          "shared_tokens": [
+            "acesso",
+            "token"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-SEC-003",
+      "title": "CORS - Origens não autorizadas",
+      "module": "Testes de Segurança",
+      "domain": "SEC",
+      "expected_result": "Requisições bloqueadas",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/auth.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts",
+        "apps/api/CAU.Eleitoral.Tests/ExcelExportServiceTests.cs",
+        "apps/api/CAU.Eleitoral.Tests/PdfExportServiceTests.cs",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 78,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/stores/__tests__/auth.test.ts",
+          "title": "deve iniciar com estado vazio e não autenticado",
+          "score": 1,
+          "shared_tokens": [
+            "nao"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/stores/__tests__/auth.test.ts",
+          "title": "deve não fazer nada se não há usuário logado",
+          "score": 1,
+          "shared_tokens": [
+            "nao"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve retornar não elegível com motivo",
+          "score": 1,
+          "shared_tokens": [
+            "nao"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-SEC-004",
+      "title": "Injeção SQL nos campos de busca",
+      "module": "Testes de Segurança",
+      "domain": "SEC",
+      "expected_result": "Inputs sanitizados, sem execução de SQL",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/auth.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts",
+        "apps/api/CAU.Eleitoral.Tests/ExcelExportServiceTests.cs",
+        "apps/api/CAU.Eleitoral.Tests/PdfExportServiceTests.cs",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 78,
+      "direct_matches": []
+    },
+    {
+      "case_id": "CT-SEC-005",
+      "title": "XSS nos campos de texto",
+      "module": "Testes de Segurança",
+      "domain": "SEC",
+      "expected_result": "Scripts HTML escapados corretamente",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/auth.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts",
+        "apps/api/CAU.Eleitoral.Tests/ExcelExportServiceTests.cs",
+        "apps/api/CAU.Eleitoral.Tests/PdfExportServiceTests.cs",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 78,
+      "direct_matches": []
+    },
+    {
+      "case_id": "CT-SEC-006",
+      "title": "Voto duplicado via API direta",
+      "module": "Testes de Segurança",
+      "domain": "SEC",
+      "expected_result": "API rejeita com erro 400/409",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/auth.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts",
+        "apps/api/CAU.Eleitoral.Tests/ExcelExportServiceTests.cs",
+        "apps/api/CAU.Eleitoral.Tests/PdfExportServiceTests.cs",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 78,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve registrar voto em chapa e retornar comprovante",
+          "score": 2,
+          "shared_tokens": [
+            "voto"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve registrar voto em branco",
+          "score": 2,
+          "shared_tokens": [
+            "voto"
+          ]
+        },
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve registrar voto nulo",
+          "score": 2,
+          "shared_tokens": [
+            "voto"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-SEC-007",
+      "title": "Acesso a dados de outros usuários",
+      "module": "Testes de Segurança",
+      "domain": "SEC",
+      "expected_result": "Autorização verifica ownership dos dados",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/auth.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts",
+        "apps/api/CAU.Eleitoral.Tests/ExcelExportServiceTests.cs",
+        "apps/api/CAU.Eleitoral.Tests/PdfExportServiceTests.cs",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 78,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve registrar novo usuário com sucesso",
+          "score": 2,
+          "shared_tokens": [
+            "usuario"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve obter dados do usuário logado",
+          "score": 2,
+          "shared_tokens": [
+            "usuario"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/stores/__tests__/auth.test.ts",
+          "title": "deve definir usuário e tokens corretamente",
+          "score": 2,
+          "shared_tokens": [
+            "usuario"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-SEC-008",
+      "title": "Rate limiting nas rotas de autenticação",
+      "module": "Testes de Segurança",
+      "domain": "SEC",
+      "expected_result": "Bloqueio após múltiplas tentativas falhas",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/auth.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts",
+        "apps/api/CAU.Eleitoral.Tests/ExcelExportServiceTests.cs",
+        "apps/api/CAU.Eleitoral.Tests/PdfExportServiceTests.cs",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 78,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/stores/__tests__/auth.test.ts",
+          "title": "deve manter isAuthenticated após atualização",
+          "score": 3,
+          "shared_tokens": [
+            "apos",
+            "auth"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/auth.spec.ts",
+          "title": "should display login page",
+          "score": 2,
+          "shared_tokens": [
+            "auth"
+          ]
+        },
+        {
+          "file_path": "apps/admin/e2e/auth.spec.ts",
+          "title": "should login with valid credentials",
+          "score": 2,
+          "shared_tokens": [
+            "auth"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-SEC-009",
+      "title": "Força da senha",
+      "module": "Testes de Segurança",
+      "domain": "SEC",
+      "expected_result": "Mínimo 8 caracteres, maiúscula, minúscula, número, caractere especial",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/auth.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts",
+        "apps/api/CAU.Eleitoral.Tests/ExcelExportServiceTests.cs",
+        "apps/api/CAU.Eleitoral.Tests/PdfExportServiceTests.cs",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 78,
+      "direct_matches": [
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve solicitar recuperação de senha",
+          "score": 2,
+          "shared_tokens": [
+            "senha"
+          ]
+        },
+        {
+          "file_path": "apps/admin/src/services/__tests__/auth.test.ts",
+          "title": "deve redefinir senha com token válido",
+          "score": 2,
+          "shared_tokens": [
+            "senha"
+          ]
+        }
+      ]
+    },
+    {
+      "case_id": "CT-SEC-010",
+      "title": "Sigilo do voto",
+      "module": "Testes de Segurança",
+      "domain": "SEC",
+      "expected_result": "Não é possível associar voto a eleitor, apenas confirmar se votou",
+      "status": "Cobertura parcial",
+      "mapped_files": [
+        "apps/admin/e2e/auth.spec.ts",
+        "apps/admin/e2e/full-system.spec.ts",
+        "apps/admin/e2e/login-test.prod.spec.ts",
+        "apps/admin/src/services/__tests__/auth.test.ts",
+        "apps/admin/src/services/__tests__/votacao.test.ts",
+        "apps/admin/src/stores/__tests__/auth.test.ts",
+        "apps/api/CAU.Eleitoral.Tests/ExcelExportServiceTests.cs",
+        "apps/api/CAU.Eleitoral.Tests/PdfExportServiceTests.cs",
+        "apps/public/e2e/voting.spec.ts",
+        "apps/public/src/services/__tests__/votacao.test.ts"
+      ],
+      "detected_test_count": 78,
+      "direct_matches": [
+        {
+          "file_path": "apps/public/src/services/__tests__/votacao.test.ts",
+          "title": "deve verificar se eleitor já votou",
+          "score": 3,
+          "shared_tokens": [
+            "eleitor",
+            "votou"
+          ]
+        },
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should navigate to voter login",
+          "score": 2,
+          "shared_tokens": [
+            "eleitor"
+          ]
+        },
+        {
+          "file_path": "apps/public/e2e/voting.spec.ts",
+          "title": "should display voter login form",
+          "score": 2,
+          "shared_tokens": [
+            "eleitor"
+          ]
+        }
+      ]
+    }
+  ]
+}

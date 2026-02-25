@@ -542,6 +542,42 @@ public class DenunciaController : BaseController
     }
 
     /// <summary>
+    /// Atribui relator para a denuncia
+    /// </summary>
+    /// <param name="id">ID da denuncia</param>
+    /// <param name="dto">Dados do relator</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Denuncia atualizada</returns>
+    [HttpPost("{id:guid}/atribuir-relator")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral")]
+    [ProducesResponseType(typeof(DenunciaDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<DenunciaDto>> AtribuirRelator(
+        Guid id,
+        [FromBody] AtribuirRelatorDto dto,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var denuncia = await _denunciaService.AtribuirRelatorAsync(id, dto, cancellationToken);
+            return Ok(denuncia);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Denuncia nao encontrada" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao atribuir relator da denuncia {Id}", id);
+            return InternalError("Erro ao atribuir relator");
+        }
+    }
+
+    /// <summary>
     /// Registra o resultado do julgamento
     /// </summary>
     /// <param name="id">ID da denuncia</param>
@@ -612,6 +648,43 @@ public class DenunciaController : BaseController
         {
             _logger.LogError(ex, "Erro ao arquivar denuncia {Id}", id);
             return InternalError("Erro ao arquivar denuncia");
+        }
+    }
+
+    /// <summary>
+    /// Reabre uma denuncia arquivada
+    /// </summary>
+    /// <param name="id">ID da denuncia</param>
+    /// <param name="request">Dados da reabertura</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Denuncia reaberta</returns>
+    [HttpPost("{id:guid}/reabrir")]
+    [Authorize(Roles = "Admin,ComissaoEleitoral")]
+    [ProducesResponseType(typeof(DenunciaDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<DenunciaDto>> Reabrir(
+        Guid id,
+        [FromBody] ReabrirDenunciaDto request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var denuncia = await _denunciaService.ReabrirAsync(id, request.Motivo, userId, cancellationToken);
+            return Ok(denuncia);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "Denuncia nao encontrada" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao reabrir denuncia {Id}", id);
+            return InternalError("Erro ao reabrir denuncia");
         }
     }
 
