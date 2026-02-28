@@ -3,7 +3,32 @@
 ## Visão Geral
 Sistema eleitoral migrado de PHP/Java para .NET 8 + React 18 + shadcn/ui.
 
-**Status:** Em Produção (AWS ECS Fargate) ✅ Verificado em 2026-02-05
+**Status da Migração:** 98% Completo ✅ (verificado em 2026-02-24)
+**Banco de Dados Local:** SQLite (`caueve.db`) — permanente
+**Banco de Dados Produção:** PostgreSQL (AWS RDS)
+
+## Status dos Módulos (E2E Verificado)
+
+| Módulo | Status | Observações |
+|--------|--------|-------------|
+| Dashboard | ✅ | Eleições em andamento, cards de resumo |
+| Eleições | ✅ | CRUD completo (create/edit/delete) |
+| Votação | ✅ | 140 eleitores, 142 votos no seed |
+| Chapas | ✅ | CRUD + regra "já analisada não pode ser alterada" |
+| Denúncias | ✅ | LIST + Detail + Arquivar com motivo |
+| Impugnações | ✅ | 4 protocolos, filtros por status/tipo |
+| Julgamentos | ✅ | Denúncias e Impugnações juntos |
+| Usuários | ⚠️ | List OK, Create tem bug no enum `tipo` (string vs number) |
+| Relatórios | ✅ | 4 categorias, Exportar Todos |
+| Auditoria | ✅ | Filtros por nível, entidade, data |
+| Configurações | ✅ | 5 abas: Geral, Eleições, Notificações, Segurança, Logs |
+| Auth Admin | ✅ | Login, /me, refresh token |
+| Auth Eleitor | ✅ | Verificação CPF + login |
+| Auth Candidato | ✅ | Login CPF+CAU+Senha |
+| Health Check | ✅ | /health retorna "Healthy" |
+
+### Bug Conhecido
+**Usuários → Novo Usuário**: Erro de validação Zod: `"Invalid enum value. Expected 0|1|2|3|4|5, received '0'"`. O frontend envia `tipo` como string. Arquivo: `apps/admin/src/pages/usuarios/UsuarioFormPage.tsx`.
 
 ## Estrutura do Projeto
 
@@ -11,24 +36,28 @@ Sistema eleitoral migrado de PHP/Java para .NET 8 + React 18 + shadcn/ui.
 cau-eleitoral-migrado/
 ├── apps/
 │   ├── api/                    # .NET 8 Web API (Clean Architecture)
-│   │   ├── CAU.Eleitoral.Api/        # Controllers, Program.cs
+│   │   ├── CAU.Eleitoral.Api/        # Controllers (21), Program.cs
 │   │   ├── CAU.Eleitoral.Application/ # Services, DTOs, Interfaces
-│   │   ├── CAU.Eleitoral.Domain/     # Entities (~71), Enums, Interfaces
-│   │   └── CAU.Eleitoral.Infrastructure/ # DbContext, Repositories, Seeder
+│   │   ├── CAU.Eleitoral.Domain/     # Entities (~156), Enums, Interfaces
+│   │   ├── CAU.Eleitoral.Infrastructure/ # DbContext, Repositories, Seeder
+│   │   └── CAU.Eleitoral.Tests/      # Testes .NET
 │   ├── admin/                  # React Admin (Vite + shadcn/ui)
 │   └── public/                 # React Public (Vite + shadcn/ui)
 ├── infrastructure/
 │   ├── docker/                 # Dockerfiles
 │   ├── terraform/              # AWS Infrastructure
 │   └── scripts/                # Deploy scripts
-└── docs/                       # Documentação + Sistema legado
+├── docs/
+│   └── documentacao-qa.md      # ~100 cenários de teste
+└── tmp/
+    └── test_crud.sh            # Script de teste CRUD via curl
 ```
 
 ## Stack Tecnológica
 
 ### Backend
 - **.NET 8** + ASP.NET Core Web API
-- **Entity Framework Core 8.0** + PostgreSQL
+- **Entity Framework Core 8.0** + **SQLite** (local) / **PostgreSQL** (produção)
 - **JWT Authentication** (PBKDF2 100000 iterations)
 - **Serilog** para logging
 - **Swashbuckle** para Swagger/OpenAPI
@@ -39,10 +68,12 @@ cau-eleitoral-migrado/
 - **shadcn/ui** + Tailwind CSS
 - **React Router v6**
 - **TanStack Query** para state management
+- **Vitest** para testes unitários
+- **Playwright** para testes E2E
 
 ### Infrastructure
 - **AWS ECS Fargate** (API, Admin, Public)
-- **AWS RDS PostgreSQL**
+- **AWS RDS PostgreSQL** (produção)
 - **AWS CloudFront** + ALB
 - **AWS S3** (documents, uploads, backups)
 - **Terraform** para IaC
@@ -78,6 +109,8 @@ cau-eleitoral-migrado/
 }
 ```
 
+**Nota:** Localmente a API usa SQLite (`caueve.db`) configurado diretamente no `Program.cs`. A `ConnectionStrings` acima é usada apenas em produção com PostgreSQL.
+
 ### Admin App (.env)
 ```env
 VITE_API_URL=http://localhost:5001/api
@@ -100,41 +133,45 @@ VITE_APP_ENV=production
 
 ## Comandos de Desenvolvimento
 
-### Iniciar Docker (PostgreSQL + Redis)
+### Iniciar Tudo (Monorepo com Turborepo)
 ```bash
 cd /Users/brunosouza/Development/cau-eleitoral-migrado
-docker compose -f infrastructure/docker/docker-compose.yml up -d
+pnpm dev
+# Admin em http://localhost:4200
+# Public em http://localhost:4201
 ```
 
-Por padrao, o compose sobe apenas Postgres + Redis (os services `api`, `admin`, `public` estao no profile `app`).
-
-Para subir tudo via Docker:
+### API (.NET) com SQLite
 ```bash
-docker compose -f infrastructure/docker/docker-compose.yml --profile app up -d
-```
-
-### API (.NET)
-```bash
-cd apps/api/CAU.Eleitoral.Api
-dotnet run
-# API disponível em http://localhost:5001
+ASPNETCORE_ENVIRONMENT=Development dotnet run --project apps/api/CAU.Eleitoral.Api --urls "http://0.0.0.0:5001"
+# API em http://localhost:5001
 # Swagger em http://localhost:5001/swagger
+# Database: caueve.db (SQLite, criado automaticamente)
+# Seed automático na primeira execução
 ```
 
-### Admin (React)
+### Rodar Testes Unitários (Vitest)
 ```bash
-cd apps/admin
-pnpm install
-pnpm dev
-# Disponível em http://localhost:4200
+# Admin (56 testes em 7 arquivos)
+cd apps/admin && pnpm test
+
+# Public (29 testes em 2 arquivos)
+cd apps/public && pnpm test
+
+# Todos via monorepo
+pnpm test
 ```
 
-### Public (React)
+### Rodar Testes CRUD via API (curl)
 ```bash
-cd apps/public
-pnpm install
-pnpm dev
-# Disponível em http://localhost:4201
+bash tmp/test_crud.sh
+# Testa 32 endpoints: Auth, Eleições, Chapas, Denúncias, Usuários, etc.
+```
+
+### Docker (apenas para produção/staging)
+```bash
+docker compose -f infrastructure/docker/docker-compose.yml up -d           # Postgres + Redis
+docker compose -f infrastructure/docker/docker-compose.yml --profile app up -d  # Tudo
 ```
 
 ## Credenciais de Teste (Database Seeder)
@@ -152,6 +189,35 @@ pnpm dev
 - CPF: 45555555551
 - RegistroCAU: A000018-DF
 - Senha: Candidato@123
+
+## Testes
+
+### Testes Unitários (Vitest) — 85 testes, todos passando ✅
+
+**Admin (56 testes):**
+- `services/__tests__/auth.test.ts` — login, me, refresh, logout
+- `services/__tests__/eleicoes.test.ts` — CRUD, validations
+- `services/__tests__/chapas.test.ts` — list, create, members
+- `services/__tests__/denuncias.test.ts` — list, detail, status change
+- `services/__tests__/impugnacoes.test.ts` — list, create, analyze
+- `services/__tests__/votacao.test.ts` — elections, stats, monitoring
+- `stores/__tests__/auth.test.ts` — Zustand auth store
+
+**Public (29 testes):**
+- `services/__tests__/auth.test.ts` — eleitor/candidato login
+- `services/__tests__/votacao.test.ts` — voting flow, eligibility
+
+### Testes E2E com Playwright
+```bash
+cd apps/admin && pnpm exec playwright test   # 12 testes
+cd apps/public && pnpm exec playwright test  # 9 testes
+```
+
+### Testes de Integração CRUD (32 endpoints testados)
+```bash
+bash tmp/test_crud.sh
+# 22/32 passam (10 falhas por rotas de script desatualizadas)
+```
 
 ## AWS Deployment
 
@@ -210,56 +276,45 @@ O deploy é feito automaticamente via AWS CodeBuild quando há push na branch `m
 
 #### Deploy Manual via CLI
 ```bash
-# Iniciar build
 aws codebuild start-build --project-name cau-eleitoral-build --region us-east-1
-
-# Verificar status do build
 aws codebuild list-builds-for-project --project-name cau-eleitoral-build --region us-east-1
 aws codebuild batch-get-builds --ids <build-id> --region us-east-1
 ```
 
 #### Verificar Status do Deploy
 ```bash
-# Status dos serviços ECS
 aws ecs describe-services \
   --cluster cau-eleitoral-cluster \
   --services cau-eleitoral-api cau-eleitoral-admin cau-eleitoral-public \
   --query 'services[*].{Name:serviceName,Status:status,Running:runningCount,Desired:desiredCount}' \
   --output table
 
-# Logs do serviço
 aws logs tail /aws/ecs/cau-eleitoral/api --follow
 ```
 
-### Terraform (Infraestrutura)
+## Database
+
+### SQLite Local (Desenvolvimento)
+- **Arquivo:** `caueve.db` (criado em `AppContext.BaseDirectory`)
+- **Configurado em:** `Program.cs` via `UseSqlite`
+- **Migrations:** Geradas para SQLite
+- **Seed:** Automático na primeira execução (DatabaseSeeder.cs)
+
+### PostgreSQL (Produção)
+- **Host:** cau-eleitoral-db.c5caeiwsk43h.us-east-1.rds.amazonaws.com
+- **Port:** 5432
+- **Database:** cau_eleitoral
+
+### Migrations
 ```bash
-cd infrastructure/terraform
-
-# Inicializar
-terraform init
-
-# Planejar
-terraform plan -out=tfplan
-
-# Aplicar
-terraform apply tfplan
+cd apps/api
+dotnet ef migrations add NomeMigration -p CAU.Eleitoral.Infrastructure -s CAU.Eleitoral.Api
+dotnet ef database update -p CAU.Eleitoral.Infrastructure -s CAU.Eleitoral.Api
 ```
 
-### Deploy Script Local (Apenas para emergências)
-```bash
-./infrastructure/scripts/deploy.sh [tag] [service]
+## Entidades Principais (156 entities, 21 controllers)
 
-# Exemplos:
-./infrastructure/scripts/deploy.sh latest all      # Deploy de todos os serviços
-./infrastructure/scripts/deploy.sh latest api      # Deploy apenas da API
-./infrastructure/scripts/deploy.sh v1.0.0 admin    # Deploy do admin com tag específica
-```
-
-**Nota:** O deploy local requer Docker com suporte a buildx para linux/amd64.
-
-## Entidades Principais (Domain)
-
-### Core
+### Core Eleitoral
 - Eleicao, Calendario, ConfiguracaoEleicao
 - ChapaEleicao, MembroChapa
 - Voto, ResultadoEleicao
@@ -269,26 +324,19 @@ terraform apply tfplan
 - Profissional, Conselheiro
 - RegionalCAU, Filial
 
-### Processos
+### Processos Jurídicos
 - Denuncia, ImpugnacaoResultado
 - ComissaoJulgadora, SessaoJulgamento
 - Documento, Edital, Resolucao
 
-## Database
+## GAPs Remanescentes (2%)
 
-### PostgreSQL Local
-- Host: localhost
-- Port: 5436
-- Database: cau_eleitoral
-- User: postgres
-- Password: postgres
-
-### Migrations
-```bash
-cd apps/api
-dotnet ef migrations add NomeMigration -p CAU.Eleitoral.Infrastructure -s CAU.Eleitoral.Api
-dotnet ef database update -p CAU.Eleitoral.Infrastructure -s CAU.Eleitoral.Api
-```
+| Item | Impacto | Esforço Estimado |
+|------|---------|-----------------|
+| S3 Document Storage | Docs perdem-se ao reiniciar container | 4-6h |
+| PDF/XLSX Export | Só CSV disponível | 6-8h |
+| Email Notifications | NotificacaoService não envia emails | 4-6h |
+| Digital Signatures | Entidade existe, sem lógica | 12-16h |
 
 ## Problemas Conhecidos / Fixes
 
@@ -299,40 +347,13 @@ dotnet ef database update -p CAU.Eleitoral.Infrastructure -s CAU.Eleitoral.Api
 ### TypeScript/Vite
 - Adicionar `"types": ["vite/client"]` no tsconfig.json para `import.meta.env`
 
-### EF Core Foreign Key Warning
+### EF Core
 - AssinaturaDigital.CertificadoDigitalId shadow property - ignorar warning
+- AuditoriaLogs seed pode falhar no SQLite (funciona em PostgreSQL)
 
-## Testes E2E com Playwright
-
-### Executar Testes (Local)
-```bash
-# Admin App (12 testes)
-cd apps/admin
-pnpm exec playwright test
-
-# Public App (9 testes)
-cd apps/public
-pnpm exec playwright test
-```
-
-### Executar Testes contra Produção
-```bash
-cd apps/admin
-npx playwright test --config=playwright.production.config.ts
-```
-
-### Fluxos Testados
-**Admin (12 testes):**
-- Login/Logout
-- Dashboard com estatísticas
-- Navegação: Eleições, Chapas, Denúncias, Usuários
-- Sidebar navigation
-
-**Public (9 testes):**
-- Home page
-- Login do Eleitor (CPF + RegistroCAU)
-- Páginas públicas: Eleições, Calendário, Documentos, FAQ
-- Portal do Candidato
+### Frontend
+- Novo Usuário: `tipo` deve ser number, não string (bug Zod schema)
+- Browser subagent do playwright não suporta caractere `ç` ao digitar
 
 ## Monitoramento e Health Checks
 

@@ -76,14 +76,27 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Configure Database (SQLite)
-var dbPath = Path.Combine(AppContext.BaseDirectory, "caueve.db");
-builder.Services.AddDbContext<AppDbContext>(options =>
+// Configure Database (PostgreSQL in production, SQLite locally)
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (!string.IsNullOrWhiteSpace(connectionString))
 {
-    options.UseSqlite(
-        $"Data Source={dbPath}",
-        b => b.MigrationsAssembly("CAU.Eleitoral.Infrastructure"));
-});
+    builder.Services.AddDbContext<AppDbContext>(options =>
+    {
+        options.UseNpgsql(
+            connectionString,
+            b => b.MigrationsAssembly("CAU.Eleitoral.Infrastructure"));
+    });
+}
+else
+{
+    var dbPath = Path.Combine(AppContext.BaseDirectory, "caueve.db");
+    builder.Services.AddDbContext<AppDbContext>(options =>
+    {
+        options.UseSqlite(
+            $"Data Source={dbPath}",
+            b => b.MigrationsAssembly("CAU.Eleitoral.Infrastructure"));
+    });
+}
 
 // Configure JWT Authentication
 var jwtKey = builder.Configuration["Jwt:Key"];

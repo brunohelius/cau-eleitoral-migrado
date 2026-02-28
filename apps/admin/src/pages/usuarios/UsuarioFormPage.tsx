@@ -47,7 +47,7 @@ const usuarioSchema = z.object({
       return cleaned.length === 11
     }, 'CPF invalido'),
   telefone: z.string().optional(),
-  tipo: z.nativeEnum(TipoUsuario),
+  tipo: z.preprocess((val) => (typeof val === 'string' ? Number(val) : val), z.nativeEnum(TipoUsuario)),
   roles: z.array(z.string()).min(1, 'Selecione pelo menos um perfil'),
   password: z.string().min(8, 'Senha deve ter no mínimo 8 caracteres').optional(),
   confirmarSenha: z.string().optional(),
@@ -399,11 +399,10 @@ export function UsuarioFormPage() {
                 {tiposUsuario.map((tipo) => (
                   <label
                     key={tipo.value}
-                    className={`flex items-start gap-3 rounded-lg border p-4 cursor-pointer transition-colors ${
-                      selectedTipo === tipo.value
+                    className={`flex items-start gap-3 rounded-lg border p-4 cursor-pointer transition-colors ${selectedTipo === tipo.value
                         ? 'border-blue-500 bg-blue-50'
                         : 'hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
                     <input
                       type="radio"
@@ -468,11 +467,10 @@ export function UsuarioFormPage() {
                   {roles.map((role) => (
                     <label
                       key={role.id}
-                      className={`flex items-center gap-4 rounded-lg border p-4 cursor-pointer transition-colors ${
-                        selectedRoles?.includes(role.nome)
+                      className={`flex items-center gap-4 rounded-lg border p-4 cursor-pointer transition-colors ${selectedRoles?.includes(role.nome)
                           ? 'border-blue-500 bg-blue-50'
                           : 'hover:bg-gray-50'
-                      }`}
+                        }`}
                     >
                       <input
                         type="checkbox"
