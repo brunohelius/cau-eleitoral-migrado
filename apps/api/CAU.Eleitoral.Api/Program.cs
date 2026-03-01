@@ -336,8 +336,25 @@ if (runMigrations)
     Log.Information("Running database migrations...");
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await db.Database.MigrateAsync();
-    Log.Information("Database migrations completed.");
+    try
+    {
+        await db.Database.MigrateAsync();
+        Log.Information("Database migrations completed.");
+    }
+    catch (Exception ex) when (ex.InnerException?.Message.Contains("already exists") == true
+                               || ex.Message.Contains("already exists"))
+    {
+        Log.Warning(ex, "Migration failed because objects already exist. Marking pending migrations as applied...");
+        var pendingMigrations = await db.Database.GetPendingMigrationsAsync();
+        foreach (var migration in pendingMigrations)
+        {
+            await db.Database.ExecuteSqlRawAsync(
+                "INSERT INTO \"__EFMigrationsHistory\" (\"MigrationId\", \"ProductVersion\") VALUES ({0}, {1}) ON CONFLICT DO NOTHING",
+                migration,
+                "8.0.11");
+            Log.Information("Marked migration {Migration} as applied.", migration);
+        }
+    }
 
     // Only seed in development
     if (app.Environment.IsDevelopment())
