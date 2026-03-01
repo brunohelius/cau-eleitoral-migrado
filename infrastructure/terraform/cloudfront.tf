@@ -65,6 +65,8 @@ resource "aws_cloudfront_distribution" "admin" {
       }
     }
 
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.security_headers.id
+
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
     default_ttl            = 0
@@ -197,6 +199,8 @@ resource "aws_cloudfront_distribution" "public" {
       }
     }
 
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.security_headers.id
+
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = var.cloudfront_min_ttl
     default_ttl            = var.cloudfront_default_ttl
@@ -264,12 +268,74 @@ resource "aws_cloudfront_distribution" "public" {
 }
 
 # -----------------------------------------------------------------------------
-# CloudFront Response Headers Policy for CORS
+# CloudFront Response Headers Policy - Security Headers
 # -----------------------------------------------------------------------------
 
-resource "aws_cloudfront_response_headers_policy" "cors_api" {
-  name    = "${local.name_prefix}-cors-api-policy"
-  comment = "CORS policy for API distribution"
+resource "aws_cloudfront_response_headers_policy" "security_headers" {
+  name    = "${local.name_prefix}-security-headers-policy"
+  comment = "Security headers policy for all distributions"
+
+  security_headers_config {
+    content_security_policy {
+      content_security_policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://cau-api.migrai.com.br https://plausible.io; frame-ancestors 'self'; form-action 'self'; base-uri 'self'"
+      override = false
+    }
+
+    content_type_options {
+      override = true
+    }
+
+    frame_options {
+      frame_option = "SAMEORIGIN"
+      override     = true
+    }
+
+    referrer_policy {
+      referrer_policy = "strict-origin-when-cross-origin"
+      override        = true
+    }
+
+    strict_transport_security {
+      access_control_max_age_sec = 31536000
+      include_subdomains         = true
+      preload                    = false
+      override                   = true
+    }
+
+    xss_protection {
+      mode_block = true
+      protection = true
+      override   = true
+    }
+  }
+
+  custom_headers_config {
+    items {
+      header   = "Permissions-Policy"
+      override = true
+      value    = "camera=(), microphone=(), geolocation=()"
+    }
+
+    items {
+      header   = "X-Permitted-Cross-Domain-Policies"
+      override = true
+      value    = "none"
+    }
+  }
+
+  server_timing_headers_config {
+    enabled       = false
+    sampling_rate = 0
+  }
+}
+
+# -----------------------------------------------------------------------------
+# CloudFront Response Headers Policy - API Security (CORS + Security)
+# -----------------------------------------------------------------------------
+
+resource "aws_cloudfront_response_headers_policy" "api_security" {
+  name    = "${local.name_prefix}-api-security-policy"
+  comment = "CORS + Security headers for API distribution"
 
   cors_config {
     access_control_allow_credentials = true
@@ -293,6 +359,49 @@ resource "aws_cloudfront_response_headers_policy" "cors_api" {
     access_control_max_age_sec = 86400
 
     origin_override = false
+  }
+
+  security_headers_config {
+    content_type_options {
+      override = true
+    }
+
+    frame_options {
+      frame_option = "DENY"
+      override     = true
+    }
+
+    referrer_policy {
+      referrer_policy = "strict-origin-when-cross-origin"
+      override        = true
+    }
+
+    strict_transport_security {
+      access_control_max_age_sec = 31536000
+      include_subdomains         = true
+      preload                    = false
+      override                   = true
+    }
+
+    xss_protection {
+      mode_block = true
+      protection = true
+      override   = true
+    }
+  }
+
+  custom_headers_config {
+    items {
+      header   = "Permissions-Policy"
+      override = true
+      value    = "camera=(), microphone=(), geolocation=()"
+    }
+
+    items {
+      header   = "X-Permitted-Cross-Domain-Policies"
+      override = true
+      value    = "none"
+    }
   }
 }
 
@@ -339,7 +448,7 @@ resource "aws_cloudfront_distribution" "api" {
       }
     }
 
-    response_headers_policy_id = aws_cloudfront_response_headers_policy.cors_api.id
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.api_security.id
 
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0

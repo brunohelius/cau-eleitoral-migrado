@@ -18,6 +18,9 @@ using CAU.Eleitoral.Infrastructure.Services.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Remove Server header from responses
+builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
+
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
@@ -215,6 +218,22 @@ else
     app.UseCors("Production");
     app.UseHsts();
 }
+
+// Security Headers Middleware (ZAP DAST hardening)
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "DENY";
+    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
+    context.Response.Headers["X-Permitted-Cross-Domain-Policies"] = "none";
+    context.Response.Headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'";
+    if (!context.Request.Host.Host.Contains("localhost"))
+    {
+        context.Response.Headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains";
+    }
+    await next();
+});
 
 app.UseHttpsRedirection();
 app.UseSerilogRequestLogging();

@@ -427,7 +427,7 @@ export function ConfiguracoesSeguranca({ data, isLoading, onSave }: Configuracoe
               <Label htmlFor="ipWhitelist">IP Whitelist</Label>
               <textarea
                 id="ipWhitelist"
-                placeholder="192.168.1.1&#10;10.0.0.0/24&#10;..."
+                placeholder="203.0.113.1&#10;198.51.100.0/24&#10;..."
                 className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-mono"
                 {...register('ipWhitelist')}
               />
@@ -437,7 +437,7 @@ export function ConfiguracoesSeguranca({ data, isLoading, onSave }: Configuracoe
               <Label htmlFor="ipBlacklist">IP Blacklist</Label>
               <textarea
                 id="ipBlacklist"
-                placeholder="192.168.1.100&#10;10.0.0.50&#10;..."
+                placeholder="203.0.113.50&#10;198.51.100.10&#10;..."
                 className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-mono"
                 {...register('ipBlacklist')}
               />
