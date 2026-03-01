@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
 import { useAuthStore } from '@/stores/auth'
@@ -63,9 +64,19 @@ import { AuditoriaPage } from '@/pages/auditoria/AuditoriaPage'
 // Configuracoes
 import { ConfiguracoesPage } from '@/pages/configuracoes/ConfiguracoesPage'
 
-// Protected Route Component
+// Protected Route Component - waits for Zustand hydration before checking auth
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore()
+  const [hydrated, setHydrated] = useState(useAuthStore.persist.hasHydrated())
+
+  useEffect(() => {
+    const unsub = useAuthStore.persist.onFinishHydration(() => setHydrated(true))
+    return unsub
+  }, [])
+
+  if (!hydrated) {
+    return null
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />
