@@ -44,8 +44,8 @@ services:
   admin:
     profiles: ["app"]
     build:
-      context: ../../apps/admin
-      dockerfile: ../../infrastructure/docker/Dockerfile.admin
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.admin
     container_name: cau-eleitoral-admin
     ports:
       - "${CAU_ADMIN_PORT:-4200}:80"
@@ -55,8 +55,8 @@ services:
   public:
     profiles: ["app"]
     build:
-      context: ../../apps/public
-      dockerfile: ../../infrastructure/docker/Dockerfile.public
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.public
     container_name: cau-eleitoral-public
     ports:
       - "${CAU_PUBLIC_PORT:-4201}:80"

@@ -1,0 +1,16 @@
+.git
+.gitignore
+**/node_modules
+**/dist
+**/bin
+**/obj
+**/.env
+**/.env.*
+!apps/admin/.env.production
+!apps/public/.env.production
+**/*.db
+**/*.db-shm
+**/*.db-wal
+docs
+tmp
+*.png

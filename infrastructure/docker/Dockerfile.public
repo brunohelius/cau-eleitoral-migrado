@@ -1,33 +1,25 @@
 # Build stage
-FROM public.ecr.aws/docker/library/node:20-alpine AS build
-WORKDIR /app
+FROM public.ecr.aws/docker/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293 AS build
+WORKDIR /workspace
 
-# Enable corepack for pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Keep the container toolchain aligned with the repository packageManager.
+RUN corepack enable && corepack prepare pnpm@10.28.2 --activate
 
-# Copy package files
-COPY package.json pnpm-lock.yaml* ./
+# Install from the monorepo lockfile before copying application sources.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/admin/package.json apps/admin/package.json
+COPY apps/public/package.json apps/public/package.json
+RUN pnpm install --frozen-lockfile --filter @cau-eleitoral/public...
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile || pnpm install
-
-# Copy source code
-COPY . .
-
-# Copy production environment
-COPY .env.production .env
-
-# Build the app
+# Copy and build only the public application.
+COPY apps/public apps/public
+WORKDIR /workspace/apps/public
 RUN pnpm build
 
-# Production stage
-FROM public.ecr.aws/nginx/nginx:alpine AS runtime
+FROM public.ecr.aws/nginx/nginx:alpine@sha256:14bdc5d78859f7dd48cda3d5f8d1f43e859eff90d016936a5c3e8a041a532afd AS runtime
 
-# Copy nginx config
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# Copy built files
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY apps/public/nginx.conf /etc/nginx/nginx.conf
+COPY --from=build /workspace/apps/public/dist /usr/share/nginx/html
 
 EXPOSE 80
 
