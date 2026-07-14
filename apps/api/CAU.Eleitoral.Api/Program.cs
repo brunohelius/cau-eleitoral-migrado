@@ -1,7 +1,9 @@
+using System.Security.Cryptography;
 using System.Text;
 using Amazon;
 using Amazon.S3;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -35,6 +37,18 @@ QuestPDF.Settings.License = LicenseType.Community;
 
 // Add services to the container
 builder.Services.AddControllers();
+
+if (!builder.Environment.IsDevelopment() &&
+    builder.Configuration.GetValue<bool>("DataProtection:PersistKeysToSsm"))
+{
+    var dataProtectionParameterPrefix =
+        builder.Configuration["DataProtection:ParameterPrefix"] ??
+        "/migrai/cau-eleitoral/data-protection/";
+    builder.Services
+        .AddDataProtection()
+        .SetApplicationName("CAU.Eleitoral.Api")
+        .PersistKeysToAWSSystemsManager(dataProtectionParameterPrefix);
+}
 
 // Configure Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
@@ -235,7 +249,10 @@ app.Use(async (context, next) =>
     await next();
 });
 
-app.UseHttpsRedirection();
+if (app.Configuration.GetValue<bool>("HttpsRedirection:Enabled"))
+{
+    app.UseHttpsRedirection();
+}
 app.UseSerilogRequestLogging();
 
 app.UseAuthentication();
@@ -245,11 +262,14 @@ app.MapControllers();
 app.MapHealthChecks("/health");
 
 var adminMaintenanceRequested =
-    app.Environment.IsDevelopment() ||
-    builder.Configuration.GetValue<bool>("Admin:EnableMaintenanceEndpoints");
+    app.Configuration.GetValue<bool>("Admin:EnableMaintenanceEndpoints");
 var adminSeedKey = app.Configuration["Admin:SeedKey"];
 
-if (adminMaintenanceRequested && !string.IsNullOrWhiteSpace(adminSeedKey))
+if (!app.Environment.IsDevelopment())
+{
+    Log.Information("Admin maintenance endpoints disabled outside Development.");
+}
+else if (adminMaintenanceRequested && !string.IsNullOrWhiteSpace(adminSeedKey))
 {
     // Seed endpoint (protected by secret key)
     app.MapPost("/api/admin/seed", async (HttpContext context, DatabaseSeeder seeder) =>
@@ -367,8 +387,16 @@ if (runMigrations)
 static bool HasValidAdminSeedKey(HttpContext context, string expectedKey)
 {
     var providedSeedKey = context.Request.Headers["X-Seed-Key"].FirstOrDefault();
-    return !string.IsNullOrWhiteSpace(providedSeedKey) &&
-           string.Equals(providedSeedKey, expectedKey, StringComparison.Ordinal);
+    if (string.IsNullOrWhiteSpace(providedSeedKey))
+    {
+        return false;
+    }
+
+    var providedKeyHash = SHA256.HashData(Encoding.UTF8.GetBytes(providedSeedKey));
+    var expectedKeyHash = SHA256.HashData(Encoding.UTF8.GetBytes(expectedKey));
+    return CryptographicOperations.FixedTimeEquals(providedKeyHash, expectedKeyHash);
 }
 
 app.Run();
+
+public partial class Program { }

@@ -1,25 +1,31 @@
 # Build stage - runs on native architecture
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0@sha256:ea8bde36c11b6e7eec2656d0e59101d4462f6bd630730f2c8201ed0572b295d5 AS build
 ARG TARGETARCH
 WORKDIR /src
 
 # Copy project files
 COPY CAU.Eleitoral.Api/CAU.Eleitoral.Api.csproj CAU.Eleitoral.Api/
+COPY CAU.Eleitoral.Api/packages.lock.json CAU.Eleitoral.Api/
 COPY CAU.Eleitoral.Application/CAU.Eleitoral.Application.csproj CAU.Eleitoral.Application/
+COPY CAU.Eleitoral.Application/packages.lock.json CAU.Eleitoral.Application/
 COPY CAU.Eleitoral.Domain/CAU.Eleitoral.Domain.csproj CAU.Eleitoral.Domain/
+COPY CAU.Eleitoral.Domain/packages.lock.json CAU.Eleitoral.Domain/
 COPY CAU.Eleitoral.Infrastructure/CAU.Eleitoral.Infrastructure.csproj CAU.Eleitoral.Infrastructure/
+COPY CAU.Eleitoral.Infrastructure/packages.lock.json CAU.Eleitoral.Infrastructure/
 
 # Restore packages for target architecture
-RUN dotnet restore CAU.Eleitoral.Api/CAU.Eleitoral.Api.csproj -a $TARGETARCH
+RUN dotnet restore CAU.Eleitoral.Api/CAU.Eleitoral.Api.csproj \
+    -a $TARGETARCH --locked-mode
 
 # Copy source code
 COPY . .
 
 # Build and publish for target architecture
-RUN dotnet publish CAU.Eleitoral.Api/CAU.Eleitoral.Api.csproj -c Release -o /app/publish -a $TARGETARCH
+RUN dotnet publish CAU.Eleitoral.Api/CAU.Eleitoral.Api.csproj \
+    -c Release -o /app/publish -a $TARGETARCH --no-restore
 
 # Runtime stage - runs on target architecture
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0@sha256:7644f992230d35cf230017189d4038c0ae0f7388b13f4f7ae1900a155bafb597 AS runtime
 WORKDIR /app
 
 # Npgsql VerifyFull requires the Amazon RDS root CAs to be present explicitly.

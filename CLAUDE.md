@@ -370,11 +370,26 @@ curl -X POST https://cau-api.migrai.com.br/api/auth/login \
   -d '{"email":"admin@cau.org.br","password":"Admin@123"}'
 ```
 
-### Seed Database (se necessário)
+### Endpoints de manutenção
+
+Os endpoints `/api/admin/seed` e `/api/admin/diag` são exclusivos de
+`Development` e não são registrados em outros ambientes, mesmo que uma flag de
+configuração seja ativada. Para usá-los localmente, habilite
+`Admin__EnableMaintenanceEndpoints` e forneça `Admin__SeedKey` somente pelo
+ambiente local; nunca registre essa chave no repositório.
+
+Exemplo local (com a chave obtida do ambiente, sem imprimi-la):
 ```bash
-curl -X POST https://cau-api.migrai.com.br/api/admin/seed \
-  -H "X-Seed-Key: CAU-SEED-2026-SECRET"
+curl -X POST http://localhost:5001/api/admin/seed \
+  -H "X-Seed-Key: ${Admin__SeedKey}"
 ```
+
+Em produção, TLS termina na borda pública; o container privado recebe HTTP e
+mantém `HttpsRedirection__Enabled=false` para não gerar redirects inválidos sem
+um proxy confiável configurado. As chaves do ASP.NET Data Protection são
+persistidas como `SecureString` no Parameter Store sob
+`/migrai/cau-eleitoral/data-protection/`; o ambiente ECS habilita isso
+explicitamente com `DataProtection__PersistKeysToSsm=true`.
 
 ## Contato
 - Deploy Domain: migrai.com.br
