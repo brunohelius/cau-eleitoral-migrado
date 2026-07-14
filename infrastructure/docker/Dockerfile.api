@@ -4,6 +4,7 @@ ARG TARGETARCH
 WORKDIR /src
 
 # Copy project files
+COPY Directory.Build.props ./
 COPY CAU.Eleitoral.Api/CAU.Eleitoral.Api.csproj CAU.Eleitoral.Api/
 COPY CAU.Eleitoral.Api/packages.lock.json CAU.Eleitoral.Api/
 COPY CAU.Eleitoral.Application/CAU.Eleitoral.Application.csproj CAU.Eleitoral.Application/

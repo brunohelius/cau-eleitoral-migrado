@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <!-- Production containers are built exclusively for AWS Graviton/Fargate. -->
+    <RuntimeIdentifiers>linux-arm64</RuntimeIdentifiers>
+  </PropertyGroup>
+</Project>
