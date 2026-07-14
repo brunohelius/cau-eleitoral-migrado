@@ -22,6 +22,25 @@ RUN dotnet publish CAU.Eleitoral.Api/CAU.Eleitoral.Api.csproj -c Release -o /app
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
+# Npgsql VerifyFull requires the Amazon RDS root CAs to be present explicitly.
+# Keep the regional bundle content-pinned so certificate verification never
+# falls back to Trust Server Certificate=true. curl is also required by the
+# ECS container health check below.
+ARG RDS_CA_BUNDLE_URL=https://truststore.pki.rds.amazonaws.com/us-east-1/us-east-1-bundle.pem
+ARG RDS_CA_BUNDLE_SHA256=b1711d12bae51838581281e23b6cb97b1074016873b4dafc80ed14002462dd77
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /app/certs \
+    && curl --fail --silent --show-error --location \
+        "${RDS_CA_BUNDLE_URL}" \
+        --output /tmp/us-east-1-bundle.pem \
+    && echo "${RDS_CA_BUNDLE_SHA256}  /tmp/us-east-1-bundle.pem" \
+        | sha256sum --check --strict \
+    && install -o root -g root -m 0444 \
+        /tmp/us-east-1-bundle.pem /app/certs/us-east-1-bundle.pem \
+    && rm -f /tmp/us-east-1-bundle.pem
+
 # Copy published app
 COPY --from=build --chown=app:app /app/publish .
 
@@ -34,6 +53,7 @@ USER app
 # Set environment variables
 ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_ENVIRONMENT=Production
+ENV PGSSLROOTCERT=/app/certs/us-east-1-bundle.pem
 
 EXPOSE 8080
 
